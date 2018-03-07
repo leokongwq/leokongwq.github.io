@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="kongwenqiang" />
+
+
+
+<meta name="description" content="文章转自Mysql数据库主从心得整理
+前言管理mysql主从有2年多了，管理过200多组mysql主从，几乎涉及到各个版本的主从，本博文属于总结性的，有一部分是摘自网络，大部分是根据自己管理的心得和经验所写，整理了一下，分享给各位同行，希望对大家有帮助，互相交流。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql-master-slave-thinking">
+<meta property="og:url" content="https://leokongwq.github.io/2017/01/01/mysql-master-slave-thinking.html">
+<meta property="og:site_name" content="戒修-沉迷技术的小沙弥">
+<meta property="og:description" content="文章转自Mysql数据库主从心得整理
+前言管理mysql主从有2年多了，管理过200多组mysql主从，几乎涉及到各个版本的主从，本博文属于总结性的，有一部分是摘自网络，大部分是根据自己管理的心得和经验所写，整理了一下，分享给各位同行，希望对大家有帮助，互相交流。">
+<meta property="og:updated_time" content="2017-01-02T03:51:56.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mysql-master-slave-thinking">
+<meta name="twitter:description" content="文章转自Mysql数据库主从心得整理
+前言管理mysql主从有2年多了，管理过200多组mysql主从，几乎涉及到各个版本的主从，本博文属于总结性的，有一部分是摘自网络，大部分是根据自己管理的心得和经验所写，整理了一下，分享给各位同行，希望对大家有帮助，互相交流。">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="戒修-沉迷技术的小沙弥" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>mysql-master-slave-thinking | 戒修-沉迷技术的小沙弥</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<script src="/js/search.js"></script>
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">kongwenqiang</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">我喜欢GO</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:leokongwq@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/leokongwq" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AOP/">AOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ActiveQM/">ActiveQM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/">MQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/">NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Nginx/">Nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OS/">OS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Openresy/">Openresy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/">TCP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/algo/">algo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aop/">aop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cache/">cache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/computer/">computer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/consul/">consul</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/curl/">curl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devtools/">devtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/">golang</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gossip/">gossip</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava/">guava</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hive/">hive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java8/">java8</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdk/">jdk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jekyll/">jekyll</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/json/">json</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jta/">jta</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jvm/">jvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mac/">mac</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/microservices/">microservices</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mq/">mq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/netty/">netty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/npm/">npm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth2/">oauth2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openresty/">openresty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/osx/">osx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pig/">pig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soa/">soa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-mvc/">spring-mvc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springMVC/">springMVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springboot/">springboot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqoop/">sqoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uml/">uml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vert-x/">vert.x</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web/">web</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web安全/">web安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xa/">xa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml/">xml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zookeeper/">zookeeper</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发/">并发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微服务/">微服务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/随笔/">随笔</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.imhan.com">Hanny&#39;s Blog</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.chepoo.com">IT技术精华网</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">只想做个好程序员!</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">kongwenqiang</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">kongwenqiang</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">我喜欢GO</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:leokongwq@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/leokongwq" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-mysql-master-slave-thinking" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/01/01/mysql-master-slave-thinking.html" class="article-date">
+      <time datetime="2017-01-01T12:53:18.000Z" itemprop="datePublished">2017-01-01</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      mysql-master-slave-thinking
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>文章转自<a href="http://www.jianshu.com/p/47cbcf3861d5" target="_blank" rel="external">Mysql数据库主从心得整理</a></p>
+<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>管理mysql主从有2年多了，管理过200多组mysql主从，几乎涉及到各个版本的主从，本博文属于总结性的，有一部分是摘自网络，大部分是根据自己管理的心得和经验所写，整理了一下，分享给各位同行，希望对大家有帮助，互相交流。</p>
+<a id="more"></a>
+<h3 id="mysql主从的原理"><a href="#mysql主从的原理" class="headerlink" title="mysql主从的原理"></a>mysql主从的原理</h3><h4 id="Replication-线程"><a href="#Replication-线程" class="headerlink" title="Replication 线程"></a>Replication 线程</h4><p>Mysql的 Replication 是一个异步的复制过程（mysql5.1.7以上版本分为异步复制和半同步两种模式），从一个 Mysql instace(我们称之为 Master)复制到另一个 Mysql instance(我们称之 Slave)。在 Master 与 Slave 之间的实现整个复制过程主要由三个线程来完成，其中两个线程(Sql线程和IO线程)在 Slave 端，另外一个线程(IO线程)在 Master 端。</p>
+<p>要实现 MySQL 的 Replication ，首先必须打开 Master 端的Binary Log(mysql-bin.xxxxxx)功能，否则无法实现。因为整个复制过程实际上就是Slave从Master端获取该日志然后再在自己身上完全 顺序的执行日志中所记录的各种操作。打开 MySQL 的 Binary Log 可以通过在启动 MySQL Server 的过程中使用 “—log-bin” 参数选项，或者在 f 配置文件中的 mysqld 参数组([mysqld]标识后的参数部分)增加 “log-bin” 参数项。</p>
+<h4 id="MySQL复制的基本过程"><a href="#MySQL复制的基本过程" class="headerlink" title="MySQL复制的基本过程"></a>MySQL复制的基本过程</h4><ol>
+<li><p>Slave 上面的IO线程连接上 Master，并请求从指定日志文件的指定位置(或者从最开始的日志)之后的日志内容；</p>
+</li>
+<li><p>Master 接收到来自 Slave 的 IO 线程的请求后，通过负责复制的 IO 线程根据请求信息读取指定日志指定位置之后的日志信息，返回给 Slave 端的 IO 线程。返回信息中除了日志所包含的信息之外，还包括本次返回的信息在 Master 端的 Binary Log 文件的名称以及在 Binary Log 中的位置；</p>
+</li>
+<li><p>Slave 的 IO 线程接收到信息后，将接收到的日志内容依次写入到 Slave 端的Relay Log文件(mysql-relay-bin.xxxxxx)的最末端，并将读取到的Master端的bin-log的文件名和位置记录到master- info文件中，以便在下一次读取的时候能够清楚的高速Master“我需要从某个bin-log的哪个位置开始往后的日志内容，请发给我”</p>
+</li>
+<li><p>Slave 的 SQL 线程检测到 Relay Log 中新增加了内容后，会马上解析该 Log 文件中的内容成为在 Master 端真实执行时候的那些可执行的 Query 语句，并在自身执行这些 Query。这样，实际上就是在 Master 端和 Slave 端执行了同样的 Query，所以两端的数据是完全一样的。</p>
+</li>
+</ol>
+<h4 id="Mysql复制的几种模式"><a href="#Mysql复制的几种模式" class="headerlink" title="Mysql复制的几种模式"></a>Mysql复制的几种模式</h4><p>从 MySQL 5.1.12 开始，可以用以下三种模式来实现：</p>
+<p>– 基于SQL语句的复制(statement-based replication, SBR)，</p>
+<p>– 基于行的复制(row-based replication, RBR)，</p>
+<p>– 混合模式复制(mixed-based replication, MBR)。</p>
+<p>相应地，binlog的格式也有三种：STATEMENT，ROW，MIXED。 MBR 模式中，SBR 模式是默认的。</p>
+<p>在运行时可以动态改动 binlog的格式，除了以下几种情况：</p>
+<p>1.存储流程或者触发器中间</p>
+<p>2.启用了NDB</p>
+<p>3.当前会话试用 RBR 模式，并且已打开了临时表</p>
+<p>如果binlog采用了 MIXED 模式，那么在以下几种情况下会自动将binlog的模式由 SBR 模式改成 RBR 模式：</p>
+<p>1.当DML语句更新一个NDB表时</p>
+<p>2.当函数中包含 UUID() 时</p>
+<p>3.2个及以上包含 AUTO_INCREMENT 字段的表被更新时</p>
+<p>4.行任何 INSERT DELAYED 语句时</p>
+<p>5.用 UDF 时</p>
+<p>6.视图中必须要求运用 RBR 时，例如建立视图是运用了 UUID() 函数</p>
+<p>设定主从复制模式：</p>
+<pre><code>log-bin=mysql-bin
+
+#binlog_format=&quot;STATEMENT&quot;
+
+#binlog_format=&quot;ROW&quot;
+
+binlog_format=&quot;MIXED&quot;
+</code></pre><p>也可以在运行时动态修改binlog的格式。例如</p>
+<pre><code>mysql&gt; SET SESSION binlog_format = &apos;STATEMENT&apos;;
+
+mysql&gt; SET SESSION binlog_format = &apos;ROW&apos;;
+
+mysql&gt; SET SESSION binlog_format = &apos;MIXED&apos;;
+
+mysql&gt; SET GLOBAL binlog_format = &apos;STATEMENT&apos;;
+
+mysql&gt; SET GLOBAL binlog_format = &apos;ROW&apos;;
+
+mysql&gt; SET GLOBAL binlog_format = &apos;MIXED&apos;;
+</code></pre><p>两种模式各自的优缺点：</p>
+<p>SBR 的优点：</p>
+<ul>
+<li>历史悠久，技能成熟</li>
+<li>binlog文件较小</li>
+<li>binlog中包含了所有数据库修改信息，可以据此来审核数据库的安全等情况</li>
+<li>binlog可以用于实时的还原，而不仅仅用于复制</li>
+<li>主从版本可以不一样，从服务器版本可以比主服务器版本高</li>
+</ul>
+<p>SBR 的缺点：</p>
+<ul>
+<li>不是所有的UPDATE语句都能被复制，尤其是包含不确定操作的时候。</li>
+<li>调用具有不确定因素的 UDF 时复制也可能出疑问</li>
+<li>运用以下函数的语句也不能被复制：<ul>
+<li>LOAD_FILE()</li>
+<li>UUID()</li>
+<li>USER()</li>
+<li>FOUND_ROWS()</li>
+<li>SYSDATE() (除非启动时启用了 –sysdate-is-now 选项)</li>
+<li>INSERT … SELECT 会产生比 RBR 更多的行级锁</li>
+</ul>
+</li>
+<li>复制须要执行 全表扫描(WHERE 语句中没有运用到索引)的 UPDATE 时，须要比 RBR 请求更多的行级锁</li>
+<li>对于有 AUTO_INCREMENT 字段的 InnoDB表而言，INSERT 语句会阻塞其他 INSERT 语句</li>
+<li>对于一些复杂的语句，在从服务器上的耗资源情况会更严重，而 RBR 模式下，只会对那个发生变化的记录产生影响</li>
+<li>存储函数(不是存储流程 )在被调用的同时也会执行一次 NOW() 函数，这个可以说是坏事也可能是好事</li>
+<li>确定了的 UDF 也须要在从服务器上执行</li>
+<li>数据表必须几乎和主服务器保持一致才行，否则可能会导致复制出错</li>
+<li>执行复杂语句如果出错的话，会消耗更多资源</li>
+</ul>
+<p>RBR 的优点：</p>
+<ul>
+<li>任何情况都可以被复制，这对复制来说是最安全可靠的</li>
+<li>和其他大多数数据库系统的复制技能一样</li>
+<li>多数情况下，从服务器上的表如果有主键的话，复制就会快了很多</li>
+<li>复制以下几种语句时的行锁更少：<ul>
+<li>INSERT … SELECT</li>
+<li>包含 AUTO_INCREMENT 字段的 INSERT</li>
+<li>没有附带条件或者并没有修改很多记录的 UPDATE 或 DELETE 语句</li>
+<li>执行 INSERT，UPDATE，DELETE 语句时锁更少</li>
+</ul>
+</li>
+<li>从服务器上采用多线程来执行复制成为可能</li>
+</ul>
+<p>RBR 的缺点：</p>
+<ul>
+<li>binlog 大了很多</li>
+<li>复杂的回滚时 binlog 中会包含大量的数据</li>
+<li>主服务器上执行 UPDATE 语句时，所有发生变化的记录都会写到 binlog 中，而 SBR 只会写一次，这会导致频繁发生 binlog 的并发写疑问</li>
+<li>UDF 产生的大 BLOB 值会导致复制变慢</li>
+<li>不能从 binlog 中看到都复制了写什么语句(加密过的)</li>
+<li>当在非事务表上执行一段堆积的SQL语句时，最好采用 SBR 模式，否则很容易导致主从服务器的数据不一致情况发生</li>
+<li>另外，针对系统库 mysql 里面的表发生变化时的处理准则如下：</li>
+<li>如果是采用 INSERT，UPDATE，DELETE 直接操作表的情况，则日志格式根据 binlog_format 的设定而记录</li>
+<li>如果是采用 GRANT，REVOKE，SET PASSWORD 等管理语句来做的话，那么无论如何 都采用 SBR 模式记录。</li>
+</ul>
+<p><strong>注</strong>：采用 RBR 模式后，能处理很多原先出现的主键重复问题。实例:</p>
+<p>对于insert into db_allot_ids select * from db_allot_ids 这个语句:</p>
+<p>在BINLOG_FORMAT=STATEMENT 模式下:</p>
+<p>BINLOG日志信息为:</p>
+<pre><code>—————————————–
+
+BEGIN
+
+/*!*/;
+
+# at 173
+
+#090612 16:05:42 server id 1 end_log_pos 288 Query thread_id=4 exec_time=0 error_code=0
+
+SET TIMESTAMP=1244793942/*!*/;
+
+insert into db_allot_ids select * from db_allot_ids
+
+/*!*/;
+
+—————————————–
+</code></pre><p>在BINLOG_FORMAT=ROW 模式下:</p>
+<p>BINLOG日志信息为:</p>
+<pre><code>—————————————–
+
+BINLOG &apos;
+
+hA0yShMBAAAAMwAAAOAAAAAAAA8AAAAAAAAAA1NOUwAMZGJfYWxsb3RfaWRzAAIBAwAA
+
+hA0yShcBAAAANQAAABUBAAAQAA8AAAAAAAEAAv/8AQEAAAD8AQEAAAD8AQEAAAD8AQEAAAA=
+
+&apos;/*!*/;
+
+—————————————–
+</code></pre><h4 id="Mysql主从的优缺点"><a href="#Mysql主从的优缺点" class="headerlink" title="Mysql主从的优缺点"></a>Mysql主从的优缺点</h4><p>MySQL的主从同步是一个很成熟的架构，优点为：①在从服务器可以执行查询工作(即我们常说的读功能)，降低主服 务器压力;②在从主服务器进行备份，避免备份期间影响主服务器服务;③当主服务器出现问题时，可以切换到从服务器。所以我在项目部署和实施中经常会采用这种方案;鉴于生产环境下的mysql的严谨性。</p>
+<p>实际上，在老版本中，MySQL 的复制实现在 Slave 端并不是由 SQL 线程和 IO 线程这两个线程共同协作而完成的，而是由单独的一个线程来完成所有的工作。但是 MySQL 的工程师们很快发现，这样做存在很大的风险和性能问题，主要如下：</p>
+<p>首先，如果通过一个单一的线程来独立实现这个工作的话，就使复制 Master 端的，Binary Log日志，以及解析这些日志，然后再在自身执行的这个过程成为一个串行的过程，性能自然会受到较大的限制，这种架构下的 Replication 的延迟自然就比较长了。</p>
+<p>其次，Slave 端的这个复制线程从 Master 端获取 Binary Log 过来之后，需要接着解析这些内容，还原成 Master 端所执行的原始 Query，然后在自身执行。在这个过程中，Master端很可能又已经产生了大量的变化并生成了大量的 Binary Log 信息。如果在这个阶段 Master 端的存储系统出现了无法修复的故障，那么在这个阶段所产生的所有变更都将永远的丢失，无法再找回来。这种潜在风险在Slave 端压力比较大的时候尤其突出，因为如果 Slave 压力比较大，解析日志以及应用这些日志所花费的时间自然就会更长一些，可能丢失的数据也就会更多。</p>
+<p>所以，在后期的改造中，新版本的 MySQL 为了尽量减小这个风险，并提高复制的性能，将 Slave 端的复制改为两个线程来完成，也就是前面所提到的 SQL 线程和 IO 线程。最早提出这个改进方案的是Yahoo!的一位工程师“Jeremy Zawodny”。通过这样的改造，这样既在很大程度上解决了性能问题，缩短了异步的延时时间，同时也减少了潜在的数据丢失量。</p>
+<p>当然，即使是换成了现在这样两个线程来协作处理之后，同样也还是存在 Slave 数据延时以及数据丢失的可能性的，毕竟这个复制是异步的。只要数据的更改不是在一个事务中，这些问题都是存在的。</p>
+<p>如果要完全避免这些问题，就只能用 MySQL 的 Cluster 来解决了。不过 MySQL的 Cluster 直到笔者写这部分内容的时候，仍然还是一个内存数据库的解决方案，也就是需要将所有数据包括索引全部都 Load 到内存中，这样就对内存的要求就非常大的大，对于一般的大众化应用来说可实施性并不是太大。MySQL 现在正在不断改进其 Cluster 的实现，其中非常大的一个改动就是允许数据不用全部 Load 到内存中，而仅仅只是索引全部 Load 到内存中，我想信在完成该项改造之后的 MySQL Cluster 将会更加受人欢迎，可实施性也会更大。</p>
+<h4 id="Mysql的半同步模式（Semisynchronous-Replication）"><a href="#Mysql的半同步模式（Semisynchronous-Replication）" class="headerlink" title="Mysql的半同步模式（Semisynchronous Replication）"></a>Mysql的半同步模式（Semisynchronous Replication）</h4><p>我们知道在5.5之前，MySQL的复制其实是异步操作，而不是同步，也就意味着允许主从之间的数据存在一定的延迟，mysql当初这样设计的目的可能也是基于可用性的考虑，为了保证master不受slave的影响，并且异步复制使得master处于一种性能最优的状态：写完binlog后即可提交而不需要等待slave的操作完成。这样存在一个隐患，当你使用slave作为备份时，如果master挂掉，那么会存在部分已提交的事务未能成功传输到slave的可能，这就意味着数据丢失！</p>
+<p>在MySQL5.5版本中，引入了半同步复制模式（Semi-synchronous Replication）能够成功（只是相对的）避免上述数据丢失的隐患。在这种模式下：master会等到binlog成功传送并写入至少一个slave的relay log之后才会提交，否则一直等待，直到timeout（默认10s）。当出现timeout的时候，master会自动切换半同步为异步，直到至少有一个slave成功收到并发送Acknowledge，master会再切换回半同步模式。结合这个新功能，我们可以做到，在允许损失一定的事务吞吐量的前提下来保证同步数据的绝对安全，因为当你设置timeout为一个足够大的值的情况下，任何提交的数据都会安全抵达slave。</p>
+<p>mysql5.5 版本支持半同步复制功能（Semisynchronous Replication），但还不是原生的支持，是通过plugin来支持的，并且默认是没有安装这个插件的。不论是二进制发布的，还是自己源代码编译的，都会默认生成这个插件，一个是针对master 的一个是针对slave的，在使用之前需要先安装这俩plugins。</p>
+<h3 id="Mysql主从复制的过滤"><a href="#Mysql主从复制的过滤" class="headerlink" title="Mysql主从复制的过滤"></a>Mysql主从复制的过滤</h3><p>复制的过滤主要有２种方式：</p>
+<ol>
+<li>在主服务器上把事件从进二制日志中过滤掉，相关的参数是:binlog_do_db和binlog_ignore_db。</li>
+<li>在从服务器上把事件从中继日志中过滤掉，相关的参数是replicate_*。</li>
+</ol>
+<p>复制只能扩展读取，不能扩展写入，对数据进行分区可以进行写入扩展。</p>
+<p>复制的优化：</p>
+<p>在mysql复制环境中,有8个参数可以让我们控制。需要复制或需要忽略不进行复制的DB或table分别为:</p>
+<p>下面二项需要在Master上设置：</p>
+<pre><code>#设定哪些数据库需要记录Binlog
+Binlog_Do_DB:
+#设定哪里数据库不需要记录Binlog
+Binlog_Ignore_DB:
+</code></pre><p>优点是Master端的Binlog记录所带来的IO量减少，网络IO减少，还会让slave端的IO线程,SQL线程减少，从而大幅提高复制性能,</p>
+<p>缺点是mysql判断是否需要复制某个事件不是根据产生该事件的查询所在的DB,而是根据执行查询时刻所在的默认数据库（也就是登录时指定的库名或运行”use database”中指定的DB）,只有当前默认DB和配置中所设定的DB完全吻合时IO线程才会将该事件读取给slave的IO线程.所以,如果在默认DB和设定须要复制的DB不一样的情况下改变了须要复制的DB中某个Table中的数据,该事件是不会被复制到Slave中去的,这样就会造成Slave端的数据和Master的数据不一致.同样,在默认的数据库下更改了不须要复制的数据库中的数据,则会被复制到slave端,当slave端并没有该数据库时,则会造成复制出错而停止。</p>
+<p>下面六项需要在slave上设置：</p>
+<pre><code>Replicate_Do_DB:设定需要复制的数据库,多个DB用逗号分隔
+Replicate_Ignore_DB:设定可以忽略的数据库.
+Replicate_Do_Table:设定需要复制的Table
+Replicate_Ignore_Table:设定可以忽略的Table
+Replicate_Wild_Do_Table:功能同Replicate_Do_Table,但可以带通配符来进行设置。
+Replicate_Wild_Ignore_Table:功能同Replicate_Do_Table,功能同Replicate_Ignore_Table,可以带通配符。
+</code></pre><p>优点是在slave端设置复制过滤机制,可以保证不会出现因为默认的数据库问题而造成Slave和Master数据不一致或复制出错的问题.</p>
+<p>缺点是性能方面比在Master端差一些.原因在于:不管是否须要复制,事件都会被IO线程读取到Slave端,这样不仅增加了网络IO量,也给Slave端的IO线程增加了Relay Log的写入量。</p>
+<p>注：在实际的生产应用中发现，在mysql5.0以前的版本，mysql的这个过滤设置几乎是形同虚设，不起作用：不管你在主库或是从库上设置了忽略某个数据库或是表，他依然会进行同步，所以在做5.0以前版本的主从同步时，一定保持主从数据库的一致性，主上有的库或是表从上一定要有，否则在同步的过程会出错。</p>
+<h3 id="Mysql主从同步的配置"><a href="#Mysql主从同步的配置" class="headerlink" title="Mysql主从同步的配置"></a>Mysql主从同步的配置</h3><p>主库IP：192.168.1.2</p>
+<p>从库IP：192.168.1.3</p>
+<p>添加一个用于主从同步的用户：</p>
+<p>GRANT REPLICATION SLAVE ON <em>.</em> TO ‘repl’@’%’ IDENTIFIED BY ‘1q2w3e4r’;</p>
+<p>如果监控mysql主从的话，请加上一个super权限：</p>
+<p>GRANT SUPER, REPLICATION SLAVE ON <em>.</em> TO ‘repl’@’%’ IDENTIFIED BY ‘1q2w3e4r’;</p>
+<h4 id="主库的配置"><a href="#主库的配置" class="headerlink" title="主库的配置"></a>主库的配置</h4><p>1.1．mysql5.0以下版本的配置</p>
+<p>修改主库mysql配置配置文件，在[mysqld]段添加以下内容：</p>
+<pre><code>server-id = 1
+
+log-bin=/home/mysql/logs/binlog/bin-log
+
+max_binlog_size = 500M
+
+binlog_cache_size = 128K
+
+binlog-do-db = adb
+
+binlog-ignore-db = mysql
+
+log-slave-updates
+</code></pre><p>1.2. mysql5.0以上版本的配置</p>
+<p>修改主库mysql配置配置文件，在[mysqld]段添加以下内容：</p>
+<pre><code>server-id = 1
+
+log-bin=/home/mysql/logs/binlog/bin-log
+
+max_binlog_size = 500M
+
+binlog_cache_size = 128K
+
+binlog-do-db = adb
+
+binlog-ignore-db = mysql
+
+log-slave-updates
+
+expire_logs_day=2
+
+binlog_format=&quot;MIXED&quot;
+</code></pre><p>1.3.各个参数的含义和相关注意项：</p>
+<p>server-id = 1 #服务器标志号，注意在配置文件中不能出现多个这样的标识，如果出现多个的话mysql以第一个为准，一组主从中此标识号不能重复。</p>
+<p>log-bin=/home/mysql/logs/binlog/bin-log #开启bin-log，并指定文件目录和文件名前缀。</p>
+<p>max_binlog_size = 500M #每个bin-log最大大小，当此大小等于500M时会自动生成一个新的日志文件。一条记录不会写在2个日志文件中，所以有时日志文件会超过此大小。</p>
+<p>binlog_cache_size = 128K #日志缓存大小</p>
+<p>binlog-do-db = adb #需要同步的数据库名字，如果是多个，就以此格式在写一行即可。</p>
+<p>binlog-ignore-db = mysql  #不需要同步的数据库名字，如果是多个，就以此格式在写一行即可。</p>
+<p>log-slave-updates  #当Slave从Master数据库读取日志时更新新写入日志中，如果只启动log-bin 而没有启动log-slave-updates则Slave只记录针对自己数据库操作的更新。</p>
+<p>expire_logs_day=2 #设置bin-log日志文件保存的天数，此参数mysql5.0以下版本不支持。</p>
+<p>binlog_format=”MIXED”  #设置bin-log日志文件格式为：MIXED，可以防止主键重复。</p>
+<h4 id="从库的配置"><a href="#从库的配置" class="headerlink" title="从库的配置"></a>从库的配置</h4><p>2.1.mysql5.1.7以前版本</p>
+<p>修改从库mysql配置配置文件，在[mysqld]段添加以下内容：</p>
+<pre><code>server-id=2
+
+master-host=192.168.1.2
+
+master-user=repl
+
+master-password=1q2w3e4r
+
+master-port=3306
+
+master-connect-retry=30
+
+slave-skip-errors=1062
+
+replicate-do-db = adb
+
+replicate-ignore-db = mysql
+
+slave-skip-errors=1007,1008,1053,1062,1213,1158,1159
+
+master-info-file = /home/mysql/logs/
+
+relay-log = /home/mysql/logs/relay-bin
+
+relay-log-index = /home/mysql/logs/relay-bin.index
+
+relay-log-info-file = /home/mysql/logs/
+</code></pre><p>如果修改了连接主库相关信息，重启之前一定要删除文件，否则重启之后由于连接信息改变从库而不会自动连接主库，造成同步失败。此文件是保存连接主库信息的。</p>
+<p>2.2.mysql5.1.7以后版本</p>
+<p>Mysql5.1.7版本在丛库上面的配置很少，主要是采用了新的同步信息记录方式，他不在支持在配置文件中配置连接主库的相关信息，而是把连接等相关信息记录在master-info-file = /home/mysql/logs/文件中，如果入库变了，直接在mysql命令行执行连接信息的改变即可生效，比较灵活了，而不用去重启mysql。修改从库mysql配置配置文件，在[mysqld]段添加以下内容：</p>
+<pre><code>slave-skip-errors=1007,1008,1053,1062,1213,1158,1159
+</code></pre><p>2.3. 各个参数的含义和相关注意项</p>
+<p>这里只讲一下2个参数，其他全部是从库连接主库的信息和中间日志relay-log的设置。</p>
+<pre><code>master-connect-retry=30 #这个选项控制重试间隔，默认为60秒。
+slave-skip-errors=1007,1008,1053,1062,1213,1158,1159 #这个是在同步过程中忽略掉的错误，这些错误不会影响数据的完整性，有事经常出现的错误，一般设置忽略。其中1062为主键重复错误。
+</code></pre><h4 id="实现主从同步"><a href="#实现主从同步" class="headerlink" title="实现主从同步"></a>实现主从同步</h4><p>3.1.实现数据库的统一</p>
+<p>检查主从数据库的配置文件，查看是否已正确配置。首次实现同步要备份主库上需要同步的数据库，然后完整的导入到从库中。注：mysql5.0之前的版本涉及到mysql本身复制过滤存在问题，需要把所有的数据库都备份导入到丛库，保持。</p>
+<p>3.2.查看并记录主库bin-log信息</p>
+<p>进入主库mysql中，执行：show master status;显示信息如下：</p>
+<pre><code>mysql&gt; show master status;
+
++-------------+----------+--------------+------------------+
+
+| File        | Position | Binlog_do_db | Binlog_ignore_db |
+
++-------------+----------+--------------+------------------+
+
+| bin-log.003 | 4        | adb          | mysql            |
+
++-------------+----------+--------------+------------------+
+
+1 row in set (0.00 sec)
+</code></pre><p>记录File 和Position信息；</p>
+<p>3.3.在从库上执行同步语句</p>
+<p>进入mysql，执行以下语句：</p>
+<pre><code>slave stop;
+
+change master to
+
+master_host=&apos;192.168.1.2&apos;,
+
+master_user=&apos;repl&apos;,
+
+master_password=&apos;1q2w3e4r&apos;,
+
+master_port=3306,
+
+master_log_file=&apos;bin-log.003&apos;,
+
+master_log_pos=4;
+
+slave start;
+</code></pre><p>3.4.查看主从同步状态</p>
+<p>进入mysql，执行<code>show slave status \G;</code>显示如下（mysql版本不同查询的结果不同，但是重要的指标还是一样的）：</p>
+<p>重要的指标为：</p>
+<pre><code>Slave_IO_Running: Yes
+
+Slave_SQL_Running: Yes
+
+Master_Log_File: bin-log.003
+
+Relay_Master_Log_File: bin-log.003
+
+Read_Master_Log_Pos: 4
+
+Exec_master_log_pos: 4
+
+Seconds_Behind_Master: 0（5.0之前版本没有这个选项）
+</code></pre><p>以上选项是两两对应的，只要结果是一致的，就说明主从同步成功。</p>
+<p>3.5.同步中的常见的错误和处理</p>
+<p>1、现象：在从库上面show slave statusG;出现下列情况，</p>
+<pre><code>Slave_IO_Running: Yes
+
+Slave_SQL_Running: No
+
+Seconds_Behind_Master: NULL
+</code></pre><p>原因：</p>
+<p>a.程序可能在slave上进行了写操作；</p>
+<p>b.也可能是slave机器重起后，事务回滚造成的；</p>
+<p>c．有可能是在同步过程中遇到某种错误，这个会在查看从库中状态时看到错误提示，最少见的就是主键重复1062的错误。</p>
+<p>解决方法：</p>
+<p>进入master</p>
+<pre><code>mysql&gt; show master status;
+
++----------------------+----------+--------------+------------------+
+
+| File | Position | Binlog_Do_DB | Binlog_Ignore_DB |
+
++----------------------+----------+--------------+------------------+
+
+| mysql-bin.000040 | 324 |adb | mysql|
+
++----------------------+----------+--------------+------------------+
+</code></pre><p>然后到slave服务器上执行手动同步</p>
+<pre><code>slave stop;
+
+change master to
+
+master_host=&apos;10.14.0.140&apos;,
+
+master_user=&apos;repl&apos;,
+
+master_password=&apos;1q2w3e4r&apos;,
+
+master_port=3306,
+
+master_log_file=&apos;mysql-bin.000040&apos;,
+
+master_log_pos=324;
+
+slave start;
+
+show slave status \G;
+</code></pre><p>2、现象：从数据库无法同步，show slave status显示:</p>
+<pre><code>Slave_IO_Running: No
+
+Slave_SQL_Running: Yes
+
+Seconds_Behind_Master: NULL
+</code></pre><p>解决：首先查看数据库的err日志，查看是什么错误提示，看从库连接主库的IP、用户、密码等相关信息是否有误，如果有误，重新执行同步；如果确认无误，重启主数据库。</p>
+<pre><code>mysql&gt; show master status;
+
++------------------+----------+--------------+------------------+
+
+| File | Position | Binlog_Do_DB | Binlog_Ignore_DB |
+
++------------------+----------+--------------+------------------+
+
+| mysql-bin.000001 | 98 | adb| mysql|
+
++------------------+----------+--------------+------------------+
+</code></pre><p>进入从库mysql，执行：</p>
+<pre><code>slave stop;
+
+change master to Master_Log_File=&apos;mysql-bin.000001&apos;,Master_Log_Pos=98;
+
+slave start;
+</code></pre><p>或是这样：</p>
+<pre><code>stop slave;
+
+set global sql_slave_skip_counter =1;
+
+start slave;
+</code></pre><p>这个现象主要是master数据库存在问题，由于连接主库信息错误、主库数据库挂掉如果说常见错等原因引起的，我在实际的操作中先重启master后重启slave即可解决这问题，出现此问题，必须要要重启master数据库。</p>
+<h3 id="mysql主主和主主集群"><a href="#mysql主主和主主集群" class="headerlink" title="mysql主主和主主集群"></a>mysql主主和主主集群</h3><p>1、mysql主主的实现</p>
+<p>在实际的生产应用中，为了在主库出现崩溃或是主服务器出现严重故障时快速的恢复业务，会直接切换到从库上，当主库故障处理完成后让他直接作为丛库来运行，此时主主就是一个不错的选择。</p>
+<h3 id="mysql主从的监控"><a href="#mysql主从的监控" class="headerlink" title="mysql主从的监控"></a>mysql主从的监控</h3><p>在mysql主从的应用中，只要进行了合理设置，基本上不会出现问题，但是对他的监控是必不可少的，以免由于真的出现问题又不知道而造成不必要的数据损失。</p>
+<p>1、mysql主从监控的主要思路</p>
+<p>Mysql主从的监控，其主要是监控从库上的一些重要参数：</p>
+<pre><code>Slave_IO_Running: Yes
+
+Slave_SQL_Running: Yes
+
+Master_Log_File: bin-log.003
+
+Relay_Master_Log_File: bin-log.003
+
+Read_Master_Log_Pos: 4
+
+Exec_master_log_pos: 4
+
+Seconds_Behind_Master: 0（5.0之前版本没有这个选项）
+</code></pre><p>通过以上的参数可以反映出主库和从库状态是否正常，从库是否落后于主库等。值得一提的是在mysql5.0以前的版本，Slave_IO_Running这个状态指标不可靠，会在主库直接挂掉的情况下不会变成NO，Seconds_Behind_Master参数也不存在。监控以上参数即可监控mysql主从。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/01/01/mysql-master-slave-thinking.html">mysql-master-slave-thinking</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">kongwenqiang</a></p>
+        <p><span>发布时间:</span>2017-01-01, 20:53:18</p>
+        <p><span>最后更新:</span>2017-01-02, 11:51:56</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/01/01/mysql-master-slave-thinking.html" title="mysql-master-slave-thinking">https://leokongwq.github.io/2017/01/01/mysql-master-slave-thinking.html</a>
+            <span class="copy-path" data-clipboard-text="原文: https://leokongwq.github.io/2017/01/01/mysql-master-slave-thinking.html　　作者: kongwenqiang" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/01/02/spring-DTP-patterns.html">
+                    spring处理分布式事务（使用或不使用XA）
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2016/12/31/java-magic-finally.html">
+                    java魔法之finally
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mysql主从的原理"><span class="toc-number">2.</span> <span class="toc-text">mysql主从的原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Replication-线程"><span class="toc-number">2.1.</span> <span class="toc-text">Replication 线程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MySQL复制的基本过程"><span class="toc-number">2.2.</span> <span class="toc-text">MySQL复制的基本过程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Mysql复制的几种模式"><span class="toc-number">2.3.</span> <span class="toc-text">Mysql复制的几种模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Mysql主从的优缺点"><span class="toc-number">2.4.</span> <span class="toc-text">Mysql主从的优缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Mysql的半同步模式（Semisynchronous-Replication）"><span class="toc-number">2.5.</span> <span class="toc-text">Mysql的半同步模式（Semisynchronous Replication）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mysql主从复制的过滤"><span class="toc-number">3.</span> <span class="toc-text">Mysql主从复制的过滤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mysql主从同步的配置"><span class="toc-number">4.</span> <span class="toc-text">Mysql主从同步的配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#主库的配置"><span class="toc-number">4.1.</span> <span class="toc-text">主库的配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#从库的配置"><span class="toc-number">4.2.</span> <span class="toc-text">从库的配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#实现主从同步"><span class="toc-number">4.3.</span> <span class="toc-text">实现主从同步</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mysql主主和主主集群"><span class="toc-number">5.</span> <span class="toc-text">mysql主主和主主集群</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mysql主从的监控"><span class="toc-number">6.</span> <span class="toc-text">mysql主从的监控</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"mysql-master-slave-thinking　| 戒修-沉迷技术的小沙弥　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js'];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+        <section id="comments">
+    <style> aside.comment-bar { margin: auto 30px; }</style>
+    <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function(){
+            this.page.url = 'https://leokongwq.github.io/2017/01/01/mysql-master-slave-thinking.html';
+            this.page.identifier = '2017/01/01/mysql-master-slave-thinking.html';
+        };
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = '//leokongwq.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        }
+    </script>
+    
+    <script> loadComment(); </script>
+
+</section>
+
+
+    
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/01/02/spring-DTP-patterns.html" title="上一篇: spring处理分布式事务（使用或不使用XA）">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2016/12/31/java-magic-finally.html" title="下一篇: java魔法之finally">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/06/spring-extension-point-autoconfig-summary.html">spring扩展点及springboot自动配置总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/12/openresy-lua-image-server.html">基于Openresy的图片服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/06/linux-file-system-schedule.html">Linux文件系统调用算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/31/openresty-health-check-dynamic-up-down.html">基于openresty的后端应用健康检查-动态上下线</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/tcp-state-transfer-diagram.html">TCP状态转化总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/27/openresty-dynamic-upstream.html">openresty动态upstream实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/19/distribute-lock-some-way.html">分布式锁的几种实现方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/19/distribute-system-consistent.html">分布式系统一致性</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/kotlin-coroutine-learn.html">kotlin之coroutine学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/mac-autostart.html">mac上禁止jenkins自启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/01/gossip-intro.html">Gossip算法介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/01/consul-vs-other-software.html">consul和其它软件的比较</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/31/consul-quick-start.html">consul快速启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/22/computer-science-bus-arbitration.html">CPU总线仲裁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/21/java-agent-instrumentation.html">java Instrumentation 和 Agent</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/21/activemq-monitor-hawtio.html">activemq监控之hawtio</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/20/centos-crond.html">centos下安装crond</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/16/vertx-async-callback-hell.html">vert.x异步回调地狱处理方式总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/15/vertx-Future.html">vertx-Future</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/06/vertx-cluster.html">vertx集群模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/06/microservices-gateway.html">微服务之网关</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/vertx-command-line-options.html">vertx命令行选项解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/04/vertx-web-BodyHandler.html">vert.x web开发之BodyHandler</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/02/vertx-web-global-exception.html">vertx中web全局异常处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-vertx-jdbc-client.html">vertx中vertx-jdbc-client使用问题总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-jdbc-datasource.html">vertx对jdbc数据源的支持</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-command-run.html">vert.x run 命令解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/30/java8-CompletableFuture-1.html">java8中CompletableFuture解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/vertx-http-server-analyze.html">vertx创建http服务器分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/http-content-type.html">http协议之content-type</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/vertx-Vertx.html">vert.x之Vertx类解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/21/vertx-web-route.html">vert.x web开发之route</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/21/vertx-web-router.html">vert.x web开发之router</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-cache.html">配置 Vert.x 缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-Launcher.html">vertx-启动器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-access-filesystem.html">vertx-访问文件系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-cluster-lock-counter.html">vertx-集群范围锁-计数器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-share-data.html">vertx-共享数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-tcp.html">vertx编程tcp服务端和客户端</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-http.html">vertx编程http服务端和客户端</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-buffer.html">vertx中的buffer</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-json.html">vertx中的json</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-event-bus.html">vertx-事件总线</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-timer.html">vertx-执行周期性/延迟性操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-context.html">vertx-context</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-verticle.html">vertx-verticle介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-quickstart.html">vert.x入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/10/mysql-tools-code.html">mysql常用工具SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/06/maven-useful-slices.html">maven使用知识汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/21/mysql-read-only-transaction.html">mysql只读事务解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/30/linux-clean-dns-cache.html">Linux中如何清除DNS缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/linux-disk-raid.html">linux磁盘阵列简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/26/linux-centos7-rc-local.html">centos7中rc.local不起作用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/24/understanding-maven-snapshot.html">理解maven中SNAPSHOT版本的作用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/22/python-build-in-chapter-one.html">python内置函数-第一篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/22/linux-kill-parent-and-child-process.html">linux中kill主进程和所有子进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/21/why-enum-singleton-are-serialization-safe.html">为什么用枚举实现的单例模式可以防止反序列化？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/computer-how-float-stored.html">浮点数在计算机中是如何存储的？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/17/mysql-data-types-date-time.html">mysql数据类型-日期&时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/16/mysql-data-types-numeric.html">mysql数据类型-数字类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/15/mysql-data-types-set.html">mysql数据类型-集合</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/15/mysql-data-types-enum.html">mysql数据类型-枚举类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/mysql-data-types-string.html">mysql数据类型-字符串类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/11/python-multiprocessing.html">python多进程简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/07/python-package.html">python包机制简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/05/python-file-read.html">python文件读写的几种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/24/python-multi-thread.html">python中的多线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/23/java-synchronized-detail.html">深入分析synchronized的实现原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/22/python-useful-codes.html">Python常用的代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/21/java-baised-locking.html">java中的偏向锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/06/mysql-deadlock-detection.html">mysql检测和处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/06/mysql-timeout.html">mysql中重要超时处理机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/22/maven-resource-plugin.html">maven-resource-plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/19/java-Security-Illegal-key-size.html">java-Security-Illegal-key-size</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/19/linux-find.html">linux find使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/spring-MessageConverter.html">spring中HttpMessageConverter详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/mysql-transaction.html">mysql和事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/11/mysql-locks.html">mysql中的锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/linux-task-on-boot.html">linux开机启动任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/mysql-batch-update-column.html">mysql批量修改列类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/19/mongodb-enable-query-log.html">mongodb开启查询日志</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/18/best-practices-for-a-pragmatic-restful-api.html">RESTful API 设计最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/18/rest-introduce.html">rest架构介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/springboot-mongo.html">springboot-mongo</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/16/idea-jvm-options.html">mac下idea虚拟机参数设置</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/12/linux-tool-traceroute.html">linux工具之traceroute</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/10/curl-learn.html">curl学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/08/java-enum-abstractMethod.html">java中的枚举是否可以有抽象方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/spring-ExceptionResolver.html">spring错误处理之HandlerExceptionResolver</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/spring-ErrorPageFilter.html">SpringBoot异常处理之ErrorPageFilter</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/05/spring-aop-MethodAnnotation.html">spring中AOP获取方法上的注解信息</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/02/spring-expandPoint.html">spring扩展点整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/29/maven-dependency-scope.html">maven jar包依赖范围总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/25/java-web-exception.html">java web 开发异常处理总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/springboot-tomcat.html">springboot发布到tomcat</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql-date-datetime-timestamp.html">mysql中date，datetime，timestamp的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/13/raft-protocol.html">raft协议简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/13/js-cross-domain.html">js跨域解决方案详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/28/java-netty-idleStateHandler.html">netty如何实现心跳检查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/28/why-oauth2-use-authorization-code.html">为什么在oauth2认证中需要使用授权码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/27/java-Executors.html">java线程池工具类Executors</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/27/mq-kafka-producer-partitioner.html">kafka发送消息分区选择策略详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-thread-dump.html">java中生成线程堆栈</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-Thread-state.html">java线程生命周期和状态</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-Thread-join.html">java中线程join方法的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-ThreadPoolExecutor-RejectedExecutionHandler.html">java线程池-RejectedExecutionHandler</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-memorymapped-file-and-io.html">java中内存映射文件和IO</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-difference-between-direct-non-direct-mapped-bytebuffer-nio.html">direct, non-direct, mapped bytebuffer区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-difference-between-stack-and-heap.html">java中栈和堆的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-how-to-create-immutable-class.html">java中如何创建不可变对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-interview-questions-answers-from-last-5-years.html">过去5年Java面试题精选</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-why-string-is-immutable-or-final.html">为什么在java中String是不可变或final</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-lock-and-condition-example-producer-consumer.html">java中使用锁和条件对象实现生产者-消费者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-why-wait-notify-called-in-synchronized-block.html">为什么wait和notify必须在同步方法或同步块中调用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-why-java-not-support-multi-inheritances.html">为何java不支持多继承</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql-locks-intro.html">mysql锁介绍（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-top10-Tricky-questions.html">诡异的java面试题TOP10</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-why-wait-notify-and-notifyall-defined-in-object.html">java-为什么wait，notify和notifyall定义在Object中</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-notify-notifyall.html">java中notify和notifyall的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/18/java-xml-parser.html">java中xml解析器介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/smooth-online-offline-service.html">服务节点平滑上下线</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/07/mq-kafka-blogs.html">kafka资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/mq-kafka-tutorial.html">kafka入门教程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/microservice-links.html">微服务资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/04/ddd-books.html">领域驱动设计书单</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/jms-message-order.html">jms-如何保证消息的顺序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/22/golang-param-pass-value-or-point.html">值传递, 指针传递 这是一个问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/21/golang-how-to-write-go-code.html">如何开发GO代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BigData-summary.html">大数据处理总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-HashSearch.html">algo-HashSearch</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BlockSearch.html">分块查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BinaryTreeSearch.html">二叉排序树查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BinarySearch.html">二分查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/SearchAlgo.html">查找算法总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-HeapSort.html">堆排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-QuickSort.html">快速排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-InsertionSort.html">插入排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-mergesort.html">归并排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-bucketsort.html">桶排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-bubblesort.html">冒泡排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/17/java8-CompletableFuture.html">java8中CompletableFuture详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/17/java-zookeeper-curator.html">zookeeper客户端之curator</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/16/Java-PriorityQueue.html">Java优先级队列PriorityQueue</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/13/java-LockSupport.html">java-LockSupport详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/mq-rocketmq-cluster.html">rocketmq集群搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/mq-rocketmq-quickstart.html">rocketmq快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/linux-zero-copy.html">linux零拷贝原理（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/11/java-jdk9-new-features.html">java-jdk9-new-features</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/java-Experienced-Developer-Teach-You-Five-Things.html">经验丰富的Java开发者教给你的五件事</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/mq-pages.html">MQ资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/DTP-best-practice.html">分布式事务典型处理方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/spring-xa-transactions-using.html">使用spring处理分布式事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql-text-defaultValue.html">mysql-text-defaultValue</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-understanding-jta.html">深入理解JTA事务处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-jta-deeplearning.html">JTA 深度历险 - 原理与实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-management-under-j2ee.html">J2EE事务管理详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/02/java-design-pattern-summary.html">java-design_pattern-summary</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/02/spring-DTP-patterns.html">spring处理分布式事务（使用或不使用XA）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/01/mysql-master-slave-thinking.html">mysql-master-slave-thinking</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-finally.html">java魔法之finally</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-0xCAFEBABE.html">java魔法之0xCAFEBABE</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-java-dot-net-dot-url.html">java魔法之java.net.Url</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-unsafe.html">java魔法之unsafe</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-AtomicLong.html">java中原子变量之AtomicLong</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/30/distribute-transaction-manage.html">分布式系统的事务处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/30/the-pattern-updateCache.html">缓存更新的套路</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/29/java8-lambda.html">java8 lambda表达式详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/spring-annotation-value.html">spring中注解@Value解密</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/spring-PropertyPlaceholderConfigurer.html">spring扩展点之PropertyPlaceholderConfigurer</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/mac-install-python-mysql.html">mac上安装Python-Mysql</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/27/mysql-mofidy-charset.html">mysql修改表-字段-库的字符集</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/25/java8-stream.html">java8-stream</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/23/java8-optional.html">java8-optional</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/23/java-8-features-tutorial.html">java-8-features-tutorial</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/06/java-DesignPatterns-flyweight.html">java-设计模式之-享元模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/05/java-Design-Patterns-builder.html">java-设计模式之-建造者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/03/java-DesignPatterns-proxy.html">java-设计模式之-代理模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-adapter.html">java-设计模式之-适配器模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-bridge.html">java-设计模式之-桥接模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/golang-execute-file-path.html">java-设计模式之-外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-facade.html">java-设计模式之-外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/28/java-DesignPatterns-command.html">java-设计模式之-命令模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/26/java-DesignPatterns-abstractFactory.html">java-设计模式之-抽象工厂模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/26/java-DesignPatterns-factoryMethod.html">java-设计模式之-工程方法模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-simpleFactory.html">java-设计模式之-简单工程模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-decorator.html">java-设计模式之-装饰者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/nginx-cache.html">nginx缓存功能介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-observer.html">java设计模式之-观察者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/nginx-rewrite.html">nginx配置rewrite指令详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-singleton.html">java实现单例模式的几种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-Singleton.html">设计模式之-单例模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-UML.html">设计模式之-UML类图快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-Strategy.html">设计模式之-策略模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/22/java-HashMap-MaxmumEntries.html">java中HashMap的最大容量解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/18/algo-stack-calculateExp.html">用栈实现后缀表达式的计算</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/16/algo-prime-number.html">素数相关</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/16/algo-gcd.html">求两个整数的最大公约数</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/java-HowThreadLocalWork.html">ThreadLocal正解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/java-Reference.html">java Reference 详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/SpringMVC-annotationDriven.html">mvc:annotation-driver</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/11/golang-effective-go.html">golang-effective-go</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/10/openresty-lua-nginx-module.html">openresty-lua-nginx-module</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/09/linux-max-fd.html">linux中最大文件描述符数</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/09/the-difference-between-301-and-302.html">HTTP301和302的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/nodejs-heapdump.html">nodejs调试工具之heapdump简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/nodejs-gc.html">Node.js 调试 GC 以及内存暴涨的分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/07/nodejs-debug.html">NodeJS的代码调试和性能调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/07/siege-introduce.html">压测工具siege简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/06/binary-search-tree.html">二叉查找树</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/full-print-BinaryTree.html">full-print-BinaryTree</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/best-10-practice-from-linkedin.html">LinkedIn关于提高Node.JS服务的10个建议</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/distributed-id-generation.html">5分钟了解分布式ID生成方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/27/java-LinkedList.html">java-LinkedList实现解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/java-LinkedHashMap.html">java-LinkedHashMap知识点汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/java-HashMap.html">java-HashMap知识点汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/japanese-50-yin.html">日语50音图学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/25/linux-netcat.html">Linux Netcat 命令用法简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/24/linux-backlog-maxconn.html">linux网络编程backlog和somaxconn</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/21/npm-11-useful-tips.html">npm11个提供工作效率的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/linux-network-io.html">Linux IO模式及 select、poll、epoll详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/linux-io-epoll.html">Linux下的I/O复用与epoll详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/mac-osx-kernel.html">mac-osx-kernel</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/java-real-data-type-size.html">Java中数据类型真实的内存占用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/19/vim-fileencoding.html">vim-文件编码</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-exports-and-module-expots.html">nodejs中exports和module.expots异同</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-os.html">nodejs模块-os模块</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-path.html">nodejs模块path简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/Fibers-and-Threads-in-node.html">Fibers-and-Threads-in-node</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-querystring.html">nodejs模块之querystring</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-Readline.html">nodejs模块之readline</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/jquery-selector.html">jquery选择器详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/pm2-readme.html">pm2使用简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/fastjson-use.html">fastjson使用简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/character-set.html">字符集详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/linux-hostname.html">linux命令hostname详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/linux-delete-file-not-free-the-space.html">linux删除文件但磁盘空间不释放</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodeJs-module-async.html">nodeJs解决异步回调方案之module-async</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/redis-sentinel.html">redis哨兵功能简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/http-cache.html">http缓存详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-import.html">golang中import语句详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-thread-profile.html">java线程必备知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/nodejs-globals.html">Nodejs全局对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-flag.html">golang命令行参数解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-file.html">golang文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-userinfo.html">golang 用户信息获取</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-time.html">golang时间操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-BlockingQueue.html">Java的BlockingQueue详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-runnable-callable-future.html">Java中的Runnable、Callable、Future、FutureTask的区别与示例</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/java-Queue.html">java队列Queue接口详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/strace-learn.html">手把手教你用Strace诊断问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/too-many-open-files.html">too-many-open-files</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/linux-strace.html">linux工具-strace</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/http-tranfer-encoding.html">HTTP 协议中的 Transfer-Encoding</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/lombook.html">lombook工具包简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-file-size.html">golang编译后文件编写的技巧</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-cross-compile.html">golang交叉编译</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-string.html">Go性能优化技巧-string</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-array.html">Go性能优化技巧-array</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-map.html">Go性能优化技巧-map</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-defer.html">golang之defer简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-chan.html">golang之chan简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-build-version.html">golang自动生成版本信息</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/how-to-get-goroutine-id.html">如何获取goroutine的id</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/fifty-common-Mistakes-for-New-Golang-Devs.html">50个go新手开发常见的错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/ten-best-practise-for-java-exception.html">java异常处理最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-error-handler.html">golang错误处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/seven-things-about-golang.html">关于go你必须知道的7件事</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-tools-build.html">go自带工具build的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-gdb-debug.html">golang程序GDB调试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/hexo-post-asset-folder-html.html">hexo使用post_asset_folder功能文章链接不能以html结尾</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/hexo-codeblock-multiblank.html">hexo代码块前后空白行问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/java-serialization-deepknow.html">java-serialization-deepknow</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-unsafe.html">golang的unsafe包简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/IDCardNo-algo.html">身份证号验证算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/byte-order.html">网络字节序</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-testing.html">golang代码测试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/linux-tool-dig.html">linux-tool-dig</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-md5.html">golang计算字符串MD5</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-time-format.html">golang时间格式化</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-open-browser.html">golang打开系统浏览器</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/mq-compare.html">常见MQ产品比较</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/golang-user-define-json-UnmarshalJSON.html">golang进行json数据的解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-join-point-ofTwoIntersectList.html">查找无环单链表的相交节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/isIntersectWithLoop.html">单链表-链表有环如何判断相交</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-the-join-point-in-list.html">找出单链表有环的入口节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/list-hasCircle.html">判断单链表是否有环</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-mid-post-in-list.html">找出单链表的中间节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-the-kth-node-in-list.html">找出单链表倒数第K个节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/reverse-one-direction-list.html">单链表逆转</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/delete-listNode-in-O1.html">O(1)时间内删除链表节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/reverse-print-list.html">单链表的逆序打印</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/merge-two-sorted-list.html">合并两个升序的单向链表</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/print-NxN-matrix.html">打印NxN矩阵的对角线</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/service-discovery.html">服务发现介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/web-reply-attack.html">web重放攻击介绍和防御方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/process-exception-in-web-dev.html">web开发异常统一处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/maven-test.html">maven-surefire-plugin简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/spring-aop-pointcut-expression.html">spring aop 切点表达式介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/avoid-NullPointException-Java.html">java程序避免NullPointException最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/11/jvm-codecache.html">JVM-codecache内存区域介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/13/logstash-input-file.html">logstash-input-file</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/12/when-to-use-hadoop-toolbox.html">Hadoop-Hbase-Hive-Pig关系</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/14/JVM-Tools.html">有用的JVM工具简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/12/IllegalMonitorStateException.html">诡异的异常IllegalMonitorStateException</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/11/HowMysqlLoadDataWorks.html">mysql load data infile 简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/10/why-not-use-finalize.html">为什么不使用finalize</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/14/mac-sshd.html">mac-sshd</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/theDayEndOfJd.html">朝林最后一天</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/java-Guava-Splitor.html">Guava-Spilitor</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/java-Guava-Joiner.html">Guava-Joiner</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/17/springMVCOutlines.html">Spring MVC HandlerMapping HandlerAdapter</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/17/howJekyllWorks.html">How Jekyll works</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/githubblog.html">Jekyll 快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/JVMOptimize.html">JVM常用参数和调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/JVMGcAlgorithm.html">JVM垃圾收集算法</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2018 kongwenqiang
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<script>
+    var inputArea = document.querySelector("#local-search-input");
+    var getSearchFile = function(){
+        var path = "/search.xml";
+        alert(11111);
+        searchFunc(path, 'local-search-input', 'local-search-result');
+    }
+    inputArea.onfocus = function(){
+      getSearchFile()
+    }
+
+    var $resetButton = $("#search-form .fa-times");
+
+    var $resultArea = $("#local-search-result");
+    inputArea.oninput = function(){ $resetButton.show(); }
+
+    resetSearch = function(){
+        $resultArea.html("");
+        document.querySelector("#search-form").reset();
+        $resetButton.hide();
+        $(".no-result").hide();
+    }
+
+    inputArea.onkeydown = function(){
+        if(event.keyCode==13) {
+          return false
+        }
+    }
+
+    $resultArea.bind("DOMNodeRemoved DOMNodeInserted", function(e) {
+        if (!$(e.target).text()) {
+            $(".no-result").show(200);
+        } else {
+          $(".no-result").hide();
+        }
+    })
+
+</script>
+
+  </div>
+</body>
+</html>

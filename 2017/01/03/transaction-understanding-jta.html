@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="kongwenqiang" />
+
+
+
+<meta name="description" content="前言Java事务API（JTA）允许应用程序执行分布式事务，也就是说事务可以访问或更新两个或更多网络上的计算机资源。 JTA指定事务管理器和分布式事务系统中涉及的各方之间的标准Java接口：应用程序，应用程序服务器和控制对受事务影响的共享资源的访问的资源管理器。 本文档概述了该处理过程以及DataDirectConnect®for JDBC™驱动程序与其相关的方式
+一个事务定义了完全成功或根本不产">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入理解JTA事务处理">
+<meta property="og:url" content="https://leokongwq.github.io/2017/01/03/transaction-understanding-jta.html">
+<meta property="og:site_name" content="戒修-沉迷技术的小沙弥">
+<meta property="og:description" content="前言Java事务API（JTA）允许应用程序执行分布式事务，也就是说事务可以访问或更新两个或更多网络上的计算机资源。 JTA指定事务管理器和分布式事务系统中涉及的各方之间的标准Java接口：应用程序，应用程序服务器和控制对受事务影响的共享资源的访问的资源管理器。 本文档概述了该处理过程以及DataDirectConnect®for JDBC™驱动程序与其相关的方式
+一个事务定义了完全成功或根本不产">
+<meta property="og:image" content="https://leokongwq.github.io/2017/01/03/transaction-understanding-jta/jta1.gif">
+<meta property="og:image" content="https://leokongwq.github.io/2017/01/03/transaction-understanding-jta/jta2.gif">
+<meta property="og:image" content="https://leokongwq.github.io/2017/01/03/transaction-understanding-jta/jta3.gif">
+<meta property="og:updated_time" content="2017-01-06T16:04:32.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入理解JTA事务处理">
+<meta name="twitter:description" content="前言Java事务API（JTA）允许应用程序执行分布式事务，也就是说事务可以访问或更新两个或更多网络上的计算机资源。 JTA指定事务管理器和分布式事务系统中涉及的各方之间的标准Java接口：应用程序，应用程序服务器和控制对受事务影响的共享资源的访问的资源管理器。 本文档概述了该处理过程以及DataDirectConnect®for JDBC™驱动程序与其相关的方式
+一个事务定义了完全成功或根本不产">
+<meta name="twitter:image" content="https://leokongwq.github.io/2017/01/03/transaction-understanding-jta/jta1.gif">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="戒修-沉迷技术的小沙弥" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>深入理解JTA事务处理 | 戒修-沉迷技术的小沙弥</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<script src="/js/search.js"></script>
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">kongwenqiang</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">我喜欢GO</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:leokongwq@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/leokongwq" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AOP/">AOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ActiveQM/">ActiveQM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/">MQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/">NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Nginx/">Nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OS/">OS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Openresy/">Openresy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/">TCP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/algo/">algo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aop/">aop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cache/">cache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/computer/">computer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/consul/">consul</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/curl/">curl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devtools/">devtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/">golang</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gossip/">gossip</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava/">guava</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hive/">hive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java8/">java8</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdk/">jdk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jekyll/">jekyll</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/json/">json</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jta/">jta</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jvm/">jvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mac/">mac</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/microservices/">microservices</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mq/">mq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/netty/">netty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/npm/">npm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth2/">oauth2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openresty/">openresty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/osx/">osx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pig/">pig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soa/">soa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-mvc/">spring-mvc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springMVC/">springMVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springboot/">springboot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqoop/">sqoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uml/">uml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vert-x/">vert.x</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web/">web</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web安全/">web安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xa/">xa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml/">xml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zookeeper/">zookeeper</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发/">并发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微服务/">微服务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/随笔/">随笔</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.imhan.com">Hanny&#39;s Blog</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.chepoo.com">IT技术精华网</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">只想做个好程序员!</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">kongwenqiang</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">kongwenqiang</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">我喜欢GO</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:leokongwq@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/leokongwq" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-transaction-understanding-jta" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/01/03/transaction-understanding-jta.html" class="article-date">
+      <time datetime="2017-01-03T09:39:08.000Z" itemprop="datePublished">2017-01-03</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      深入理解JTA事务处理
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/分布式事务/">分布式事务</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jta/">jta</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Java事务API（JTA）允许应用程序执行分布式事务，也就是说事务可以访问或更新两个或更多网络上的计算机资源。 JTA指定事务管理器和分布式事务系统中涉及的各方之间的标准Java接口：应用程序，应用程序服务器和控制对受事务影响的共享资源的访问的资源管理器。 本文档概述了该处理过程以及DataDirectConnect®for JDBC™驱动程序与其相关的方式</p>
+<p>一个事务定义了完全成功或根本不产生结果的逻辑工作单元。 分布式事务仅仅是访问和更新两个或更多网络资源上的数据的事务，因此必须在这些资源之间进行协调。 在本文中，我们主要关注涉及关系数据库系统的事务。<br><a id="more"></a><br>在分布式事务处理（DTP）模型中相关的组件有如下几个：</p>
+<ul>
+<li>应用程序</li>
+<li>应用程序服务器</li>
+<li>事务管理器</li>
+<li>资源适配器</li>
+<li>资源管理器</li>
+</ul>
+<p>在以下部分中，我们描述这些组件及其与JTA和数据库访问的关系。</p>
+<h3 id="访问数据库"><a href="#访问数据库" class="headerlink" title="访问数据库"></a>访问数据库</h3><p>最好将分布式事务中涉及的各个组件视为独立的进程，而不是在特定计算机上的位置。 几个组件可以驻留在一个机器上，或者它们可以分布在多个机器中。 以下示例中的图表可能显示特定计算机上的组件，但进程之间的关系是主要考虑因素。</p>
+<h4 id="最简单的例子：应用程序和数据库本地事务"><a href="#最简单的例子：应用程序和数据库本地事务" class="headerlink" title="最简单的例子：应用程序和数据库本地事务"></a>最简单的例子：应用程序和数据库本地事务</h4><p>关系数据库访问的最简单形式仅涉及应用程序，资源管理器和资源适配器。 应用程序只是向数据库发送请求和从数据库获取数据的最终用户访问点。</p>
+<p>在我们的讨论中资源管理器是关系型数据库管理系统（RDBMS），例如Oracle或SQL Server。 所有实际的数据库管理由此组件处理。</p>
+<p>资源适配器是在“外部世界”（在这种情况下是应用程序）和资源管理器之间的通信信道或请求转换器的组件。 对我们的讨论，这是一个JDBC驱动程序。</p>
+<p>以下描述是资源管理器本地事务，即限于单个特定企业数据库的一个事务。</p>
+<p>应用程序向JDBC驱动程序发送数据请求，然后JDBC驱动程序会转换请求并将其通过网络发送到数据库。 数据库将数据返回给驱动程序，然后将结果转换为应用程序，如下图所示：</p>
+<img src="/2017/01/03/transaction-understanding-jta/jta1.gif" alt="jta1.gif" title="">
+<p>本示例说明了简化系统中的信息的基本流程; 然而，今天的企业使用应用服务器，这增加了另一个组件到过程。</p>
+<h4 id="应用程序服务器"><a href="#应用程序服务器" class="headerlink" title="应用程序服务器"></a>应用程序服务器</h4><p>应用程序服务器是JTA分布式事务处理的另一个组件。 应用程序服务器负责处理大量的应用程序操作，并取消终端用户应用程序的一些负载。 基于上述示例，我们看到应用程序服务器在分布式事务中添加了另一个进程层：</p>
+<img src="/2017/01/03/transaction-understanding-jta/jta2.gif" alt="jta2.gif" title="">
+<p>到目前为止，我们的例子说明了一个单一的本地事务，并描述了分布式事务模型的五个组件中的四个。 第五个组件，事务管理器，只有当事务是分布式时才会考虑引入。</p>
+<h3 id="分布式事务和事务管理器"><a href="#分布式事务和事务管理器" class="headerlink" title="分布式事务和事务管理器"></a>分布式事务和事务管理器</h3><p>如前所述，分布式事务是访问和更新两个或多个网络资源上的数据的事务。 这些资源可以由单个服务器（例如Oracle，SQL Server和Sybase）上的几个不同的RDBMS组成; 或者它们可以包括驻留在多个不同服务器上的单个类型的数据库的若干实例。 在任何情况下，分布式事务涉及各种资源管理器之间的协调。 这种协调是事务管理器的功能。</p>
+<p>事务管理器负责做出提交或回滚任何分布式事务的最终决定。 提交决定应导致成功的事务; 回滚使数据库中的数据保持不变。 JTA在事务管理器和分布式事务中的其他组件之间指定标准Java接口：应用程序，应用程序服务器和资源管理器。 这种关系如下图所示：</p>
+<img src="/2017/01/03/transaction-understanding-jta/jta3.gif" alt="jta3.gif" title="">
+<p>事务管理器周围的编号框对应于JTA的三个接口部分：</p>
+<ol>
+<li><code>javax.transaction.UserTransaction</code>接口为应用程序提供了以编程方式控制事务边界的能力。 <code>javax.transaction.UserTransaction</code>方法启动一个全局事务，并将事务与调用线程相关联。</li>
+<li><code>javax.transaction.TransactionManager</code>接口允许应用服务器代表被管理的应用来控制事务边界。</li>
+<li><code>javax.transaction.xa.XAResource</code> 接口是基于X / Open CAE规范（分布式事务处理：XA规范）的工业标准XA接口的Java映射。</li>
+</ol>
+<p>需要注意的是，我们需要使用支持XAResource接口的JDBC驱动程序。除了正常的JDBC交互还需要支持JTA的XAResource部分。 DataDirect Connect for JDBC驱动程序提供此支持。</p>
+<p>应用程序代码的开发人员不应该关心分布式事务管理的细节。 这是分布式事务基础结构的工作，包括应用程序服务器，事务管理器和JDBC驱动程序。 应用程序代码的唯一注意事项是，当连接在分布式事务的范围内时，它不应调用会影响事务边界的方法。 具体来说，应用程序不应调用Connection方法commit，rollback和setAutoCommit（true），因为它们会干扰基础架构对分布式事务的管理。</p>
+<h3 id="分布式事务处理过程"><a href="#分布式事务处理过程" class="headerlink" title="分布式事务处理过程"></a>分布式事务处理过程</h3><p>事务管理器是分布式事务基础设施的主要组件; 但是，JDBC驱动程序和应用程序服务器组件应具有以下特性：</p>
+<ul>
+<li>驱动程序应该实现JDBC 2.0 API（包括可选软件包接口XADataSource和XAConnection）或更高版本和JTA接口XAResource.</li>
+<li>应用服务器应提供一个为了与分布式事务基础结构进行交互并用于提高性能的具有连接池功能的实现了接口DataSource的类。</li>
+</ul>
+<p>分布式事务处理的第一步是应用程序向事务管理器发送对事务的请求。 虽然最终事务的提交或回滚决定将事务视为单个逻辑单元，但这其中可能包含许多事务分支。 事务分支与分布式事务中涉及的每个资源管理器的请求相关联。 因此，对三个不同RDBMS的请求需要三个事务分支。 每个事务分支必须由本地资源管理器提交或回滚。 事务管理器控制事务的边界，并且负责关于总事务是否应该提交或回滚的最终决定。 该决策分为两个阶段，称为两阶段提交协议。</p>
+<p>在第一阶段，事务管理器轮询分布式事务中涉及的所有资源管理器（RDBMS），以查看每个资源管理器是否准备好提交。 如果资源管理器无法提交，它会做出响应并回滚其事务的特定部分，以便不会更改数据。</p>
+<p>在第二阶段中，事务管理器确定是否有资源管理器否定响应，并且如果是，则回滚整个事务。 如果没有否定响应，则管理器提交整个事务，并将结果返回给应用程序。</p>
+<p>事务管理器代码的开发人员必须熟悉JTA的所有三个接口：<code>UserTransaction</code>，<code>TransactionManager</code>和<code>XAResource</code>，这些接口在<a href="http://java.sun.com/products/jta/" target="_blank" rel="external">Sun Java Transaction API（JTA）</a>规范。 <a href="http://java.sun.com/docs/books/jdbc/" target="_blank" rel="external">JDBC API教程和参考，第三版</a>也是一个有用的参考。 JDBC驱动程序开发人员只需要关心<code>XAResource</code>接口。 此接口是允许资源管理器参与事务的工业标准X / Open XA协议的Java映射。 与<code>XAResource</code>接口连接的驱动程序的组件负责在事务管理器和资源管理器之间“转换”。 以下部分提供XAResource调用的示例。</p>
+<h3 id="JDBC驱动和XAResource"><a href="#JDBC驱动和XAResource" class="headerlink" title="JDBC驱动和XAResource"></a>JDBC驱动和XAResource</h3><p>为了简化XAResource的解释，这些示例说明了当没有应用程序服务器和事务管理器时，应用程序如何使用JTA。 事实上，这些示例中的应用程序也充当应用程序服务器和事务管理器。 大多数企业使用事务管理器和应用程序服务器，因为它们比起应用程序可以更高效地管理分布式事务。 然而，通过遵循这些示例，应用程序开发人员可以测试JDBC驱动程序中JTA支持的鲁棒性。 某些示例可能不适用于特定数据库，因为是这些数据库固有问题导致的。</p>
+<p>在使用JTA之前，你首先必须实现一个Xid类来识别事务（这通常由事务管理器完成）。 Xid包含三个元素：formatID，gtrid（全局事务ID）和bqual（分支限定符ID）。</p>
+<p>formatID通常为零，这意味着您正在使用OSI CCR（开放系统互连承诺，并发和恢复标准）进行命名。 如果使用其他格式，formatID应大于零值，-1表示Xid为空。</p>
+<p>gtrid和bqual可以各自包含高达64字节的二进制代码，以分别标识全局事务和分支事务。 唯一的要求是，gtrid和bqual一起必须是全局唯一的。 同样，这可以通过使用在OSI CCR中指定的命名规则来实现。</p>
+<p>以下示例说明了Xid的实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> javax.transaction.xa.*;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyXid</span> <span class="keyword">implements</span> <span class="title">Xid</span> </span>&#123;</span>
+<span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span> formatId;</span>
+<span class="line">    <span class="keyword">protected</span> <span class="keyword">byte</span> gtrid[];</span>
+<span class="line">    <span class="keyword">protected</span> <span class="keyword">byte</span> bqual[];</span>
+<span class="line"></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyXid</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">    &#125;</span>
+<span class="line"></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyXid</span><span class="params">(<span class="keyword">int</span> formatId, <span class="keyword">byte</span> gtrid[], <span class="keyword">byte</span> bqual[])</span> </span>&#123;</span>
+<span class="line">        <span class="keyword">this</span>.formatId = formatId;</span>
+<span class="line">        <span class="keyword">this</span>.gtrid = gtrid;</span>
+<span class="line">        <span class="keyword">this</span>.bqual = bqual;</span>
+<span class="line">    &#125;</span>
+<span class="line"></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getFormatId</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">        <span class="keyword">return</span> formatId;</span>
+<span class="line">    &#125;</span>
+<span class="line"></span>
+<span class="line">    <span class="keyword">public</span> <span class="keyword">byte</span>[] getBranchQualifier() &#123;</span>
+<span class="line">        <span class="keyword">return</span> bqual;</span>
+<span class="line">    &#125;</span>
+<span class="line"></span>
+<span class="line">    <span class="keyword">public</span> <span class="keyword">byte</span>[] getGlobalTransactionId() &#123;</span>
+<span class="line">        <span class="keyword">return</span> gtrid;</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>其次，您需要为您使用的数据库创建一个数据源：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> DataSource <span class="title">getDataSource</span><span class="params">()</span> <span class="keyword">throws</span> SQLException </span>&#123;</span>
+<span class="line">    SQLServerDataSource xaDS = <span class="keyword">new</span> com.ddtek.jdbc.sqlserver.SQLServerDriver.SQLServerDataSource();</span>
+<span class="line">    xaDS.setDataSourceName(<span class="string">"SQLServer"</span>);</span>
+<span class="line">    xaDS.setServerName(<span class="string">"server"</span>);</span>
+<span class="line">    xaDS.setPortNumber(<span class="number">1433</span>);</span>
+<span class="line">    xaDS.setSelectMethod(<span class="string">"cursor"</span>);</span>
+<span class="line">    <span class="keyword">return</span> xaDS;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p><strong>Example 1</strong>—此示例使用两阶段提交协议提交一个事务分支：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+</pre></td><td class="code"><pre><span class="line">XADataSource xaDS;</span>
+<span class="line">XAConnection xaCon;</span>
+<span class="line">XAResource xaRes;</span>
+<span class="line">Xid xid;</span>
+<span class="line">Connection con;</span>
+<span class="line">Statement stmt;</span>
+<span class="line"><span class="keyword">int</span> ret;</span>
+<span class="line">xaDS=getDataSource();</span>
+<span class="line">xaCon=xaDS.getXAConnection(<span class="string">"jdbc_user"</span>,<span class="string">"jdbc_password"</span>);</span>
+<span class="line">xaRes=xaCon.getXAResource();</span>
+<span class="line">con=xaCon.getConnection();</span>
+<span class="line">stmt=con.createStatement();</span>
+<span class="line">xid=<span class="keyword">new</span> MyXid(<span class="number">100</span>,<span class="keyword">new</span> <span class="keyword">byte</span>[]&#123;<span class="number">0x01</span>&#125;,<span class="keyword">new</span> <span class="keyword">byte</span>[]&#123;<span class="number">0x02</span>&#125;);</span>
+<span class="line"><span class="keyword">try</span>&#123;</span>
+<span class="line">    xaRes.start(xid,XAResource.TMNOFLAGS);</span>
+<span class="line">    stmt.executeUpdate(<span class="string">"insert into test_table values (100)"</span>);</span>
+<span class="line">    xaRes.end(xid,XAResource.TMSUCCESS);</span>
+<span class="line"></span>
+<span class="line">    ret=xaRes.prepare(xid);</span>
+<span class="line">    <span class="keyword">if</span>(ret==XAResource.XA_OK)&#123;</span>
+<span class="line">        xaRes.commit(xid,<span class="keyword">false</span>);</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125; <span class="keyword">catch</span>(XAException e)&#123;</span>
+<span class="line">    e.printStackTrace();</span>
+<span class="line">&#125; <span class="keyword">finally</span>&#123;</span>
+<span class="line">    stmt.close();</span>
+<span class="line">    con.close();</span>
+<span class="line">    xaCon.close();</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>因为对于所有示例，初始化代码是相同的或类似的，所以就省去了。</p>
+<p><strong>Example 2</strong>-示例，类似于示例1，说明回滚：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+</pre></td><td class="code"><pre><span class="line">xaRes.start(xid, XAResource.TMNOFLAGS);</span>
+<span class="line">stmt.executeUpdate(<span class="string">"insert into test_table values (100)"</span>);</span>
+<span class="line">xaRes.end(xid, XAResource.TMSUCCESS);</span>
+<span class="line">ret = xaRes.prepare(xid);</span>
+<span class="line"><span class="keyword">if</span> (ret == XAResource.XA_OK) &#123;</span>
+<span class="line">    xaRes.rollback(xid);</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p><strong>Example 3</strong>—此示例显示分布式事务分支如何挂起，让同一连接执行本地事务，并稍后恢复分支。 分布式事务的两阶段提交操作不会影响本地事务。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+</pre></td><td class="code"><pre><span class="line">xid = <span class="keyword">new</span> MyXid(<span class="number">100</span>, <span class="keyword">new</span> <span class="keyword">byte</span>[]&#123;<span class="number">0x01</span>&#125;, <span class="keyword">new</span> <span class="keyword">byte</span>[]&#123;<span class="number">0x02</span>&#125;);</span>
+<span class="line">xaRes.start(xid, XAResource.TMNOFLAGS);</span>
+<span class="line">stmt.executeUpdate(<span class="string">"insert into test_table values (100)"</span>);</span>
+<span class="line">xaRes.end(xid, XAResource.TMSUSPEND);</span>
+<span class="line"><span class="comment">// This update is done outside of transaction scope, so it</span></span>
+<span class="line"><span class="comment">// is not affected by the XA rollback.</span></span>
+<span class="line">stmt.executeUpdate(<span class="string">"insert into test_table2 values (111)"</span>);</span>
+<span class="line">xaRes.start(xid, XAResource.TMRESUME);</span>
+<span class="line">stmt.executeUpdate(<span class="string">"insert into test_table values (200)"</span>);</span>
+<span class="line">xaRes.end(xid, XAResource.TMSUCCESS);</span>
+<span class="line">ret = xaRes.prepare(xid);</span>
+<span class="line"><span class="keyword">if</span> (ret == XAResource.XA_OK) &#123;</span>
+<span class="line">    xaRes.rollback(xid);</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p><strong>Example 4</strong>—此示例说明如何在不同事务之间共享一个XA资源。 创建了两个事务分支，但它们不属于同一个分布式事务。 JTA允许XA资源在第一个分支上执行两阶段提交，即使资源仍然与第二个分支相关联。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+</pre></td><td class="code"><pre><span class="line">xid1 = <span class="keyword">new</span> MyXid(<span class="number">100</span>, <span class="keyword">new</span> <span class="keyword">byte</span>[]&#123;<span class="number">0x01</span>&#125;, <span class="keyword">new</span> <span class="keyword">byte</span>[]&#123;<span class="number">0x02</span>&#125;);</span>
+<span class="line">xid2 = <span class="keyword">new</span> MyXid(<span class="number">100</span>, <span class="keyword">new</span> <span class="keyword">byte</span>[]&#123;<span class="number">0x11</span>&#125;, <span class="keyword">new</span> <span class="keyword">byte</span>[]&#123;<span class="number">0x22</span>&#125;);</span>
+<span class="line">xaRes.start(xid1, XAResource.TMNOFLAGS);</span>
+<span class="line">stmt.executeUpdate(<span class="string">"insert into test_table1 values (100)"</span>);</span>
+<span class="line">xaRes.end(xid1, XAResource.TMSUCCESS);</span>
+<span class="line">xaRes.start(xid2, XAResource.TMNOFLAGS);</span>
+<span class="line"><span class="comment">// Should allow XA resource to do two-phase commit on</span></span>
+<span class="line"><span class="comment">// transaction 1 while associated to transaction 2</span></span>
+<span class="line">ret = xaRes.prepare(xid1);</span>
+<span class="line"><span class="keyword">if</span> (ret == XAResource.XA_OK) &#123;</span>
+<span class="line">    xaRes.commit(xid1, <span class="keyword">false</span>);</span>
+<span class="line">&#125;</span>
+<span class="line">stmt.executeUpdate(<span class="string">"insert into test_table2 values (200)"</span>);</span>
+<span class="line">xaRes.end(xid2, XAResource.TMSUCCESS);</span>
+<span class="line">ret = xaRes.prepare(xid2);</span>
+<span class="line"><span class="keyword">if</span> (ret == XAResource.XA_OK) &#123;</span>
+<span class="line">    xaRes.rollback(xid2);</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p><strong>Example 5</strong>—此示例说明如果不同连接上的事务分支连接到同一资源管理器，则它们可以作为单个分支连接。 此功能提高了分布式事务的效率，因为它减少了两阶段提交进程的数量。 将创建到同一数据库服务器的两个XA连接。 每个连接都创建自己的XA资源，常规JDBC连接和语句。 在第二个XA资源启动事务分支之前，它会检查它是否使用与第一个XA资源使用相同的资源管理器。 如果是这种情况，如在此示例中，它加入在第一个XA连接上创建的第一个分支，而不是创建一个新的分支。 稍后，可以使用XA资源准备和提交事务分支。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+</pre></td><td class="code"><pre><span class="line">xaDS = getDataSource();</span>
+<span class="line">xaCon1 = xaDS.getXAConnection(<span class="string">"jdbc_user"</span>, <span class="string">"jdbc_password"</span>);</span>
+<span class="line">xaRes1 = xaCon1.getXAResource();</span>
+<span class="line">con1 = xaCon1.getConnection();</span>
+<span class="line">stmt1 = con1.createStatement();</span>
+<span class="line">xid1 = <span class="keyword">new</span> MyXid(<span class="number">100</span>, <span class="keyword">new</span> <span class="keyword">byte</span>[]&#123;<span class="number">0x01</span>&#125;, <span class="keyword">new</span> <span class="keyword">byte</span>[]&#123;<span class="number">0x02</span>&#125;);</span>
+<span class="line">xaRes1.start(xid1, XAResource.TMNOFLAGS);</span>
+<span class="line">stmt1.executeUpdate(<span class="string">"insert into test_table1 values (100)"</span>);</span>
+<span class="line">xaRes1.end(xid, XAResource.TMSUCCESS);</span>
+<span class="line">xaCon2 = xaDS.getXAConnection(<span class="string">"jdbc_user"</span>, <span class="string">"jdbc_password"</span>);</span>
+<span class="line">xaRes2 = xaCon2.getXAResource();</span>
+<span class="line">con2 = xaCon2.getConnection();</span>
+<span class="line">stmt2 = con2.createStatement();</span>
+<span class="line"><span class="keyword">if</span> (xaRes2.isSameRM(xaRes1)) &#123;</span>
+<span class="line">    xaRes2.start(xid1, XAResource.TMJOIN);</span>
+<span class="line">    stmt2.executeUpdate(<span class="string">"insert into test_table2 values (100)"</span>);</span>
+<span class="line">    xaRes2.end(xid1, XAResource.TMSUCCESS);</span>
+<span class="line">&#125; <span class="keyword">else</span> &#123;</span>
+<span class="line">    xid2 = <span class="keyword">new</span> MyXid(<span class="number">100</span>, <span class="keyword">new</span> <span class="keyword">byte</span>[]&#123;<span class="number">0x01</span>&#125;, <span class="keyword">new</span> <span class="keyword">byte</span>[]&#123;<span class="number">0x03</span>&#125;);</span>
+<span class="line">    xaRes2.start(xid2, XAResource.TMNOFLAGS);</span>
+<span class="line">    stmt2.executeUpdate(<span class="string">"insert into test_table2 values (100)"</span>);</span>
+<span class="line">    xaRes2.end(xid2, XAResource.TMSUCCESS);</span>
+<span class="line">    ret = xaRes2.prepare(xid2);</span>
+<span class="line">    <span class="keyword">if</span> (ret == XAResource.XA_OK) &#123;</span>
+<span class="line">         xaRes2.commit(xid2, <span class="keyword">false</span>);</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+<span class="line">ret = xaRes1.prepare(xid1);</span>
+<span class="line"><span class="keyword">if</span> (ret == XAResource.XA_OK) &#123;</span>
+<span class="line">    xaRes1.commit(xid1, <span class="keyword">false</span>);</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p><strong>Example 6</strong>—此示例显示如何在故障恢复期间恢复已准备或启发式完成的事务分支。 它首先尝试回滚每个分支; 如果失败，它会尝试告诉资源管理器丢弃有关事务的知识。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+</pre></td><td class="code"><pre><span class="line">MyXid[] xids;</span>
+<span class="line">xids = xaRes.recover(XAResource.TMSTARTRSCAN | XAResource.TMENDRSCAN);</span>
+<span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>; xids!=<span class="keyword">null</span> &amp;&amp; i&lt;xids.length; i++) &#123;</span>
+<span class="line">    <span class="keyword">try</span> &#123;</span>
+<span class="line">        xaRes.rollback(xids[i]);</span>
+<span class="line">    &#125;</span>
+<span class="line">    <span class="keyword">catch</span> (XAException ex) &#123;</span>
+<span class="line">        <span class="keyword">try</span> &#123;</span>
+<span class="line">            xaRes.forget(xids[i]);</span>
+<span class="line">        &#125;</span>
+<span class="line">        <span class="keyword">catch</span> (XAException ex1) &#123;</span>
+<span class="line">            System.out.println(<span class="string">"rollback/forget failed: "</span> +</span>
+<span class="line">            ex1.errorCode);</span>
+<span class="line">        &#125;</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>在JDBC驱动程序中提供JTA支持大大提高了数据访问能力。 DataDirect Connect for JDBC驱动程序提供此支持。 结合分布式事务处理的其他组件，DataDirect驱动程序提高了现代企业的能力，速度和效率。</p>
+<h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><p>Cheung &amp; Matena, Java Transaction API (JTA), 1999, Sun Microsystems, Inc.</p>
+<p>Maydene Fisher, Jon Ellis, and Jonathan Bruce, JDBC API Tutorial and Reference, Third Edition, 2003, Addison-Wesley.</p>
+<p>X/Open CAE Specification, Distributed Transaction Processing: The XA Specification, 1991, The X/Open Company.</p>
+<p><a href="https://www.progress.com/tutorials/jdbc" target="_blank" rel="external">https://www.progress.com/tutorials/jdbc</a></p>
+<h3 id="自测完整例子"><a href="#自测完整例子" class="headerlink" title="自测完整例子"></a>自测完整例子</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+<span class="line">43</span>
+<span class="line">44</span>
+<span class="line">45</span>
+<span class="line">46</span>
+<span class="line">47</span>
+<span class="line">48</span>
+<span class="line">49</span>
+<span class="line">50</span>
+<span class="line">51</span>
+<span class="line">52</span>
+<span class="line">53</span>
+<span class="line">54</span>
+<span class="line">55</span>
+<span class="line">56</span>
+<span class="line">57</span>
+<span class="line">58</span>
+<span class="line">59</span>
+<span class="line">60</span>
+<span class="line">61</span>
+<span class="line">62</span>
+<span class="line">63</span>
+<span class="line">64</span>
+<span class="line">65</span>
+<span class="line">66</span>
+<span class="line">67</span>
+<span class="line">68</span>
+<span class="line">69</span>
+<span class="line">70</span>
+<span class="line">71</span>
+<span class="line">72</span>
+<span class="line">73</span>
+<span class="line">74</span>
+<span class="line">75</span>
+<span class="line">76</span>
+<span class="line">77</span>
+<span class="line">78</span>
+<span class="line">79</span>
+<span class="line">80</span>
+<span class="line">81</span>
+<span class="line">82</span>
+<span class="line">83</span>
+<span class="line">84</span>
+<span class="line">85</span>
+<span class="line">86</span>
+<span class="line">87</span>
+<span class="line">88</span>
+<span class="line">89</span>
+<span class="line">90</span>
+<span class="line">91</span>
+<span class="line">92</span>
+<span class="line">93</span>
+<span class="line">94</span>
+<span class="line">95</span>
+<span class="line">96</span>
+<span class="line">97</span>
+<span class="line">98</span>
+<span class="line">99</span>
+<span class="line">100</span>
+<span class="line">101</span>
+<span class="line">102</span>
+<span class="line">103</span>
+<span class="line">104</span>
+<span class="line">105</span>
+<span class="line">106</span>
+<span class="line">107</span>
+<span class="line">108</span>
+<span class="line">109</span>
+<span class="line">110</span>
+<span class="line">111</span>
+<span class="line">112</span>
+<span class="line">113</span>
+<span class="line">114</span>
+<span class="line">115</span>
+<span class="line">116</span>
+<span class="line">117</span>
+<span class="line">118</span>
+<span class="line">119</span>
+<span class="line">120</span>
+<span class="line">121</span>
+<span class="line">122</span>
+<span class="line">123</span>
+<span class="line">124</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.mysql.cj.jdbc.MysqlXADataSource;</span>
+<span class="line"><span class="keyword">import</span> javax.sql.XAConnection;</span>
+<span class="line"><span class="keyword">import</span> javax.sql.XADataSource;</span>
+<span class="line"><span class="keyword">import</span> javax.transaction.xa.XAException;</span>
+<span class="line"><span class="keyword">import</span> javax.transaction.xa.XAResource;</span>
+<span class="line"><span class="keyword">import</span> java.sql.Connection;</span>
+<span class="line"><span class="keyword">import</span> java.sql.SQLException;</span>
+<span class="line"><span class="keyword">import</span> java.sql.Statement;</span>
+<span class="line"></span>
+<span class="line"><span class="comment">/**</span>
+<span class="line"> * Created with IntelliJ IDEA.</span>
+<span class="line"> * User: jiexiu</span>
+<span class="line"> * Date: 17/1/6</span>
+<span class="line"> * Time: 下午10:30</span>
+<span class="line"> * Email:jiexiu@mogujie.com</span>
+<span class="line"> */</span></span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MultiDataSourceTest</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String dataSourceUrlA = <span class="string">"jdbc:mysql://127.0.0.1:3306/leoNode?useUnicode=true&amp;characterEncoding=utf-8&amp;autoReconnectForPools=true&amp;autoReconnect=true&amp;connectTimeout=0"</span>;</span>
+<span class="line"></span>
+<span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String dataSourceUrlB = <span class="string">"jdbc:mysql://127.0.0.1:3306/leoblog?useUnicode=true&amp;characterEncoding=utf-8&amp;autoReconnectForPools=true&amp;autoReconnect=true&amp;connectTimeout=0"</span>;</span>
+<span class="line"></span>
+<span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String userName = <span class="string">""</span>;</span>
+<span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String passWord = <span class="string">""</span>;</span>
+<span class="line"></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span>
+<span class="line">        testMultiDataSource();</span>
+<span class="line">    &#125;</span>
+<span class="line"></span>
+<span class="line">    <span class="comment">/**</span>
+<span class="line">     * 测试多数据源正常提交</span>
+<span class="line">     */</span></span>
+<span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">testMultiDataSource</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">        XADataSource xaDataSourceA = getMysqlDataSource(dataSourceUrlA);</span>
+<span class="line">        XADataSource xaDataSourceB = getMysqlDataSource(dataSourceUrlB);</span>
+<span class="line"></span>
+<span class="line">        XAConnection xaConnectionA = <span class="keyword">null</span>;</span>
+<span class="line">        XAConnection xaConnectionB = <span class="keyword">null</span>;</span>
+<span class="line"></span>
+<span class="line">        Connection connA = <span class="keyword">null</span>;</span>
+<span class="line">        Connection connB = <span class="keyword">null</span>;</span>
+<span class="line">        Statement stmtA = <span class="keyword">null</span>;</span>
+<span class="line">        Statement stmtB = <span class="keyword">null</span>;</span>
+<span class="line"></span>
+<span class="line">        XAResource xaResourceA = <span class="keyword">null</span>;</span>
+<span class="line">        XAResource xaResourceB = <span class="keyword">null</span>;</span>
+<span class="line">        <span class="keyword">try</span> &#123;</span>
+<span class="line">            xaConnectionA = xaDataSourceA.getXAConnection();</span>
+<span class="line">            xaConnectionB = xaDataSourceB.getXAConnection();</span>
+<span class="line"></span>
+<span class="line">            connA = xaConnectionA.getConnection();</span>
+<span class="line">            connB = xaConnectionB.getConnection();</span>
+<span class="line">            stmtA = connA.createStatement();</span>
+<span class="line">            stmtB = connB.createStatement();</span>
+<span class="line"></span>
+<span class="line">            xaResourceA = xaConnectionA.getXAResource();</span>
+<span class="line">            xaResourceB = xaConnectionB.getXAResource();</span>
+<span class="line">        &#125; <span class="keyword">catch</span> (SQLException e) &#123;</span>
+<span class="line">            e.printStackTrace();</span>
+<span class="line">        &#125;</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">        MyXid xidA = <span class="keyword">new</span> MyXid(<span class="number">0</span>, <span class="keyword">new</span> <span class="keyword">byte</span>[] &#123; <span class="number">0x01</span> &#125;, <span class="keyword">new</span> <span class="keyword">byte</span>[] &#123; <span class="number">0x02</span> &#125;);</span>
+<span class="line">        MyXid xidB = <span class="keyword">new</span> MyXid(<span class="number">0</span>, <span class="keyword">new</span> <span class="keyword">byte</span>[] &#123; <span class="number">0x01</span> &#125;, <span class="keyword">new</span> <span class="keyword">byte</span>[] &#123; <span class="number">0x03</span> &#125;);</span>
+<span class="line"></span>
+<span class="line">        <span class="keyword">try</span> &#123;</span>
+<span class="line">            xaResourceA.start(xidA, XAResource.TMNOFLAGS);</span>
+<span class="line">            stmtA.execute(<span class="string">"insert into test(name) values ('test123')"</span>);</span>
+<span class="line">            xaResourceA.end(xidA, XAResource.TMSUCCESS);</span>
+<span class="line"></span>
+<span class="line">            xaResourceB.start(xidB, XAResource.TMNOFLAGS);</span>
+<span class="line">            stmtB.execute(<span class="string">"insert into test(name) values ('test123')"</span>);</span>
+<span class="line">            xaResourceB.end(xidB, XAResource.TMSUCCESS);</span>
+<span class="line">            <span class="comment">//prepare 阶段</span></span>
+<span class="line">            <span class="keyword">int</span> retA = xaResourceA.prepare(xidA);</span>
+<span class="line">            <span class="keyword">int</span> retB = xaResourceB.prepare(xidB);</span>
+<span class="line">            <span class="comment">//都准备好了</span></span>
+<span class="line">            <span class="keyword">if</span> (XAResource.XA_OK == retA &amp;&amp; XAResource.XA_OK == retB)&#123;</span>
+<span class="line">                <span class="comment">// 提交阶段</span></span>
+<span class="line">                xaResourceA.commit(xidA, <span class="keyword">false</span>);</span>
+<span class="line">                xaResourceB.commit(xidB, <span class="keyword">false</span>);</span>
+<span class="line">            &#125;<span class="keyword">else</span> &#123;</span>
+<span class="line">                <span class="comment">//回滚</span></span>
+<span class="line">                xaResourceA.rollback(xidA);</span>
+<span class="line">                xaResourceB.rollback(xidB);</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125; <span class="keyword">catch</span> (XAException e) &#123;</span>
+<span class="line">            e.printStackTrace();</span>
+<span class="line">        &#125; <span class="keyword">catch</span> (SQLException e)&#123;</span>
+<span class="line">            e.printStackTrace();</span>
+<span class="line">        &#125;<span class="keyword">finally</span> &#123;</span>
+<span class="line">            <span class="keyword">try</span> &#123;</span>
+<span class="line">                <span class="keyword">if</span> (stmtA != <span class="keyword">null</span>)&#123;</span>
+<span class="line">                    stmtA.close();</span>
+<span class="line">                &#125;</span>
+<span class="line">                <span class="keyword">if</span> (connA != <span class="keyword">null</span>)&#123;</span>
+<span class="line">                    connA.close();</span>
+<span class="line">                &#125;</span>
+<span class="line">                <span class="keyword">if</span> (xaConnectionA != <span class="keyword">null</span>)&#123;</span>
+<span class="line">                    xaConnectionA.close();</span>
+<span class="line">                &#125;</span>
+<span class="line">                <span class="keyword">if</span> (stmtB != <span class="keyword">null</span>)&#123;</span>
+<span class="line">                    stmtB.close();</span>
+<span class="line">                &#125;</span>
+<span class="line">                <span class="keyword">if</span> (connB != <span class="keyword">null</span>) &#123;</span>
+<span class="line">                    connB.close();</span>
+<span class="line">                &#125;</span>
+<span class="line">                <span class="keyword">if</span> (xaConnectionB != <span class="keyword">null</span>)&#123;</span>
+<span class="line">                    xaConnectionB.close();</span>
+<span class="line">                &#125;</span>
+<span class="line">            &#125;<span class="keyword">catch</span> (SQLException e)&#123;</span>
+<span class="line">                e.printStackTrace();</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125;</span>
+<span class="line">    &#125;</span>
+<span class="line"></span>
+<span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> XADataSource <span class="title">getMysqlDataSource</span><span class="params">(String dataSourceUrl)</span></span>&#123;</span>
+<span class="line">        MysqlXADataSource dataSource = <span class="keyword">new</span> MysqlXADataSource();</span>
+<span class="line">        dataSource.setURL(dataSourceUrl);</span>
+<span class="line">        dataSource.setUser(userName);</span>
+<span class="line">        dataSource.setPassword(passWord);</span>
+<span class="line">        <span class="keyword">return</span> dataSource;</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/01/03/transaction-understanding-jta.html">深入理解JTA事务处理</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">kongwenqiang</a></p>
+        <p><span>发布时间:</span>2017-01-03, 17:39:08</p>
+        <p><span>最后更新:</span>2017-01-07, 00:04:32</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/01/03/transaction-understanding-jta.html" title="深入理解JTA事务处理">https://leokongwq.github.io/2017/01/03/transaction-understanding-jta.html</a>
+            <span class="copy-path" data-clipboard-text="原文: https://leokongwq.github.io/2017/01/03/transaction-understanding-jta.html　　作者: kongwenqiang" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/01/09/mysql-text-defaultValue.html">
+                    mysql-text-defaultValue
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/01/03/transaction-jta-deeplearning.html">
+                    JTA 深度历险 - 原理与实现
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#访问数据库"><span class="toc-number">2.</span> <span class="toc-text">访问数据库</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#最简单的例子：应用程序和数据库本地事务"><span class="toc-number">2.1.</span> <span class="toc-text">最简单的例子：应用程序和数据库本地事务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#应用程序服务器"><span class="toc-number">2.2.</span> <span class="toc-text">应用程序服务器</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分布式事务和事务管理器"><span class="toc-number">3.</span> <span class="toc-text">分布式事务和事务管理器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分布式事务处理过程"><span class="toc-number">4.</span> <span class="toc-text">分布式事务处理过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JDBC驱动和XAResource"><span class="toc-number">5.</span> <span class="toc-text">JDBC驱动和XAResource</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结论"><span class="toc-number">6.</span> <span class="toc-text">结论</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考文档"><span class="toc-number">7.</span> <span class="toc-text">参考文档</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#自测完整例子"><span class="toc-number">8.</span> <span class="toc-text">自测完整例子</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"深入理解JTA事务处理　| 戒修-沉迷技术的小沙弥　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js'];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+        <section id="comments">
+    <style> aside.comment-bar { margin: auto 30px; }</style>
+    <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function(){
+            this.page.url = 'https://leokongwq.github.io/2017/01/03/transaction-understanding-jta.html';
+            this.page.identifier = '2017/01/03/transaction-understanding-jta.html';
+        };
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = '//leokongwq.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        }
+    </script>
+    
+    <script> loadComment(); </script>
+
+</section>
+
+
+    
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/01/09/mysql-text-defaultValue.html" title="上一篇: mysql-text-defaultValue">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/01/03/transaction-jta-deeplearning.html" title="下一篇: JTA 深度历险 - 原理与实现">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/06/spring-extension-point-autoconfig-summary.html">spring扩展点及springboot自动配置总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/12/openresy-lua-image-server.html">基于Openresy的图片服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/06/linux-file-system-schedule.html">Linux文件系统调用算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/31/openresty-health-check-dynamic-up-down.html">基于openresty的后端应用健康检查-动态上下线</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/tcp-state-transfer-diagram.html">TCP状态转化总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/27/openresty-dynamic-upstream.html">openresty动态upstream实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/19/distribute-lock-some-way.html">分布式锁的几种实现方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/19/distribute-system-consistent.html">分布式系统一致性</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/kotlin-coroutine-learn.html">kotlin之coroutine学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/mac-autostart.html">mac上禁止jenkins自启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/01/gossip-intro.html">Gossip算法介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/01/consul-vs-other-software.html">consul和其它软件的比较</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/31/consul-quick-start.html">consul快速启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/22/computer-science-bus-arbitration.html">CPU总线仲裁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/21/java-agent-instrumentation.html">java Instrumentation 和 Agent</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/21/activemq-monitor-hawtio.html">activemq监控之hawtio</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/20/centos-crond.html">centos下安装crond</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/16/vertx-async-callback-hell.html">vert.x异步回调地狱处理方式总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/15/vertx-Future.html">vertx-Future</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/06/vertx-cluster.html">vertx集群模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/06/microservices-gateway.html">微服务之网关</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/vertx-command-line-options.html">vertx命令行选项解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/04/vertx-web-BodyHandler.html">vert.x web开发之BodyHandler</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/02/vertx-web-global-exception.html">vertx中web全局异常处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-vertx-jdbc-client.html">vertx中vertx-jdbc-client使用问题总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-jdbc-datasource.html">vertx对jdbc数据源的支持</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-command-run.html">vert.x run 命令解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/30/java8-CompletableFuture-1.html">java8中CompletableFuture解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/vertx-http-server-analyze.html">vertx创建http服务器分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/http-content-type.html">http协议之content-type</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/vertx-Vertx.html">vert.x之Vertx类解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/21/vertx-web-route.html">vert.x web开发之route</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/21/vertx-web-router.html">vert.x web开发之router</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-cache.html">配置 Vert.x 缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-Launcher.html">vertx-启动器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-access-filesystem.html">vertx-访问文件系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-cluster-lock-counter.html">vertx-集群范围锁-计数器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-share-data.html">vertx-共享数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-tcp.html">vertx编程tcp服务端和客户端</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-http.html">vertx编程http服务端和客户端</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-buffer.html">vertx中的buffer</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-json.html">vertx中的json</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-event-bus.html">vertx-事件总线</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-timer.html">vertx-执行周期性/延迟性操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-context.html">vertx-context</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-verticle.html">vertx-verticle介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-quickstart.html">vert.x入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/10/mysql-tools-code.html">mysql常用工具SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/06/maven-useful-slices.html">maven使用知识汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/21/mysql-read-only-transaction.html">mysql只读事务解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/30/linux-clean-dns-cache.html">Linux中如何清除DNS缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/linux-disk-raid.html">linux磁盘阵列简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/26/linux-centos7-rc-local.html">centos7中rc.local不起作用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/24/understanding-maven-snapshot.html">理解maven中SNAPSHOT版本的作用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/22/python-build-in-chapter-one.html">python内置函数-第一篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/22/linux-kill-parent-and-child-process.html">linux中kill主进程和所有子进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/21/why-enum-singleton-are-serialization-safe.html">为什么用枚举实现的单例模式可以防止反序列化？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/computer-how-float-stored.html">浮点数在计算机中是如何存储的？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/17/mysql-data-types-date-time.html">mysql数据类型-日期&时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/16/mysql-data-types-numeric.html">mysql数据类型-数字类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/15/mysql-data-types-set.html">mysql数据类型-集合</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/15/mysql-data-types-enum.html">mysql数据类型-枚举类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/mysql-data-types-string.html">mysql数据类型-字符串类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/11/python-multiprocessing.html">python多进程简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/07/python-package.html">python包机制简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/05/python-file-read.html">python文件读写的几种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/24/python-multi-thread.html">python中的多线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/23/java-synchronized-detail.html">深入分析synchronized的实现原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/22/python-useful-codes.html">Python常用的代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/21/java-baised-locking.html">java中的偏向锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/06/mysql-deadlock-detection.html">mysql检测和处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/06/mysql-timeout.html">mysql中重要超时处理机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/22/maven-resource-plugin.html">maven-resource-plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/19/java-Security-Illegal-key-size.html">java-Security-Illegal-key-size</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/19/linux-find.html">linux find使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/spring-MessageConverter.html">spring中HttpMessageConverter详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/mysql-transaction.html">mysql和事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/11/mysql-locks.html">mysql中的锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/linux-task-on-boot.html">linux开机启动任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/mysql-batch-update-column.html">mysql批量修改列类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/19/mongodb-enable-query-log.html">mongodb开启查询日志</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/18/best-practices-for-a-pragmatic-restful-api.html">RESTful API 设计最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/18/rest-introduce.html">rest架构介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/springboot-mongo.html">springboot-mongo</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/16/idea-jvm-options.html">mac下idea虚拟机参数设置</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/12/linux-tool-traceroute.html">linux工具之traceroute</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/10/curl-learn.html">curl学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/08/java-enum-abstractMethod.html">java中的枚举是否可以有抽象方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/spring-ExceptionResolver.html">spring错误处理之HandlerExceptionResolver</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/spring-ErrorPageFilter.html">SpringBoot异常处理之ErrorPageFilter</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/05/spring-aop-MethodAnnotation.html">spring中AOP获取方法上的注解信息</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/02/spring-expandPoint.html">spring扩展点整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/29/maven-dependency-scope.html">maven jar包依赖范围总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/25/java-web-exception.html">java web 开发异常处理总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/springboot-tomcat.html">springboot发布到tomcat</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql-date-datetime-timestamp.html">mysql中date，datetime，timestamp的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/13/raft-protocol.html">raft协议简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/13/js-cross-domain.html">js跨域解决方案详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/28/java-netty-idleStateHandler.html">netty如何实现心跳检查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/28/why-oauth2-use-authorization-code.html">为什么在oauth2认证中需要使用授权码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/27/java-Executors.html">java线程池工具类Executors</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/27/mq-kafka-producer-partitioner.html">kafka发送消息分区选择策略详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-thread-dump.html">java中生成线程堆栈</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-Thread-state.html">java线程生命周期和状态</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-Thread-join.html">java中线程join方法的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-ThreadPoolExecutor-RejectedExecutionHandler.html">java线程池-RejectedExecutionHandler</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-memorymapped-file-and-io.html">java中内存映射文件和IO</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-difference-between-direct-non-direct-mapped-bytebuffer-nio.html">direct, non-direct, mapped bytebuffer区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-difference-between-stack-and-heap.html">java中栈和堆的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-how-to-create-immutable-class.html">java中如何创建不可变对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-interview-questions-answers-from-last-5-years.html">过去5年Java面试题精选</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-why-string-is-immutable-or-final.html">为什么在java中String是不可变或final</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-lock-and-condition-example-producer-consumer.html">java中使用锁和条件对象实现生产者-消费者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-why-wait-notify-called-in-synchronized-block.html">为什么wait和notify必须在同步方法或同步块中调用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-why-java-not-support-multi-inheritances.html">为何java不支持多继承</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql-locks-intro.html">mysql锁介绍（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-top10-Tricky-questions.html">诡异的java面试题TOP10</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-why-wait-notify-and-notifyall-defined-in-object.html">java-为什么wait，notify和notifyall定义在Object中</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-notify-notifyall.html">java中notify和notifyall的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/18/java-xml-parser.html">java中xml解析器介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/smooth-online-offline-service.html">服务节点平滑上下线</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/07/mq-kafka-blogs.html">kafka资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/mq-kafka-tutorial.html">kafka入门教程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/microservice-links.html">微服务资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/04/ddd-books.html">领域驱动设计书单</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/jms-message-order.html">jms-如何保证消息的顺序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/22/golang-param-pass-value-or-point.html">值传递, 指针传递 这是一个问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/21/golang-how-to-write-go-code.html">如何开发GO代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BigData-summary.html">大数据处理总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-HashSearch.html">algo-HashSearch</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BlockSearch.html">分块查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BinaryTreeSearch.html">二叉排序树查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BinarySearch.html">二分查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/SearchAlgo.html">查找算法总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-HeapSort.html">堆排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-QuickSort.html">快速排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-InsertionSort.html">插入排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-mergesort.html">归并排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-bucketsort.html">桶排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-bubblesort.html">冒泡排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/17/java8-CompletableFuture.html">java8中CompletableFuture详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/17/java-zookeeper-curator.html">zookeeper客户端之curator</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/16/Java-PriorityQueue.html">Java优先级队列PriorityQueue</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/13/java-LockSupport.html">java-LockSupport详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/mq-rocketmq-cluster.html">rocketmq集群搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/mq-rocketmq-quickstart.html">rocketmq快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/linux-zero-copy.html">linux零拷贝原理（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/11/java-jdk9-new-features.html">java-jdk9-new-features</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/java-Experienced-Developer-Teach-You-Five-Things.html">经验丰富的Java开发者教给你的五件事</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/mq-pages.html">MQ资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/DTP-best-practice.html">分布式事务典型处理方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/spring-xa-transactions-using.html">使用spring处理分布式事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql-text-defaultValue.html">mysql-text-defaultValue</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-understanding-jta.html">深入理解JTA事务处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-jta-deeplearning.html">JTA 深度历险 - 原理与实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-management-under-j2ee.html">J2EE事务管理详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/02/java-design-pattern-summary.html">java-design_pattern-summary</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/02/spring-DTP-patterns.html">spring处理分布式事务（使用或不使用XA）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/01/mysql-master-slave-thinking.html">mysql-master-slave-thinking</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-finally.html">java魔法之finally</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-0xCAFEBABE.html">java魔法之0xCAFEBABE</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-java-dot-net-dot-url.html">java魔法之java.net.Url</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-unsafe.html">java魔法之unsafe</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-AtomicLong.html">java中原子变量之AtomicLong</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/30/distribute-transaction-manage.html">分布式系统的事务处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/30/the-pattern-updateCache.html">缓存更新的套路</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/29/java8-lambda.html">java8 lambda表达式详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/spring-annotation-value.html">spring中注解@Value解密</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/spring-PropertyPlaceholderConfigurer.html">spring扩展点之PropertyPlaceholderConfigurer</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/mac-install-python-mysql.html">mac上安装Python-Mysql</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/27/mysql-mofidy-charset.html">mysql修改表-字段-库的字符集</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/25/java8-stream.html">java8-stream</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/23/java8-optional.html">java8-optional</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/23/java-8-features-tutorial.html">java-8-features-tutorial</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/06/java-DesignPatterns-flyweight.html">java-设计模式之-享元模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/05/java-Design-Patterns-builder.html">java-设计模式之-建造者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/03/java-DesignPatterns-proxy.html">java-设计模式之-代理模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-adapter.html">java-设计模式之-适配器模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-bridge.html">java-设计模式之-桥接模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/golang-execute-file-path.html">java-设计模式之-外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-facade.html">java-设计模式之-外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/28/java-DesignPatterns-command.html">java-设计模式之-命令模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/26/java-DesignPatterns-abstractFactory.html">java-设计模式之-抽象工厂模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/26/java-DesignPatterns-factoryMethod.html">java-设计模式之-工程方法模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-simpleFactory.html">java-设计模式之-简单工程模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-decorator.html">java-设计模式之-装饰者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/nginx-cache.html">nginx缓存功能介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-observer.html">java设计模式之-观察者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/nginx-rewrite.html">nginx配置rewrite指令详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-singleton.html">java实现单例模式的几种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-Singleton.html">设计模式之-单例模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-UML.html">设计模式之-UML类图快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-Strategy.html">设计模式之-策略模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/22/java-HashMap-MaxmumEntries.html">java中HashMap的最大容量解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/18/algo-stack-calculateExp.html">用栈实现后缀表达式的计算</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/16/algo-prime-number.html">素数相关</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/16/algo-gcd.html">求两个整数的最大公约数</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/java-HowThreadLocalWork.html">ThreadLocal正解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/java-Reference.html">java Reference 详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/SpringMVC-annotationDriven.html">mvc:annotation-driver</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/11/golang-effective-go.html">golang-effective-go</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/10/openresty-lua-nginx-module.html">openresty-lua-nginx-module</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/09/linux-max-fd.html">linux中最大文件描述符数</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/09/the-difference-between-301-and-302.html">HTTP301和302的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/nodejs-heapdump.html">nodejs调试工具之heapdump简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/nodejs-gc.html">Node.js 调试 GC 以及内存暴涨的分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/07/nodejs-debug.html">NodeJS的代码调试和性能调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/07/siege-introduce.html">压测工具siege简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/06/binary-search-tree.html">二叉查找树</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/full-print-BinaryTree.html">full-print-BinaryTree</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/best-10-practice-from-linkedin.html">LinkedIn关于提高Node.JS服务的10个建议</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/distributed-id-generation.html">5分钟了解分布式ID生成方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/27/java-LinkedList.html">java-LinkedList实现解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/java-LinkedHashMap.html">java-LinkedHashMap知识点汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/java-HashMap.html">java-HashMap知识点汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/japanese-50-yin.html">日语50音图学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/25/linux-netcat.html">Linux Netcat 命令用法简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/24/linux-backlog-maxconn.html">linux网络编程backlog和somaxconn</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/21/npm-11-useful-tips.html">npm11个提供工作效率的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/linux-network-io.html">Linux IO模式及 select、poll、epoll详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/linux-io-epoll.html">Linux下的I/O复用与epoll详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/mac-osx-kernel.html">mac-osx-kernel</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/java-real-data-type-size.html">Java中数据类型真实的内存占用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/19/vim-fileencoding.html">vim-文件编码</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-exports-and-module-expots.html">nodejs中exports和module.expots异同</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-os.html">nodejs模块-os模块</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-path.html">nodejs模块path简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/Fibers-and-Threads-in-node.html">Fibers-and-Threads-in-node</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-querystring.html">nodejs模块之querystring</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-Readline.html">nodejs模块之readline</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/jquery-selector.html">jquery选择器详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/pm2-readme.html">pm2使用简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/fastjson-use.html">fastjson使用简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/character-set.html">字符集详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/linux-hostname.html">linux命令hostname详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/linux-delete-file-not-free-the-space.html">linux删除文件但磁盘空间不释放</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodeJs-module-async.html">nodeJs解决异步回调方案之module-async</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/redis-sentinel.html">redis哨兵功能简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/http-cache.html">http缓存详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-import.html">golang中import语句详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-thread-profile.html">java线程必备知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/nodejs-globals.html">Nodejs全局对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-flag.html">golang命令行参数解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-file.html">golang文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-userinfo.html">golang 用户信息获取</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-time.html">golang时间操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-BlockingQueue.html">Java的BlockingQueue详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-runnable-callable-future.html">Java中的Runnable、Callable、Future、FutureTask的区别与示例</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/java-Queue.html">java队列Queue接口详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/strace-learn.html">手把手教你用Strace诊断问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/too-many-open-files.html">too-many-open-files</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/linux-strace.html">linux工具-strace</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/http-tranfer-encoding.html">HTTP 协议中的 Transfer-Encoding</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/lombook.html">lombook工具包简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-file-size.html">golang编译后文件编写的技巧</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-cross-compile.html">golang交叉编译</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-string.html">Go性能优化技巧-string</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-array.html">Go性能优化技巧-array</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-map.html">Go性能优化技巧-map</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-defer.html">golang之defer简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-chan.html">golang之chan简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-build-version.html">golang自动生成版本信息</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/how-to-get-goroutine-id.html">如何获取goroutine的id</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/fifty-common-Mistakes-for-New-Golang-Devs.html">50个go新手开发常见的错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/ten-best-practise-for-java-exception.html">java异常处理最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-error-handler.html">golang错误处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/seven-things-about-golang.html">关于go你必须知道的7件事</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-tools-build.html">go自带工具build的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-gdb-debug.html">golang程序GDB调试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/hexo-post-asset-folder-html.html">hexo使用post_asset_folder功能文章链接不能以html结尾</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/hexo-codeblock-multiblank.html">hexo代码块前后空白行问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/java-serialization-deepknow.html">java-serialization-deepknow</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-unsafe.html">golang的unsafe包简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/IDCardNo-algo.html">身份证号验证算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/byte-order.html">网络字节序</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-testing.html">golang代码测试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/linux-tool-dig.html">linux-tool-dig</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-md5.html">golang计算字符串MD5</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-time-format.html">golang时间格式化</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-open-browser.html">golang打开系统浏览器</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/mq-compare.html">常见MQ产品比较</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/golang-user-define-json-UnmarshalJSON.html">golang进行json数据的解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-join-point-ofTwoIntersectList.html">查找无环单链表的相交节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/isIntersectWithLoop.html">单链表-链表有环如何判断相交</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-the-join-point-in-list.html">找出单链表有环的入口节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/list-hasCircle.html">判断单链表是否有环</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-mid-post-in-list.html">找出单链表的中间节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-the-kth-node-in-list.html">找出单链表倒数第K个节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/reverse-one-direction-list.html">单链表逆转</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/delete-listNode-in-O1.html">O(1)时间内删除链表节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/reverse-print-list.html">单链表的逆序打印</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/merge-two-sorted-list.html">合并两个升序的单向链表</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/print-NxN-matrix.html">打印NxN矩阵的对角线</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/service-discovery.html">服务发现介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/web-reply-attack.html">web重放攻击介绍和防御方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/process-exception-in-web-dev.html">web开发异常统一处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/maven-test.html">maven-surefire-plugin简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/spring-aop-pointcut-expression.html">spring aop 切点表达式介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/avoid-NullPointException-Java.html">java程序避免NullPointException最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/11/jvm-codecache.html">JVM-codecache内存区域介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/13/logstash-input-file.html">logstash-input-file</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/12/when-to-use-hadoop-toolbox.html">Hadoop-Hbase-Hive-Pig关系</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/14/JVM-Tools.html">有用的JVM工具简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/12/IllegalMonitorStateException.html">诡异的异常IllegalMonitorStateException</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/11/HowMysqlLoadDataWorks.html">mysql load data infile 简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/10/why-not-use-finalize.html">为什么不使用finalize</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/14/mac-sshd.html">mac-sshd</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/theDayEndOfJd.html">朝林最后一天</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/java-Guava-Splitor.html">Guava-Spilitor</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/java-Guava-Joiner.html">Guava-Joiner</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/17/springMVCOutlines.html">Spring MVC HandlerMapping HandlerAdapter</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/17/howJekyllWorks.html">How Jekyll works</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/githubblog.html">Jekyll 快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/JVMOptimize.html">JVM常用参数和调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/JVMGcAlgorithm.html">JVM垃圾收集算法</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2018 kongwenqiang
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<script>
+    var inputArea = document.querySelector("#local-search-input");
+    var getSearchFile = function(){
+        var path = "/search.xml";
+        alert(11111);
+        searchFunc(path, 'local-search-input', 'local-search-result');
+    }
+    inputArea.onfocus = function(){
+      getSearchFile()
+    }
+
+    var $resetButton = $("#search-form .fa-times");
+
+    var $resultArea = $("#local-search-result");
+    inputArea.oninput = function(){ $resetButton.show(); }
+
+    resetSearch = function(){
+        $resultArea.html("");
+        document.querySelector("#search-form").reset();
+        $resetButton.hide();
+        $(".no-result").hide();
+    }
+
+    inputArea.onkeydown = function(){
+        if(event.keyCode==13) {
+          return false
+        }
+    }
+
+    $resultArea.bind("DOMNodeRemoved DOMNodeInserted", function(e) {
+        if (!$(e.target).text()) {
+            $(".no-result").show(200);
+        } else {
+          $(".no-result").hide();
+        }
+    })
+
+</script>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="kongwenqiang" />
+
+
+
+<meta name="description" content="概念
+数据库事务（简称：事务）是数据库管理系统执行过程中的一个逻辑单位，由一个有限的数据库操作序列构成。
+
+一个数据库事务通常包含了一个序列的对数据库的读/写操作。它的存在包含有以下两个目的：
+
+为数据库操作序列提供了一个从失败中恢复到正常状态的方法，同时提供了数据库即使在异常状态下仍能保持一致性的方法。
+当多个应用程序在并发访问数据库时，可以在这些应用程序之间提供一个隔离方法，以防止彼此的操作互">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql和事务">
+<meta property="og:url" content="https://leokongwq.github.io/2017/06/14/mysql-transaction.html">
+<meta property="og:site_name" content="戒修-沉迷技术的小沙弥">
+<meta property="og:description" content="概念
+数据库事务（简称：事务）是数据库管理系统执行过程中的一个逻辑单位，由一个有限的数据库操作序列构成。
+
+一个数据库事务通常包含了一个序列的对数据库的读/写操作。它的存在包含有以下两个目的：
+
+为数据库操作序列提供了一个从失败中恢复到正常状态的方法，同时提供了数据库即使在异常状态下仍能保持一致性的方法。
+当多个应用程序在并发访问数据库时，可以在这些应用程序之间提供一个隔离方法，以防止彼此的操作互">
+<meta property="og:image" content="https://leokongwq.github.io/2017/06/14/mysql-transaction/update.jpg">
+<meta property="og:image" content="https://leokongwq.github.io/2017/06/14/mysql-transaction/tpl.jpg">
+<meta property="og:image" content="https://leokongwq.github.io/2017/06/14/mysql-transaction/id_rc.jpg">
+<meta property="og:image" content="https://leokongwq.github.io/2017/06/14/mysql-transaction/id_uniq_rc.jpg">
+<meta property="og:image" content="https://leokongwq.github.io/2017/06/14/mysql-transaction/id_normal_idx.jpg">
+<meta property="og:image" content="https://leokongwq.github.io/2017/06/14/mysql-transaction/id_without_idx.jpg">
+<meta property="og:image" content="https://leokongwq.github.io/2017/06/14/mysql-transaction/id_normal_idx_rr.jpg">
+<meta property="og:image" content="https://leokongwq.github.io/2017/06/14/mysql-transaction/id_without_idx_rr.jpg">
+<meta property="og:image" content="https://leokongwq.github.io/2017/06/14/mysql-transaction/complex_sql.jpg">
+<meta property="og:image" content="https://leokongwq.github.io/2017/06/14/mysql-transaction/complex_sql_1.jpg">
+<meta property="og:image" content="https://leokongwq.github.io/2017/06/14/mysql-transaction/sql_dead_lock_1.jpg">
+<meta property="og:image" content="https://leokongwq.github.io/2017/06/14/mysql-transaction/sql_dead_lock_2.jpg">
+<meta property="og:updated_time" content="2017-06-14T03:55:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mysql和事务">
+<meta name="twitter:description" content="概念
+数据库事务（简称：事务）是数据库管理系统执行过程中的一个逻辑单位，由一个有限的数据库操作序列构成。
+
+一个数据库事务通常包含了一个序列的对数据库的读/写操作。它的存在包含有以下两个目的：
+
+为数据库操作序列提供了一个从失败中恢复到正常状态的方法，同时提供了数据库即使在异常状态下仍能保持一致性的方法。
+当多个应用程序在并发访问数据库时，可以在这些应用程序之间提供一个隔离方法，以防止彼此的操作互">
+<meta name="twitter:image" content="https://leokongwq.github.io/2017/06/14/mysql-transaction/update.jpg">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="戒修-沉迷技术的小沙弥" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>mysql和事务 | 戒修-沉迷技术的小沙弥</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<script src="/js/search.js"></script>
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">kongwenqiang</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">我喜欢GO</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:leokongwq@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/leokongwq" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AOP/">AOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ActiveQM/">ActiveQM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/">MQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/">NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Nginx/">Nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OS/">OS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Openresy/">Openresy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/">TCP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/algo/">algo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aop/">aop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cache/">cache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/computer/">computer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/consul/">consul</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/curl/">curl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devtools/">devtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/">golang</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gossip/">gossip</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava/">guava</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hive/">hive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java8/">java8</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdk/">jdk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jekyll/">jekyll</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/json/">json</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jta/">jta</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jvm/">jvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mac/">mac</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/microservices/">microservices</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mq/">mq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/netty/">netty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/npm/">npm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth2/">oauth2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openresty/">openresty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/osx/">osx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pig/">pig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soa/">soa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-mvc/">spring-mvc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springMVC/">springMVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springboot/">springboot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqoop/">sqoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uml/">uml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vert-x/">vert.x</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web/">web</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web安全/">web安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xa/">xa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml/">xml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zookeeper/">zookeeper</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发/">并发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微服务/">微服务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/随笔/">随笔</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.imhan.com">Hanny&#39;s Blog</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.chepoo.com">IT技术精华网</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">只想做个好程序员!</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">kongwenqiang</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">kongwenqiang</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">我喜欢GO</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:leokongwq@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/leokongwq" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-mysql-transaction" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/06/14/mysql-transaction.html" class="article-date">
+      <time datetime="2017-06-14T02:03:20.000Z" itemprop="datePublished">2017-06-14</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      mysql和事务
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/数据库/">数据库</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><blockquote>
+<p>数据库事务（简称：事务）是数据库管理系统执行过程中的一个逻辑单位，由一个有限的数据库操作序列构成。</p>
+</blockquote>
+<p>一个数据库事务通常包含了一个序列的对数据库的读/写操作。它的存在包含有以下两个目的：</p>
+<ul>
+<li>为数据库操作序列提供了一个从失败中恢复到正常状态的方法，同时提供了数据库即使在异常状态下仍能保持一致性的方法。</li>
+<li>当多个应用程序在并发访问数据库时，可以在这些应用程序之间提供一个隔离方法，以防止彼此的操作互相干扰。</li>
+</ul>
+<a id="more"></a>
+<h3 id="ACID"><a href="#ACID" class="headerlink" title="ACID"></a>ACID</h3><p>并非任意的对数据库的操作序列都是数据库事务。数据库事务拥有以下四个特性，习惯上被称之为ACID特性。</p>
+<ul>
+<li>原子性（Atomicity）：事务作为一个整体被执行，包含在其中的对数据库的操作要么全部被执行，要么都不执行。</li>
+<li>一致性（Consistency）：事务应确保数据库的状态从一个一致状态转变为另一个一致状态。一致状态的含义是数据库中的数据应满足完整性约束。</li>
+<li>隔离性（Isolation）：多个事务并发执行时，一个事务的执行不应影响其他事务的执行。</li>
+<li>持久性（Durability）：已被提交的事务对数据库的修改应该永久保存在数据库中。</li>
+</ul>
+<h3 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h3><p>事务隔离（英语：Transaction Isolation）定义了数据库系统中一个操作的结果在何时以何种方式对其他并发操作可见。隔离是事务ACID（原子性、一致性性、隔离性、持久性）四大属性之一。</p>
+<blockquote>
+<p>尽管数据库为用户提供了锁的DML操作方式，但直接使用锁管理是十分麻烦的，因此数据库为用户提供了自动锁机制。<br>只要用户指定会话的事务隔离级别，数据库就会分析事务中的SQL语句，然后自动为事务操作的数据资源添加上合适的锁。此外数据库还会维护这些锁，当一个资源上的锁数据太多时，自动进行锁升级以提高系统的运行性能，而这一过程对用户来说是完全透明的。</p>
+</blockquote>
+<p>ANSI/ISO SQL标准定义了4个等级的事务隔离级别，在相同的环境中，使用相同的输入，执行相同的工作，根据不同的隔离级别，可以导致不同的结果。不同的事务隔离级别能够解决的数据并发问题的能力是不同的。</p>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>幻象读</th>
+<th>第一类丢失更新</th>
+<th>第二类丢失更新</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>read uncommited</td>
+<td>允许</td>
+<td>允许</td>
+<td>允许</td>
+<td>不允许</td>
+<td>允许</td>
+</tr>
+<tr>
+<td>read commited</td>
+<td>不允许</td>
+<td>允许</td>
+<td>允许</td>
+<td>不允许</td>
+<td>允许</td>
+</tr>
+<tr>
+<td>repeatable read</td>
+<td>不允许</td>
+<td>不允许</td>
+<td>允许</td>
+<td>不允许</td>
+<td>不允许</td>
+</tr>
+<tr>
+<td>serializable</td>
+<td>不允许</td>
+<td>不允许</td>
+<td>不允许</td>
+<td>不允许</td>
+<td>不允许</td>
+</tr>
+</tbody>
+</table>
+<p>事务的隔离级别和数据库的并发性是对立的，两者此增彼长，一般来说使用Read uncommited隔离级别的数据库拥有最高的并发性和吞吐量，而使用Serializable事务隔离级别数据库的并发和吞吐量最低。</p>
+<p><code>SQL 92</code>定义Read uncommited主要提供非阻塞读的能力，Oracle虽然也支持Read uncommited级别的事务，但是它不支持脏读，所以Oracle的Read Committed就满足了<code>SQL 92</code>标准的repead read级别。</p>
+<p><code>SQL 92</code>推荐使用repeatable read来保证数据库的对一致性。</p>
+<ul>
+<li>脏读<br>就是指在一个事务中读取了其它事务修改后还未提交的数据</li>
+<li>不可重复读<br>在一次事务中，当一行数据获取两遍得到不同的结果表示发生了“不可重复读”。在基于锁的并发控制中“不可重复读”现象发生在当执行SELECT 操作时没有获得读锁或者SELECT操作执行完后马上释放了读锁； <a href="https://zh.wikipedia.org/w/index.php?title=Multiversion_concurrency_control&amp;action=edit&amp;redlink=1" target="_blank" rel="external">多版本并发控制</a>中当没有要求一个<a href="https://zh.wikipedia.org/w/index.php?title=Commit_conflict&amp;action=edit&amp;redlink=1" target="_blank" rel="external">提交冲突</a>的事务回滚也会发生“不可重复读”现象。</li>
+<li>幻象读<br>在事务执行过程中，当两个完全相同的查询语句执行得到不同的结果集。这种现象称为“幻影读（phantom read）”<br>当事务没有获取范围锁的情况下执行<code>SELECT ... WHERE</code>操作可能会发生“幻影读”。<br>“幻影读”是不可重复读的一种特殊场景：当事务1两次执行<code>SELECT ... WHERE</code>检索一定范围内数据的操作中间，事务2在这个表中创建了(如INSERT)了一行新数据，这条新数据正好满足事务1的“WHERE”子句。<br>需要指出的是事务1执行了两遍同样的查询语句。如果设了最高的隔离级别，两次会得到同样的结果集，这也正是数据库在可序列化（SERIALIZABLE）隔离级别上需要满足的。但是在较低的隔离级别上，第二次查询可能会得到不同的结果集。<br>在可序列化隔离级别，查询语句1在age从10到30的记录上加锁，事务2只能阻塞直至事务1提交。在可重复读级别，这个范围不会被锁定，允许记录插入，因此第二次执行语句1的结果中会包括新插入的行。</li>
+<li>第一类丢失更新<br>回滚覆盖：撤消一个事务时，在该事务内的写操作要回滚，把其它已提交的事务写入的数据覆盖了。</li>
+<li>第二类丢失更新<br>提交覆盖：提交一个事务时，写操作依赖于事务内读到的数据，读发生在其他事务提交前，写发生在其他事务提交后，把其他已提交的事务写入的数据覆盖了。这是不可重复读的特例。</li>
+</ul>
+<h3 id="MySQL事务隔离级别"><a href="#MySQL事务隔离级别" class="headerlink" title="MySQL事务隔离级别"></a>MySQL事务隔离级别</h3><p>InnoDB存储引擎支持事务， 事务隔离级别默认是可重复读的（REPEATABLE READ）， 可以通过下面的SQL查询当前的隔离级别：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> @@global.tx_isolation; </span>
+<span class="line"><span class="keyword">SELECT</span> @@session.tx_isolation;</span>
+<span class="line"><span class="keyword">SELECT</span> @@tx_isolation;</span>
+</pre></td></tr></table></figure>
+<p>以下内容转自：<a href="http://hedengcheng.com/?p=771" target="_blank" rel="external">MySQL 加锁处理分析</a></p>
+<h3 id="MVCC：Snapshot-Read-vs-Current-Read"><a href="#MVCC：Snapshot-Read-vs-Current-Read" class="headerlink" title="MVCC：Snapshot Read vs Current Read"></a>MVCC：Snapshot Read vs Current Read</h3><p>MySQL InnoDB存储引擎，实现的是基于多版本的并发控制协议——MVCC (<a href="http://en.wikipedia.org/wiki/Multiversion_concurrency_control" target="_blank" rel="external">Multi-Version Concurrency Control</a>) (注：与MVCC相对的，是基于锁的并发控制，Lock-Based Concurrency Control)。MVCC最大的好处，相信也是耳熟能详：读不加锁，读写不冲突。在读多写少的OLTP应用中，读写不冲突是非常重要的，极大的增加了系统的并发性能，这也是为什么现阶段，几乎所有的RDBMS，都支持了MVCC。</p>
+<p>在MVCC并发控制中，读操作可以分成两类：快照读 (snapshot read)与当前读 (current read)。快照读，读取的是记录的可见版本 (有可能是历史版本)，不用加锁。当前读，读取的是记录的最新版本，并且，当前读返回的记录，都会加上锁，保证其他事务不会再并发修改这条记录。</p>
+<p>在一个支持MVCC并发控制的系统中，哪些读操作是快照读？哪些操作又是当前读呢？以MySQL InnoDB为例：</p>
+<h4 id="快照读"><a href="#快照读" class="headerlink" title="快照读"></a>快照读</h4><p>简单的select操作，属于快照读，不加锁。(当然，也有例外，下面会分析)</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span> <span class="keyword">where</span> ?;</span>
+</pre></td></tr></table></figure>
+<p>当前读：特殊的读操作，插入/更新/删除操作，属于当前读，需要加锁。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span> <span class="keyword">where</span> ? <span class="keyword">lock</span> <span class="keyword">in</span> <span class="keyword">share</span> <span class="keyword">mode</span>;</span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span> <span class="keyword">where</span> ? <span class="keyword">for</span> <span class="keyword">update</span>;</span>
+<span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> <span class="keyword">table</span> <span class="keyword">values</span> (…);</span>
+<span class="line"><span class="keyword">update</span> <span class="keyword">table</span> <span class="keyword">set</span> ? <span class="keyword">where</span> ?;</span>
+<span class="line"><span class="keyword">delete</span> <span class="keyword">from</span> <span class="keyword">table</span> <span class="keyword">where</span> ?;</span>
+</pre></td></tr></table></figure>
+<p>所有以上的语句，都属于当前读，读取记录的最新版本。并且，读取之后，还需要保证其他并发事务不能修改当前记录，对读取记录加锁。其中，除了第一条语句，对读取记录加S锁 (共享锁)外，其他的操作，都加的是X锁 (排它锁)。</p>
+<p>为什么将 插入/更新/删除 操作，都归为当前读？可以看看下面这个 更新 操作，在数据库中的执行流程：</p>
+<img src="/2017/06/14/mysql-transaction/update.jpg" alt="update.jpg" title="">
+<p>从图中，可以看到，一个Update操作的具体流程。当Update SQL被发给MySQL后，MySQL Server会根据where条件，读取第一条满足条件的记录，然后InnoDB引擎会将第一条记录返回，并加锁 (current read)。待MySQL Server收到这条加锁的记录之后，会再发起一个Update请求，更新这条记录。一条记录操作完成，再读取下一条记录，直至没有满足条件的记录为止。因此，Update操作内部，就包含了一个当前读。同理，Delete操作也一样。Insert操作会稍微有些不同，简单来说，就是Insert操作可能会触发Unique Key的冲突检查，也会进行一个当前读。</p>
+<p><strong>注</strong>：根据上图的交互，针对一条当前读的SQL语句，InnoDB与MySQL Server的交互，是一条一条进行的，因此，加锁也是一条一条进行的。先对一条满足条件的记录加锁，返回给MySQL Server，做一些DML操作；然后在读取下一条加锁，直至读取完毕。</p>
+<h4 id="Cluster-Index：聚簇索引"><a href="#Cluster-Index：聚簇索引" class="headerlink" title="Cluster Index：聚簇索引"></a>Cluster Index：聚簇索引</h4><p>InnoDB存储引擎的数据组织方式，是聚簇索引表：完整的记录，存储在主键索引中，通过主键索引，就可以获取记录所有的列。关于聚簇索引表的组织方式，可以参考MySQL的官方文档：Clustered and Secondary Indexes 。本文假设读者对这个，已经有了一定的认识，就不再做具体的介绍。接下来的部分，主键索引/聚簇索引 两个名称，会有一些混用，望读者知晓。</p>
+<h4 id="2PL：Two-Phase-Locking"><a href="#2PL：Two-Phase-Locking" class="headerlink" title="2PL：Two-Phase Locking"></a>2PL：Two-Phase Locking</h4><p>传统RDBMS加锁的一个原则，就是2PL (二阶段锁)：Two-Phase Locking。相对而言，2PL比较容易理解，说的是锁操作分为两个阶段：加锁阶段与解锁阶段，并且保证加锁阶段与解锁阶段不相交。下面，仍旧以MySQL为例，来简单看看2PL在MySQL中的实现。</p>
+<img src="/2017/06/14/mysql-transaction/tpl.jpg" alt="tpl.jpg" title="">
+<p>从上图可以看出，2PL就是将加锁/解锁分为两个完全不相交的阶段。加锁阶段：只加锁，不放锁。解锁阶段：只放锁，不加锁。</p>
+<h4 id="Isolation-Level"><a href="#Isolation-Level" class="headerlink" title="Isolation Level"></a>Isolation Level</h4><p>隔离级别：Isolation Level，也是RDBMS的一个关键特性。相信对数据库有所了解的朋友，对于4种隔离级别：Read Uncommited，Read Committed，Repeatable Read，Serializable，都有了深入的认识。本文不打算讨论数据库理论中，是如何定义这4种隔离级别的含义的，而是跟大家介绍一下MySQL/InnoDB是如何定义这4种隔离级别的。</p>
+<p>MySQL/InnoDB定义的4种隔离级别：</p>
+<ul>
+<li>Read Uncommited<br>可以读取未提交记录。此隔离级别，不会使用，忽略。</li>
+<li>Read Committed (RC)<br>快照读忽略，本文不考虑。<br>针对当前读，RC隔离级别保证对读取到的记录加锁 (记录锁)，存在幻读现象。</li>
+<li>Repeatable Read (RR)<br>快照读忽略，本文不考虑。<br>针对当前读，RR隔离级别保证对读取到的记录加锁 (记录锁)，同时保证对读取的范围加锁，新的满足查询条件的记录不能够插入 (间隙锁)，不存在幻读现象。</li>
+<li>Serializable<br>从MVCC并发控制退化为基于锁的并发控制。不区别快照读与当前读，所有的读操作均为当前读，读加读锁 (S锁)，写加写锁 (X锁)。</li>
+</ul>
+<p>Serializable隔离级别下，读写冲突，因此并发度急剧下降，在MySQL/InnoDB下不建议使用。</p>
+<h3 id="一条简单SQL的加锁实现分析"><a href="#一条简单SQL的加锁实现分析" class="headerlink" title="一条简单SQL的加锁实现分析"></a>一条简单SQL的加锁实现分析</h3><p>在介绍完一些背景知识之后，本文接下来将选择几个有代表性的例子，来详细分析MySQL的加锁处理。当然，还是从最简单的例子说起。经常有朋友发给我一个SQL，然后问我，这个SQL加什么锁？就如同下面两条简单的SQL，他们加什么锁？</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+</pre></td><td class="code"><pre><span class="line">SQL1：<span class="keyword">select</span> * <span class="keyword">from</span> t1 <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">10</span>;</span>
+<span class="line">SQL2：<span class="keyword">delete</span> <span class="keyword">from</span> t1 <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">10</span>;</span>
+</pre></td></tr></table></figure>
+<p>针对这个问题，该怎么回答？我能想象到的一个答案是:</p>
+<p>SQL1：不加锁。因为MySQL是使用多版本并发控制的，读不加锁。<br>SQL2：对id = 10的记录加写锁 (走主键索引)。</p>
+<p>这个答案对吗？说不上来。即可能是正确的，也有可能是错误的，已知条件不足，这个问题没有答案。如果让我来回答这个问题，我必须还要知道以下的一些前提，前提不同，我能给出的答案也就不同。要回答这个问题，还缺少哪些前提条件？</p>
+<ul>
+<li>前提一：id列是不是主键？</li>
+<li>前提二：当前系统的隔离级别是什么？</li>
+<li>前提三：id列如果不是主键，那么id列上有索引吗？</li>
+<li>前提四：id列上如果有二级索引，那么这个索引是唯一索引吗？</li>
+<li>前提五：两个SQL的执行计划是什么？索引扫描？全表扫描？</li>
+</ul>
+<p>没有这些前提，直接就给定一条SQL，然后问这个SQL会加什么锁，都是很业余的表现。而当这些问题有了明确的答案之后，给定的SQL会加什么锁，也就一目了然。下面，我将这些问题的答案进行组合，然后按照从易到难的顺序，逐个分析每种组合下，对应的SQL会加哪些锁？</p>
+<p><strong>注</strong>：下面的这些组合，我做了一个前提假设，也就是有索引时，执行计划一定会选择使用索引进行过滤 (索引扫描)。但实际情况会复杂很多，真正的执行计划，还是需要根据MySQL输出的为准。</p>
+<ul>
+<li>组合一：id列是主键，RC隔离级别</li>
+<li>组合二：id列是二级唯一索引，RC隔离级别</li>
+<li>组合三：id列是二级非唯一索引，RC隔离级别</li>
+<li>组合四：id列上没有索引，RC隔离级别</li>
+<li>组合五：id列是主键，RR隔离级别</li>
+<li>组合六：id列是二级唯一索引，RR隔离级别</li>
+<li>组合七：id列是二级非唯一索引，RR隔离级别</li>
+<li>组合八：id列上没有索引，RR隔离级别</li>
+<li>组合九：Serializable隔离级别</li>
+</ul>
+<p>排列组合还没有列举完全，但是看起来，已经很多了。真的有必要这么复杂吗？事实上，要分析加锁，就是需要这么复杂。但是从另一个角度来说，只要你选定了一种组合，SQL需要加哪些锁，其实也就确定了。接下来，就让我们来逐个分析这9种组合下的SQL加锁策略。</p>
+<p><strong>注</strong>：在前面八种组合下，也就是RC，RR隔离级别下，SQL1：select操作均不加锁，采用的是快照读，因此在下面的讨论中就忽略了，主要讨论SQL2：delete操作的加锁。</p>
+<h4 id="组合一：id主键-RC"><a href="#组合一：id主键-RC" class="headerlink" title="组合一：id主键+RC"></a>组合一：id主键+RC</h4><p>这个组合，是最简单，最容易分析的组合。id是主键，Read Committed隔离级别，给定SQL：delete from t1 where id = 10; 只需要将主键上，id = 10的记录加上X锁即可。如下图所示：</p>
+<img src="/2017/06/14/mysql-transaction/id_rc.jpg" alt="id_rc.jpg" title="">
+<p>结论：id是主键时，此SQL只需要在id=10这条记录上加X锁即可。</p>
+<h4 id="组合二：id唯一索引-RC"><a href="#组合二：id唯一索引-RC" class="headerlink" title="组合二：id唯一索引+RC"></a>组合二：id唯一索引+RC</h4><p>这个组合，id不是主键，而是一个Unique的二级索引键值。那么在RC隔离级别下，delete from t1 where id = 10; 需要加什么锁呢？见下图：</p>
+<img src="/2017/06/14/mysql-transaction/id_uniq_rc.jpg" alt="id_uniq_rc.jpg" title="">
+<p>此组合中，id是unique索引，而主键是name列。此时，加锁的情况由于组合一有所不同。由于id是unique索引，因此delete语句会选择走id列的索引进行where条件的过滤，在找到id=10的记录后，首先会将unique索引上的id=10索引记录加上X锁，同时，会根据读取到的name列，回主键索引(聚簇索引)，然后将聚簇索引上的name = ‘d’ 对应的主键索引项加X锁。为什么聚簇索引上的记录也要加锁？试想一下，如果并发的一个SQL，是通过主键索引来更新：update t1 set id = 100 where name = ‘d’; 此时，如果delete语句没有将主键索引上的记录加锁，那么并发的update就会感知不到delete语句的存在，违背了同一记录上的更新/删除需要串行执行的约束。</p>
+<p><strong>结论</strong>：若id列是unique列，其上有unique索引。那么SQL需要加两个X锁，一个对应于id unique索引上的id = 10的记录，另一把锁对应于聚簇索引上的[name=’d’,id=10]的记录。</p>
+<h4 id="组合三：id非唯一索引-RC"><a href="#组合三：id非唯一索引-RC" class="headerlink" title="组合三：id非唯一索引+RC"></a>组合三：id非唯一索引+RC</h4><p>相对于组合一、二，组合三又发生了变化，隔离级别仍旧是RC不变，但是id列上的约束又降低了，id列不再唯一，只有一个普通的索引。假设delete from t1 where id = 10; 语句，仍旧选择id列上的索引进行过滤where条件，那么此时会持有哪些锁？同样见下图：</p>
+<img src="/2017/06/14/mysql-transaction/id_normal_idx.jpg" alt="id_normal_idx.jpg" title="">
+<p>根据此图，可以看到，首先，id列索引上，满足id = 10查询条件的记录，均已加锁。同时，这些记录对应的主键索引上的记录也都加上了锁。与组合二唯一的区别在于，组合二最多只有一个满足等值查询的记录，而组合三会将所有满足查询条件的记录都加锁。</p>
+<p><strong>结论</strong>：若id列上有非唯一索引，那么对应的所有满足SQL查询条件的记录，都会被加锁。同时，这些记录在主键索引上的记录，也会被加锁。</p>
+<h4 id="组合四：id无索引-RC"><a href="#组合四：id无索引-RC" class="headerlink" title="组合四：id无索引+RC"></a>组合四：id无索引+RC</h4><p>相对于前面三个组合，这是一个比较特殊的情况。id列上没有索引，where id = 10;这个过滤条件，没法通过索引进行过滤，那么只能走全表扫描做过滤。对应于这个组合，SQL会加什么锁？或者是换句话说，全表扫描时，会加什么锁？这个答案也有很多：有人说会在表上加X锁；有人说会将聚簇索引上，选择出来的id = 10;的记录加上X锁。那么实际情况呢？请看下图：</p>
+<img src="/2017/06/14/mysql-transaction/id_without_idx.jpg" alt="id_without_idx.jpg" title="">
+<p>由于id列上没有索引，因此只能走聚簇索引，进行全部扫描。从图中可以看到，满足删除条件的记录有两条，但是，聚簇索引上所有的记录，都被加上了X锁。无论记录是否满足条件，全部被加上X锁。既不是加表锁，也不是在满足条件的记录上加行锁。</p>
+<p>有人可能会问？为什么不是只在满足条件的记录上加锁呢？这是由于MySQL的实现决定的。如果一个条件无法通过索引快速过滤，那么存储引擎层面就会将所有记录加锁后返回，然后由MySQL Server层进行过滤。因此也就把所有的记录，都锁上了。</p>
+<p>注：在实际的实现中，MySQL有一些改进，在MySQL Server过滤条件，发现不满足后，会调用unlock_row方法，把不满足条件的记录放锁 (违背了2PL的约束)。这样做，保证了最后只会持有满足条件记录上的锁，但是每条记录的加锁操作还是不能省略的。</p>
+<p>结论：若id列上没有索引，SQL会走聚簇索引的全扫描进行过滤，由于过滤是由MySQL Server层面进行的。因此每条记录，无论是否满足条件，都会被加上X锁。但是，为了效率考量，MySQL做了优化，对于不满足条件的记录，会在判断后放锁，最终持有的，是满足条件的记录上的锁，但是不满足条件的记录上的加锁/放锁动作不会省略。同时，优化也违背了2PL的约束。</p>
+<h4 id="组合五-id主键-RR"><a href="#组合五-id主键-RR" class="headerlink" title="组合五:id主键+RR"></a>组合五:id主键+RR</h4><p>上面的四个组合，都是在Read Committed隔离级别下的加锁行为，接下来的四个组合，是在Repeatable Read隔离级别下的加锁行为。</p>
+<p>组合五，id列是主键列，Repeatable Read隔离级别，针对delete from t1 where id = 10; 这条SQL，加锁与组合一：[id主键，Read Committed]一致。</p>
+<h4 id="组合六：id唯一索引-RR"><a href="#组合六：id唯一索引-RR" class="headerlink" title="组合六：id唯一索引+RR"></a>组合六：id唯一索引+RR</h4><p>与组合五类似，组合六的加锁，与组合二：[id唯一索引，Read Committed]一致。两个X锁，id唯一索引满足条件的记录上一个，对应的聚簇索引上的记录一个。</p>
+<h4 id="组合七：id非唯一索引-RR"><a href="#组合七：id非唯一索引-RR" class="headerlink" title="组合七：id非唯一索引+RR"></a>组合七：id非唯一索引+RR</h4><p>还记得前面提到的MySQL的四种隔离级别的区别吗？RC隔离级别允许幻读，而RR隔离级别，不允许存在幻读。但是在组合五、组合六中，加锁行为又是与RC下的加锁行为完全一致。那么RR隔离级别下，如何防止幻读呢？问题的答案，就在组合七中揭晓。</p>
+<p>组合七，Repeatable Read隔离级别，id上有一个非唯一索引，执行delete from t1 where id = 10; 假设选择id列上的索引进行条件过滤，最后的加锁行为，是怎么样的呢？同样看下面这幅图：</p>
+<img src="/2017/06/14/mysql-transaction/id_normal_idx_rr.jpg" alt="id_normal_idx_rr.jpg" title="">
+<p>此图，相对于组合三：[id列上非唯一锁，Read Committed]看似相同，其实却有很大的区别。最大的区别在于，这幅图中多了一个GAP锁，而且GAP锁看起来也不是加在记录上的，倒像是加载两条记录之间的位置，GAP锁有何用？</p>
+<p>其实这个多出来的GAP锁，就是RR隔离级别，相对于RC隔离级别，不会出现幻读的关键。确实，GAP锁锁住的位置，也不是记录本身，而是两条记录之间的GAP。所谓幻读，就是同一个事务，连续做两次当前读 (例如：select * from t1 where id = 10 for update;)，那么这两次当前读返回的是完全相同的记录 (记录数量一致，记录本身也一致)，第二次的当前读，不会比第一次返回更多的记录 (幻象)。</p>
+<p>如何保证两次当前读返回一致的记录，那就需要在第一次当前读与第二次当前读之间，其他的事务不会插入新的满足条件的记录并提交。为了实现这个功能，GAP锁应运而生。</p>
+<p>如图中所示，有哪些位置可以插入新的满足条件的项 (id = 10)，考虑到B+树索引的有序性，满足条件的项一定是连续存放的。记录[6,c]之前，不会插入id=10的记录；[6,c]与[10,b]间可以插入[10, aa]；[10,b]与[10,d]间，可以插入新的[10,bb],[10,c]等；[10,d]与[11,f]间可以插入满足条件的[10,e],[10,z]等；而[11,f]之后也不会插入满足条件的记录。因此，为了保证[6,c]与[10,b]间，[10,b]与[10,d]间，[10,d]与[11,f]不会插入新的满足条件的记录，MySQL选择了用GAP锁，将这三个GAP给锁起来。</p>
+<p>Insert操作，如insert [10,aa]，首先会定位到[6,c]与[10,b]间，然后在插入前，会检查这个GAP是否已经被锁上，如果被锁上，则Insert不能插入记录。因此，通过第一遍的当前读，不仅将满足条件的记录锁上 (X锁)，与组合三类似。同时还是增加3把GAP锁，将可能插入满足条件记录的3个GAP给锁上，保证后续的Insert不能插入新的id=10的记录，也就杜绝了同一事务的第二次当前读，出现幻象的情况。</p>
+<p>有心的朋友看到这儿，可以会问：既然防止幻读，需要靠GAP锁的保护，为什么组合五、组合六，也是RR隔离级别，却不需要加GAP锁呢？</p>
+<p>首先，这是一个好问题。其次，回答这个问题，也很简单。GAP锁的目的，是为了防止同一事务的两次当前读，出现幻读的情况。而组合五，id是主键；组合六，id是unique键，都能够保证唯一性。一个等值查询，最多只能返回一条记录，而且新的相同取值的记录，一定不会在新插入进来，因此也就避免了GAP锁的使用。其实，针对此问题，还有一个更深入的问题：如果组合五、组合六下，针对SQL：select * from t1 where id = 10 for update; 第一次查询，没有找到满足查询条件的记录，那么GAP锁是否还能够省略？此问题留给大家思考。</p>
+<p>结论：Repeatable Read隔离级别下，id列上有一个非唯一索引，对应SQL：delete from t1 where id = 10; 首先，通过id索引定位到第一条满足查询条件的记录，加记录上的X锁，加GAP上的GAP锁，然后加主键聚簇索引上的记录X锁，然后返回；然后读取下一条，重复进行。直至进行到第一条不满足条件的记录[11,f]，此时，不需要加记录X锁，但是仍旧需要加GAP锁，最后返回结束。</p>
+<h4 id="组合八：id无索引-RR"><a href="#组合八：id无索引-RR" class="headerlink" title="组合八：id无索引+RR"></a>组合八：id无索引+RR</h4><p>组合八，Repeatable Read隔离级别下的最后一种情况，id列上没有索引。此时SQL：delete from t1 where id = 10; 没有其他的路径可以选择，只能进行全表扫描。最终的加锁情况，如下图所示：</p>
+<img src="/2017/06/14/mysql-transaction/id_without_idx_rr.jpg" alt="id_without_idx_rr.jpg" title="">
+<p>如图，这是一个很恐怖的现象。首先，聚簇索引上的所有记录，都被加上了X锁。其次，聚簇索引每条记录间的间隙(GAP)，也同时被加上了GAP锁。这个示例表，只有6条记录，一共需要6个记录锁，7个GAP锁。试想，如果表上有1000万条记录呢？</p>
+<p>在这种情况下，这个表上，除了不加锁的快照度，其他任何加锁的并发SQL，均不能执行，不能更新，不能删除，不能插入，全表被锁死。</p>
+<p>当然，跟组合四：[id无索引, Read Committed]类似，这个情况下，MySQL也做了一些优化，就是所谓的semi-consistent read。semi-consistent read开启的情况下，对于不满足查询条件的记录，MySQL会提前放锁。针对上面的这个用例，就是除了记录[d,10]，[g,10]之外，所有的记录锁都会被释放，同时不加GAP锁。semi-consistent read如何触发：要么是read committed隔离级别；要么是Repeatable Read隔离级别，同时设置了 innodb_locks_unsafe_for_binlog 参数。更详细的关于semi-consistent read的介绍，可参考我之前的一篇博客：MySQL+InnoDB semi-consitent read原理及实现分析 。</p>
+<p>结论：在Repeatable Read隔离级别下，如果进行全表扫描的当前读，那么会锁上表中的所有记录，同时会锁上聚簇索引内的所有GAP，杜绝所有的并发 更新/删除/插入 操作。当然，也可以通过触发semi-consistent read，来缓解加锁开销与并发影响，但是semi-consistent read本身也会带来其他问题，不建议使用。</p>
+<h3 id="组合九：Serializable"><a href="#组合九：Serializable" class="headerlink" title="组合九：Serializable"></a>组合九：Serializable</h3><p>针对前面提到的简单的SQL，最后一个情况：Serializable隔离级别。对于SQL2：delete from t1 where id = 10; 来说，Serializable隔离级别与Repeatable Read隔离级别完全一致，因此不做介绍。</p>
+<p>Serializable隔离级别，影响的是SQL1：select * from t1 where id = 10; 这条SQL，在RC，RR隔离级别下，都是快照读，不加锁。但是在Serializable隔离级别，SQL1会加读锁，也就是说快照读不复存在，MVCC并发控制降级为Lock-Based CC。</p>
+<p>结论：在MySQL/InnoDB中，所谓的读不加锁，并不适用于所有的情况，而是隔离级别相关的。Serializable隔离级别，读不加锁就不再成立，所有的读操作，都是当前读。</p>
+<h4 id="一条复杂的SQL"><a href="#一条复杂的SQL" class="headerlink" title="一条复杂的SQL"></a>一条复杂的SQL</h4><p>写到这里，其实MySQL的加锁实现也已经介绍的八八九九。只要将本文上面的分析思路，大部分的SQL，都能分析出其会加哪些锁。而这里，再来看一个稍微复杂点的SQL，用于说明MySQL加锁的另外一个逻辑。SQL用例如下：</p>
+<img src="/2017/06/14/mysql-transaction/complex_sql.jpg" alt="complex_sql.jpg" title="">
+<p>如图中的SQL，会加什么锁？假定在Repeatable Read隔离级别下 (Read Committed隔离级别下的加锁情况，留给读者分析。)，同时，假设SQL走的是idx_t1_pu索引。</p>
+<p>在详细分析这条SQL的加锁情况前，还需要有一个知识储备，那就是一个SQL中的where条件如何拆分？具体的介绍，建议阅读我之前的一篇文章：SQL中的where条件，在数据库中提取与应用浅析 。在这里，我直接给出分析后的结果：</p>
+<p>Index key：pubtime &gt; 1 and puptime &lt; 20。此条件，用于确定SQL在idx_t1_pu索引上的查询范围。<br>Index Filter：userid = ‘hdc’ 。此条件，可以在idx_t1_pu索引上进行过滤，但不属于Index Key。<br>Table Filter：comment is not NULL。此条件，在idx_t1_pu索引上无法过滤，只能在聚簇索引上过滤。</p>
+<p>在分析出SQL where条件的构成之后，再来看看这条SQL的加锁情况 (RR隔离级别)，如下图所示：</p>
+<img src="/2017/06/14/mysql-transaction/complex_sql_1.jpg" alt="complex_sql_1.jpg" title="">
+<p>从图中可以看出，在Repeatable Read隔离级别下，由Index Key所确定的范围，被加上了GAP锁；Index Filter锁给定的条件 (userid = ‘hdc’)何时过滤，视MySQL的版本而定，在MySQL 5.6版本之前，不支持Index Condition Pushdown(ICP)，因此Index Filter在MySQL Server层过滤，在5.6后支持了Index Condition Pushdown，则在index上过滤。若不支持ICP，不满足Index Filter的记录，也需要加上记录X锁，若支持ICP，则不满足Index Filter的记录，无需加记录X锁 (图中，用红色箭头标出的X锁，是否要加，视是否支持ICP而定)；而Table Filter对应的过滤条件，则在聚簇索引中读取后，在MySQL Server层面过滤，因此聚簇索引上也需要X锁。最后，选取出了一条满足条件的记录[8,hdc,d,5,good]，但是加锁的数量，要远远大于满足条件的记录数量。</p>
+<p><strong>结论</strong>：在Repeatable Read隔离级别下，针对一个复杂的SQL，首先需要提取其where条件。Index Key确定的范围，需要加上GAP锁；Index Filter过滤条件，视MySQL版本是否支持ICP，若支持ICP，则不满足Index Filter的记录，不加X锁，否则需要X锁；Table Filter过滤条件，无论是否满足，都需要加X锁。</p>
+<h3 id="死锁原理与分析"><a href="#死锁原理与分析" class="headerlink" title="死锁原理与分析"></a>死锁原理与分析</h3><p>本文前面的部分，基本上已经涵盖了MySQL/InnoDB所有的加锁规则。深入理解MySQL如何加锁，有两个比较重要的作用：</p>
+<ul>
+<li>可以根据MySQL的加锁规则，写出不会发生死锁的SQL；</li>
+<li>可以根据MySQL的加锁规则，定位出线上产生死锁的原因；</li>
+</ul>
+<p>下面，来看看两个死锁的例子 (一个是两个Session的两条SQL产生死锁；另一个是两个Session的一条SQL，产生死锁)：</p>
+<img src="/2017/06/14/mysql-transaction/sql_dead_lock_1.jpg" alt="sql_dead_lock_1.jpg" title="">
+<img src="/2017/06/14/mysql-transaction/sql_dead_lock_2.jpg" alt="sql_dead_lock_2.jpg" title="">
+<p>上面的两个死锁用例。第一个非常好理解，也是最常见的死锁，每个事务执行两条SQL，分别持有了一把锁，然后加另一把锁，产生死锁。</p>
+<p>第二个用例，虽然每个Session都只有一条语句，仍旧会产生死锁。要分析这个死锁，首先必须用到本文前面提到的MySQL加锁的规则。针对Session 1，从name索引出发，读到的[hdc, 1]，[hdc, 6]均满足条件，不仅会加name索引上的记录X锁，而且会加聚簇索引上的记录X锁，加锁顺序为先[1,hdc,100]，后[6,hdc,10]。而Session 2，从pubtime索引出发，[10,6],[100,1]均满足过滤条件，同样也会加聚簇索引上的记录X锁，加锁顺序为[6,hdc,10]，后[1,hdc,100]。发现没有，跟Session 1的加锁顺序正好相反，如果两个Session恰好都持有了第一把锁，请求加第二把锁，死锁就发生了。</p>
+<p>结论：死锁的发生与否，并不在于事务中有多少条SQL语句，死锁的关键在于：两个(或以上)的Session加锁的顺序不一致。而使用本文上面提到的，分析MySQL每条SQL语句的加锁规则，分析出每条语句的加锁顺序，然后检查多个并发SQL间是否存在以相反的顺序加锁的情况，就可以分析出各种潜在的死锁情况，也可以分析出线上死锁发生的原因。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>写到这儿，本文也告一段落，做一个简单的总结，要做的完全掌握MySQL/InnoDB的加锁规则，甚至是其他任何数据库的加锁规则，需要具备以下的一些知识点：</p>
+<p>了解数据库的一些基本理论知识：数据的存储格式 (堆组织表 vs 聚簇索引表)；并发控制协议 (MVCC vs Lock-Based CC)；Two-Phase Locking；数据库的隔离级别定义 (Isolation Level)；<br>了解SQL本身的执行计划 (主键扫描 vs 唯一键扫描 vs 范围扫描 vs 全表扫描)；<br>了解数据库本身的一些实现细节 (过滤条件提取；Index Condition Pushdown；Semi-Consistent Read)；<br>了解死锁产生的原因及分析的方法 (加锁顺序不一致；分析每个SQL的加锁顺序)</p>
+<p>有了这些知识点，再加上适当的实战经验，全面掌控MySQL/InnoDB的加锁规则，当不在话下。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/06/14/mysql-transaction.html">mysql和事务</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">kongwenqiang</a></p>
+        <p><span>发布时间:</span>2017-06-14, 10:03:20</p>
+        <p><span>最后更新:</span>2017-06-14, 11:55:34</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/06/14/mysql-transaction.html" title="mysql和事务">https://leokongwq.github.io/2017/06/14/mysql-transaction.html</a>
+            <span class="copy-path" data-clipboard-text="原文: https://leokongwq.github.io/2017/06/14/mysql-transaction.html　　作者: kongwenqiang" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/06/14/spring-MessageConverter.html">
+                    spring中HttpMessageConverter详解
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/06/11/mysql-locks.html">
+                    mysql中的锁
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#概念"><span class="toc-number">1.</span> <span class="toc-text">概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ACID"><span class="toc-number">2.</span> <span class="toc-text">ACID</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#事务隔离级别"><span class="toc-number">3.</span> <span class="toc-text">事务隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL事务隔离级别"><span class="toc-number">4.</span> <span class="toc-text">MySQL事务隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MVCC：Snapshot-Read-vs-Current-Read"><span class="toc-number">5.</span> <span class="toc-text">MVCC：Snapshot Read vs Current Read</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#快照读"><span class="toc-number">5.1.</span> <span class="toc-text">快照读</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Cluster-Index：聚簇索引"><span class="toc-number">5.2.</span> <span class="toc-text">Cluster Index：聚簇索引</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2PL：Two-Phase-Locking"><span class="toc-number">5.3.</span> <span class="toc-text">2PL：Two-Phase Locking</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Isolation-Level"><span class="toc-number">5.4.</span> <span class="toc-text">Isolation Level</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#一条简单SQL的加锁实现分析"><span class="toc-number">6.</span> <span class="toc-text">一条简单SQL的加锁实现分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#组合一：id主键-RC"><span class="toc-number">6.1.</span> <span class="toc-text">组合一：id主键+RC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#组合二：id唯一索引-RC"><span class="toc-number">6.2.</span> <span class="toc-text">组合二：id唯一索引+RC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#组合三：id非唯一索引-RC"><span class="toc-number">6.3.</span> <span class="toc-text">组合三：id非唯一索引+RC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#组合四：id无索引-RC"><span class="toc-number">6.4.</span> <span class="toc-text">组合四：id无索引+RC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#组合五-id主键-RR"><span class="toc-number">6.5.</span> <span class="toc-text">组合五:id主键+RR</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#组合六：id唯一索引-RR"><span class="toc-number">6.6.</span> <span class="toc-text">组合六：id唯一索引+RR</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#组合七：id非唯一索引-RR"><span class="toc-number">6.7.</span> <span class="toc-text">组合七：id非唯一索引+RR</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#组合八：id无索引-RR"><span class="toc-number">6.8.</span> <span class="toc-text">组合八：id无索引+RR</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合九：Serializable"><span class="toc-number">7.</span> <span class="toc-text">组合九：Serializable</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#一条复杂的SQL"><span class="toc-number">7.1.</span> <span class="toc-text">一条复杂的SQL</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#死锁原理与分析"><span class="toc-number">8.</span> <span class="toc-text">死锁原理与分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">9.</span> <span class="toc-text">总结</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"mysql和事务　| 戒修-沉迷技术的小沙弥　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js'];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+        <section id="comments">
+    <style> aside.comment-bar { margin: auto 30px; }</style>
+    <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function(){
+            this.page.url = 'https://leokongwq.github.io/2017/06/14/mysql-transaction.html';
+            this.page.identifier = '2017/06/14/mysql-transaction.html';
+        };
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = '//leokongwq.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        }
+    </script>
+    
+    <script> loadComment(); </script>
+
+</section>
+
+
+    
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/06/14/spring-MessageConverter.html" title="上一篇: spring中HttpMessageConverter详解">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/06/11/mysql-locks.html" title="下一篇: mysql中的锁">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/06/spring-extension-point-autoconfig-summary.html">spring扩展点及springboot自动配置总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/12/openresy-lua-image-server.html">基于Openresy的图片服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/06/linux-file-system-schedule.html">Linux文件系统调用算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/31/openresty-health-check-dynamic-up-down.html">基于openresty的后端应用健康检查-动态上下线</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/tcp-state-transfer-diagram.html">TCP状态转化总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/27/openresty-dynamic-upstream.html">openresty动态upstream实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/19/distribute-lock-some-way.html">分布式锁的几种实现方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/19/distribute-system-consistent.html">分布式系统一致性</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/kotlin-coroutine-learn.html">kotlin之coroutine学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/mac-autostart.html">mac上禁止jenkins自启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/01/gossip-intro.html">Gossip算法介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/01/consul-vs-other-software.html">consul和其它软件的比较</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/31/consul-quick-start.html">consul快速启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/22/computer-science-bus-arbitration.html">CPU总线仲裁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/21/java-agent-instrumentation.html">java Instrumentation 和 Agent</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/21/activemq-monitor-hawtio.html">activemq监控之hawtio</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/20/centos-crond.html">centos下安装crond</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/16/vertx-async-callback-hell.html">vert.x异步回调地狱处理方式总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/15/vertx-Future.html">vertx-Future</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/06/vertx-cluster.html">vertx集群模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/06/microservices-gateway.html">微服务之网关</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/vertx-command-line-options.html">vertx命令行选项解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/04/vertx-web-BodyHandler.html">vert.x web开发之BodyHandler</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/02/vertx-web-global-exception.html">vertx中web全局异常处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-vertx-jdbc-client.html">vertx中vertx-jdbc-client使用问题总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-jdbc-datasource.html">vertx对jdbc数据源的支持</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-command-run.html">vert.x run 命令解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/30/java8-CompletableFuture-1.html">java8中CompletableFuture解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/vertx-http-server-analyze.html">vertx创建http服务器分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/http-content-type.html">http协议之content-type</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/vertx-Vertx.html">vert.x之Vertx类解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/21/vertx-web-route.html">vert.x web开发之route</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/21/vertx-web-router.html">vert.x web开发之router</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-cache.html">配置 Vert.x 缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-Launcher.html">vertx-启动器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-access-filesystem.html">vertx-访问文件系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-cluster-lock-counter.html">vertx-集群范围锁-计数器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-share-data.html">vertx-共享数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-tcp.html">vertx编程tcp服务端和客户端</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-http.html">vertx编程http服务端和客户端</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-buffer.html">vertx中的buffer</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-json.html">vertx中的json</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-event-bus.html">vertx-事件总线</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-timer.html">vertx-执行周期性/延迟性操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-context.html">vertx-context</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-verticle.html">vertx-verticle介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-quickstart.html">vert.x入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/10/mysql-tools-code.html">mysql常用工具SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/06/maven-useful-slices.html">maven使用知识汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/21/mysql-read-only-transaction.html">mysql只读事务解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/30/linux-clean-dns-cache.html">Linux中如何清除DNS缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/linux-disk-raid.html">linux磁盘阵列简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/26/linux-centos7-rc-local.html">centos7中rc.local不起作用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/24/understanding-maven-snapshot.html">理解maven中SNAPSHOT版本的作用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/22/python-build-in-chapter-one.html">python内置函数-第一篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/22/linux-kill-parent-and-child-process.html">linux中kill主进程和所有子进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/21/why-enum-singleton-are-serialization-safe.html">为什么用枚举实现的单例模式可以防止反序列化？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/computer-how-float-stored.html">浮点数在计算机中是如何存储的？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/17/mysql-data-types-date-time.html">mysql数据类型-日期&时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/16/mysql-data-types-numeric.html">mysql数据类型-数字类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/15/mysql-data-types-set.html">mysql数据类型-集合</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/15/mysql-data-types-enum.html">mysql数据类型-枚举类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/mysql-data-types-string.html">mysql数据类型-字符串类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/11/python-multiprocessing.html">python多进程简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/07/python-package.html">python包机制简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/05/python-file-read.html">python文件读写的几种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/24/python-multi-thread.html">python中的多线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/23/java-synchronized-detail.html">深入分析synchronized的实现原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/22/python-useful-codes.html">Python常用的代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/21/java-baised-locking.html">java中的偏向锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/06/mysql-deadlock-detection.html">mysql检测和处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/06/mysql-timeout.html">mysql中重要超时处理机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/22/maven-resource-plugin.html">maven-resource-plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/19/java-Security-Illegal-key-size.html">java-Security-Illegal-key-size</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/19/linux-find.html">linux find使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/spring-MessageConverter.html">spring中HttpMessageConverter详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/mysql-transaction.html">mysql和事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/11/mysql-locks.html">mysql中的锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/linux-task-on-boot.html">linux开机启动任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/mysql-batch-update-column.html">mysql批量修改列类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/19/mongodb-enable-query-log.html">mongodb开启查询日志</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/18/best-practices-for-a-pragmatic-restful-api.html">RESTful API 设计最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/18/rest-introduce.html">rest架构介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/springboot-mongo.html">springboot-mongo</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/16/idea-jvm-options.html">mac下idea虚拟机参数设置</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/12/linux-tool-traceroute.html">linux工具之traceroute</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/10/curl-learn.html">curl学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/08/java-enum-abstractMethod.html">java中的枚举是否可以有抽象方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/spring-ExceptionResolver.html">spring错误处理之HandlerExceptionResolver</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/spring-ErrorPageFilter.html">SpringBoot异常处理之ErrorPageFilter</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/05/spring-aop-MethodAnnotation.html">spring中AOP获取方法上的注解信息</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/02/spring-expandPoint.html">spring扩展点整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/29/maven-dependency-scope.html">maven jar包依赖范围总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/25/java-web-exception.html">java web 开发异常处理总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/springboot-tomcat.html">springboot发布到tomcat</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql-date-datetime-timestamp.html">mysql中date，datetime，timestamp的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/13/raft-protocol.html">raft协议简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/13/js-cross-domain.html">js跨域解决方案详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/28/java-netty-idleStateHandler.html">netty如何实现心跳检查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/28/why-oauth2-use-authorization-code.html">为什么在oauth2认证中需要使用授权码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/27/java-Executors.html">java线程池工具类Executors</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/27/mq-kafka-producer-partitioner.html">kafka发送消息分区选择策略详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-thread-dump.html">java中生成线程堆栈</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-Thread-state.html">java线程生命周期和状态</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-Thread-join.html">java中线程join方法的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-ThreadPoolExecutor-RejectedExecutionHandler.html">java线程池-RejectedExecutionHandler</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-memorymapped-file-and-io.html">java中内存映射文件和IO</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-difference-between-direct-non-direct-mapped-bytebuffer-nio.html">direct, non-direct, mapped bytebuffer区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-difference-between-stack-and-heap.html">java中栈和堆的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-how-to-create-immutable-class.html">java中如何创建不可变对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-interview-questions-answers-from-last-5-years.html">过去5年Java面试题精选</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-why-string-is-immutable-or-final.html">为什么在java中String是不可变或final</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-lock-and-condition-example-producer-consumer.html">java中使用锁和条件对象实现生产者-消费者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-why-wait-notify-called-in-synchronized-block.html">为什么wait和notify必须在同步方法或同步块中调用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-why-java-not-support-multi-inheritances.html">为何java不支持多继承</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql-locks-intro.html">mysql锁介绍（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-top10-Tricky-questions.html">诡异的java面试题TOP10</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-why-wait-notify-and-notifyall-defined-in-object.html">java-为什么wait，notify和notifyall定义在Object中</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-notify-notifyall.html">java中notify和notifyall的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/18/java-xml-parser.html">java中xml解析器介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/smooth-online-offline-service.html">服务节点平滑上下线</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/07/mq-kafka-blogs.html">kafka资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/mq-kafka-tutorial.html">kafka入门教程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/microservice-links.html">微服务资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/04/ddd-books.html">领域驱动设计书单</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/jms-message-order.html">jms-如何保证消息的顺序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/22/golang-param-pass-value-or-point.html">值传递, 指针传递 这是一个问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/21/golang-how-to-write-go-code.html">如何开发GO代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BigData-summary.html">大数据处理总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-HashSearch.html">algo-HashSearch</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BlockSearch.html">分块查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BinaryTreeSearch.html">二叉排序树查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BinarySearch.html">二分查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/SearchAlgo.html">查找算法总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-HeapSort.html">堆排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-QuickSort.html">快速排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-InsertionSort.html">插入排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-mergesort.html">归并排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-bucketsort.html">桶排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-bubblesort.html">冒泡排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/17/java8-CompletableFuture.html">java8中CompletableFuture详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/17/java-zookeeper-curator.html">zookeeper客户端之curator</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/16/Java-PriorityQueue.html">Java优先级队列PriorityQueue</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/13/java-LockSupport.html">java-LockSupport详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/mq-rocketmq-cluster.html">rocketmq集群搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/mq-rocketmq-quickstart.html">rocketmq快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/linux-zero-copy.html">linux零拷贝原理（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/11/java-jdk9-new-features.html">java-jdk9-new-features</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/java-Experienced-Developer-Teach-You-Five-Things.html">经验丰富的Java开发者教给你的五件事</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/mq-pages.html">MQ资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/DTP-best-practice.html">分布式事务典型处理方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/spring-xa-transactions-using.html">使用spring处理分布式事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql-text-defaultValue.html">mysql-text-defaultValue</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-understanding-jta.html">深入理解JTA事务处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-jta-deeplearning.html">JTA 深度历险 - 原理与实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-management-under-j2ee.html">J2EE事务管理详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/02/java-design-pattern-summary.html">java-design_pattern-summary</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/02/spring-DTP-patterns.html">spring处理分布式事务（使用或不使用XA）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/01/mysql-master-slave-thinking.html">mysql-master-slave-thinking</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-finally.html">java魔法之finally</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-0xCAFEBABE.html">java魔法之0xCAFEBABE</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-java-dot-net-dot-url.html">java魔法之java.net.Url</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-unsafe.html">java魔法之unsafe</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-AtomicLong.html">java中原子变量之AtomicLong</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/30/distribute-transaction-manage.html">分布式系统的事务处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/30/the-pattern-updateCache.html">缓存更新的套路</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/29/java8-lambda.html">java8 lambda表达式详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/spring-annotation-value.html">spring中注解@Value解密</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/spring-PropertyPlaceholderConfigurer.html">spring扩展点之PropertyPlaceholderConfigurer</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/mac-install-python-mysql.html">mac上安装Python-Mysql</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/27/mysql-mofidy-charset.html">mysql修改表-字段-库的字符集</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/25/java8-stream.html">java8-stream</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/23/java8-optional.html">java8-optional</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/23/java-8-features-tutorial.html">java-8-features-tutorial</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/06/java-DesignPatterns-flyweight.html">java-设计模式之-享元模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/05/java-Design-Patterns-builder.html">java-设计模式之-建造者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/03/java-DesignPatterns-proxy.html">java-设计模式之-代理模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-adapter.html">java-设计模式之-适配器模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-bridge.html">java-设计模式之-桥接模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/golang-execute-file-path.html">java-设计模式之-外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-facade.html">java-设计模式之-外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/28/java-DesignPatterns-command.html">java-设计模式之-命令模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/26/java-DesignPatterns-abstractFactory.html">java-设计模式之-抽象工厂模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/26/java-DesignPatterns-factoryMethod.html">java-设计模式之-工程方法模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-simpleFactory.html">java-设计模式之-简单工程模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-decorator.html">java-设计模式之-装饰者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/nginx-cache.html">nginx缓存功能介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-observer.html">java设计模式之-观察者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/nginx-rewrite.html">nginx配置rewrite指令详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-singleton.html">java实现单例模式的几种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-Singleton.html">设计模式之-单例模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-UML.html">设计模式之-UML类图快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-Strategy.html">设计模式之-策略模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/22/java-HashMap-MaxmumEntries.html">java中HashMap的最大容量解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/18/algo-stack-calculateExp.html">用栈实现后缀表达式的计算</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/16/algo-prime-number.html">素数相关</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/16/algo-gcd.html">求两个整数的最大公约数</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/java-HowThreadLocalWork.html">ThreadLocal正解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/java-Reference.html">java Reference 详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/SpringMVC-annotationDriven.html">mvc:annotation-driver</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/11/golang-effective-go.html">golang-effective-go</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/10/openresty-lua-nginx-module.html">openresty-lua-nginx-module</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/09/linux-max-fd.html">linux中最大文件描述符数</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/09/the-difference-between-301-and-302.html">HTTP301和302的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/nodejs-heapdump.html">nodejs调试工具之heapdump简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/nodejs-gc.html">Node.js 调试 GC 以及内存暴涨的分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/07/nodejs-debug.html">NodeJS的代码调试和性能调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/07/siege-introduce.html">压测工具siege简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/06/binary-search-tree.html">二叉查找树</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/full-print-BinaryTree.html">full-print-BinaryTree</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/best-10-practice-from-linkedin.html">LinkedIn关于提高Node.JS服务的10个建议</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/distributed-id-generation.html">5分钟了解分布式ID生成方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/27/java-LinkedList.html">java-LinkedList实现解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/java-LinkedHashMap.html">java-LinkedHashMap知识点汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/java-HashMap.html">java-HashMap知识点汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/japanese-50-yin.html">日语50音图学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/25/linux-netcat.html">Linux Netcat 命令用法简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/24/linux-backlog-maxconn.html">linux网络编程backlog和somaxconn</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/21/npm-11-useful-tips.html">npm11个提供工作效率的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/linux-network-io.html">Linux IO模式及 select、poll、epoll详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/linux-io-epoll.html">Linux下的I/O复用与epoll详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/mac-osx-kernel.html">mac-osx-kernel</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/java-real-data-type-size.html">Java中数据类型真实的内存占用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/19/vim-fileencoding.html">vim-文件编码</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-exports-and-module-expots.html">nodejs中exports和module.expots异同</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-os.html">nodejs模块-os模块</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-path.html">nodejs模块path简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/Fibers-and-Threads-in-node.html">Fibers-and-Threads-in-node</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-querystring.html">nodejs模块之querystring</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-Readline.html">nodejs模块之readline</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/jquery-selector.html">jquery选择器详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/pm2-readme.html">pm2使用简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/fastjson-use.html">fastjson使用简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/character-set.html">字符集详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/linux-hostname.html">linux命令hostname详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/linux-delete-file-not-free-the-space.html">linux删除文件但磁盘空间不释放</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodeJs-module-async.html">nodeJs解决异步回调方案之module-async</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/redis-sentinel.html">redis哨兵功能简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/http-cache.html">http缓存详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-import.html">golang中import语句详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-thread-profile.html">java线程必备知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/nodejs-globals.html">Nodejs全局对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-flag.html">golang命令行参数解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-file.html">golang文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-userinfo.html">golang 用户信息获取</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-time.html">golang时间操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-BlockingQueue.html">Java的BlockingQueue详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-runnable-callable-future.html">Java中的Runnable、Callable、Future、FutureTask的区别与示例</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/java-Queue.html">java队列Queue接口详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/strace-learn.html">手把手教你用Strace诊断问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/too-many-open-files.html">too-many-open-files</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/linux-strace.html">linux工具-strace</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/http-tranfer-encoding.html">HTTP 协议中的 Transfer-Encoding</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/lombook.html">lombook工具包简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-file-size.html">golang编译后文件编写的技巧</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-cross-compile.html">golang交叉编译</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-string.html">Go性能优化技巧-string</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-array.html">Go性能优化技巧-array</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-map.html">Go性能优化技巧-map</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-defer.html">golang之defer简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-chan.html">golang之chan简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-build-version.html">golang自动生成版本信息</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/how-to-get-goroutine-id.html">如何获取goroutine的id</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/fifty-common-Mistakes-for-New-Golang-Devs.html">50个go新手开发常见的错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/ten-best-practise-for-java-exception.html">java异常处理最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-error-handler.html">golang错误处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/seven-things-about-golang.html">关于go你必须知道的7件事</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-tools-build.html">go自带工具build的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-gdb-debug.html">golang程序GDB调试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/hexo-post-asset-folder-html.html">hexo使用post_asset_folder功能文章链接不能以html结尾</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/hexo-codeblock-multiblank.html">hexo代码块前后空白行问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/java-serialization-deepknow.html">java-serialization-deepknow</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-unsafe.html">golang的unsafe包简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/IDCardNo-algo.html">身份证号验证算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/byte-order.html">网络字节序</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-testing.html">golang代码测试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/linux-tool-dig.html">linux-tool-dig</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-md5.html">golang计算字符串MD5</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-time-format.html">golang时间格式化</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-open-browser.html">golang打开系统浏览器</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/mq-compare.html">常见MQ产品比较</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/golang-user-define-json-UnmarshalJSON.html">golang进行json数据的解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-join-point-ofTwoIntersectList.html">查找无环单链表的相交节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/isIntersectWithLoop.html">单链表-链表有环如何判断相交</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-the-join-point-in-list.html">找出单链表有环的入口节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/list-hasCircle.html">判断单链表是否有环</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-mid-post-in-list.html">找出单链表的中间节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-the-kth-node-in-list.html">找出单链表倒数第K个节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/reverse-one-direction-list.html">单链表逆转</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/delete-listNode-in-O1.html">O(1)时间内删除链表节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/reverse-print-list.html">单链表的逆序打印</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/merge-two-sorted-list.html">合并两个升序的单向链表</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/print-NxN-matrix.html">打印NxN矩阵的对角线</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/service-discovery.html">服务发现介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/web-reply-attack.html">web重放攻击介绍和防御方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/process-exception-in-web-dev.html">web开发异常统一处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/maven-test.html">maven-surefire-plugin简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/spring-aop-pointcut-expression.html">spring aop 切点表达式介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/avoid-NullPointException-Java.html">java程序避免NullPointException最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/11/jvm-codecache.html">JVM-codecache内存区域介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/13/logstash-input-file.html">logstash-input-file</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/12/when-to-use-hadoop-toolbox.html">Hadoop-Hbase-Hive-Pig关系</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/14/JVM-Tools.html">有用的JVM工具简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/12/IllegalMonitorStateException.html">诡异的异常IllegalMonitorStateException</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/11/HowMysqlLoadDataWorks.html">mysql load data infile 简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/10/why-not-use-finalize.html">为什么不使用finalize</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/14/mac-sshd.html">mac-sshd</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/theDayEndOfJd.html">朝林最后一天</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/java-Guava-Splitor.html">Guava-Spilitor</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/java-Guava-Joiner.html">Guava-Joiner</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/17/springMVCOutlines.html">Spring MVC HandlerMapping HandlerAdapter</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/17/howJekyllWorks.html">How Jekyll works</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/githubblog.html">Jekyll 快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/JVMOptimize.html">JVM常用参数和调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/JVMGcAlgorithm.html">JVM垃圾收集算法</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2018 kongwenqiang
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<script>
+    var inputArea = document.querySelector("#local-search-input");
+    var getSearchFile = function(){
+        var path = "/search.xml";
+        alert(11111);
+        searchFunc(path, 'local-search-input', 'local-search-result');
+    }
+    inputArea.onfocus = function(){
+      getSearchFile()
+    }
+
+    var $resetButton = $("#search-form .fa-times");
+
+    var $resultArea = $("#local-search-result");
+    inputArea.oninput = function(){ $resetButton.show(); }
+
+    resetSearch = function(){
+        $resultArea.html("");
+        document.querySelector("#search-form").reset();
+        $resetButton.hide();
+        $(".no-result").hide();
+    }
+
+    inputArea.onkeydown = function(){
+        if(event.keyCode==13) {
+          return false
+        }
+    }
+
+    $resultArea.bind("DOMNodeRemoved DOMNodeInserted", function(e) {
+        if (!$(e.target).text()) {
+            $(".no-result").show(200);
+        } else {
+          $(".no-result").hide();
+        }
+    })
+
+</script>
+
+  </div>
+</body>
+</html>

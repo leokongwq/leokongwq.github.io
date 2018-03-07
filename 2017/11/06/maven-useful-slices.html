@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="kongwenqiang" />
+
+
+
+<meta name="description" content="背景用了好多年maven了，在使用中遇到好多问题，虽然一一解决了，但是并没有详细总结归纳形成最佳实践。通过这篇文章将使用中遇到过的问题一一记录，以后再次遇到同类问题就不用再Google了。
+maven坐标maven的世界里有海量的构件，如何查找需要的构件是非常重要的事情。maven通过称为坐标的概念来定位仓库中的构件。maven构件的坐标有一下几个元素：
+
+groupId 构件所属的项目
+arti">
+<meta property="og:type" content="article">
+<meta property="og:title" content="maven使用知识汇总">
+<meta property="og:url" content="https://leokongwq.github.io/2017/11/06/maven-useful-slices.html">
+<meta property="og:site_name" content="戒修-沉迷技术的小沙弥">
+<meta property="og:description" content="背景用了好多年maven了，在使用中遇到好多问题，虽然一一解决了，但是并没有详细总结归纳形成最佳实践。通过这篇文章将使用中遇到过的问题一一记录，以后再次遇到同类问题就不用再Google了。
+maven坐标maven的世界里有海量的构件，如何查找需要的构件是非常重要的事情。maven通过称为坐标的概念来定位仓库中的构件。maven构件的坐标有一下几个元素：
+
+groupId 构件所属的项目
+arti">
+<meta property="og:image" content="https://leokongwq.github.io/2017/11/06/maven-useful-slices/maven-optional.png">
+<meta property="og:updated_time" content="2017-11-09T15:11:52.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="maven使用知识汇总">
+<meta name="twitter:description" content="背景用了好多年maven了，在使用中遇到好多问题，虽然一一解决了，但是并没有详细总结归纳形成最佳实践。通过这篇文章将使用中遇到过的问题一一记录，以后再次遇到同类问题就不用再Google了。
+maven坐标maven的世界里有海量的构件，如何查找需要的构件是非常重要的事情。maven通过称为坐标的概念来定位仓库中的构件。maven构件的坐标有一下几个元素：
+
+groupId 构件所属的项目
+arti">
+<meta name="twitter:image" content="https://leokongwq.github.io/2017/11/06/maven-useful-slices/maven-optional.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="戒修-沉迷技术的小沙弥" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>maven使用知识汇总 | 戒修-沉迷技术的小沙弥</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<script src="/js/search.js"></script>
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">kongwenqiang</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">我喜欢GO</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:leokongwq@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/leokongwq" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AOP/">AOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ActiveQM/">ActiveQM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/">MQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/">NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Nginx/">Nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OS/">OS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Openresy/">Openresy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/">TCP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/algo/">algo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aop/">aop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cache/">cache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/computer/">computer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/consul/">consul</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/curl/">curl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devtools/">devtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/">golang</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gossip/">gossip</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava/">guava</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hive/">hive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java8/">java8</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdk/">jdk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jekyll/">jekyll</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/json/">json</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jta/">jta</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jvm/">jvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mac/">mac</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/microservices/">microservices</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mq/">mq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/netty/">netty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/npm/">npm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth2/">oauth2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openresty/">openresty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/osx/">osx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pig/">pig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soa/">soa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-mvc/">spring-mvc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springMVC/">springMVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springboot/">springboot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqoop/">sqoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uml/">uml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vert-x/">vert.x</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web/">web</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web安全/">web安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xa/">xa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml/">xml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zookeeper/">zookeeper</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发/">并发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微服务/">微服务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/随笔/">随笔</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.imhan.com">Hanny&#39;s Blog</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.chepoo.com">IT技术精华网</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">只想做个好程序员!</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">kongwenqiang</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">kongwenqiang</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">我喜欢GO</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:leokongwq@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/leokongwq" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-maven-useful-slices" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/11/06/maven-useful-slices.html" class="article-date">
+      <time datetime="2017-11-06T06:11:51.000Z" itemprop="datePublished">2017-11-06</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      maven使用知识汇总
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/devtools/">devtools</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/maven/">maven</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>用了好多年maven了，在使用中遇到好多问题，虽然一一解决了，但是并没有详细总结归纳形成最佳实践。通过这篇文章将使用中遇到过的问题一一记录，以后再次遇到同类问题就不用再Google了。</p>
+<h3 id="maven坐标"><a href="#maven坐标" class="headerlink" title="maven坐标"></a>maven坐标</h3><p>maven的世界里有海量的构件，如何查找需要的构件是非常重要的事情。maven通过称为坐标的概念来定位仓库中的构件。maven构件的坐标有一下几个元素：</p>
+<ul>
+<li>groupId 构件所属的项目</li>
+<li>artifactId 构件所在的模块。</li>
+<li>version 构件的版本号</li>
+<li>packaging 构件打包的类型，默认是<code>jar</code></li>
+<li>classifier 构件使用的JDK版本</li>
+</ul>
+<a id="more"></a>
+<h3 id="maven构件依赖"><a href="#maven构件依赖" class="headerlink" title="maven构件依赖"></a>maven构件依赖</h3><h4 id="maven构件依赖范围"><a href="#maven构件依赖范围" class="headerlink" title="maven构件依赖范围"></a>maven构件依赖范围</h4><p>首先需要知道的是：maven在编译项目主代码时使用一套classpath， 在编译运行测试代码时用一套classpath，在实际运行时又是一套classpath。 </p>
+<p>依赖范围其实就是控制依赖于这三种classpath（编译， 测试，运行）的关系的。</p>
+<ul>
+<li>Compile: 编译依赖范围。如果没有指定，就会默认使用该依赖范围。使用此依赖范 围的 Maven 依赖，对于编译、测试、运行三种 classpath 都有效。典型的例子是 spring-core，<em>在编译、测试和运行</em>的时候都需要使用该依赖</li>
+<li>Test:测试依赖范围。使用此依赖范围的 Maven 依赖，只对于测试 classpath 有效，在 编译主代码或者运行项目的使用时将无法使用此类依赖。典型的例子是 JUnit，它只有 在编译测试代码及运行测试的时候才需要。</li>
+<li>Provided:已提供依赖范围。使用此依赖范围的 Maven 依赖，对于<em>编译和测试</em> classpath 有效，但在运行时无效。典型的例子是 <code>servlet-api</code>，编译和测试项目的时候 需要该依赖，但在运行项目的时候，由于容器已经提供，就不需要 Maven 重复的引入 一遍。</li>
+<li>Runtime:运行时依赖范围。使用此依赖范围的 Maven 依赖，对于<em>测试和运行</em> classpath 有效，但在编译主代码时无效。典型的例子是 JDBC 驱动实现，项目主代码的编译只需要 JDK 提供的 JDBC 接口，只有在执行测试或者运行项目的时候才需要实 现上述接口的具体 JDBC 驱动。</li>
+<li><p>System:系统依赖范围。该依赖与 3 种 classpath 的关系，和 Provided 依赖范围完全一致。但是，使用 System 范围的依赖时必须通过<code>systemPath</code>元素显式地指定依赖文件 的路径。由于此类依赖不是通过 Maven 仓库解析的，而且往往与本机系统绑定，可能 造成构建的不可移植，因此应该谨慎使用。systemPath 元素可以引用环境变量，如:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span>    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.sql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jdbc-stdext<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span>    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>system<span class="tag">&lt;/<span class="name">scope</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">systemPath</span>&gt;</span>$&#123;java.home&#125;/lib/rt.jar<span class="tag">&lt;/<span class="name">systemPath</span>&gt;</span><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+</li>
+<li><p>Import(Maven 2.0.9 及以上):导入依赖范围。该依赖范围不会对 3 种 classpath 产生 实际的影响</p>
+</li>
+</ul>
+<h4 id="传递性依赖"><a href="#传递性依赖" class="headerlink" title="传递性依赖"></a>传递性依赖</h4><p>传递性依赖，简单来说就是项目中直接依赖的构件本身依赖的其它构件。maven会自动处理这些间接的依赖构件。</p>
+<h4 id="传递性依赖和依赖范围"><a href="#传递性依赖和依赖范围" class="headerlink" title="传递性依赖和依赖范围"></a>传递性依赖和依赖范围</h4><p>假设 A 依赖于 B，B 依赖于 C，我们说 A 对于 B 是第一直接依赖， B 对于 C 是第二直接依赖，A 对于 C 是传递性依赖。第一直接依赖的范围和第二直接依赖 的范围决定了传递性依赖的范围，如下表所示，最左边一列表示第一直接依赖范围，最上面一行表示第二直接依赖范围，中间的交叉单元格则表示传递性依赖范围:</p>
+<table>
+<thead>
+<tr>
+<th>第一直接依赖/第二直接依赖</th>
+<th>compile</th>
+<th>test</th>
+<th>provided</th>
+<th>runtime</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>compile</td>
+<td>compile</td>
+<td>-</td>
+<td>-</td>
+<td>runtime</td>
+</tr>
+<tr>
+<td>test</td>
+<td>test</td>
+<td>-</td>
+<td>-</td>
+<td>test</td>
+</tr>
+<tr>
+<td>provided</td>
+<td>provided</td>
+<td>-</td>
+<td>provided</td>
+<td>provided</td>
+</tr>
+<tr>
+<td>runtime</td>
+<td>runtime</td>
+<td>-</td>
+<td>-</td>
+<td>runtime</td>
+</tr>
+</tbody>
+</table>
+<p>仔细观察一下表格，可以发现这样的规律:当第二直接依赖的范围是<code>compile</code>的时候，传递性依赖的范围与第一直接依赖的范围一致;当第二直接依赖的范围是<code>test</code>的时候，依赖不会得以传递;当第二直接依赖的范围是<code>provided</code>的时候，只传递第一直接依赖范围也为<code>provided</code>的依赖，且传递性依赖的范围同样为<code>provided</code>;当第二直接依赖的范围是<code>runtime</code>的时候，传递性依赖的范围与第一直接依赖的范围一致，但 compile 例外，此时 传递性依赖的范围为<code>runtime</code>。</p>
+<h4 id="依赖调解"><a href="#依赖调解" class="headerlink" title="依赖调解"></a>依赖调解</h4><p>所谓依赖调解指的是当项目中的直接依赖构件依赖了相同的简介依赖而造成的重复依赖问题，例如：<code>A-&gt;B-&gt;C-&gt;X(1.0)</code>、<code>A-&gt;D-&gt;X(2.0)</code>，<code>X</code> 是<code>A</code> 的传递性依赖，但是两条依赖路径上有两个版本的<code>X</code>。 </p>
+<p>Maven依赖调解的第一原则是: <code>路径最近者优先</code>。该例中 <code>X(1.0)</code>的路径长度为<code>3</code>，而<code>X(2.0)</code>的路径长度为 <code>2</code>，因此 <code>X(2.0)</code>会被解析使用。</p>
+<p>依赖调解第一原则不能解决所有问题，比如这样的依赖关系:<code>A-&gt;B-&gt;Y(1.0)</code>、<code>A-&gt;C-&gt;Y (2.0)</code>，<code>Y(1.0)</code>和 <code>Y(2.0)</code>的依赖路径长度是一样的，都为<code>2</code>。那么到底谁会被解析使 用呢?在 Maven 2.0.8 及之前的版本中，这是不确定的，但是从Maven 2.0.9 开始，为了 尽可能避免构建的不确定性，Maven 定义了依赖调解的第二原则:<code>第一声明者优先</code>。在依赖路径长度相等的前提下，在POM中依赖声明的顺序决定了谁会被解析使用，顺序最靠前的那个依赖优胜。该例中，如果B的依赖声明在C之前，那么<code>Y(1.0)</code>就会被解析使用。</p>
+<h4 id="可选依赖"><a href="#可选依赖" class="headerlink" title="可选依赖"></a>可选依赖</h4><p>假设有这样一个依赖关系，项目 A 依赖于项目 B，B 依赖于项目 X 和 Y，B 对于 X 和 Y 的 依赖都是可选依赖:A-&gt;B、B-&gt;X(可选)、B-&gt;Y(可选)。根据传递性依赖的定义，如果 所有这三个依赖的范围都是 compile，那么 X、Y 就是 A 的 compile 范围传递性依赖。然 而，由于这里 X、Y 是可选依赖，依赖将不会得以传递，换句话说，X、Y 将不会对A有任何影响</p>
+<img src="/2017/11/06/maven-useful-slices/maven-optional.png" alt="maven-optional.png" title="">
+<p>为什么要使用可选依赖这一特性呢?可能项目 B 实现了两个特性，其中的特性一依赖于 X，特性二依赖于 Y，而且这两个特性是互斥的，用户不可能同时使用两个特性。比如 B 是一个持久层隔离工具包，它支持多种数据库，包括 MySQL，PostgreSQL 等等，在构建这 个工具包的时候，需要这两种数据库的驱动程序，但在使用这个工具包的时候，只会依赖 一种数据库。<br>项目 B 的依赖声明见代码清单 3-7。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">project</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.juvenxu.mvnbook<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>project-b<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span>    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span>        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span>            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span> </span>
+<span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span> </span>
+<span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.1.10<span class="tag">&lt;/<span class="name">version</span>&gt;</span> </span>
+<span class="line">            <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span>        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span> </span>
+<span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span>            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>postgresql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span> </span>
+<span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>postgresql<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>       </span>
+<span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>8.4-701.jdbc3<span class="tag">&lt;/<span class="name">version</span>&gt;</span> </span>
+<span class="line">            <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span>        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>上述 XML 代码片段中，使用<optional>元素表示 mysql-connector-java 和 postgresql 这两个 依赖为可选依赖，它们只会对当前项目 B 产生影响，当其他项目依赖于 B 的时候，这两个依赖不会被传递。因此，当项目 A 依赖于项目 B 的时候，如果其实际使用基于 MySQL 数 据库，那么在项目 A 中就需要显式地声明 mysql-connector-java 这一依赖。</optional></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">project</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.juvenxu.mvnbook<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>project-a<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span> <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span>    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span>        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span> </span>
+<span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.juvenxu.mvnbook<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span> </span>
+<span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>project-b<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span> </span>
+<span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span>        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span> </span>
+<span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span>        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">             <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span> </span>
+<span class="line">             <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.1.10<span class="tag">&lt;/<span class="name">version</span>&gt;</span>        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>最后，关于可选依赖需要说明的一点是，在理想的情况下，是不应该使用可选依赖的。前 面我们可以看到，使用可选依赖的原因是某一个项目实现了多个特性，在面向对象设计 中，有个单一职责性原则，意指一个类应该只有一项职责，而不是糅合太多的功能。这个 原则在规划 Maven 项目的时候也同样适用，在上面的例子中，更好的做法是为 MySQL 和 PostgreSQL 分别创建一个 Maven 项目，基于同样的 groupId 分配不同的 artifactId，如 <code>com.juvenxu.mvnbook:project-b-mysql</code> 和 <code>com.juvenxu.mvnbook:project-b-postgresql</code>，在各 自的 POM 中声明对应的 JDBC 驱动依赖，而且不使用可选依赖，用户则根据需要选择使用<code>project-b-mysql</code>或者 <code>project-b-postgresql</code>，由于传递性依赖的作用，就不用再声明 JDBC 驱 动依赖。</p>
+<h3 id="依赖最佳实践"><a href="#依赖最佳实践" class="headerlink" title="依赖最佳实践"></a>依赖最佳实践</h3><h4 id="排除依赖"><a href="#排除依赖" class="headerlink" title="排除依赖"></a>排除依赖</h4><p>传递性依赖会给项目隐式的引入很多依赖，这极大地简化了项目依赖的管理，但是有些时 候这种特性也会带来问题。例如，当前项目有一个第三方依赖，而这个第三方依赖由于某 些原因依赖了另外一个类库的 SNAPSHOT 版本，那么这个 SNAPSHOT 就会成为当前项目的 传递性依赖，而 SNAPSHOT 的不稳定性会直接影响到当前的项目，这时就需要排除掉该 SNAPSHOT，并且在当前项目中声明该类库的某个正式发布的版本。还有一些情况，你可 能也想要替换某个传递性依赖，比如 Sun JTA API，Hibernate 依赖于这个 JAR，但是由于版 权的因素，该类库不在中央仓库中，而Apache Geronimo项目有一个对应的实现，这时你 就可以排除 Sun JAT API，再声明 Geronimo 的 JTA API 实现</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">project</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.juvenxu.mvnbook<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>project-a<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span>    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span> </span>
+<span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.juvenxu.mvnbook<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span> </span>
+<span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>project-b<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span> </span>
+<span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span>        <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span>            <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span> </span>
+<span class="line">              <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.juvenxu.mvnbook<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span> </span>
+<span class="line">              <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>project-c<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>            <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span> </span>
+<span class="line">        <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span>    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span>        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.juvenxu.mvnbook<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span> </span>
+<span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>project-c<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span> </span>
+<span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span>    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span> </span>
+<span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>上述代码中，项目 A 依赖于项目 B，但是由于一些原因，不想引入传递性依赖 C，而是自 己显式地声明对于项目 C 1.1.0 版本的依赖。代码中使用 exclusions 元素声明排除依赖， exclusions 可以包含一个或者多个 exclusion 子元素，因此可以排除一个或者多个传递性依 赖。需要注意的是，声明 exclusion 的时候只需要 groupId 和 artifactId，而不需要 version 元素，这是因为只需要 groupId 和 artifactId 就能唯一定位依赖图中的某个依赖，换句话说，Maven 解析后的依赖中，不可能出现 groupId 和 artifactId 相同，但是 version 不同的<br>两个依赖。</p>
+<h4 id="归类依赖"><a href="#归类依赖" class="headerlink" title="归类依赖"></a>归类依赖</h4><p>归类依赖指的是依赖了同一个项目的多个模块，这些模块统一称为归类依赖（典型的就是spring）。在使用时我们可以通过maven属性来为这些归类依赖的定义统一的版本号，方便以后统一升级。</p>
+<h4 id="优化依赖"><a href="#优化依赖" class="headerlink" title="优化依赖"></a>优化依赖</h4><p>maven提供了许多功能来分析当前项目的依赖情况，具体如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">mvn dependency:list</span>
+</pre></td></tr></table></figure>
+<p>通过上面的命令我们能得知maven解析后，项目所有依赖的构建和其依赖范围。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">mvn dependency:tree</span>
+</pre></td></tr></table></figure>
+<p>通过该命令我们能清晰的知道项目依赖的关系，直接依赖和间接依赖等信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">dependency:analyze</span>
+</pre></td></tr></table></figure>
+<p>该命令的输出需要注意两点：</p>
+<p><code>Used undeclared dependencies</code>：指的是项目中用到的依赖但是并没有显示声明依赖。这种依赖是通过直接依赖传递进来的，当升级直接依赖的时候，相关传递性依赖的版本也可能发生变化，这种变化不易察觉，但是有可能导致当前项目出错，例如由于接口的改变，当前项目中的相关代 码无法编译。这种隐藏的、潜在的威胁一旦出现，就往往需要耗费大量的时间来查明真 相。因此，显式声明任何项目中直接用到的依赖。</p>
+<p><code>Unused declared dependencies</code>：指定是项目中没有用到但已经声明的依赖。需要注意的是，对于这样一类依赖， 我们不应该简单地直接删除其声明，而是应该仔细分析。由于 dependency:analyze 只会分 析编译主代码和测试代码需要用到的依赖，一些执行测试和运行时需要的依赖它就发现不了，很显然，该例中的 spring-core 和 spring-beans 是运行 Spring Framework 项目必要的类 库，因此不应该删除依赖声明。当然，有时候确实能通过该信息找到一些没用的依赖，但一定要小心测试。</p>
+<h3 id="Repositories"><a href="#Repositories" class="headerlink" title="Repositories"></a>Repositories</h3><p>Repository 是maven构件的集合（或叫做仓库），默认值是：<a href="https://repo.maven.apache.org/maven2/" target="_blank" rel="external">https://repo.maven.apache.org/maven2/</a>。我们在项目中开发中也可以指定自己的私服地址。</p>
+<p>配置示例如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">repositories</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">repository</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">releases</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">enabled</span>&gt;</span>false<span class="tag">&lt;/<span class="name">enabled</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">updatePolicy</span>&gt;</span>always<span class="tag">&lt;/<span class="name">updatePolicy</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">checksumPolicy</span>&gt;</span>warn<span class="tag">&lt;/<span class="name">checksumPolicy</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;/<span class="name">releases</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">snapshots</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">enabled</span>&gt;</span>true<span class="tag">&lt;/<span class="name">enabled</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">updatePolicy</span>&gt;</span>never<span class="tag">&lt;/<span class="name">updatePolicy</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">checksumPolicy</span>&gt;</span>fail<span class="tag">&lt;/<span class="name">checksumPolicy</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;/<span class="name">snapshots</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>codehausSnapshots<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>Codehaus Snapshots<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://snapshots.maven.codehaus.org/maven2<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">layout</span>&gt;</span>default<span class="tag">&lt;/<span class="name">layout</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">repository</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">repositories</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">pluginRepositories</span>&gt;</span></span>
+<span class="line">    ...</span>
+<span class="line">  <span class="tag">&lt;/<span class="name">pluginRepositories</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<ul>
+<li>id 仓库的唯一标志</li>
+<li>name 仓库的描述性名称，以易读为准。</li>
+<li>url 仓库的地址</li>
+<li>layout 仓库的存储布局格式。默认是default（maven2 和 maven3）。 取值范围：default 或 legacy(maven1)。</li>
+<li>releases, snapshots: 针对不同的构件版本类型设置不同的服务策略。</li>
+<li>enabled: 取值为 true 或 false，表明该仓库是否提供该构件发布类型的服务。</li>
+<li>updatePolicy: 仓库依赖的更新策略。取值为：always, daily (默认), interval:X (X表示分钟数) 或 never。</li>
+<li>checksumPolicy: 当maven部署构件到仓库时，也会部署对应的校验和文件，你可以设置：ignore，fail或者warn用于当校验和文件不存在或者检验失败时的处理策略。</li>
+</ul>
+<h3 id="pluginRepositories"><a href="#pluginRepositories" class="headerlink" title="pluginRepositories"></a>pluginRepositories</h3><p>插件仓库。仓库是两种主要构件的家。第一种构件被用作其它构件的依赖。这是中央仓库中存储的大部分构件类型。另外一种构件类型是插件。Maven插件是一种特殊类型的构件。由于这个原因，插件仓库独立于其它仓库。pluginRepositories元素的结构和repositories元素的结构类似。每个pluginRepository元素指定一个Maven可以用来寻找新插件的远程地址。</p>
+<p>pluginRepositories的配置和repositories基本类似。</p>
+<h3 id="在settings-xml中配置远程仓库"><a href="#在settings-xml中配置远程仓库" class="headerlink" title="在settings.xml中配置远程仓库"></a>在settings.xml中配置远程仓库</h3><p>为什么需要在maven的配置文件<code>settings.xml</code>中配置repository呢？答案就是为了避免重复。在<code>settings.xml</code>中配置repository对所有的项目都是起作用的。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">settings</span>&gt;</span>  </span>
+<span class="line">  ...  </span>
+<span class="line">  <span class="tag">&lt;<span class="name">profiles</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">profile</span>&gt;</span>  </span>
+<span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>dev<span class="tag">&lt;/<span class="name">id</span>&gt;</span>  </span>
+<span class="line">      <span class="comment">&lt;!-- repositories and pluginRepositories here--&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;/<span class="name">profile</span>&gt;</span>  </span>
+<span class="line">  <span class="tag">&lt;/<span class="name">profiles</span>&gt;</span>  </span>
+<span class="line">  <span class="tag">&lt;<span class="name">activeProfiles</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">activeProfile</span>&gt;</span>dev<span class="tag">&lt;/<span class="name">activeProfile</span>&gt;</span>  </span>
+<span class="line">  <span class="tag">&lt;/<span class="name">activeProfiles</span>&gt;</span>  </span>
+<span class="line">  ...  </span>
+<span class="line"><span class="tag">&lt;/<span class="name">settings</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>这里我们定义一个id为dev的profile，将所有repositories以及pluginRepositories元素放到这个profile中，然后，使用<activeprofiles>元素自动激活该profile。这样，你就不用再为每个POM重复配置仓库。<br>使用profile为settings.xml添加仓库提供了一种用户全局范围的仓库配置。</activeprofiles></p>
+<h3 id="maven使用repository的顺序"><a href="#maven使用repository的顺序" class="headerlink" title="maven使用repository的顺序"></a>maven使用repository的顺序</h3><ol>
+<li>settings.xml - Auto-activated profiles (<activation>), reverse definition order</activation></li>
+<li>settings.xml - CLI activated profiles, reverse definition order</li>
+<li>pom.xml repos</li>
+<li>parent pom repos</li>
+</ol>
+<h3 id="镜像"><a href="#镜像" class="headerlink" title="镜像"></a>镜像</h3><p>如果你的地理位置附近有一个速度更快的central镜像，或者你想覆盖central仓库配置，或者你想为所有POM使用唯一的一个远程仓库（这个远程仓库代理的所有必要的其它仓库），你可以使用settings.xml中的mirror配置。<br>以下的mirror配置用maven.net.cn覆盖了Maven自带的central：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">settings</span>&gt;</span>  </span>
+<span class="line">...  </span>
+<span class="line">  <span class="tag">&lt;<span class="name">mirrors</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">mirror</span>&gt;</span>  </span>
+<span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>maven-net-cn<span class="tag">&lt;/<span class="name">id</span>&gt;</span>  </span>
+<span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>Maven China Mirror<span class="tag">&lt;/<span class="name">name</span>&gt;</span>  </span>
+<span class="line">      <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://maven.net.cn/content/groups/public/<span class="tag">&lt;/<span class="name">url</span>&gt;</span>  </span>
+<span class="line">      <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>central<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;/<span class="name">mirror</span>&gt;</span>  </span>
+<span class="line">  <span class="tag">&lt;/<span class="name">mirrors</span>&gt;</span>  </span>
+<span class="line">...  </span>
+<span class="line"><span class="tag">&lt;/<span class="name">settings</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>这里唯一需要解释的是<code>&lt;mirrorOf&gt;</code>，这里我们配置<code>central</code>的镜像，我们也可以配置一个所有仓库的镜像，以保证该镜像是Maven唯一使用的仓库：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">settings</span>&gt;</span>  </span>
+<span class="line">...  </span>
+<span class="line">  <span class="tag">&lt;<span class="name">mirrors</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">mirror</span>&gt;</span>  </span>
+<span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>my-org-repo<span class="tag">&lt;/<span class="name">id</span>&gt;</span>  </span>
+<span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>Repository in My Orgnization<span class="tag">&lt;/<span class="name">name</span>&gt;</span>  </span>
+<span class="line">      <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://192.168.1.100/maven2<span class="tag">&lt;/<span class="name">url</span>&gt;</span>  </span>
+<span class="line">      <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>*<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;/<span class="name">mirror</span>&gt;</span>  </span>
+<span class="line">  <span class="tag">&lt;/<span class="name">mirrors</span>&gt;</span>  </span>
+<span class="line">...  </span>
+<span class="line"><span class="tag">&lt;/<span class="name">settings</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>mirrorOf 可以有如下的使用方式：</p>
+<ol>
+<li><code>*</code> 代理所有仓库</li>
+<li>repo3 只针对repo3</li>
+<li>*, !repo3  所有仓库，除了repo3 </li>
+<li>external:* 所有的外部仓库</li>
+</ol>
+<h3 id="mirror和repository-区别"><a href="#mirror和repository-区别" class="headerlink" title="mirror和repository 区别"></a>mirror和repository 区别</h3><p>internal repository是指在局域网内部搭建的repository，它跟central repository, jboss repository等的区别仅仅在于其URL是一个内部网址。 mirror则相当于一个代理，它会拦截去指定的远程repository下载构件的请求，然后从自己这里找出构件回送给客户端。配置mirror的目的一般是出于网速考虑。 可以看出，internal repository和mirror是两码事。前者本身是一个repository，可以和其它repository一起提供服务，比如它可以用来提供公司内部的maven构件；而后者本身并不是repository，它只是远程repository的网络加速器。 </p>
+<p>不过，很多internal repository搭建工具往往也提供mirror服务，比如Nexus就可以让同一个URL,既用作internal repository，又使它成为所有repository的mirror。</p>
+<p>如果仓库X可以提供仓库Y存储的所有内容，那么就可以认为X是Y的一个镜像。换句话说，任何一个可以从仓库Y获得的构件，都胡够从它的镜像中获取。举个例 子，<a href="http://maven.net.cn/content/groups/public/" target="_blank" rel="external">http://maven.net.cn/content/groups/public/</a> 是中央仓库<a href="http://repo1.maven.org/maven2/" target="_blank" rel="external">http://repo1.maven.org/maven2/</a> 在中国的镜像，由于地理位置的因素，该镜像往往能够提供比中央仓库更快的务。因此，可以配置Maven使用该镜像来替代中央仓库。编辑 settings.xml，代码如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">settings</span>&gt;</span></span>
+<span class="line">  ...</span>
+<span class="line">  <span class="tag">&lt;<span class="name">mirrors</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>maven.net.cn<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>one of the central mirrors in china<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://maven.net.cn/content/groups/public/<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>central<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">mirrors</span>&gt;</span></span>
+<span class="line">  ...</span>
+<span class="line"><span class="tag">&lt;/<span class="name">settings</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>该例中，<mirrorof>的值为central，表示该配置为中央仓库的镜像，任何对于中央仓库的请求都会转至该镜像，用户也可以使用同 样的方法配置其他仓库的镜像。另外三个元素id,name,url与一般仓库配置无异，表示该镜像仓库的唯一标识符、名称以及地址。类似地，如果该镜像需 认证，也可以基于该id配置仓库认证。<br><strong>关于镜像的一个更为常见的用法是结合私服</strong>。由于私服可以代理任何外部的公共仓库(包括中央仓库)，因此，对于组织内部的Maven用户来说，使用一个私服地址就等于使用了所有需要的外部仓库，这可以将配置集中到私服，从而简化Maven本身的配置。在这种情况下，任何需要的构件都可以从私服获得，私服就是所有仓库的镜像。这时，可以配置这样的一个镜像，如例：</mirrorof></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">settings</span>&gt;</span></span>
+<span class="line">  ...</span>
+<span class="line">  <span class="tag">&lt;<span class="name">mirrors</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>internal-repository<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>Internal Repository Manager<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://192.168.1.100/maven2<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>*<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">mirrors</span>&gt;</span></span>
+<span class="line">  ...</span>
+<span class="line"><span class="tag">&lt;/<span class="name">settings</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<h3 id="构件发布-distributionManagement"><a href="#构件发布-distributionManagement" class="headerlink" title="构件发布-distributionManagement"></a>构件发布-distributionManagement</h3><p>当我们完成一些公共组件的开发时，就需要将这些组件发布到公司的私服中去，这样需要使用该组件的项目就可以依赖该组件了。在maven中发布开发好的构件时需要配置<code>distributionManagement</code>元素。<code>distributionManagement</code>元素的基本构成如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">distributionManagement</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">downloadUrl</span>&gt;</span>http://mojo.codehaus.org/my-project<span class="tag">&lt;/<span class="name">downloadUrl</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">status</span>&gt;</span>deployed<span class="tag">&lt;/<span class="name">status</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">distributionManagement</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<ul>
+<li>downloadUrl，一个URL，其它Maven项目可以通过该URL下载并引用当前Maven项目的构件。</li>
+<li>status，当前Maven项目的状态，可用的状态如下所示。注意，该值是由Maven自动设置，永远不要人工设置。<ul>
+<li>none，未指明状态，默认值</li>
+<li>converted，该Maven项目的构件已经被转换为兼容Maven 2</li>
+<li>partner，该Maven项目的构件保持与另一个库的Maven版本一致</li>
+<li>deployed，该Maven项目的构件是通过Maven 2或Maven 3发布的，最常用的值</li>
+<li>verified，该Maven项目的构件已经被验证过</li>
+</ul>
+</li>
+</ul>
+<h4 id="的配置"><a href="#的配置" class="headerlink" title="的配置"></a><distributionmanagement>的<repository>配置</repository></distributionmanagement></h4><p>Maven部署当前构件到远程库时，关于远程库的配置。示例如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">distributionManagement</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">repository</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">uniqueVersion</span>&gt;</span>false<span class="tag">&lt;/<span class="name">uniqueVersion</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">id</span>&gt;</span>corp1<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>Corporate Repository<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">url</span>&gt;</span>scp://repo/maven2<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">layout</span>&gt;</span>default<span class="tag">&lt;/<span class="name">layout</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">repository</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">snapshotRepository</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">uniqueVersion</span>&gt;</span>true<span class="tag">&lt;/<span class="name">uniqueVersion</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">id</span>&gt;</span>propSnap<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>Propellors Snapshots<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">url</span>&gt;</span>sftp://propellers.net/maven<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">layout</span>&gt;</span>legacy<span class="tag">&lt;/<span class="name">layout</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">snapshotRepository</span>&gt;</span></span>
+<span class="line">  ...</span>
+<span class="line"><span class="tag">&lt;/<span class="name">distributionManagement</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<ul>
+<li>id, name：id用来在多个仓库中标志一个仓库的唯一性，name则是一个易于人理解的名称。</li>
+<li>uniqueVersion：该属性的取值是true/false，用来表示发布到该仓库的构件是否需要生成一个唯一的版本号，还是使用address里的其中version部分</li>
+<li>url: 指定仓库的地址和传输使用的协议。</li>
+<li>layout: default或者legacy</li>
+</ul>
+<h4 id="的配置-1"><a href="#的配置-1" class="headerlink" title="的配置"></a><distributionmanagement>的<site>配置</site></distributionmanagement></h4><p>除了部署当前Maven项目的构件，还可以部署当前Maven项目的网站和文档。示例如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">distributionManagement</span>&gt;</span></span>
+<span class="line">    ...</span>
+<span class="line">    <span class="tag">&lt;<span class="name">site</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>mojo.website<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>Mojo Website<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">url</span>&gt;</span>scp://beaver.codehaus.org/home/projects/mojo/public_html/<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">site</span>&gt;</span></span>
+<span class="line">    ...</span>
+<span class="line">  <span class="tag">&lt;/<span class="name">distributionManagement</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<h4 id="的配置-2"><a href="#的配置-2" class="headerlink" title="的配置"></a><distributionmanagement>的<relocation>配置</relocation></distributionmanagement></h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">distributionManagement</span>&gt;</span></span>
+<span class="line">  ...</span>
+<span class="line">  <span class="tag">&lt;<span class="name">relocation</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>my-project<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">message</span>&gt;</span>We have moved the Project under Apache<span class="tag">&lt;/<span class="name">message</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">relocation</span>&gt;</span></span>
+<span class="line">  ...</span>
+<span class="line"><span class="tag">&lt;/<span class="name">distributionManagement</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<h4 id="distributionManagement对应的settings-xml中的配置"><a href="#distributionManagement对应的settings-xml中的配置" class="headerlink" title="distributionManagement对应的settings.xml中的配置"></a>distributionManagement对应的settings.xml中的配置</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">settings</span>&gt;</span>    </span>
+<span class="line">  ...    </span>
+<span class="line">  <span class="tag">&lt;<span class="name">servers</span>&gt;</span>    </span>
+<span class="line">    <span class="tag">&lt;<span class="name">server</span>&gt;</span>    </span>
+<span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>nexus-releases<span class="tag">&lt;/<span class="name">id</span>&gt;</span>    </span>
+<span class="line">      <span class="tag">&lt;<span class="name">username</span>&gt;</span>admin<span class="tag">&lt;/<span class="name">username</span>&gt;</span>    </span>
+<span class="line">      <span class="tag">&lt;<span class="name">password</span>&gt;</span>admin123<span class="tag">&lt;/<span class="name">password</span>&gt;</span>    </span>
+<span class="line">    <span class="tag">&lt;/<span class="name">server</span>&gt;</span>    </span>
+<span class="line">    <span class="tag">&lt;<span class="name">server</span>&gt;</span>    </span>
+<span class="line">      <span class="tag">&lt;<span class="name">id</span>&gt;</span>nexus-snapshots<span class="tag">&lt;/<span class="name">id</span>&gt;</span>    </span>
+<span class="line">      <span class="tag">&lt;<span class="name">username</span>&gt;</span>admin<span class="tag">&lt;/<span class="name">username</span>&gt;</span>    </span>
+<span class="line">      <span class="tag">&lt;<span class="name">password</span>&gt;</span>admin123<span class="tag">&lt;/<span class="name">password</span>&gt;</span>    </span>
+<span class="line">    <span class="tag">&lt;/<span class="name">server</span>&gt;</span>      </span>
+<span class="line">  <span class="tag">&lt;/<span class="name">servers</span>&gt;</span>    </span>
+<span class="line">  ...    </span>
+<span class="line"><span class="tag">&lt;/<span class="name">settings</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>需要注意的是，settings.xml中server元素下id的值必须与POM中repository或snapshotRepository下id的值完全一致。将认证信息放到settings下而非POM中，是因为POM往往是它人可见的，而settings.xml是本地的。</p>
+<h3 id="反应堆"><a href="#反应堆" class="headerlink" title="反应堆"></a>反应堆</h3><p>反应堆指的是在一个多模块项目中，所有模块组成的一个构建结构。</p>
+<h4 id="反应堆构建顺序"><a href="#反应堆构建顺序" class="headerlink" title="反应堆构建顺序"></a>反应堆构建顺序</h4><p>反应堆的构建顺序是指：maven根据模块间的依赖和继承顺序来决定整个项目的构建顺序。</p>
+<h4 id="剪裁反应堆"><a href="#剪裁反应堆" class="headerlink" title="剪裁反应堆"></a>剪裁反应堆</h4><p>在一个多模块项目中如果修改了某个模块的代码其实是不需要构建整个项目的，尤其是大项目。否则会大大减慢开发效率。maven提供了剪裁构建反应堆的能力，让你有能力之构建需要构建的模块。maven提供多个命令行参数来支持反应堆的剪裁。具体如下：</p>
+<ul>
+<li>-am, –also-make 同时构建所列模块的依赖模块</li>
+<li>-amd –also-make-dependents 同时构建依赖于所列模块的模块</li>
+<li>pl –projects <arg> 构建指定的模块，模块间用逗号分割</arg></li>
+<li>rf –resume-from <arg> 从指定的模块回复反应堆</arg></li>
+</ul>
+<h3 id="测试集成"><a href="#测试集成" class="headerlink" title="测试集成"></a>测试集成</h3><p>maven 本身不提供代码测试功能 ，它只是在构建执行到特定生命周期阶段的时候，通过插件来执行<code>JUnit</code>或者<code>TestNG</code>的测试用例。<code>maven-surefire-plugin</code>就是这样一个提供运行测试的插件。</p>
+<h4 id="maven-surefire-plugin"><a href="#maven-surefire-plugin" class="headerlink" title="maven-surefire-plugin"></a>maven-surefire-plugin</h4><p><code>maven-surefire-plugin</code>可以称为测试运行器(Test Runner)，它能兼容JUnit 3、JUnit 4以及TestNG。</p>
+<p>在默认情况下，maven-surefire-plugin的test目标会自动执行测试源码路径（默认为src/test/java/）下所有符合一组命名模式的测试类。这组模式为：</p>
+<ul>
+<li><em>*/Test</em>.java：任何子目录下所有命名以Test开关的Java类。</li>
+<li><em>*/</em>Test.java：任何子目录下所有命名以Test结尾的Java类。</li>
+<li><em>*/</em>TestCase.java：任何子目录下所有命名以TestCase结尾的Java类。</li>
+</ul>
+<h5 id="跳过测试"><a href="#跳过测试" class="headerlink" title="跳过测试"></a>跳过测试</h5><p>要想跳过测试，在命令行加入参数<code>skipTests</code>就可以了。如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">mvn package -DskipTests</span>
+</pre></td></tr></table></figure>
+<p>又或者<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-surefire-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">configuration</span>&gt;</span>  </span>
+<span class="line">        <span class="tag">&lt;<span class="name">skipTests</span>&gt;</span>true<span class="tag">&lt;/<span class="name">skipTests</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span>  </span>
+<span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span>
+</pre></td></tr></table></figure></p>
+<p>有时候可能不仅仅需要跳过测试运行，还要跳过测试代码的编译：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">mvn package -Dmaven.test.skip=true</span>
+</pre></td></tr></table></figure>
+<p>也可以在pom中配置maven.test.skip:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugin<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-compiler-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">configuration</span>&gt;</span>  </span>
+<span class="line">        <span class="tag">&lt;<span class="name">skip</span>&gt;</span>true<span class="tag">&lt;/<span class="name">skip</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span>  </span>
+<span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span>  </span>
+<span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-surefire-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">configuration</span>&gt;</span>  </span>
+<span class="line">        <span class="tag">&lt;<span class="name">skip</span>&gt;</span>true<span class="tag">&lt;/<span class="name">skip</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span>  </span>
+<span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<h4 id="动态指定要运行的测试用例"><a href="#动态指定要运行的测试用例" class="headerlink" title="动态指定要运行的测试用例"></a>动态指定要运行的测试用例</h4><p><code>maven-surefire-plugin</code>提供了一个test参数让Maven用户能够在命令行指定要运行的测试用例。如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">mvn test -Dtest=RandomGeneratorTest</span>
+</pre></td></tr></table></figure>
+<p>也可以使用通配符</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">mvn test -Dtest=Random*Test</span>
+</pre></td></tr></table></figure>
+<p>或者也可以使用“，”号指定多个测试类:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">mvn test -Dtest=Random*Test,AccountCaptchaServiceTest</span>
+</pre></td></tr></table></figure>
+<p>如果没有指定测试类，那么会报错并导致构建失败。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">mvn test -Dtest</span>
+</pre></td></tr></table></figure>
+<p>这时候可以添加<code>-DfailIfNoTests=false</code>参数告诉<code>maven-surefire-plugin</code>即使没有任何测试也不要报错。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">mvn test -Dtest -DfailIfNoTests=false</span>
+</pre></td></tr></table></figure>
+<h4 id="包含与排除测试用例"><a href="#包含与排除测试用例" class="headerlink" title="包含与排除测试用例"></a>包含与排除测试用例</h4><p>如果由于历史原因，测试类不符合默认的三种命名模式，可以通过pom.xml设置maven-surefire-plugin插件添加命名模式或排除一些命名模式。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-surefire-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">configuration</span>&gt;</span>  </span>
+<span class="line">        <span class="tag">&lt;<span class="name">includes</span>&gt;</span>  </span>
+<span class="line">            <span class="tag">&lt;<span class="name">include</span>&gt;</span>**/*Tests.java<span class="tag">&lt;/<span class="name">include</span>&gt;</span>  </span>
+<span class="line">        <span class="tag">&lt;/<span class="name">includes</span>&gt;</span>  </span>
+<span class="line">        <span class="tag">&lt;<span class="name">excludes</span>&gt;</span>  </span>
+<span class="line">            <span class="tag">&lt;<span class="name">exclude</span>&gt;</span>**/*ServiceTest.java<span class="tag">&lt;/<span class="name">exclude</span>&gt;</span>  </span>
+<span class="line">            <span class="tag">&lt;<span class="name">exclude</span>&gt;</span>**/TempDaoTest.java<span class="tag">&lt;/<span class="name">exclude</span>&gt;</span>  </span>
+<span class="line">        <span class="tag">&lt;/<span class="name">excludes</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span>  </span>
+<span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<h4 id="生成测试报告"><a href="#生成测试报告" class="headerlink" title="生成测试报告"></a>生成测试报告</h4><p>默认情况下，<code>maven-surefire-plugin</code>会在项目的<code>target/surefire-reports</code>目录下生成两种格式的错误报告。</p>
+<ol>
+<li>简单文本格式——内容十分简单，可以看出哪个测试项出错。</li>
+<li>与JUnit兼容的XML格式——XML格式已经成为了Java单元测试报告的事实标准，这个文件可以用其他的工具如IDE来查看。</li>
+</ol>
+<h4 id="测试覆盖率报告"><a href="#测试覆盖率报告" class="headerlink" title="测试覆盖率报告"></a>测试覆盖率报告</h4><p>测试覆盖率是衡量项目代码质量的一个重要的参考指标。<a href="http://cobertura.sourceforge.net/" target="_blank" rel="external">Cobertura</a>是一个优秀的开源测试覆盖率统计工具，Maven通过<code>cobertura-maven-plugin</code>与之集成，用户可以使用简单的命令为Maven项目生成测试覆盖率报告。运行下面命令生成报告：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.codehaus.mojo<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>cobertura-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.7<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>命令行生成报告：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">mvn cobertura:cobertura</span>
+</pre></td></tr></table></figure>
+<p>执行完后会在target目录里找到site目录,用浏览器打开里面的index.html,这就是测试用例执行完后<code>cobertura-maven-plugin</code>得出的覆盖率报告。</p>
+<h4 id="重用测试代码"><a href="#重用测试代码" class="headerlink" title="重用测试代码"></a>重用测试代码</h4><p>当命令行运行mvn package的时候，Maven只会打包主代码及资源文件，并不会对测试代码打包。如果测试代码中有需要重用的代码，这时候就需要对测试代码打包了。<br>这时候需要配置maven-jar-plugin将测试类打包，如：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-jar-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">executions</span>&gt;</span>  </span>
+<span class="line">        <span class="tag">&lt;<span class="name">execution</span>&gt;</span>  </span>
+<span class="line">            <span class="tag">&lt;<span class="name">goals</span>&gt;</span>  </span>
+<span class="line">                <span class="tag">&lt;<span class="name">goal</span>&gt;</span>test-jar<span class="tag">&lt;/<span class="name">goal</span>&gt;</span>  </span>
+<span class="line">            <span class="tag">&lt;/<span class="name">goals</span>&gt;</span>  </span>
+<span class="line">        <span class="tag">&lt;/<span class="name">execution</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;/<span class="name">executions</span>&gt;</span>  </span>
+<span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>maven-jar-plugin有两个目标，分别为jar和test-jar。这两个目标都默认绑定到default生命周期的package阶段运行，只是test-jar并没有在超级POM中配置，因此需要我们另外在pom中配置。</p>
+<p>现在如要引用test-jar生成的测试代码包，可以如下配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.juvenxu.mvnbook.account<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>account-captcha<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">type</span>&gt;</span>test-jar<span class="tag">&lt;/<span class="name">type</span>&gt;</span>  </span>
+<span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span>  </span>
+<span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://developer.jboss.org/thread/160185" target="_blank" rel="external">https://developer.jboss.org/thread/160185</a><br><a href="https://maven.apache.org/settings.html" target="_blank" rel="external">https://maven.apache.org/settings.html</a><br><a href="https://my.oschina.net/vshcxl/blog/649775" target="_blank" rel="external">https://my.oschina.net/vshcxl/blog/649775</a><br><a href="https://www.cnblogs.com/qyf404/archive/2015/12/12/5040593.html" target="_blank" rel="external">https://www.cnblogs.com/qyf404/archive/2015/12/12/5040593.html</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/11/06/maven-useful-slices.html">maven使用知识汇总</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">kongwenqiang</a></p>
+        <p><span>发布时间:</span>2017-11-06, 14:11:51</p>
+        <p><span>最后更新:</span>2017-11-09, 23:11:52</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/11/06/maven-useful-slices.html" title="maven使用知识汇总">https://leokongwq.github.io/2017/11/06/maven-useful-slices.html</a>
+            <span class="copy-path" data-clipboard-text="原文: https://leokongwq.github.io/2017/11/06/maven-useful-slices.html　　作者: kongwenqiang" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/11/10/mysql-tools-code.html">
+                    mysql常用工具SQL
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/10/21/mysql-read-only-transaction.html">
+                    mysql只读事务解析
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#maven坐标"><span class="toc-number">2.</span> <span class="toc-text">maven坐标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#maven构件依赖"><span class="toc-number">3.</span> <span class="toc-text">maven构件依赖</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#maven构件依赖范围"><span class="toc-number">3.1.</span> <span class="toc-text">maven构件依赖范围</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#传递性依赖"><span class="toc-number">3.2.</span> <span class="toc-text">传递性依赖</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#传递性依赖和依赖范围"><span class="toc-number">3.3.</span> <span class="toc-text">传递性依赖和依赖范围</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#依赖调解"><span class="toc-number">3.4.</span> <span class="toc-text">依赖调解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#可选依赖"><span class="toc-number">3.5.</span> <span class="toc-text">可选依赖</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#依赖最佳实践"><span class="toc-number">4.</span> <span class="toc-text">依赖最佳实践</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#排除依赖"><span class="toc-number">4.1.</span> <span class="toc-text">排除依赖</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#归类依赖"><span class="toc-number">4.2.</span> <span class="toc-text">归类依赖</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#优化依赖"><span class="toc-number">4.3.</span> <span class="toc-text">优化依赖</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Repositories"><span class="toc-number">5.</span> <span class="toc-text">Repositories</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pluginRepositories"><span class="toc-number">6.</span> <span class="toc-text">pluginRepositories</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在settings-xml中配置远程仓库"><span class="toc-number">7.</span> <span class="toc-text">在settings.xml中配置远程仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#maven使用repository的顺序"><span class="toc-number">8.</span> <span class="toc-text">maven使用repository的顺序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#镜像"><span class="toc-number">9.</span> <span class="toc-text">镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mirror和repository-区别"><span class="toc-number">10.</span> <span class="toc-text">mirror和repository 区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#构件发布-distributionManagement"><span class="toc-number">11.</span> <span class="toc-text">构件发布-distributionManagement</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#的配置"><span class="toc-number">11.1.</span> <span class="toc-text">的配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#的配置-1"><span class="toc-number">11.2.</span> <span class="toc-text">的配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#的配置-2"><span class="toc-number">11.3.</span> <span class="toc-text">的配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#distributionManagement对应的settings-xml中的配置"><span class="toc-number">11.4.</span> <span class="toc-text">distributionManagement对应的settings.xml中的配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#反应堆"><span class="toc-number">12.</span> <span class="toc-text">反应堆</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#反应堆构建顺序"><span class="toc-number">12.1.</span> <span class="toc-text">反应堆构建顺序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#剪裁反应堆"><span class="toc-number">12.2.</span> <span class="toc-text">剪裁反应堆</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试集成"><span class="toc-number">13.</span> <span class="toc-text">测试集成</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#maven-surefire-plugin"><span class="toc-number">13.1.</span> <span class="toc-text">maven-surefire-plugin</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#跳过测试"><span class="toc-number">13.1.1.</span> <span class="toc-text">跳过测试</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#动态指定要运行的测试用例"><span class="toc-number">13.2.</span> <span class="toc-text">动态指定要运行的测试用例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#包含与排除测试用例"><span class="toc-number">13.3.</span> <span class="toc-text">包含与排除测试用例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#生成测试报告"><span class="toc-number">13.4.</span> <span class="toc-text">生成测试报告</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#测试覆盖率报告"><span class="toc-number">13.5.</span> <span class="toc-text">测试覆盖率报告</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#重用测试代码"><span class="toc-number">13.6.</span> <span class="toc-text">重用测试代码</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考资料"><span class="toc-number">14.</span> <span class="toc-text">参考资料</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"maven使用知识汇总　| 戒修-沉迷技术的小沙弥　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js'];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+        <section id="comments">
+    <style> aside.comment-bar { margin: auto 30px; }</style>
+    <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function(){
+            this.page.url = 'https://leokongwq.github.io/2017/11/06/maven-useful-slices.html';
+            this.page.identifier = '2017/11/06/maven-useful-slices.html';
+        };
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = '//leokongwq.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        }
+    </script>
+    
+    <script> loadComment(); </script>
+
+</section>
+
+
+    
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/11/10/mysql-tools-code.html" title="上一篇: mysql常用工具SQL">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/10/21/mysql-read-only-transaction.html" title="下一篇: mysql只读事务解析">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/06/spring-extension-point-autoconfig-summary.html">spring扩展点及springboot自动配置总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/12/openresy-lua-image-server.html">基于Openresy的图片服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/06/linux-file-system-schedule.html">Linux文件系统调用算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/31/openresty-health-check-dynamic-up-down.html">基于openresty的后端应用健康检查-动态上下线</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/tcp-state-transfer-diagram.html">TCP状态转化总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/27/openresty-dynamic-upstream.html">openresty动态upstream实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/19/distribute-lock-some-way.html">分布式锁的几种实现方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/19/distribute-system-consistent.html">分布式系统一致性</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/kotlin-coroutine-learn.html">kotlin之coroutine学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/mac-autostart.html">mac上禁止jenkins自启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/01/gossip-intro.html">Gossip算法介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/01/consul-vs-other-software.html">consul和其它软件的比较</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/31/consul-quick-start.html">consul快速启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/22/computer-science-bus-arbitration.html">CPU总线仲裁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/21/java-agent-instrumentation.html">java Instrumentation 和 Agent</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/21/activemq-monitor-hawtio.html">activemq监控之hawtio</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/20/centos-crond.html">centos下安装crond</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/16/vertx-async-callback-hell.html">vert.x异步回调地狱处理方式总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/15/vertx-Future.html">vertx-Future</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/06/vertx-cluster.html">vertx集群模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/06/microservices-gateway.html">微服务之网关</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/vertx-command-line-options.html">vertx命令行选项解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/04/vertx-web-BodyHandler.html">vert.x web开发之BodyHandler</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/02/vertx-web-global-exception.html">vertx中web全局异常处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-vertx-jdbc-client.html">vertx中vertx-jdbc-client使用问题总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-jdbc-datasource.html">vertx对jdbc数据源的支持</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-command-run.html">vert.x run 命令解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/30/java8-CompletableFuture-1.html">java8中CompletableFuture解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/vertx-http-server-analyze.html">vertx创建http服务器分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/http-content-type.html">http协议之content-type</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/vertx-Vertx.html">vert.x之Vertx类解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/21/vertx-web-route.html">vert.x web开发之route</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/21/vertx-web-router.html">vert.x web开发之router</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-cache.html">配置 Vert.x 缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-Launcher.html">vertx-启动器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-access-filesystem.html">vertx-访问文件系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-cluster-lock-counter.html">vertx-集群范围锁-计数器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-share-data.html">vertx-共享数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-tcp.html">vertx编程tcp服务端和客户端</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-http.html">vertx编程http服务端和客户端</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-buffer.html">vertx中的buffer</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-json.html">vertx中的json</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-event-bus.html">vertx-事件总线</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-timer.html">vertx-执行周期性/延迟性操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-context.html">vertx-context</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-verticle.html">vertx-verticle介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-quickstart.html">vert.x入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/10/mysql-tools-code.html">mysql常用工具SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/06/maven-useful-slices.html">maven使用知识汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/21/mysql-read-only-transaction.html">mysql只读事务解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/30/linux-clean-dns-cache.html">Linux中如何清除DNS缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/linux-disk-raid.html">linux磁盘阵列简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/26/linux-centos7-rc-local.html">centos7中rc.local不起作用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/24/understanding-maven-snapshot.html">理解maven中SNAPSHOT版本的作用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/22/python-build-in-chapter-one.html">python内置函数-第一篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/22/linux-kill-parent-and-child-process.html">linux中kill主进程和所有子进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/21/why-enum-singleton-are-serialization-safe.html">为什么用枚举实现的单例模式可以防止反序列化？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/computer-how-float-stored.html">浮点数在计算机中是如何存储的？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/17/mysql-data-types-date-time.html">mysql数据类型-日期&时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/16/mysql-data-types-numeric.html">mysql数据类型-数字类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/15/mysql-data-types-set.html">mysql数据类型-集合</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/15/mysql-data-types-enum.html">mysql数据类型-枚举类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/mysql-data-types-string.html">mysql数据类型-字符串类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/11/python-multiprocessing.html">python多进程简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/07/python-package.html">python包机制简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/05/python-file-read.html">python文件读写的几种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/24/python-multi-thread.html">python中的多线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/23/java-synchronized-detail.html">深入分析synchronized的实现原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/22/python-useful-codes.html">Python常用的代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/21/java-baised-locking.html">java中的偏向锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/06/mysql-deadlock-detection.html">mysql检测和处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/06/mysql-timeout.html">mysql中重要超时处理机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/22/maven-resource-plugin.html">maven-resource-plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/19/java-Security-Illegal-key-size.html">java-Security-Illegal-key-size</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/19/linux-find.html">linux find使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/spring-MessageConverter.html">spring中HttpMessageConverter详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/mysql-transaction.html">mysql和事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/11/mysql-locks.html">mysql中的锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/linux-task-on-boot.html">linux开机启动任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/mysql-batch-update-column.html">mysql批量修改列类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/19/mongodb-enable-query-log.html">mongodb开启查询日志</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/18/best-practices-for-a-pragmatic-restful-api.html">RESTful API 设计最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/18/rest-introduce.html">rest架构介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/springboot-mongo.html">springboot-mongo</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/16/idea-jvm-options.html">mac下idea虚拟机参数设置</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/12/linux-tool-traceroute.html">linux工具之traceroute</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/10/curl-learn.html">curl学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/08/java-enum-abstractMethod.html">java中的枚举是否可以有抽象方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/spring-ExceptionResolver.html">spring错误处理之HandlerExceptionResolver</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/spring-ErrorPageFilter.html">SpringBoot异常处理之ErrorPageFilter</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/05/spring-aop-MethodAnnotation.html">spring中AOP获取方法上的注解信息</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/02/spring-expandPoint.html">spring扩展点整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/29/maven-dependency-scope.html">maven jar包依赖范围总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/25/java-web-exception.html">java web 开发异常处理总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/springboot-tomcat.html">springboot发布到tomcat</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql-date-datetime-timestamp.html">mysql中date，datetime，timestamp的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/13/raft-protocol.html">raft协议简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/13/js-cross-domain.html">js跨域解决方案详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/28/java-netty-idleStateHandler.html">netty如何实现心跳检查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/28/why-oauth2-use-authorization-code.html">为什么在oauth2认证中需要使用授权码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/27/java-Executors.html">java线程池工具类Executors</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/27/mq-kafka-producer-partitioner.html">kafka发送消息分区选择策略详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-thread-dump.html">java中生成线程堆栈</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-Thread-state.html">java线程生命周期和状态</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-Thread-join.html">java中线程join方法的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-ThreadPoolExecutor-RejectedExecutionHandler.html">java线程池-RejectedExecutionHandler</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-memorymapped-file-and-io.html">java中内存映射文件和IO</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-difference-between-direct-non-direct-mapped-bytebuffer-nio.html">direct, non-direct, mapped bytebuffer区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-difference-between-stack-and-heap.html">java中栈和堆的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-how-to-create-immutable-class.html">java中如何创建不可变对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-interview-questions-answers-from-last-5-years.html">过去5年Java面试题精选</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-why-string-is-immutable-or-final.html">为什么在java中String是不可变或final</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-lock-and-condition-example-producer-consumer.html">java中使用锁和条件对象实现生产者-消费者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-why-wait-notify-called-in-synchronized-block.html">为什么wait和notify必须在同步方法或同步块中调用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-why-java-not-support-multi-inheritances.html">为何java不支持多继承</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql-locks-intro.html">mysql锁介绍（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-top10-Tricky-questions.html">诡异的java面试题TOP10</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-why-wait-notify-and-notifyall-defined-in-object.html">java-为什么wait，notify和notifyall定义在Object中</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-notify-notifyall.html">java中notify和notifyall的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/18/java-xml-parser.html">java中xml解析器介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/smooth-online-offline-service.html">服务节点平滑上下线</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/07/mq-kafka-blogs.html">kafka资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/mq-kafka-tutorial.html">kafka入门教程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/microservice-links.html">微服务资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/04/ddd-books.html">领域驱动设计书单</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/jms-message-order.html">jms-如何保证消息的顺序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/22/golang-param-pass-value-or-point.html">值传递, 指针传递 这是一个问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/21/golang-how-to-write-go-code.html">如何开发GO代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BigData-summary.html">大数据处理总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-HashSearch.html">algo-HashSearch</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BlockSearch.html">分块查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BinaryTreeSearch.html">二叉排序树查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BinarySearch.html">二分查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/SearchAlgo.html">查找算法总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-HeapSort.html">堆排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-QuickSort.html">快速排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-InsertionSort.html">插入排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-mergesort.html">归并排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-bucketsort.html">桶排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-bubblesort.html">冒泡排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/17/java8-CompletableFuture.html">java8中CompletableFuture详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/17/java-zookeeper-curator.html">zookeeper客户端之curator</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/16/Java-PriorityQueue.html">Java优先级队列PriorityQueue</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/13/java-LockSupport.html">java-LockSupport详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/mq-rocketmq-cluster.html">rocketmq集群搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/mq-rocketmq-quickstart.html">rocketmq快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/linux-zero-copy.html">linux零拷贝原理（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/11/java-jdk9-new-features.html">java-jdk9-new-features</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/java-Experienced-Developer-Teach-You-Five-Things.html">经验丰富的Java开发者教给你的五件事</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/mq-pages.html">MQ资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/DTP-best-practice.html">分布式事务典型处理方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/spring-xa-transactions-using.html">使用spring处理分布式事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql-text-defaultValue.html">mysql-text-defaultValue</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-understanding-jta.html">深入理解JTA事务处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-jta-deeplearning.html">JTA 深度历险 - 原理与实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-management-under-j2ee.html">J2EE事务管理详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/02/java-design-pattern-summary.html">java-design_pattern-summary</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/02/spring-DTP-patterns.html">spring处理分布式事务（使用或不使用XA）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/01/mysql-master-slave-thinking.html">mysql-master-slave-thinking</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-finally.html">java魔法之finally</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-0xCAFEBABE.html">java魔法之0xCAFEBABE</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-java-dot-net-dot-url.html">java魔法之java.net.Url</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-unsafe.html">java魔法之unsafe</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-AtomicLong.html">java中原子变量之AtomicLong</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/30/distribute-transaction-manage.html">分布式系统的事务处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/30/the-pattern-updateCache.html">缓存更新的套路</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/29/java8-lambda.html">java8 lambda表达式详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/spring-annotation-value.html">spring中注解@Value解密</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/spring-PropertyPlaceholderConfigurer.html">spring扩展点之PropertyPlaceholderConfigurer</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/mac-install-python-mysql.html">mac上安装Python-Mysql</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/27/mysql-mofidy-charset.html">mysql修改表-字段-库的字符集</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/25/java8-stream.html">java8-stream</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/23/java8-optional.html">java8-optional</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/23/java-8-features-tutorial.html">java-8-features-tutorial</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/06/java-DesignPatterns-flyweight.html">java-设计模式之-享元模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/05/java-Design-Patterns-builder.html">java-设计模式之-建造者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/03/java-DesignPatterns-proxy.html">java-设计模式之-代理模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-adapter.html">java-设计模式之-适配器模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-bridge.html">java-设计模式之-桥接模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/golang-execute-file-path.html">java-设计模式之-外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-facade.html">java-设计模式之-外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/28/java-DesignPatterns-command.html">java-设计模式之-命令模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/26/java-DesignPatterns-abstractFactory.html">java-设计模式之-抽象工厂模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/26/java-DesignPatterns-factoryMethod.html">java-设计模式之-工程方法模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-simpleFactory.html">java-设计模式之-简单工程模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-decorator.html">java-设计模式之-装饰者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/nginx-cache.html">nginx缓存功能介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-observer.html">java设计模式之-观察者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/nginx-rewrite.html">nginx配置rewrite指令详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-singleton.html">java实现单例模式的几种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-Singleton.html">设计模式之-单例模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-UML.html">设计模式之-UML类图快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-Strategy.html">设计模式之-策略模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/22/java-HashMap-MaxmumEntries.html">java中HashMap的最大容量解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/18/algo-stack-calculateExp.html">用栈实现后缀表达式的计算</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/16/algo-prime-number.html">素数相关</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/16/algo-gcd.html">求两个整数的最大公约数</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/java-HowThreadLocalWork.html">ThreadLocal正解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/java-Reference.html">java Reference 详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/SpringMVC-annotationDriven.html">mvc:annotation-driver</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/11/golang-effective-go.html">golang-effective-go</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/10/openresty-lua-nginx-module.html">openresty-lua-nginx-module</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/09/linux-max-fd.html">linux中最大文件描述符数</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/09/the-difference-between-301-and-302.html">HTTP301和302的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/nodejs-heapdump.html">nodejs调试工具之heapdump简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/nodejs-gc.html">Node.js 调试 GC 以及内存暴涨的分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/07/nodejs-debug.html">NodeJS的代码调试和性能调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/07/siege-introduce.html">压测工具siege简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/06/binary-search-tree.html">二叉查找树</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/full-print-BinaryTree.html">full-print-BinaryTree</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/best-10-practice-from-linkedin.html">LinkedIn关于提高Node.JS服务的10个建议</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/distributed-id-generation.html">5分钟了解分布式ID生成方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/27/java-LinkedList.html">java-LinkedList实现解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/java-LinkedHashMap.html">java-LinkedHashMap知识点汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/java-HashMap.html">java-HashMap知识点汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/japanese-50-yin.html">日语50音图学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/25/linux-netcat.html">Linux Netcat 命令用法简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/24/linux-backlog-maxconn.html">linux网络编程backlog和somaxconn</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/21/npm-11-useful-tips.html">npm11个提供工作效率的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/linux-network-io.html">Linux IO模式及 select、poll、epoll详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/linux-io-epoll.html">Linux下的I/O复用与epoll详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/mac-osx-kernel.html">mac-osx-kernel</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/java-real-data-type-size.html">Java中数据类型真实的内存占用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/19/vim-fileencoding.html">vim-文件编码</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-exports-and-module-expots.html">nodejs中exports和module.expots异同</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-os.html">nodejs模块-os模块</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-path.html">nodejs模块path简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/Fibers-and-Threads-in-node.html">Fibers-and-Threads-in-node</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-querystring.html">nodejs模块之querystring</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-Readline.html">nodejs模块之readline</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/jquery-selector.html">jquery选择器详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/pm2-readme.html">pm2使用简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/fastjson-use.html">fastjson使用简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/character-set.html">字符集详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/linux-hostname.html">linux命令hostname详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/linux-delete-file-not-free-the-space.html">linux删除文件但磁盘空间不释放</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodeJs-module-async.html">nodeJs解决异步回调方案之module-async</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/redis-sentinel.html">redis哨兵功能简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/http-cache.html">http缓存详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-import.html">golang中import语句详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-thread-profile.html">java线程必备知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/nodejs-globals.html">Nodejs全局对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-flag.html">golang命令行参数解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-file.html">golang文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-userinfo.html">golang 用户信息获取</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-time.html">golang时间操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-BlockingQueue.html">Java的BlockingQueue详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-runnable-callable-future.html">Java中的Runnable、Callable、Future、FutureTask的区别与示例</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/java-Queue.html">java队列Queue接口详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/strace-learn.html">手把手教你用Strace诊断问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/too-many-open-files.html">too-many-open-files</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/linux-strace.html">linux工具-strace</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/http-tranfer-encoding.html">HTTP 协议中的 Transfer-Encoding</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/lombook.html">lombook工具包简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-file-size.html">golang编译后文件编写的技巧</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-cross-compile.html">golang交叉编译</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-string.html">Go性能优化技巧-string</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-array.html">Go性能优化技巧-array</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-map.html">Go性能优化技巧-map</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-defer.html">golang之defer简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-chan.html">golang之chan简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-build-version.html">golang自动生成版本信息</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/how-to-get-goroutine-id.html">如何获取goroutine的id</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/fifty-common-Mistakes-for-New-Golang-Devs.html">50个go新手开发常见的错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/ten-best-practise-for-java-exception.html">java异常处理最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-error-handler.html">golang错误处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/seven-things-about-golang.html">关于go你必须知道的7件事</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-tools-build.html">go自带工具build的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-gdb-debug.html">golang程序GDB调试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/hexo-post-asset-folder-html.html">hexo使用post_asset_folder功能文章链接不能以html结尾</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/hexo-codeblock-multiblank.html">hexo代码块前后空白行问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/java-serialization-deepknow.html">java-serialization-deepknow</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-unsafe.html">golang的unsafe包简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/IDCardNo-algo.html">身份证号验证算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/byte-order.html">网络字节序</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-testing.html">golang代码测试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/linux-tool-dig.html">linux-tool-dig</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-md5.html">golang计算字符串MD5</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-time-format.html">golang时间格式化</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-open-browser.html">golang打开系统浏览器</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/mq-compare.html">常见MQ产品比较</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/golang-user-define-json-UnmarshalJSON.html">golang进行json数据的解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-join-point-ofTwoIntersectList.html">查找无环单链表的相交节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/isIntersectWithLoop.html">单链表-链表有环如何判断相交</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-the-join-point-in-list.html">找出单链表有环的入口节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/list-hasCircle.html">判断单链表是否有环</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-mid-post-in-list.html">找出单链表的中间节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-the-kth-node-in-list.html">找出单链表倒数第K个节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/reverse-one-direction-list.html">单链表逆转</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/delete-listNode-in-O1.html">O(1)时间内删除链表节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/reverse-print-list.html">单链表的逆序打印</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/merge-two-sorted-list.html">合并两个升序的单向链表</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/print-NxN-matrix.html">打印NxN矩阵的对角线</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/service-discovery.html">服务发现介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/web-reply-attack.html">web重放攻击介绍和防御方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/process-exception-in-web-dev.html">web开发异常统一处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/maven-test.html">maven-surefire-plugin简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/spring-aop-pointcut-expression.html">spring aop 切点表达式介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/avoid-NullPointException-Java.html">java程序避免NullPointException最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/11/jvm-codecache.html">JVM-codecache内存区域介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/13/logstash-input-file.html">logstash-input-file</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/12/when-to-use-hadoop-toolbox.html">Hadoop-Hbase-Hive-Pig关系</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/14/JVM-Tools.html">有用的JVM工具简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/12/IllegalMonitorStateException.html">诡异的异常IllegalMonitorStateException</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/11/HowMysqlLoadDataWorks.html">mysql load data infile 简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/10/why-not-use-finalize.html">为什么不使用finalize</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/14/mac-sshd.html">mac-sshd</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/theDayEndOfJd.html">朝林最后一天</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/java-Guava-Splitor.html">Guava-Spilitor</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/java-Guava-Joiner.html">Guava-Joiner</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/17/springMVCOutlines.html">Spring MVC HandlerMapping HandlerAdapter</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/17/howJekyllWorks.html">How Jekyll works</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/githubblog.html">Jekyll 快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/JVMOptimize.html">JVM常用参数和调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/JVMGcAlgorithm.html">JVM垃圾收集算法</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2018 kongwenqiang
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<script>
+    var inputArea = document.querySelector("#local-search-input");
+    var getSearchFile = function(){
+        var path = "/search.xml";
+        alert(11111);
+        searchFunc(path, 'local-search-input', 'local-search-result');
+    }
+    inputArea.onfocus = function(){
+      getSearchFile()
+    }
+
+    var $resetButton = $("#search-form .fa-times");
+
+    var $resultArea = $("#local-search-result");
+    inputArea.oninput = function(){ $resetButton.show(); }
+
+    resetSearch = function(){
+        $resultArea.html("");
+        document.querySelector("#search-form").reset();
+        $resetButton.hide();
+        $(".no-result").hide();
+    }
+
+    inputArea.onkeydown = function(){
+        if(event.keyCode==13) {
+          return false
+        }
+    }
+
+    $resultArea.bind("DOMNodeRemoved DOMNodeInserted", function(e) {
+        if (!$(e.target).text()) {
+            $(".no-result").show(200);
+        } else {
+          $(".no-result").hide();
+        }
+    })
+
+</script>
+
+  </div>
+</body>
+</html>

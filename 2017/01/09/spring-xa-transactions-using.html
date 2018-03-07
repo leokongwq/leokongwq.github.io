@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="kongwenqiang" />
+
+
+
+<meta name="description" content="本文翻译自http://www.javaworld.com/article/2077714/java-web-development/xa-transactions-using-spring.html
+前言当我们需要一些高级特性如事务，安全性，可用性和可扩展性时使用J2EE应用服务器已成为一种必然选择。只有很少的java应用程序才需要这些企业功能，并且组织通常需要一个功能完整的J2EE服务器。 本">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用spring处理分布式事务">
+<meta property="og:url" content="https://leokongwq.github.io/2017/01/09/spring-xa-transactions-using.html">
+<meta property="og:site_name" content="戒修-沉迷技术的小沙弥">
+<meta property="og:description" content="本文翻译自http://www.javaworld.com/article/2077714/java-web-development/xa-transactions-using-spring.html
+前言当我们需要一些高级特性如事务，安全性，可用性和可扩展性时使用J2EE应用服务器已成为一种必然选择。只有很少的java应用程序才需要这些企业功能，并且组织通常需要一个功能完整的J2EE服务器。 本">
+<meta property="og:image" content="https://leokongwq.github.io/2017/01/09/spring-xa-transactions-using/xaconceptualview-100159019-orig.gif">
+<meta property="og:image" content="https://leokongwq.github.io/2017/01/09/spring-xa-transactions-using/usecase1-100159020-orig.png">
+<meta property="og:image" content="https://leokongwq.github.io/2017/01/09/spring-xa-transactions-using/usecase2-100159021-orig.png">
+<meta property="og:image" content="https://leokongwq.github.io/2017/01/09/spring-xa-transactions-using/usecase2-seqdiagram-100159022-orig.png">
+<meta property="og:image" content="https://leokongwq.github.io/2017/01/09/spring-xa-transactions-using/usecase3-100159023-orig.png">
+<meta property="og:updated_time" content="2017-01-09T14:48:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用spring处理分布式事务">
+<meta name="twitter:description" content="本文翻译自http://www.javaworld.com/article/2077714/java-web-development/xa-transactions-using-spring.html
+前言当我们需要一些高级特性如事务，安全性，可用性和可扩展性时使用J2EE应用服务器已成为一种必然选择。只有很少的java应用程序才需要这些企业功能，并且组织通常需要一个功能完整的J2EE服务器。 本">
+<meta name="twitter:image" content="https://leokongwq.github.io/2017/01/09/spring-xa-transactions-using/xaconceptualview-100159019-orig.gif">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="戒修-沉迷技术的小沙弥" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>使用spring处理分布式事务 | 戒修-沉迷技术的小沙弥</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<script src="/js/search.js"></script>
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">kongwenqiang</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">我喜欢GO</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:leokongwq@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/leokongwq" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AOP/">AOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ActiveQM/">ActiveQM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/">MQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/">NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Nginx/">Nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OS/">OS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Openresy/">Openresy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/">TCP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/algo/">algo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aop/">aop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cache/">cache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/computer/">computer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/consul/">consul</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/curl/">curl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devtools/">devtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/">golang</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gossip/">gossip</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava/">guava</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hive/">hive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java8/">java8</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdk/">jdk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jekyll/">jekyll</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/json/">json</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jta/">jta</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jvm/">jvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mac/">mac</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/microservices/">microservices</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mq/">mq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/netty/">netty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/npm/">npm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth2/">oauth2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openresty/">openresty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/osx/">osx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pig/">pig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soa/">soa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-mvc/">spring-mvc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springMVC/">springMVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springboot/">springboot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqoop/">sqoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uml/">uml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vert-x/">vert.x</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web/">web</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web安全/">web安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xa/">xa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml/">xml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zookeeper/">zookeeper</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发/">并发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微服务/">微服务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/随笔/">随笔</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.imhan.com">Hanny&#39;s Blog</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.chepoo.com">IT技术精华网</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">只想做个好程序员!</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">kongwenqiang</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">kongwenqiang</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">我喜欢GO</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:leokongwq@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/leokongwq" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-spring-xa-transactions-using" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/01/09/spring-xa-transactions-using.html" class="article-date">
+      <time datetime="2017-01-09T09:28:41.000Z" itemprop="datePublished">2017-01-09</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      使用spring处理分布式事务
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/分布式事务/">分布式事务</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/xa/">xa</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>本文翻译自<a href="http://www.javaworld.com/article/2077714/java-web-development/xa-transactions-using-spring.html" target="_blank" rel="external">http://www.javaworld.com/article/2077714/java-web-development/xa-transactions-using-spring.html</a></p>
+<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>当我们需要一些高级特性如事务，安全性，可用性和可扩展性时使用J2EE应用服务器已成为一种必然选择。只有很少的java应用程序才需要这些企业功能，并且组织通常需要一个功能完整的J2EE服务器。 本文主要关注使用JTA（Java事务API）的分布式事务，并将详细阐述如何使用广泛流行的Spring框架和开源代码，在没有J2EE服务器的独立java应用程序中使用分布式事务（也称为XA） JTA实现JBossTS，Atomikos和Bitronix。</p>
+<a id="more"></a>
+<p>分布式事务处理系统被设计用来简化在分布式环境中处理异构的，事务可感知资源的事务。 使用分布式事务，应用可以完成如从消息队列检索消息并且在遵循ACID（原子性，一致性，隔离和持久性）标准的单个事务单元中更新一个或多个数据库。 本文概述了可以使用分布式事务（XA）的一些用例，以及应用程序如何使用JTA最佳技术实践实现分布式事务处理。 主要关注的是使用Spring作为服务器框架，以及如何将各种JTA实现无缝集成到企业级分布式事务中。</p>
+<h3 id="分布式事务和JTA-API"><a href="#分布式事务和JTA-API" class="headerlink" title="分布式事务和JTA API"></a>分布式事务和JTA API</h3><p>由于本文的范围限于使用Spring框架来集成JTA实现，我们将简要介绍分布式事务处理的架构概念。</p>
+<h4 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h4><p>由Open Group（供应商联盟）设计的X/A OPEN 分布式事务处理规范定义了一种标准通信架构，它允许多个应用共享由多个资源管理器提供的资源，并允许它们的工作被协调到全局事务中。 XA接口使资源管理器能够连接事务，执行2PC（两阶段提交）并在故障后恢复不确定事务。</p>
+<p>图 1: DTP环境的概念模型.</p>
+<img src="/2017/01/09/spring-xa-transactions-using/xaconceptualview-100159019-orig.gif" alt="xaconceptualview-100159019-orig.gif" title="">
+<p>如图1所示，该模型具有以下接口：</p>
+<ol>
+<li>应用程序和资源管理器之间的接口允许应用程序使用资源管理器的本地API或本地XA API直接调用资源管理器，这取决于事务是否需要由事务监视器管理。</li>
+<li>应用程序和事务监视器（TX接口）之间的接口允许应用程序为所有事务需要调用事务监视器，例如启动事务，结束事务，回滚事务等。</li>
+<li>事务监视器和资源管理器之间的接口是XA接口。 这是接口，它有助于两阶段提交协议在一个全局事务下实现分布式事务.</li>
+</ol>
+<h4 id="JTA-API"><a href="#JTA-API" class="headerlink" title="JTA API"></a>JTA API</h4><p>由Sun Microsystems定义的JTA API是一种高级API，其定义了事务管理器与分布式事务系统中涉及的各方之间的接口。 JTA主要由三部分组成:</p>
+<ul>
+<li>一个应用程序用来指定事务边界的高级API。 <code>UserTransaction</code>接口封装了这个。</li>
+<li>一个行业标准的X / Open XA协议的Java映射。 这包括在<code>javax.transaction.xa</code>包中定义的接口，它由<code>XAResource</code>，<code>Xid</code>和<code>XAException</code>接口.</li>
+<li>一个高级事务管理器接口，允许应用程序服务器管理用户应用程序的事务。 <code>TransactionManager</code>，<code>Transaction</code>，<code>Status</code>和<code>Synchronization</code>接口几乎定义了应用程序服务器如何管理事务.</li>
+</ul>
+<p>现在我们对JTA和XA标准的简要总结，让我们通过一些用例来演示使用Spring的不同JTA实现的集成，用于我们的假设Java应用程序。</p>
+<h3 id="我们的用例"><a href="#我们的用例" class="headerlink" title="我们的用例"></a>我们的用例</h3><p>为了演示不同JTA实现与Spring的集成，我们将使用以下用例：</p>
+<ol>
+<li>在全局事务中更新两个数据库资源 - 我们将使用JBossTS作为JTA实现。 在这个过程中，我们将看到我们如何以声明的方式将分布式事务语义应用于简单的POJO</li>
+<li>更新数据库并将JMS消息发送到全局事务中的队列 - 我们将演示与Atomikos和Bitronix JTA实现的集成。</li>
+<li>在全局事务中使用JMS消息并更新数据库 - 我们将使用Atomikos和Bitronix JTA实现。 在这个过程中，我们将看到我们如何可以模拟事务MDP（消息驱动POJO的）</li>
+</ol>
+<p>我们将使用MySQL作为数据库，使用Apache ActiveMQ作为我们的JMS消息提供程序。 在讨论用例之前，让我们简要地看一下我们将要使用的技术栈。</p>
+<h3 id="Spring-framework"><a href="#Spring-framework" class="headerlink" title="Spring framework"></a>Spring framework</h3><p>Spring框架已经成为Java世界中最有用和最有效的框架之一。 在它提供的众多功能中，它还提供了运行具有任何JTA实现的应用程序所需的管道。 这使得它的独特之处在于应用程序不需要在J2EE容器中运行也可以获得JTA事务的好处。 请注意，Spring不提供任何JTA实现。 从用户角度来看，唯一的任务是确保JTA实现可以集成在Spring框架中。 这是我们将在下面几节中关注的.</p>
+<h4 id="spring中的事务处理"><a href="#spring中的事务处理" class="headerlink" title="spring中的事务处理"></a>spring中的事务处理</h4><p>Spring提供了轻量级的事务处理框架并可以使用编程式和声明式事务管理。这使得独立的Java应用程序能够以编程方式或声明方式包含事务（JTA或非JTA）。程序化事务划分可以通过使用<code>PlatformTransactionManager</code>接口及其子类公开的API来实现。另一方面，声明性事务划分使用基于AOP（面向方面​​编程）的解决方案。对于本文，我们将探讨声明式事务划分，因为它使用<code>TransactionProxyFactoryBean</code>类较少干扰和易于理解。在我们的例子中，事务管理策略是使用JtaTransactionManager，因为我们有多个资源来处理。如果只有一个资源，根据底层技术有几个选择，并且它们都实现PlatformTransactionManager接口。例如，对于Hibernate，可以选择使用HibernateTransactionManager和基于JDO的持久性，可以使用JdoTransactionManager。还有一个JmsTransactionManager，它只用于本地事务。</p>
+<p>Spring的事务框架还为应用程序提供了必要的工具来定义事务传播行为，事务隔离等。 对于声明式事务管理，TransactionDefinition接口指定传播行为，这与EJB CMT属性非常相似。 TransactionAttribute接口允许应用程序指定哪些异常将导致回滚，哪些异常将被提交。 这两个关键的接口，使声明式事务管理非常容易使用和配置，我们将看看，当我们通过我们的用例。</p>
+<h4 id="使用spring处理异步消息"><a href="#使用spring处理异步消息" class="headerlink" title="使用spring处理异步消息"></a>使用spring处理异步消息</h4><p>Spring一直支持通过其JMS抽象层使用JMS API发送消息。 它采用回调机制，由消息创建者和一个真正发送创建者创建的消息的JMS模板组成。</p>
+<p>自从Spring 2.0发布以来，使用JMS API可以实现消息的异步消费。 虽然Spring针对消息消费提供了不同的消息监听器容器，但在J2EE和J2SE环境中最适合的消息侦听器容器是<code>DefaultMessageListenerContainer</code>（DMLC）。 <code>DefaultMessageListenerContainer</code>扩展了<code>AbstractPollingMessageListenerContainer</code>类，并对JMS 1.1 API提供了完整的支持。 它主要在循环中使用了JMS的同步消息接收调用（MessageConsumer.receive（）），并允许事务性的接收消息。 对于J2SE环境，独立的JTA实现可以连接到使用Spring的JtaTransactionManager，这将在以下部分展示。</p>
+<h3 id="JTA的实现者"><a href="#JTA的实现者" class="headerlink" title="JTA的实现者"></a>JTA的实现者</h3><h4 id="JBossTS"><a href="#JBossTS" class="headerlink" title="JBossTS"></a>JBossTS</h4><p>JBossTS，以前称为Arjuna Transaction Service，具有非常强大的实现，支持JTA和JTS API。 JBossTS附带了一个恢复服务，它可以作为一个单独的进程从您的应用程序进程运行。 不幸的是，它不支持与Spring的开箱即用的集成，但它很容易集成，我们将在我们的练习中看到。 也不支持JMS资源，只支持数据库资源.</p>
+<h4 id="Atomikos-Transaction-Essentials"><a href="#Atomikos-Transaction-Essentials" class="headerlink" title="Atomikos Transaction Essentials"></a>Atomikos Transaction Essentials</h4><p>Atomikos的JTA实现最近才开源。 互联网上的文档和文献表明，这是一个生产质量的实施，这也支持恢复和一些异乎寻常的特点，超越JTA API。 Atomikos提供了开箱即用的Spring集成以及一些不错的示例。 Atomikos支持数据库和JMS资源。 它还为数据库和JMS资源的池连接提供支持。</p>
+<h4 id="Bitronix-JTA"><a href="#Bitronix-JTA" class="headerlink" title="Bitronix JTA"></a>Bitronix JTA</h4><p>Bitronix的JTA实现是相当新的，仍在测试。 它还声称支持交易恢复与一些商业产品一样好或甚至更好。 Bitronix为数据库和JMS资源提供支持。 Bitronix还提供了开箱即用的连接池和会话池。</p>
+<h3 id="分布式资源"><a href="#分布式资源" class="headerlink" title="分布式资源"></a>分布式资源</h3><h4 id="JMS-资源"><a href="#JMS-资源" class="headerlink" title="JMS 资源"></a>JMS 资源</h4><p>JMS API规范不要求实现者支持分布式事务，但如果实现者提供分布式事务功能，则应通过JTA XAResource API完成。 因此，实现者应该使用<code>XAConnectionFactory</code>，<code>XAConnection</code>和<code>XASession</code>接口公开其JTA支持。 幸运的是Apache的<code>[ActiveMQ](http://activemq.apache.org/)</code>提供了处理XA事务所需的实现。 我们的项目（参见参考资料部分）还包括使用TIBCO EMS（来自TIBCO的JMS服务器）的配置文件，可以注意到，当提供商切换时，配置文件需要最少的更改。</p>
+<h4 id="数据库资源"><a href="#数据库资源" class="headerlink" title="数据库资源"></a>数据库资源</h4><p>MySQL数据库提供了一个XA实现，但只适用于它的InnoDB引擎。 它还提供了一个好用的支持JTA / XA协议的JDBC驱动程序。 虽然对某些XA功能的使用有一些限制，但为了本文的目的，它是足够好的。</p>
+<h3 id="用例环境"><a href="#用例环境" class="headerlink" title="用例环境"></a>用例环境</h3><h4 id="准备数据库环境"><a href="#准备数据库环境" class="headerlink" title="准备数据库环境"></a>准备数据库环境</h4><p>第一个数据库<code>mydb1</code>将用于用例1和2，并将具有下表：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+</pre></td><td class="code"><pre><span class="line">mysql&gt; use mydb1;</span>
+<span class="line">Database changed</span>
+<span class="line">mysql&gt; select * from msgseq;</span>
+<span class="line">+---------+-----------+-------+</span>
+<span class="line">| APPNAME | APPKEY    | VALUE |</span>
+<span class="line">+---------+-----------+-------+</span>
+<span class="line">| spring  | execution |    13 |</span>
+<span class="line">+---------+-----------+-------+</span>
+<span class="line">1 row in set (0.00 sec)</span>
+</pre></td></tr></table></figure>
+<p>第二个数据库<code>mydb2</code>将用于用例3，并将具有下表：   </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+</pre></td><td class="code"><pre><span class="line">mysql&gt; use mydb2;</span>
+<span class="line">Database changed</span>
+<span class="line">mysql&gt; select * from msgseq;</span>
+<span class="line">+---------+------------+-------+</span>
+<span class="line">| APPNAME | APPKEY     | VALUE |</span>
+<span class="line">+---------+------------+-------+</span>
+<span class="line">| spring  | aaaaa      | 15    |</span>
+<span class="line">| spring  | allocation | 13    |</span>
+<span class="line">+---------+------------+-------+</span>
+<span class="line">2 rows in set (0.00 sec)</span>
+</pre></td></tr></table></figure>
+<h3 id="配置-JMS-提供者（针对用例2，3）"><a href="#配置-JMS-提供者（针对用例2，3）" class="headerlink" title="配置 JMS 提供者（针对用例2，3）"></a>配置 JMS 提供者（针对用例2，3）</h3><p>要在ActiveMQ中创建物理消息目的地，请执行以下操作：</p>
+<ol>
+<li><p>在ActiveMQ安装目录下的配置文件目录中的配置文件<code>activmq.xml</code>添加如下的配置：</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+</pre></td><td class="code"><pre><span class="line">&lt;destinations&gt;</span>
+<span class="line">  &lt;queue physicalName=&quot;test.q1&quot; /&gt;</span>
+<span class="line">&lt;/destinations&gt;</span>
+</pre></td></tr></table></figure>
+</li>
+<li><p>在classpath路径下的文件<code>jndi.properties</code>中添加如下行：</p>
+<pre><code>queue.test.q1=test.q1
+</code></pre></li>
+</ol>
+<h3 id="用例1-使用JBossTS在一个全局事务中更新两个数据库"><a href="#用例1-使用JBossTS在一个全局事务中更新两个数据库" class="headerlink" title="用例1 - 使用JBossTS在一个全局事务中更新两个数据库"></a>用例1 - 使用JBossTS在一个全局事务中更新两个数据库</h3><p><em>图 2: 在一个全局事务中更新两个数据库</em></p>
+<img src="/2017/01/09/spring-xa-transactions-using/usecase1-100159020-orig.png" alt="usecase1-100159020-orig.png" title="">
+<p>Let us assume that our application has a requirement where it needs to persist a sequence number, associated with an event, in two different databases(mydb1 and mydb2), within the same transactional unit of work as shown in Figure 2 above. To achieve this, let us write a simple method in our POJO class, which updates the two databases.</p>
+<p>让我们假设我们的应用程序需要在两个不同的数据库（mydb1和mydb2）中，在如上图所示的相同的事务中持久化与事件相关联的序列号。 为了实现这一点，让我们在我们的POJO类中写一个简单的方法，它更新两个数据库</p>
+<p>我们的EventHandler POJO类的代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleEvent</span><span class="params">(<span class="keyword">boolean</span> fail)</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">     MessageSequenceDAO dao = (MessageSequenceDAO) springContext.getBean(<span class="string">"sequenceDAO"</span>);</span>
+<span class="line">     <span class="keyword">int</span> value = <span class="number">13</span>;</span>
+<span class="line">     String app = <span class="string">"spring"</span>;</span>
+<span class="line">     String appKey = <span class="string">"execution"</span>;</span>
+<span class="line">     <span class="keyword">int</span> upCnt = dao.updateSequence(value, app, appKey);</span>
+<span class="line">     log.debug(<span class="string">" sql updCnt-&gt;"</span> + upCnt);</span>
+<span class="line">     </span>
+<span class="line">     <span class="keyword">if</span> (springContext.containsBean(<span class="string">"sequenceDAO2"</span>)) &#123;</span>
+<span class="line">      <span class="comment">// this is for use case 1 with JBossTS</span></span>
+<span class="line">      MessageSequenceDAO dao2 = (MessageSequenceDAO) springContext.getBean(<span class="string">"sequenceDAO2"</span>);</span>
+<span class="line">      appKey = <span class="string">"allocation"</span>;</span>
+<span class="line">      upCnt = dao2.updateSequence(value, app, appKey);</span>
+<span class="line">      log.debug(<span class="string">" sql updCnt2-&gt;"</span> + upCnt);</span>
+<span class="line">     &#125;</span>
+<span class="line"></span>
+<span class="line">        ...</span>
+<span class="line">     </span>
+<span class="line">     <span class="keyword">if</span> (fail) &#123;</span>
+<span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Simulating Rollback by throwing Exception !!"</span>);</span>
+<span class="line">     &#125;</span>
+<span class="line">    &#125;</span>
+</pre></td></tr></table></figure>
+<p>正如你所看到的，我们在代码的第一段中所做的是获取一个对第一个数据库进行操作的MessageSequenceDAO对象引用，并更新序列的值。</p>
+<p>你当然可以猜到，第二段的代码的作用是更新第二个数据库。</p>
+<p>最后一个if语句当条件成立时引发运行时异常。 这是用于模拟运行时异常，以测试事务管理器是否已成功回滚全局事务。</p>
+<p>让我们看一下spring的配合文件，看看是如何配置我们的DAO类和数据源的：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"dsProps"</span> <span class="attr">class</span>=<span class="string">"java.util.Properties"</span>&gt;</span></span>
+<span class="line">     <span class="tag">&lt;<span class="name">constructor-arg</span>&gt;</span></span>
+<span class="line">       <span class="tag">&lt;<span class="name">props</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"user"</span>&gt;</span>root<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"password"</span>&gt;</span>murali<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"DYNAMIC_CLASS"</span>&gt;</span>com.findonnet.service.transaction.jboss.jdbc.Mysql<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span>
+<span class="line">       <span class="tag">&lt;/<span class="name">props</span>&gt;</span></span>
+<span class="line">     <span class="tag">&lt;/<span class="name">constructor-arg</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"dataSource1"</span> <span class="attr">class</span>=<span class="string">"org.springframework.jdbc.datasource.DriverManagerDataSource"</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"driverClassName"</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;<span class="name">value</span>&gt;</span>com.arjuna.ats.jdbc.TransactionalDriver<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"url"</span> <span class="attr">value</span>=<span class="string">"jdbc:arjuna:mysql://127.0.0.1:3306/mydb1"</span>/&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"connectionProperties"</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"dsProps"</span>/&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"dataSource2"</span> <span class="attr">class</span>=<span class="string">"org.springframework.jdbc.datasource.DriverManagerDataSource"</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"driverClassName"</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;<span class="name">value</span>&gt;</span>com.arjuna.ats.jdbc.TransactionalDriver<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"url"</span> <span class="attr">value</span>=<span class="string">"jdbc:arjuna:mysql://127.0.0.1:3306/mydb2"</span>/&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"connectionProperties"</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"dsProps"</span>/&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"sequenceDAO"</span> <span class="attr">class</span>=<span class="string">"com.findonnet.persistence.MessageSequenceDAO"</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"dataSource"</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"dataSource1"</span>/&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"sequenceDAO2"</span> <span class="attr">class</span>=<span class="string">"com.findonnet.persistence.MessageSequenceDAO"</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"dataSource"</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"dataSource2"</span>/&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>上面的bean定义了两个数据库的两个数据源。 要使用JBossTS的TransactionalDriver，我们需要使用JNDI绑定或动态类实例来注册数据库。 我们将使用后者，这需要我们实现DynamicClass接口。 dsProps的bean定义显示，我们将使用我们编写的com.findonnet.service.transaction.jboss.jdbc.Mysql类，它实现了DynamicClass接口。 由于JBossTS不提供任何开箱的MySQL数据库包装器，我们不得不这样做。 除此之外，代码依赖于以<code>jdbc：arjuna</code>开头的<code>jdbc URL</code>，否则JBossTS代码会抛出错误。</p>
+<p>DynamicClass接口的实现非常简单，我们所要做的就是实现方法<code>getDataSource（）</code>和<code>shutdownDataSource（）</code>方法。 getDataSource（）方法返回一个合适的XADataSource对象，在我们的例子中是<code>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</code>。</p>
+<p>请注意，这两个数据源的配置使用了来自Spring的DriverManagerDataSource，它不使用任何连接池，不推荐用于生产环境。 另一种方法是使用一个支持XA数据源池化的数据源实现。</p>
+<p>现在是我们在EventHandler类中为我们的handleEvent（）方法提供事务语义的时候了:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"eventHandlerTarget"</span> <span class="attr">class</span>=<span class="string">"com.findonnet.messaging.EventHandler"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"eventHandler"</span> <span class="attr">class</span>=<span class="string">"org.springframework.transaction.interceptor.TransactionProxyFactoryBean"</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"transactionManager"</span>&gt;</span><span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"transactionManager"</span> /&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"target"</span>&gt;</span><span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"eventHandlerTarget"</span>/&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"transactionAttributes"</span>&gt;</span></span>
+<span class="line">     <span class="tag">&lt;<span class="name">props</span>&gt;</span></span>
+<span class="line">      <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"handle*"</span>&gt;</span>PROPAGATION_REQUIRED,-Exception<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span>
+<span class="line">     <span class="tag">&lt;/<span class="name">props</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>在这里我们定义TransactionProxyFactoryBean并传入transactionManager引用，我们将在后面看到，事务属性为“PROPAGATION_REQUIRED，-Exception”。 这将应用于目标bean eventHandlerTarget，并且只应用于以“handle”（注意句柄*）开头的方法。 简单来说，我们要求Spring框架做的是： 对于目标对象上的方法名称以“handle”开头的所有方法调用，请应用事务属性“PROPAGATION_REQUIRED，-Exception”。 在后台，Spring框架将创建一个基于CGLIB的代理，它拦截EventHandler上以“handle”开头的方法名称的所有调用。 在任何异常的情况下，在方法调用内，当前事务将被回滚，这是“-Exception”意味着什么。 这表明它使用Spring以声明方式提供事务支持有多么容易。 </p>
+<p>现在让我们看看如何让Spring的JtaTransactionManager来使用我们选择的JTA实现。 上面定义的eventHandler bean使用transactionManager属性，它将引用Spring JtaTransactionManager，如下所示:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"jbossTransactionManager"</span></span>
+<span class="line">  <span class="attr">class</span>=<span class="string">"com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple"</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"jbossUserTransaction"</span></span>
+<span class="line">  <span class="attr">class</span>=<span class="string">"com.arjuna.ats.internal.jta.transaction.arjunacore.UserTransactionImple"</span>/&gt;</span></span>
+<span class="line"> </span>
+<span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"transactionManager"</span>  <span class="attr">class</span>=<span class="string">"org.springframework.transaction.jta.JtaTransactionManager"</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"transactionManager"</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"jbossTransactionManager"</span> /&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"userTransaction"</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"jbossUserTransaction"</span> /&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>如上面在配置中所示，我们让spring提供的<code>JtaTransactionManager</code>类使用<code>com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple</code>作为<code>TransactionManager</code>实现和<code>com.arjuna.ats.internal.jta.transaction。 arjunacore.UserTransactionImple</code>作为<code>UserTransaction</code>实现.</p>
+<p>这就是该示例全部。 我们刚刚使用Spring和JbossTS启用了XA事务，MySQL数据源作为XA资源。 请注意，在撰写本文时，MySQL XA实现存在一些已知问题（请参阅资源部分）。</p>
+<p>要运行此用例，请查看Ant构建文件中的JbossSender任务。 项目下载在参考资料部分提供.</p>
+<h3 id="用例2-在全局事务中更新数据库并发送JMS消息"><a href="#用例2-在全局事务中更新数据库并发送JMS消息" class="headerlink" title="用例2 - 在全局事务中更新数据库并发送JMS消息"></a>用例2 - 在全局事务中更新数据库并发送JMS消息</h3><p><em>图3: 在全局事务中更新数据库并发送JMS消息</em></p>
+<img src="/2017/01/09/spring-xa-transactions-using/usecase2-100159021-orig.png" alt="usecase2-100159021-orig.png" title="">
+<p>此用例使用与用例1相同的代码。代码更新数据库mydb1，然后在全局事务中向消息队列发送消息，如上图3所示。 Atomikos和Bitronix配置都将按顺序处理。</p>
+<p>POJO与我们用于用例-1的一样，EventHandler类和相关代码看起来如下:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleEvent</span><span class="params">(<span class="keyword">boolean</span> fail)</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line"> </span>
+<span class="line">     MessageSequenceDAO dao = (MessageSequenceDAO) springContext.getBean(<span class="string">"sequenceDAO"</span>);</span>
+<span class="line">     <span class="keyword">int</span> value = <span class="number">13</span>;</span>
+<span class="line">     String app = <span class="string">"spring"</span>;</span>
+<span class="line">     String appKey = <span class="string">"execution"</span>;</span>
+<span class="line">     <span class="keyword">int</span> upCnt = dao.updateSequence(value, app, appKey);</span>
+<span class="line">     log.debug(<span class="string">" sql updCnt-&gt;"</span> + upCnt);</span>
+<span class="line">     </span>
+<span class="line">        ...</span>
+<span class="line">     </span>
+<span class="line">     <span class="keyword">if</span> (springContext.containsBean(<span class="string">"appSenderTemplate"</span>)) &#123;</span>
+<span class="line">      <span class="keyword">this</span>.setJmsTemplate((JmsTemplate) springContext.getBean(<span class="string">"appSenderTemplate"</span>));</span>
+<span class="line">      <span class="keyword">this</span>.getJmsTemplate().convertAndSend(<span class="string">"Testing 123456"</span>);</span>
+<span class="line">      log.debug(<span class="string">"Sent message succesfully"</span>);</span>
+<span class="line">     &#125;</span>
+<span class="line">     <span class="keyword">if</span> (fail) &#123;</span>
+<span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Simulating Rollback by throwing Exception !!"</span>);</span>
+<span class="line">     &#125;</span>
+<span class="line">  &#125;</span>
+</pre></td></tr></table></figure>
+<p>上面代码中的第一个代码片段用序列号更新数据库mydb1中的msgseq表.</p>
+<p>下一段代码使用appSenderTemplate，它被配置为使用Spring中的JmsTemplate类。 此模板类用于将JMS消息发送到消息提供者。</p>
+<p>外部事件（在这种情况下是MainApp类）将调用上面图3所示的方法handleEvent.</p>
+<p>最后一个if语句用于模拟运行时异常，以测试事务管理器是否已成功回滚全局事务。</p>
+<p>让我们看看spring配置文件中我们的消息传递需要的JNDI bean定义:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"jndiTemplate"</span> <span class="attr">class</span>=<span class="string">"org.springframework.jndi.JndiTemplate"</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"environment"</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">props</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"java.naming.factory.initial"</span>&gt;</span></span>
+<span class="line">    org.apache.activemq.jndi.ActiveMQInitialContextFactory</span>
+<span class="line">   <span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">props</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+<span class="line"></span>
+<span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"appJmsDestination"</span></span>
+<span class="line"> <span class="attr">class</span>=<span class="string">"org.springframework.jndi.JndiObjectFactoryBean"</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"jndiTemplate"</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"jndiTemplate"</span>/&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"jndiName"</span> <span class="attr">value</span>=<span class="string">"test.q1"</span>/&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"appSenderTemplate"</span> </span>
+<span class="line">   <span class="attr">class</span>=<span class="string">"org.springframework.jms.core.JmsTemplate"</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"connectionFactory"</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"queueConnectionFactoryBean"</span>/&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"defaultDestination"</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"appJmsDestination"</span>/&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"messageTimestampEnabled"</span> <span class="attr">value</span>=<span class="string">"false"</span>/&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"messageIdEnabled"</span> <span class="attr">value</span>=<span class="string">"false"</span>/&gt;</span></span>
+<span class="line"> <span class="comment">&lt;!-- sessionTransacted should be true only for Atomikos --&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"sessionTransacted"</span> <span class="attr">value</span>=<span class="string">"true"</span>/&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>这里我们为Spring指定一个JndiTemplate，在appJmsDestination bean指定的目的地上进行JNDI查找。 appJmsDestination bean已与如上所示的appSenderTemplate（JmsTemplate）bean连接。 bean定义还显示appSenderTemplate有线连接以使用queueConnectionFactoryBean，稍后我们将看到。对于Atomikos，sessionTransacted属性应该设置为“true”，这是Spring框架不建议的，JMS的文献似乎支持这个观点。这是一个黑客我们只需要做的Atomikos实现。如果这被设置为“false”，你会注意到在2PC协议期间抛出一些启发式异常。这主要归因于prepare（）调用在JMS资源上没有响应，最终，Atomikos决定回滚导致启发式异常。 messageTimestampEnabled和messageIdEnabled属性设置为“false”，因此不会生成这些属性，因为我们不会使用它们。这将减少JMS提供程序的开销，并提高性能。</p>
+<p>让我们看看如何在spring中配置Atomikos</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"xaFactory"</span> <span class="attr">class</span>=<span class="string">"org.apache.activemq.ActiveMQXAConnectionFactory"</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">constructor-arg</span>&gt;</span></span>
+<span class="line">           <span class="tag">&lt;<span class="name">value</span>&gt;</span>tcp://localhost:61616<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;/<span class="name">constructor-arg</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"queueConnectionFactoryBean"</span></span>
+<span class="line">    <span class="attr">class</span>=<span class="string">"com.atomikos.jms.QueueConnectionFactoryBean"</span> <span class="attr">init-method</span>=<span class="string">"init"</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"resourceName"</span>&gt;</span></span>
+<span class="line">     <span class="tag">&lt;<span class="name">value</span>&gt;</span>Execution_Q<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"xaQueueConnectionFactory"</span>&gt;</span></span>
+<span class="line">     <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"xaFactory"</span> /&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"atomikosTransactionManager"</span></span>
+<span class="line">  <span class="attr">class</span>=<span class="string">"com.atomikos.icatch.jta.UserTransactionManager"</span> <span class="attr">init-method</span>=<span class="string">"init"</span> <span class="attr">destroy-method</span>=<span class="string">"close"</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"forceShutdown"</span>&gt;</span><span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"atomikosUserTransaction"</span> <span class="attr">class</span>=<span class="string">"com.atomikos.icatch.jta.UserTransactionImp"</span>/&gt;</span></span>
+<span class="line"> </span>
+<span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"transactionManager"</span></span>
+<span class="line">  <span class="attr">class</span>=<span class="string">"org.springframework.transaction.jta.JtaTransactionManager"</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"transactionManager"</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"atomikosTransactionManager"</span> /&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"userTransaction"</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">"atomikosUserTransaction"</span> /&gt;</span></span>
+<span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>bean <code>xaFactory</code> 定义显示正在使用的xa连接的底层工厂是<code>org.apache.activemq.ActiveMQXAConnectionFactory</code>类。 <code>transactionManager</code> bean包装了<code>atomikosTransactionManager</code> bean和<code>atomikosUserTransaction</code> bean。</p>
+<p>让我们看看针对Atomikos如何配置数据库：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"dataSource"</span> <span class="attr">class</span>=<span class="string">"com.atomikos.jdbc.SimpleDataSourceBean"</span> <span class="attr">init-method</span>=<span class="string">"init"</span>  <span class="attr">destroy-method</span>=<span class="string">"close"</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"uniqueResourceName"</span>&gt;</span><span class="tag">&lt;<span class="name">value</span>&gt;</span>Mysql<span class="tag">&lt;/<span class="name">value</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"xaDataSourceClassName"</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"xaDataSourceProperties"</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>URL=jdbc:mysql://127.0.0.1:3306/mydb1?user=root&amp;password=murali<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"> <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"exclusiveConnectionMode"</span>&gt;</span><span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>Atomikos提供了一个通用的包装类，这使得很容易传递<code>xaDataSourceClassName</code>，在我们的例子中是<code>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</code>。 对于JDBC url的情况也是如此。 <code>exclusiveConnectionMode</code>设置为“true”，以确保当前事务中的连接不共享。 Atomikos提供了开箱即用的连接池，并且可以使用<code>connectionPoolSize</code> <code>attributexaDataSourceClassName</code>设置池大小。</p>
+<p>现在让我们看看Bitronix的相关bean定义：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+</pre></td><td class="code"><pre><span class="line">&lt;bean id="ConnectionFactory" factory-bean="ConnectionFactoryBean" factory-method="createResource" /&gt;</span>
+<span class="line"> &lt;bean id="dataSourceBean1" class="bitronix.tm.resource.jdbc.DataSourceBean"&gt;</span>
+<span class="line">  &lt;property name="className" value="com.mysql.jdbc.jdbc2.optional.MysqlXADataSource" /&gt;</span>
+<span class="line">  &lt;property name="uniqueName" value="mysql" /&gt;</span>
+<span class="line">  &lt;property name="poolSize" value="2" /&gt;</span>
+<span class="line">  &lt;property name="driverProperties"&gt;</span>
+<span class="line">   &lt;props&gt;</span>
+<span class="line">    &lt;prop key="user"&gt;root&lt;/prop&gt;</span>
+<span class="line">    &lt;prop key="password"&gt;murali&lt;/prop&gt;</span>
+<span class="line">    &lt;prop key="databaseName"&gt;mydb1&lt;/prop&gt;</span>
+<span class="line">   &lt;/props&gt;</span>
+<span class="line">  &lt;/property&gt;</span>
+<span class="line"> &lt;/bean&gt;</span>
+<span class="line">&lt;bean id="Db1DataSource" factory-bean="dataSourceBean1" factory-method="createResource" /&gt;</span>
+<span class="line"> &lt;bean id="BitronixTransactionManager" factory-method="getTransactionManager"</span>
+<span class="line">     class="bitronix.tm.TransactionManagerServices" depends-on="btmConfig,ConnectionFactory" destroy-method="shutdown" /&gt;</span>
+<span class="line"> &lt;bean id="transactionManager" class="org.springframework.transaction.jta.JtaTransactionManager"&gt;</span>
+<span class="line">  &lt;property name="transactionManager" ref="BitronixTransactionManager" /&gt;</span>
+<span class="line">  &lt;property name="userTransaction" ref="BitronixTransactionManager" /&gt;</span>
+<span class="line"> &lt;/bean&gt;</span>
+<span class="line">&lt;bean id="btmConfig" factory-method="getConfiguration" class="bitronix.tm.TransactionManagerServices"&gt;</span>
+<span class="line">     &lt;property name="serverId" value="spring-btm-sender" /&gt;</span>
+<span class="line">&lt;/bean&gt;</span>
+</pre></td></tr></table></figure>
+<p>为Atomikos定义的appSenderTemplate bean可以重复使用，唯一的例外是sessionTransacted值。 这被设置为“false”，Spring中的JmsTemplate的默认值为false，所以甚至可以忽略此属性。</p>
+<p>上面显示的数据源bean定义看起来类似于Atomikos，但主要的区别是bean的创建是使用实例工厂方法而不是静态工厂方法完成的。 在这种情况下，使用工厂bean dataSourceBean1创建Db1DataSource bean。 指定的工厂方法是createResource。</p>
+<p>transactionManager bean引用BitonixTransactionManager，用于transactionManager属性和userTransaction属性。</p>
+<p>要运行此用例，请查看Antik文件中的AtomikosSender任务和BitronixSender，作为项目下载的一部分提供。</p>
+<p>此用例的顺序图（不一定是全面的）如下所示：</p>
+<p><em>图5: 时序图-说明了用例2的处理流程.</em></p>
+<img src="/2017/01/09/spring-xa-transactions-using/usecase2-seqdiagram-100159022-orig.png" alt="usecase2-seqdiagram-100159022-orig.png" title="">
+<p><em>图 4: 用例3中使用JMS消息并更新全局事务中的数据库.</em></p>
+<img src="/2017/01/09/spring-xa-transactions-using/usecase3-100159023-orig.png" alt="usecase3-100159023-orig.png" title="">
+<p>此用例与先前的用例不同，它所做的是定义一个POJO以处理从消息中间件接收到的消息，并在同一事务中更新数据库，如上图4所示.</p>
+<p>我们的MessageHandler类的相关代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleOrder</span><span class="params">(String msg)</span> </span>&#123;</span>
+<span class="line">  log.debug(<span class="string">"Receieved message-&gt;: "</span> + msg);</span>
+<span class="line">  MessageSequenceDAO dao = (MessageSequenceDAO) MainApp.springCtx.getBean(<span class="string">"sequenceDAO"</span>);</span>
+<span class="line">  String app = <span class="string">"spring"</span>;</span>
+<span class="line">  String appKey = <span class="string">"allocation"</span>;</span>
+<span class="line">  <span class="keyword">int</span> upCnt = dao.updateSequence(value++, app, appKey);</span>
+<span class="line">  log.debug(<span class="string">"Update SUCCESS!! Val: "</span> + value + <span class="string">" updateCnt-&gt;"</span>+ upCnt);</span>
+<span class="line">  <span class="keyword">if</span> (fail)</span>
+<span class="line">   <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Rollback TESTING!!"</span>);</span>
+<span class="line"> &#125;</span>
+</pre></td></tr></table></figure>
+<p>正如你所看到的，代码只是更新数据库mydb2。 MessageHandler只是一个POJO，它有一个handleOrder（）方法。 通过使用Spring我们将把它转换成消息驱动的POJO（类似于J2EE服务器中的MDB）。 要完成这个，我们将使用MessageListenerAdapter类，它通过反射将消息处理委托给目标侦听方法。 这是一个非常方便的功能，它使简单的POJO可以转换为消息驱动的POJO（beans）。 我们的MDP现在支持分布式事务。</p>
+<p>现在是我们查看更加清晰的配置的时候了：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"msgHandler"</span> <span class="attr">class</span>=<span class="string">"com.findonnet.messaging.MessageHandler"</span>/&gt;</span></span>
+<span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"msgListener"</span> <span class="attr">class</span>=<span class="string">"org.springframework.jms.listener.adapter.MessageListenerAdapter"</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"delegate"</span> <span class="attr">ref</span>=<span class="string">"msgHandler"</span>/&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"defaultListenerMethod"</span> <span class="attr">value</span>=<span class="string">"handleOrder"</span>/&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>上面的配置表明，<code>msgListener</code> bean将调用委托给由<code>msgHandler</code>定义的bean。 此外，我们已经指定了<code>handleOrder()</code>，当消息从消息中间件到达时该方法会被调用。 这是使用<code>defaultListenerMethod</code>属性完成的。 现在让我们看看消息侦听器，它侦听消息提供器上的目的地：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"listenerContainer"</span> <span class="attr">class</span>=<span class="string">"org.springframework.jms.listener.DefaultMessageListenerContainer"</span> </span>
+<span class="line">  <span class="attr">destroy-method</span>=<span class="string">"close"</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"concurrentConsumers"</span> <span class="attr">value</span>=<span class="string">"1"</span>/&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"connectionFactory"</span> <span class="attr">ref</span>=<span class="string">"queueConnectionFactoryBean"</span> /&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"destination"</span> <span class="attr">ref</span>=<span class="string">"appJmsDestination"</span>/&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"messageListener"</span> <span class="attr">ref</span>=<span class="string">"msgListener"</span>/&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"transactionManager"</span> <span class="attr">ref</span>=<span class="string">"transactionManager"</span>/&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"sessionTransacted"</span> <span class="attr">value</span>=<span class="string">"false"</span>/&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"receiveTimeout"</span> <span class="attr">value</span>=<span class="string">"5000"</span>/&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"recoveryInterval"</span> <span class="attr">value</span>=<span class="string">"6000"</span>/&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"autoStartup"</span> <span class="attr">value</span>=<span class="string">"false"</span>/&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>在这种情况下，listenerContainer使用Spring提供的DefaultMessageListenerContainer。 concurrentConsumers属性设置为“1”，这表示我们将只有一个消费者在队列上。此属性主要用于通过产生多个侦听器（线程）并发排队，并且在您具有快速生产者和慢消费者且消息的排序不重要的情况下非常有用。对于Spring 2.0.3及更高版本，支持使用maxConcurrentConsumers属性动态调整基于负载的侦听器数量。 recoveryInterval属性用于恢复目的，并且在消息传递提供程序关闭时非常有用，我们希望在不使应用程序关闭的情况下重新连接。但是，此功能运行在无限循环中，并且只要应用程序正在运行，就可能不再需要重试。此外，必须小心正确处置DMLC，因为有后台线程，即使在JVM关闭后，仍然可能尝试从消息提供程序接收消息。从Spring 2.0.4，这个问题已经修复。如前所述，只有Atomikos的sessionTransacted属性应设置为“true”。 listenerContainer的相同bean定义适用于Atomikos和Bitronix。</p>
+<p>请注意，transactionManger属性指向上面定义的bean定义（对于usecase2），我们只是重复使用相同的bean定义。</p>
+<p>这就是所有的，我们只是实现了我们的MDP，它接收消息并在单个全局事务中更新数据库。</p>
+<p>要运行此用例，请查看Ant构建文件中的AtomikosConsumer任务和BitronixConsumer，作为项目下载的一部分提供。</p>
+<h3 id="一些切面"><a href="#一些切面" class="headerlink" title="一些切面"></a>一些切面</h3><p>为了拦截调用，在Spring框架和JTA代码之间，已经使用了一个Interceptor类，并编织到JTA实现jar文件的运行时库中。 它使用AspectJ，代码片段如下所示：</p>
+<pre><code class="java"><span class="function">pointcut <span class="title">xaCalls</span><span class="params">()</span> : <span class="title">call</span><span class="params">(*  XAResource.*(..)</span>) 
+                   || <span class="title">call</span><span class="params">(*  TransactionManager.*(..)</span>)
+                   || <span class="title">call</span><span class="params">(*  UserTransaction.*(..)</span>)
+                   </span>;
+
+  <span class="function">Object <span class="title">around</span><span class="params">()</span> : <span class="title">xaCalls</span><span class="params">()</span> </span>{
+   log.debug(<span class="string">"XA CALL -&gt; This: "</span> + thisJoinPoint.getThis());
+   log.debug(<span class="string">"       -&gt; Target: "</span> + thisJoinPoint.getTarget());
+   log.debug(<span class="string">"       -&gt; Signature: "</span> + thisJoinPoint.getSignature());
+   Object[] args = thisJoinPoint.getArgs();
+   StringBuffer str = <span class="keyword">new</span> StringBuffer(<span class="string">" "</span>);
+   <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; i&lt; args.length; i++) {
+    str.append(<span class="string">" ["</span> + i + <span class="string">"] = "</span> + args[i]);
+   }
+   log.debug(str);
+   Object obj = proceed();
+   log.debug(<span class="string">"XA CALL RETURNS-&gt; "</span> + obj);
+   <span class="keyword">return</span> obj;
+}
+</code></pre>
+<p>上面的代码定义了对所有JTA相关代码的所有调用的切入点，它还定义了一个around通知，它记录正在传递的参数和方法的返回值。 当我们尝试跟踪和调试JTA实现的问题时，这将派上用场。 项目中的ant build.xml文件（参见参考资料）包含了针对JTA实现编织这些方面的任务。 另一个选择是使用eclipse的MaintainJ插件，它从IDE（Eclipse）的舒适性提供相同的，甚至生成流程图的顺序图。</p>
+<h3 id="一些问题"><a href="#一些问题" class="headerlink" title="一些问题"></a>一些问题</h3><p>分布式事务是一个非常复杂的主题，应该注意事务恢复足够强大并提供用户或应用程序所需的所有ACID（原子性，一致性，隔离和持久性）标准的实现。 我们在本文中测试的是针对pre-2PC异常（记住我们抛出的RuntimeException测试回滚）。 应用程序应该在两阶段提交过程中彻底测试JTA实现的故障，因为它们是最关键和麻烦的。</p>
+<p>我们查看的所有JTA实现提供恢复测试用例，这使得它易于根据实现本身和参与的XA资源运行。请注意，使用XA可能会成为一个巨大的性能问题，特别是当事务变大时。还应该看到支持2PC优化，如“最后一次资源提交”，这可能适合一些应用程序需要，其中只有一个参与资源不能或不需要支持2PC。应注意数据库或消息中间件支持的XA功能和施加的限制（如果有的话）。例如，MySQL不支持suspend()和resume()操作，并且似乎对使用XA有一些限制，在某些情况下甚至可能保持数据处于不一致的状态。要了解有关XA的更多信息，<em>事务处理原则</em>是一本非常好的书，其中详细介绍了2PC故障条件和优化。此外，Mike Spille的博客（参见参考资料部分）是另一个很好的资源，它专注于JTA上下文中的XA，并提供丰富的信息，尤其是在2PC期间的故障，并有助于了解有关XA事务的更多信息。</p>
+<p>当使用Spring框架发送和接收JMS消息时，在非J2EE环境中使用<code>JmsTemplate</code>和<code>DefualtMessageListenerContainer</code>应当谨慎。在JmsTemplate的情况下，对于发送的每个消息，将创建一个新的JMS连接。在接收消息时使用<code>DefaultMessageListenerContainer</code>的情况也是如此。创建重型JMS连接非常耗费资源，并且应用程序在重负载下可能无法良好扩展。一个办法是从JMS消息中间件提供方或第三方库中寻找支持连接/会话池的客户端库。另一个选项是使用Spring中的SingleConnnectionFactory，这使得配置单个连接变得容易，可以重新使用。然而，为每个正在发送的消息创建会话，并且这可能不是真正的开销，因为JMS会话是轻量级的。相同的情况是当消息被接收时，不管它们是否是事务性的。</p>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>在本文中，我们看到Spring框架如何与JTA实现集成以提供分布式事务，以及如何满足需要分布式事务而不需要完整J2EE服务器的应用程序的需求。 文章还展示了Spring框架如何提供基于POJO的解决方案和声明式事务管理，同时最小化入侵，同时促进最佳设计实践。 我们看到的用例也演示了Spring如何为我们提供丰富的事务管理抽象，使我们能够轻松地在不同的JTA提供程序之间无缝切换。</p>
+<h3 id="关于作者"><a href="#关于作者" class="headerlink" title="关于作者"></a>关于作者</h3><p>Murali Kosaraju在北卡罗来纳州夏洛特的Wachovia银行担任技术架构师。 他拥有系统和信息工程硕士学位，他的兴趣包括消息传递，面向服务的体系结构（SOA），Web服务，J2EE和.NET为中心的应用程序。 他目前住在他的妻子Vidya和儿子Vishal在南卡罗来纳州。</p>
+<h3 id="更多参考资料"><a href="#更多参考资料" class="headerlink" title="更多参考资料"></a>更多参考资料</h3><p><a href="http://images.techhive.com/downloads/idge/imported/article/jvw/2007/04/xaspring.zip" target="_blank" rel="external">Download the source code (8M Zip file)</a>.</p>
+<p><a href="http://www.opengroup.org/onlinepubs/009680699/toc.pdf" target="_blank" rel="external">X/Open XA</a></p>
+<p><a href="http://java.sun.com/products/jta/" target="_blank" rel="external">JTA API</a></p>
+<p><a href="http://www.springframework.org/" target="_blank" rel="external">Spring Framework</a></p>
+<p><a href="http://activemq.apache.org/" target="_blank" rel="external">ActiveMQ</a></p>
+<p><a href="http://jroller.com/page/pyrasun?catname=%2FXA" target="_blank" rel="external">Mike Spille’s Blog</a></p>
+<p><a href="http://dev.mysql.com/doc/refman/5.0/en/xa-restrictions.html" target="_blank" rel="external">MySQL XA issues</a></p>
+<p>JTA Implementations:</p>
+<ol>
+<li><p><a href="http://www.jboss.com/products/transactions" target="_blank" rel="external">JBossTS</a></p>
+</li>
+<li><p><a href="http://www.atomikos.com/" target="_blank" rel="external">Atomikos</a></p>
+</li>
+<li><p><a href="http://www.bitronix.be/Btm/Overview" target="_blank" rel="external">Bitronix</a></p>
+</li>
+</ol>
+<p><a href="http://www.tibco.com/" target="_blank" rel="external">Tibco Software</a></p>
+<p><a href="http://books.google.com/books?id=G-e7tvWJxZoC&amp;dq=principles+of+transaction+processing&amp;pg=PP1" target="_blank" rel="external">Principles of Transaction Processing</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/01/09/spring-xa-transactions-using.html">使用spring处理分布式事务</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">kongwenqiang</a></p>
+        <p><span>发布时间:</span>2017-01-09, 17:28:41</p>
+        <p><span>最后更新:</span>2017-01-09, 22:48:43</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/01/09/spring-xa-transactions-using.html" title="使用spring处理分布式事务">https://leokongwq.github.io/2017/01/09/spring-xa-transactions-using.html</a>
+            <span class="copy-path" data-clipboard-text="原文: https://leokongwq.github.io/2017/01/09/spring-xa-transactions-using.html　　作者: kongwenqiang" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/01/10/DTP-best-practice.html">
+                    分布式事务典型处理方式
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/01/09/mysql-text-defaultValue.html">
+                    mysql-text-defaultValue
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分布式事务和JTA-API"><span class="toc-number">2.</span> <span class="toc-text">分布式事务和JTA API</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#分布式事务"><span class="toc-number">2.1.</span> <span class="toc-text">分布式事务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#JTA-API"><span class="toc-number">2.2.</span> <span class="toc-text">JTA API</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#我们的用例"><span class="toc-number">3.</span> <span class="toc-text">我们的用例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring-framework"><span class="toc-number">4.</span> <span class="toc-text">Spring framework</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#spring中的事务处理"><span class="toc-number">4.1.</span> <span class="toc-text">spring中的事务处理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#使用spring处理异步消息"><span class="toc-number">4.2.</span> <span class="toc-text">使用spring处理异步消息</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JTA的实现者"><span class="toc-number">5.</span> <span class="toc-text">JTA的实现者</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#JBossTS"><span class="toc-number">5.1.</span> <span class="toc-text">JBossTS</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Atomikos-Transaction-Essentials"><span class="toc-number">5.2.</span> <span class="toc-text">Atomikos Transaction Essentials</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Bitronix-JTA"><span class="toc-number">5.3.</span> <span class="toc-text">Bitronix JTA</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分布式资源"><span class="toc-number">6.</span> <span class="toc-text">分布式资源</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#JMS-资源"><span class="toc-number">6.1.</span> <span class="toc-text">JMS 资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#数据库资源"><span class="toc-number">6.2.</span> <span class="toc-text">数据库资源</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#用例环境"><span class="toc-number">7.</span> <span class="toc-text">用例环境</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#准备数据库环境"><span class="toc-number">7.1.</span> <span class="toc-text">准备数据库环境</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置-JMS-提供者（针对用例2，3）"><span class="toc-number">8.</span> <span class="toc-text">配置 JMS 提供者（针对用例2，3）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#用例1-使用JBossTS在一个全局事务中更新两个数据库"><span class="toc-number">9.</span> <span class="toc-text">用例1 - 使用JBossTS在一个全局事务中更新两个数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#用例2-在全局事务中更新数据库并发送JMS消息"><span class="toc-number">10.</span> <span class="toc-text">用例2 - 在全局事务中更新数据库并发送JMS消息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#一些切面"><span class="toc-number">11.</span> <span class="toc-text">一些切面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#一些问题"><span class="toc-number">12.</span> <span class="toc-text">一些问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结论"><span class="toc-number">13.</span> <span class="toc-text">结论</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关于作者"><span class="toc-number">14.</span> <span class="toc-text">关于作者</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#更多参考资料"><span class="toc-number">15.</span> <span class="toc-text">更多参考资料</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"使用spring处理分布式事务　| 戒修-沉迷技术的小沙弥　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js'];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+        <section id="comments">
+    <style> aside.comment-bar { margin: auto 30px; }</style>
+    <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function(){
+            this.page.url = 'https://leokongwq.github.io/2017/01/09/spring-xa-transactions-using.html';
+            this.page.identifier = '2017/01/09/spring-xa-transactions-using.html';
+        };
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = '//leokongwq.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        }
+    </script>
+    
+    <script> loadComment(); </script>
+
+</section>
+
+
+    
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/01/10/DTP-best-practice.html" title="上一篇: 分布式事务典型处理方式">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/01/09/mysql-text-defaultValue.html" title="下一篇: mysql-text-defaultValue">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/06/spring-extension-point-autoconfig-summary.html">spring扩展点及springboot自动配置总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/12/openresy-lua-image-server.html">基于Openresy的图片服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/06/linux-file-system-schedule.html">Linux文件系统调用算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/31/openresty-health-check-dynamic-up-down.html">基于openresty的后端应用健康检查-动态上下线</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/tcp-state-transfer-diagram.html">TCP状态转化总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/27/openresty-dynamic-upstream.html">openresty动态upstream实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/19/distribute-lock-some-way.html">分布式锁的几种实现方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/19/distribute-system-consistent.html">分布式系统一致性</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/kotlin-coroutine-learn.html">kotlin之coroutine学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/mac-autostart.html">mac上禁止jenkins自启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/01/gossip-intro.html">Gossip算法介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/01/consul-vs-other-software.html">consul和其它软件的比较</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/31/consul-quick-start.html">consul快速启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/22/computer-science-bus-arbitration.html">CPU总线仲裁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/21/java-agent-instrumentation.html">java Instrumentation 和 Agent</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/21/activemq-monitor-hawtio.html">activemq监控之hawtio</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/20/centos-crond.html">centos下安装crond</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/16/vertx-async-callback-hell.html">vert.x异步回调地狱处理方式总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/15/vertx-Future.html">vertx-Future</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/06/vertx-cluster.html">vertx集群模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/06/microservices-gateway.html">微服务之网关</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/vertx-command-line-options.html">vertx命令行选项解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/04/vertx-web-BodyHandler.html">vert.x web开发之BodyHandler</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/02/vertx-web-global-exception.html">vertx中web全局异常处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-vertx-jdbc-client.html">vertx中vertx-jdbc-client使用问题总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-jdbc-datasource.html">vertx对jdbc数据源的支持</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-command-run.html">vert.x run 命令解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/30/java8-CompletableFuture-1.html">java8中CompletableFuture解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/vertx-http-server-analyze.html">vertx创建http服务器分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/http-content-type.html">http协议之content-type</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/vertx-Vertx.html">vert.x之Vertx类解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/21/vertx-web-route.html">vert.x web开发之route</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/21/vertx-web-router.html">vert.x web开发之router</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-cache.html">配置 Vert.x 缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-Launcher.html">vertx-启动器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-access-filesystem.html">vertx-访问文件系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-cluster-lock-counter.html">vertx-集群范围锁-计数器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-share-data.html">vertx-共享数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-tcp.html">vertx编程tcp服务端和客户端</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-http.html">vertx编程http服务端和客户端</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-buffer.html">vertx中的buffer</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-json.html">vertx中的json</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-event-bus.html">vertx-事件总线</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-timer.html">vertx-执行周期性/延迟性操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-context.html">vertx-context</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-verticle.html">vertx-verticle介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-quickstart.html">vert.x入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/10/mysql-tools-code.html">mysql常用工具SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/06/maven-useful-slices.html">maven使用知识汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/21/mysql-read-only-transaction.html">mysql只读事务解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/30/linux-clean-dns-cache.html">Linux中如何清除DNS缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/linux-disk-raid.html">linux磁盘阵列简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/26/linux-centos7-rc-local.html">centos7中rc.local不起作用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/24/understanding-maven-snapshot.html">理解maven中SNAPSHOT版本的作用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/22/python-build-in-chapter-one.html">python内置函数-第一篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/22/linux-kill-parent-and-child-process.html">linux中kill主进程和所有子进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/21/why-enum-singleton-are-serialization-safe.html">为什么用枚举实现的单例模式可以防止反序列化？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/computer-how-float-stored.html">浮点数在计算机中是如何存储的？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/17/mysql-data-types-date-time.html">mysql数据类型-日期&时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/16/mysql-data-types-numeric.html">mysql数据类型-数字类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/15/mysql-data-types-set.html">mysql数据类型-集合</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/15/mysql-data-types-enum.html">mysql数据类型-枚举类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/mysql-data-types-string.html">mysql数据类型-字符串类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/11/python-multiprocessing.html">python多进程简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/07/python-package.html">python包机制简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/05/python-file-read.html">python文件读写的几种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/24/python-multi-thread.html">python中的多线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/23/java-synchronized-detail.html">深入分析synchronized的实现原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/22/python-useful-codes.html">Python常用的代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/21/java-baised-locking.html">java中的偏向锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/06/mysql-deadlock-detection.html">mysql检测和处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/06/mysql-timeout.html">mysql中重要超时处理机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/22/maven-resource-plugin.html">maven-resource-plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/19/java-Security-Illegal-key-size.html">java-Security-Illegal-key-size</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/19/linux-find.html">linux find使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/spring-MessageConverter.html">spring中HttpMessageConverter详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/mysql-transaction.html">mysql和事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/11/mysql-locks.html">mysql中的锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/linux-task-on-boot.html">linux开机启动任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/mysql-batch-update-column.html">mysql批量修改列类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/19/mongodb-enable-query-log.html">mongodb开启查询日志</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/18/best-practices-for-a-pragmatic-restful-api.html">RESTful API 设计最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/18/rest-introduce.html">rest架构介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/springboot-mongo.html">springboot-mongo</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/16/idea-jvm-options.html">mac下idea虚拟机参数设置</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/12/linux-tool-traceroute.html">linux工具之traceroute</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/10/curl-learn.html">curl学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/08/java-enum-abstractMethod.html">java中的枚举是否可以有抽象方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/spring-ExceptionResolver.html">spring错误处理之HandlerExceptionResolver</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/spring-ErrorPageFilter.html">SpringBoot异常处理之ErrorPageFilter</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/05/spring-aop-MethodAnnotation.html">spring中AOP获取方法上的注解信息</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/02/spring-expandPoint.html">spring扩展点整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/29/maven-dependency-scope.html">maven jar包依赖范围总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/25/java-web-exception.html">java web 开发异常处理总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/springboot-tomcat.html">springboot发布到tomcat</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql-date-datetime-timestamp.html">mysql中date，datetime，timestamp的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/13/raft-protocol.html">raft协议简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/13/js-cross-domain.html">js跨域解决方案详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/28/java-netty-idleStateHandler.html">netty如何实现心跳检查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/28/why-oauth2-use-authorization-code.html">为什么在oauth2认证中需要使用授权码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/27/java-Executors.html">java线程池工具类Executors</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/27/mq-kafka-producer-partitioner.html">kafka发送消息分区选择策略详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-thread-dump.html">java中生成线程堆栈</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-Thread-state.html">java线程生命周期和状态</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-Thread-join.html">java中线程join方法的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-ThreadPoolExecutor-RejectedExecutionHandler.html">java线程池-RejectedExecutionHandler</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-memorymapped-file-and-io.html">java中内存映射文件和IO</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-difference-between-direct-non-direct-mapped-bytebuffer-nio.html">direct, non-direct, mapped bytebuffer区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-difference-between-stack-and-heap.html">java中栈和堆的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-how-to-create-immutable-class.html">java中如何创建不可变对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-interview-questions-answers-from-last-5-years.html">过去5年Java面试题精选</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-why-string-is-immutable-or-final.html">为什么在java中String是不可变或final</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-lock-and-condition-example-producer-consumer.html">java中使用锁和条件对象实现生产者-消费者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-why-wait-notify-called-in-synchronized-block.html">为什么wait和notify必须在同步方法或同步块中调用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-why-java-not-support-multi-inheritances.html">为何java不支持多继承</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql-locks-intro.html">mysql锁介绍（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-top10-Tricky-questions.html">诡异的java面试题TOP10</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-why-wait-notify-and-notifyall-defined-in-object.html">java-为什么wait，notify和notifyall定义在Object中</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-notify-notifyall.html">java中notify和notifyall的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/18/java-xml-parser.html">java中xml解析器介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/smooth-online-offline-service.html">服务节点平滑上下线</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/07/mq-kafka-blogs.html">kafka资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/mq-kafka-tutorial.html">kafka入门教程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/microservice-links.html">微服务资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/04/ddd-books.html">领域驱动设计书单</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/jms-message-order.html">jms-如何保证消息的顺序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/22/golang-param-pass-value-or-point.html">值传递, 指针传递 这是一个问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/21/golang-how-to-write-go-code.html">如何开发GO代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BigData-summary.html">大数据处理总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-HashSearch.html">algo-HashSearch</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BlockSearch.html">分块查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BinaryTreeSearch.html">二叉排序树查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BinarySearch.html">二分查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/SearchAlgo.html">查找算法总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-HeapSort.html">堆排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-QuickSort.html">快速排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-InsertionSort.html">插入排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-mergesort.html">归并排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-bucketsort.html">桶排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-bubblesort.html">冒泡排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/17/java8-CompletableFuture.html">java8中CompletableFuture详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/17/java-zookeeper-curator.html">zookeeper客户端之curator</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/16/Java-PriorityQueue.html">Java优先级队列PriorityQueue</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/13/java-LockSupport.html">java-LockSupport详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/mq-rocketmq-cluster.html">rocketmq集群搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/mq-rocketmq-quickstart.html">rocketmq快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/linux-zero-copy.html">linux零拷贝原理（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/11/java-jdk9-new-features.html">java-jdk9-new-features</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/java-Experienced-Developer-Teach-You-Five-Things.html">经验丰富的Java开发者教给你的五件事</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/mq-pages.html">MQ资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/DTP-best-practice.html">分布式事务典型处理方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/spring-xa-transactions-using.html">使用spring处理分布式事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql-text-defaultValue.html">mysql-text-defaultValue</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-understanding-jta.html">深入理解JTA事务处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-jta-deeplearning.html">JTA 深度历险 - 原理与实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-management-under-j2ee.html">J2EE事务管理详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/02/java-design-pattern-summary.html">java-design_pattern-summary</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/02/spring-DTP-patterns.html">spring处理分布式事务（使用或不使用XA）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/01/mysql-master-slave-thinking.html">mysql-master-slave-thinking</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-finally.html">java魔法之finally</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-0xCAFEBABE.html">java魔法之0xCAFEBABE</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-java-dot-net-dot-url.html">java魔法之java.net.Url</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-unsafe.html">java魔法之unsafe</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-AtomicLong.html">java中原子变量之AtomicLong</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/30/distribute-transaction-manage.html">分布式系统的事务处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/30/the-pattern-updateCache.html">缓存更新的套路</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/29/java8-lambda.html">java8 lambda表达式详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/spring-annotation-value.html">spring中注解@Value解密</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/spring-PropertyPlaceholderConfigurer.html">spring扩展点之PropertyPlaceholderConfigurer</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/mac-install-python-mysql.html">mac上安装Python-Mysql</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/27/mysql-mofidy-charset.html">mysql修改表-字段-库的字符集</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/25/java8-stream.html">java8-stream</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/23/java8-optional.html">java8-optional</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/23/java-8-features-tutorial.html">java-8-features-tutorial</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/06/java-DesignPatterns-flyweight.html">java-设计模式之-享元模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/05/java-Design-Patterns-builder.html">java-设计模式之-建造者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/03/java-DesignPatterns-proxy.html">java-设计模式之-代理模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-adapter.html">java-设计模式之-适配器模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-bridge.html">java-设计模式之-桥接模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/golang-execute-file-path.html">java-设计模式之-外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-facade.html">java-设计模式之-外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/28/java-DesignPatterns-command.html">java-设计模式之-命令模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/26/java-DesignPatterns-abstractFactory.html">java-设计模式之-抽象工厂模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/26/java-DesignPatterns-factoryMethod.html">java-设计模式之-工程方法模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-simpleFactory.html">java-设计模式之-简单工程模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-decorator.html">java-设计模式之-装饰者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/nginx-cache.html">nginx缓存功能介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-observer.html">java设计模式之-观察者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/nginx-rewrite.html">nginx配置rewrite指令详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-singleton.html">java实现单例模式的几种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-Singleton.html">设计模式之-单例模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-UML.html">设计模式之-UML类图快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-Strategy.html">设计模式之-策略模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/22/java-HashMap-MaxmumEntries.html">java中HashMap的最大容量解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/18/algo-stack-calculateExp.html">用栈实现后缀表达式的计算</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/16/algo-prime-number.html">素数相关</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/16/algo-gcd.html">求两个整数的最大公约数</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/java-HowThreadLocalWork.html">ThreadLocal正解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/java-Reference.html">java Reference 详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/SpringMVC-annotationDriven.html">mvc:annotation-driver</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/11/golang-effective-go.html">golang-effective-go</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/10/openresty-lua-nginx-module.html">openresty-lua-nginx-module</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/09/linux-max-fd.html">linux中最大文件描述符数</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/09/the-difference-between-301-and-302.html">HTTP301和302的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/nodejs-heapdump.html">nodejs调试工具之heapdump简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/nodejs-gc.html">Node.js 调试 GC 以及内存暴涨的分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/07/nodejs-debug.html">NodeJS的代码调试和性能调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/07/siege-introduce.html">压测工具siege简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/06/binary-search-tree.html">二叉查找树</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/full-print-BinaryTree.html">full-print-BinaryTree</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/best-10-practice-from-linkedin.html">LinkedIn关于提高Node.JS服务的10个建议</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/distributed-id-generation.html">5分钟了解分布式ID生成方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/27/java-LinkedList.html">java-LinkedList实现解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/java-LinkedHashMap.html">java-LinkedHashMap知识点汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/java-HashMap.html">java-HashMap知识点汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/japanese-50-yin.html">日语50音图学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/25/linux-netcat.html">Linux Netcat 命令用法简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/24/linux-backlog-maxconn.html">linux网络编程backlog和somaxconn</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/21/npm-11-useful-tips.html">npm11个提供工作效率的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/linux-network-io.html">Linux IO模式及 select、poll、epoll详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/linux-io-epoll.html">Linux下的I/O复用与epoll详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/mac-osx-kernel.html">mac-osx-kernel</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/java-real-data-type-size.html">Java中数据类型真实的内存占用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/19/vim-fileencoding.html">vim-文件编码</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-exports-and-module-expots.html">nodejs中exports和module.expots异同</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-os.html">nodejs模块-os模块</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-path.html">nodejs模块path简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/Fibers-and-Threads-in-node.html">Fibers-and-Threads-in-node</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-querystring.html">nodejs模块之querystring</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-Readline.html">nodejs模块之readline</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/jquery-selector.html">jquery选择器详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/pm2-readme.html">pm2使用简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/fastjson-use.html">fastjson使用简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/character-set.html">字符集详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/linux-hostname.html">linux命令hostname详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/linux-delete-file-not-free-the-space.html">linux删除文件但磁盘空间不释放</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodeJs-module-async.html">nodeJs解决异步回调方案之module-async</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/redis-sentinel.html">redis哨兵功能简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/http-cache.html">http缓存详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-import.html">golang中import语句详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-thread-profile.html">java线程必备知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/nodejs-globals.html">Nodejs全局对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-flag.html">golang命令行参数解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-file.html">golang文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-userinfo.html">golang 用户信息获取</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-time.html">golang时间操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-BlockingQueue.html">Java的BlockingQueue详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-runnable-callable-future.html">Java中的Runnable、Callable、Future、FutureTask的区别与示例</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/java-Queue.html">java队列Queue接口详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/strace-learn.html">手把手教你用Strace诊断问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/too-many-open-files.html">too-many-open-files</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/linux-strace.html">linux工具-strace</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/http-tranfer-encoding.html">HTTP 协议中的 Transfer-Encoding</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/lombook.html">lombook工具包简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-file-size.html">golang编译后文件编写的技巧</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-cross-compile.html">golang交叉编译</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-string.html">Go性能优化技巧-string</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-array.html">Go性能优化技巧-array</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-map.html">Go性能优化技巧-map</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-defer.html">golang之defer简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-chan.html">golang之chan简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-build-version.html">golang自动生成版本信息</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/how-to-get-goroutine-id.html">如何获取goroutine的id</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/fifty-common-Mistakes-for-New-Golang-Devs.html">50个go新手开发常见的错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/ten-best-practise-for-java-exception.html">java异常处理最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-error-handler.html">golang错误处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/seven-things-about-golang.html">关于go你必须知道的7件事</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-tools-build.html">go自带工具build的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-gdb-debug.html">golang程序GDB调试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/hexo-post-asset-folder-html.html">hexo使用post_asset_folder功能文章链接不能以html结尾</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/hexo-codeblock-multiblank.html">hexo代码块前后空白行问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/java-serialization-deepknow.html">java-serialization-deepknow</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-unsafe.html">golang的unsafe包简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/IDCardNo-algo.html">身份证号验证算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/byte-order.html">网络字节序</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-testing.html">golang代码测试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/linux-tool-dig.html">linux-tool-dig</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-md5.html">golang计算字符串MD5</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-time-format.html">golang时间格式化</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-open-browser.html">golang打开系统浏览器</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/mq-compare.html">常见MQ产品比较</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/golang-user-define-json-UnmarshalJSON.html">golang进行json数据的解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-join-point-ofTwoIntersectList.html">查找无环单链表的相交节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/isIntersectWithLoop.html">单链表-链表有环如何判断相交</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-the-join-point-in-list.html">找出单链表有环的入口节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/list-hasCircle.html">判断单链表是否有环</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-mid-post-in-list.html">找出单链表的中间节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-the-kth-node-in-list.html">找出单链表倒数第K个节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/reverse-one-direction-list.html">单链表逆转</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/delete-listNode-in-O1.html">O(1)时间内删除链表节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/reverse-print-list.html">单链表的逆序打印</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/merge-two-sorted-list.html">合并两个升序的单向链表</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/print-NxN-matrix.html">打印NxN矩阵的对角线</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/service-discovery.html">服务发现介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/web-reply-attack.html">web重放攻击介绍和防御方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/process-exception-in-web-dev.html">web开发异常统一处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/maven-test.html">maven-surefire-plugin简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/spring-aop-pointcut-expression.html">spring aop 切点表达式介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/avoid-NullPointException-Java.html">java程序避免NullPointException最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/11/jvm-codecache.html">JVM-codecache内存区域介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/13/logstash-input-file.html">logstash-input-file</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/12/when-to-use-hadoop-toolbox.html">Hadoop-Hbase-Hive-Pig关系</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/14/JVM-Tools.html">有用的JVM工具简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/12/IllegalMonitorStateException.html">诡异的异常IllegalMonitorStateException</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/11/HowMysqlLoadDataWorks.html">mysql load data infile 简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/10/why-not-use-finalize.html">为什么不使用finalize</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/14/mac-sshd.html">mac-sshd</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/theDayEndOfJd.html">朝林最后一天</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/java-Guava-Splitor.html">Guava-Spilitor</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/java-Guava-Joiner.html">Guava-Joiner</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/17/springMVCOutlines.html">Spring MVC HandlerMapping HandlerAdapter</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/17/howJekyllWorks.html">How Jekyll works</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/githubblog.html">Jekyll 快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/JVMOptimize.html">JVM常用参数和调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/JVMGcAlgorithm.html">JVM垃圾收集算法</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2018 kongwenqiang
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<script>
+    var inputArea = document.querySelector("#local-search-input");
+    var getSearchFile = function(){
+        var path = "/search.xml";
+        alert(11111);
+        searchFunc(path, 'local-search-input', 'local-search-result');
+    }
+    inputArea.onfocus = function(){
+      getSearchFile()
+    }
+
+    var $resetButton = $("#search-form .fa-times");
+
+    var $resultArea = $("#local-search-result");
+    inputArea.oninput = function(){ $resetButton.show(); }
+
+    resetSearch = function(){
+        $resultArea.html("");
+        document.querySelector("#search-form").reset();
+        $resetButton.hide();
+        $(".no-result").hide();
+    }
+
+    inputArea.onkeydown = function(){
+        if(event.keyCode==13) {
+          return false
+        }
+    }
+
+    $resultArea.bind("DOMNodeRemoved DOMNodeInserted", function(e) {
+        if (!$(e.target).text()) {
+            $(".no-result").show(200);
+        } else {
+          $(".no-result").hide();
+        }
+    })
+
+</script>
+
+  </div>
+</body>
+</html>

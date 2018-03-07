@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="kongwenqiang" />
+
+
+
+<meta name="description" content="前言该文章翻译自 https://www.consul.io/intro/index.html
+这篇文章的目标是对Consul进行一个简单的介绍。包括Consul是什么，它解决了什么问题，它有哪些功能。通过这篇文章能让你对Consul能有一个大致的了解，和基本的使用。
+What is Consul?
+Consul 有许多组件，但是作为一个整理来看，它为你的基础设施提供了服务发现和统一配置功能。它提">
+<meta property="og:type" content="article">
+<meta property="og:title" content="consul快速启动">
+<meta property="og:url" content="https://leokongwq.github.io/2017/12/31/consul-quick-start.html">
+<meta property="og:site_name" content="戒修-沉迷技术的小沙弥">
+<meta property="og:description" content="前言该文章翻译自 https://www.consul.io/intro/index.html
+这篇文章的目标是对Consul进行一个简单的介绍。包括Consul是什么，它解决了什么问题，它有哪些功能。通过这篇文章能让你对Consul能有一个大致的了解，和基本的使用。
+What is Consul?
+Consul 有许多组件，但是作为一个整理来看，它为你的基础设施提供了服务发现和统一配置功能。它提">
+<meta property="og:image" content="https://leokongwq.github.io/2017/12/31/consul-quick-start/consul_web_ui-3a1e7bf9.png">
+<meta property="og:updated_time" content="2017-12-31T12:50:31.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="consul快速启动">
+<meta name="twitter:description" content="前言该文章翻译自 https://www.consul.io/intro/index.html
+这篇文章的目标是对Consul进行一个简单的介绍。包括Consul是什么，它解决了什么问题，它有哪些功能。通过这篇文章能让你对Consul能有一个大致的了解，和基本的使用。
+What is Consul?
+Consul 有许多组件，但是作为一个整理来看，它为你的基础设施提供了服务发现和统一配置功能。它提">
+<meta name="twitter:image" content="https://leokongwq.github.io/2017/12/31/consul-quick-start/consul_web_ui-3a1e7bf9.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="戒修-沉迷技术的小沙弥" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>consul快速启动 | 戒修-沉迷技术的小沙弥</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<script src="/js/search.js"></script>
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">kongwenqiang</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">我喜欢GO</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:leokongwq@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/leokongwq" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AOP/">AOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ActiveQM/">ActiveQM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/">MQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/">NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Nginx/">Nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OS/">OS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Openresy/">Openresy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/">TCP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/algo/">algo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aop/">aop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cache/">cache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/computer/">computer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/consul/">consul</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/curl/">curl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devtools/">devtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/">golang</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gossip/">gossip</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava/">guava</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hive/">hive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java8/">java8</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdk/">jdk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jekyll/">jekyll</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/json/">json</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jta/">jta</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jvm/">jvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mac/">mac</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/microservices/">microservices</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mq/">mq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/netty/">netty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/npm/">npm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth2/">oauth2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openresty/">openresty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/osx/">osx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pig/">pig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soa/">soa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-mvc/">spring-mvc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springMVC/">springMVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springboot/">springboot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqoop/">sqoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uml/">uml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vert-x/">vert.x</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web/">web</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web安全/">web安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xa/">xa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml/">xml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zookeeper/">zookeeper</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发/">并发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微服务/">微服务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/随笔/">随笔</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.imhan.com">Hanny&#39;s Blog</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.chepoo.com">IT技术精华网</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">只想做个好程序员!</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">kongwenqiang</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">kongwenqiang</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">我喜欢GO</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:leokongwq@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/leokongwq" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-consul-quick-start" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/12/31/consul-quick-start.html" class="article-date">
+      <time datetime="2017-12-31T01:25:12.000Z" itemprop="datePublished">2017-12-31</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      consul快速启动
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/consul/">consul</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>该文章翻译自 <a href="https://www.consul.io/intro/index.html" target="_blank" rel="external">https://www.consul.io/intro/index.html</a></p>
+<p>这篇文章的目标是对Consul进行一个简单的介绍。包括Consul是什么，它解决了什么问题，它有哪些功能。通过这篇文章能让你对Consul能有一个大致的了解，和基本的使用。</p>
+<h3 id="What-is-Consul"><a href="#What-is-Consul" class="headerlink" title="What is Consul?"></a>What is Consul?</h3><hr>
+<p>Consul 有许多组件，但是作为一个整理来看，它为你的基础设施提供了服务发现和统一配置功能。它提供如下的主要的功能：</p>
+<a id="more"></a>
+<ul>
+<li>服务发现: Consul 的客户端可以在Consul上注册服务，如 API 或 mysql。并且其它的客户端可以通过Consul来发现这些服务。通过 DNS 或 HTTP接口，应用程序可以很容易的发现它们依赖的服务。</li>
+<li>健康检查: Consul客户端可以提供任何数量的健康检查，或者与给定的服务相关联（“Web服务器返回200 OK”），或者与本地节点（“内存利用率低于90％”）相关联。 操作员可以使用此信息来监视群集运行状况，服务发现组件使用此信息将流量从不健康的主机中引导出去。</li>
+<li>KV 存储: 应用可以通过使用Consul提供的具有继承结构的 <code>Key/Value</code> 存储来实现任何需要的功能，包括动态配置， 特征标记，协调，领导选举等等。 Consul提供了简单的HTTP API是该功能非常容易使用。</li>
+<li>多数据中心: Consul支持多个数据中心。 这意味着Consul的用户不必担心构建额外的抽象层以扩展到多个区域。</li>
+</ul>
+<p>Consul设计的目标是对DevOps社区和应用程序开发人员友好，使其成为现代化，弹性基础架构的完美选择。</p>
+<h3 id="Basic-Architecture-of-Consul"><a href="#Basic-Architecture-of-Consul" class="headerlink" title="Basic Architecture of Consul"></a>Basic Architecture of Consul</h3><hr>
+<p>Consul是一个分布式，高可用的系统。本节将介绍基础知识，故意省略一些不必要的细节，以便你快速了解Consul的工作原理。有关更多详细信息，请参阅<a href="https://www.consul.io/docs/internals/architecture.html" target="_blank" rel="external">深入了解Consul架构细节</a>。</p>
+<p>向Consul提供服务的每个节点都运行一个Consul Agent。运行一个Consul代理不是用来发现其他服务或操作键值对数据。不需要运行代理。该代理的目的是负责对该结点提供的服务和其本身进行健康检查。</p>
+<p>该Consul Agent与一个或多个Consul Server进行通信。Consul Server是数据存储和复制的地方。服务器自己选出一位Leader。虽然Consul可以在一台服务器上运行，但建议部署3个或5个结点，以避免数据丢失故障的发生。每个数据中心都建议使用一组Consul服务器。</p>
+<p>需要发现其它服务或节点的基础架构组件可以查询任何Consul服务器或任何Consul代理。代理自动将查询转发到服务器。</p>
+<p>每个数据中心都运行Consul服务器集群。当发生跨数据中心服务发现或配置请求时，本地Consul服务器将请求转发到远程数据中心并返回结果。</p>
+<h3 id="Installing-Consul"><a href="#Installing-Consul" class="headerlink" title="Installing Consul"></a>Installing Consul</h3><hr>
+<p>安装Consul非常简单。<a href="https://www.consul.io/downloads.html" target="_blank" rel="external">下载</a>目标平台的安装文件，解压或安装到指定目录，并添加到系统PATH中就可以了。</p>
+<h4 id="Verifying-the-Installation"><a href="#Verifying-the-Installation" class="headerlink" title="Verifying the Installation"></a>Verifying the Installation</h4><p>安装完Consul收，在命令行执行<code>consul</code>，如果有如下的输出，则表示consul安装成功了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+</pre></td><td class="code"><pre><span class="line">$ consul</span>
+<span class="line">usage: consul [--version] [--help] &lt;command&gt; [&lt;args&gt;]</span>
+<span class="line"></span>
+<span class="line">Available commands are:</span>
+<span class="line">    agent          Runs a Consul agent</span>
+<span class="line">    event          Fire a new event</span>
+<span class="line"></span>
+<span class="line"># ...</span>
+</pre></td></tr></table></figure>
+<h3 id="Run-the-Consul-Agent"><a href="#Run-the-Consul-Agent" class="headerlink" title="Run the Consul Agent"></a>Run the Consul Agent</h3><p>For more detail on bootstrapping a datacenter, see this guide.</p>
+<p>Consul安装完成后，必须启动Consul Agent。该agent可以允许在<code>Server</code>模式和<code>Client</code>模式。 每一个数据中心至少需要一个Server，但是推荐一个Consul集群至少包含3个或5个Consul Server结点。只有一个Consul Server结点是不推荐的，因为很可能丢失数据，在开发环境可以这么做。</p>
+<p>所有其它的agent运行在client模式。 一个client模式的agent是一个非常轻量级的进程，它会注册服务，执行监控检测，并将请求转发到Server。组成集群的每个结点都必须运行一个agent。</p>
+<p>在一个数据中心搭建Consul集群可以参考<a href="https://www.consul.io/docs/guides/bootstrapping.html" target="_blank" rel="external">https://www.consul.io/docs/guides/bootstrapping.html</a></p>
+<h4 id="Starting-the-Agent"><a href="#Starting-the-Agent" class="headerlink" title="Starting the Agent"></a>Starting the Agent</h4><hr>
+<p>为了简单起见，我们现在将以开发模式启动Consul agent。 这种模式对于快速简单地启动单节点Consul环境非常有用。 它并不打算在生产中使用，因为它不会持续任何状态。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+<span class="line">43</span>
+<span class="line">44</span>
+<span class="line">45</span>
+<span class="line">46</span>
+<span class="line">47</span>
+<span class="line">48</span>
+</pre></td><td class="code"><pre><span class="line">-$ consul agent -dev</span>
+<span class="line">==&gt; Starting Consul agent...</span>
+<span class="line">==&gt; Starting Consul agent RPC...</span>
+<span class="line">==&gt; Consul agent running!</span>
+<span class="line">           Version: &apos;v0.7.0&apos;</span>
+<span class="line">         Node name: &apos;Armons-MacBook-Air&apos;</span>
+<span class="line">        Datacenter: &apos;dc1&apos;</span>
+<span class="line">            Server: true (bootstrap: false)</span>
+<span class="line">       Client Addr: 127.0.0.1 (HTTP: 8500, HTTPS: -1, DNS: 8600, RPC: 8400)</span>
+<span class="line">      Cluster Addr: 127.0.0.1 (LAN: 8301, WAN: 8302)</span>
+<span class="line">    Gossip encrypt: false, RPC-TLS: false, TLS-Incoming: false</span>
+<span class="line">             Atlas: &lt;disabled&gt;</span>
+<span class="line"></span>
+<span class="line">==&gt; Log data will now stream in as it occurs:</span>
+<span class="line"></span>
+<span class="line">2016/09/15 10:21:10 [INFO] raft: Initial configuration (index=1): [&#123;Suffrage:Voter ID:127.0.0.1:8300 Address:127.0.0.1:8300&#125;]</span>
+<span class="line">2016/09/15 10:21:10 [INFO] raft: Node at 127.0.0.1:8300 [Follower] entering Follower state (Leader: &quot;&quot;)</span>
+<span class="line">2016/09/15 10:21:10 [INFO] serf: EventMemberJoin: Armons-MacBook-Air 127.0.0.1</span>
+<span class="line">2016/09/15 10:21:10 [INFO] serf: EventMemberJoin: Armons-MacBook-Air.dc1 127.0.0.1</span>
+<span class="line">2016/09/15 10:21:10 [INFO] consul: Adding LAN server Armons-MacBook-Air (Addr: tcp/127.0.0.1:8300) (DC: dc1)</span>
+<span class="line">2016/09/15 10:21:10 [INFO] consul: Adding WAN server Armons-MacBook-Air.dc1 (Addr: tcp/127.0.0.1:8300) (DC: dc1)</span>
+<span class="line">2016/09/15 10:21:13 [DEBUG] http: Request GET /v1/agent/services (180.708µs) from=127.0.0.1:52369</span>
+<span class="line">2016/09/15 10:21:13 [DEBUG] http: Request GET /v1/agent/services (15.548µs) from=127.0.0.1:52369</span>
+<span class="line">2016/09/15 10:21:17 [WARN] raft: Heartbeat timeout from &quot;&quot; reached, starting election</span>
+<span class="line">2016/09/15 10:21:17 [INFO] raft: Node at 127.0.0.1:8300 [Candidate] entering Candidate state in term 2</span>
+<span class="line">2016/09/15 10:21:17 [DEBUG] raft: Votes needed: 1</span>
+<span class="line">2016/09/15 10:21:17 [DEBUG] raft: Vote granted from 127.0.0.1:8300 in term 2. Tally: 1</span>
+<span class="line">2016/09/15 10:21:17 [INFO] raft: Election won. Tally: 1</span>
+<span class="line">2016/09/15 10:21:17 [INFO] raft: Node at 127.0.0.1:8300 [Leader] entering Leader state</span>
+<span class="line">2016/09/15 10:21:17 [INFO] consul: cluster leadership acquired</span>
+<span class="line">2016/09/15 10:21:17 [DEBUG] consul: reset tombstone GC to index 3</span>
+<span class="line">2016/09/15 10:21:17 [INFO] consul: New leader elected: Armons-MacBook-Air</span>
+<span class="line">2016/09/15 10:21:17 [INFO] consul: member &apos;Armons-MacBook-Air&apos; joined, marking health alive</span>
+<span class="line">2016/09/15 10:21:17 [INFO] agent: Synced service &apos;consul&apos;</span>
+<span class="line">```    </span>
+<span class="line"></span>
+<span class="line">如你所见， Consul agent已经启动了并输出一些日志数据。从日志数据可以知道该agent运行在`Server`模式并且是整个集群的Leader。此外，本地成员被标记为集群中的监控结点。</span>
+<span class="line"></span>
+<span class="line">&gt; Note for OS X Users: Consul uses your hostname as the default node name. If your hostname contains periods, DNS queries to that node will not work with Consul. To avoid this, explicitly set the name of your node with the -node flag.</span>
+<span class="line"></span>
+<span class="line">### Cluster Members</span>
+<span class="line"></span>
+<span class="line">在一个终端窗口执行命令：`consul members`，你可以知道Consul集群的所有成员信息。在后面的章节中我们会介绍如何加入集群，但是现在，你只能看到一个结点，那就是你自己。</span>
+<span class="line"></span>
+<span class="line">```shell</span>
+<span class="line">$ consul members</span>
+<span class="line">Node                Address            Status  Type    Build     Protocol  DC</span>
+<span class="line">Armons-MacBook-Air  172.20.20.11:8301  alive   server  0.6.1dev  2         dc1</span>
+</pre></td></tr></table></figure>
+<p>命令<code>consul members</code>的输出显示了我们自己的节点，它正在运行的地址，运行状况，在集群中的角色以及一些版本信息。 额外的元数据可以通过提供<code>-detailed</code>标志来查看。</p>
+<p><code>consul members</code>命令的输出基于<a href="https://www.consul.io/docs/internals/gossip.html" target="_blank" rel="external">gossip协议</a>，并且是最终一致的。 也就是说，在任何时候，本地agent所看到的数据可能与服务器上的状态不完全一致。 要获得一致的数据，可以通过HTTP API 查询 Consul Server结点。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+</pre></td><td class="code"><pre><span class="line">$ curl localhost:8500/v1/catalog/nodes</span>
+<span class="line">[&#123;&quot;Node&quot;:&quot;Armons-MacBook-Air&quot;,&quot;Address&quot;:&quot;127.0.0.1&quot;,&quot;TaggedAddresses&quot;:&#123;&quot;lan&quot;:&quot;127.0.0.1&quot;,&quot;wan&quot;:&quot;127.0.0.1&quot;&#125;,&quot;CreateIndex&quot;:4,&quot;ModifyIndex&quot;:110&#125;]</span>
+</pre></td></tr></table></figure>
+<p>除了HTTP API， 也可以通过DNS接口来查询结点的信息。但需要注意的是你的查询需要指定Consul的DNS服务器信息（默认端口是8600）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+</pre></td><td class="code"><pre><span class="line">$ dig @127.0.0.1 -p 8600 Armons-MacBook-Air.node.consul</span>
+<span class="line">...</span>
+<span class="line"></span>
+<span class="line">;; QUESTION SECTION:</span>
+<span class="line">;Armons-MacBook-Air.node.consul.    IN  A</span>
+<span class="line"></span>
+<span class="line">;; ANSWER SECTION:</span>
+<span class="line">Armons-MacBook-Air.node.consul. 0 IN    A   127.0.0.1</span>
+<span class="line">»</span>
+</pre></td></tr></table></figure>
+<h3 id="Stopping-the-Agent"><a href="#Stopping-the-Agent" class="headerlink" title="Stopping the Agent"></a>Stopping the Agent</h3><p>你可以使用<code>Ctrl-C</code>(中断信号)来优雅的关闭agent。在中断agent后，你可以看到该agent已经离开了集群并且处于关闭状态。</p>
+<p>通过优雅地离开，Consul通知其它集群成员该节点离开。 如果你强行杀死了代理进程，则群集的其它成员将检测到该节点失败。 成员离开时，它的服务和检查信息将从<code>catalog</code>中删除。 当一个成员失败时，其健康被简单地标记为关键，但不会从目录中删除。 Consul将自动尝试重新连接到失败的节点，使其能够从特定的网络条件恢复，直到该结点再也联系不到。</p>
+<p>此外，如果一个agent是作为<code>server</code>模式运行，那么优雅的离开是非常重要的，因为这会导致<a href="https://www.consul.io/docs/internals/consensus.html" target="_blank" rel="external">共识协议</a>潜在的不可用。 有关如何安全地添加和删除服务器的详细信息，请参阅<a href="https://www.consul.io/docs/guides/index.html" target="_blank" rel="external">指南</a>部分。</p>
+<h3 id="Registering-Services"><a href="#Registering-Services" class="headerlink" title="Registering Services"></a>Registering Services</h3><h4 id="Defining-a-Service"><a href="#Defining-a-Service" class="headerlink" title="Defining a Service"></a>Defining a Service</h4><hr>
+<p>服务的注册既可以通过提供服务定义，也可以通过调用Consul提供的服务注册HTTP API。</p>
+<p>服务定义是注册服务最常用的方式，因此我们将在这一步中使用该方法。</p>
+<p>首先，为Consul配置创建一个目录。 Consul将所有配置文件加载到配置目录中，因此Unix系统上的一个通用约定是将目录命名为<code>/etc/consul.d</code>（.d后缀意味着“该目录包含一组配置文件”）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">$ sudo mkdir /etc/consul.d</span>
+</pre></td></tr></table></figure>
+<p>下面我们创建一个服务定义文件。我们假设一个名为<code>web</code>的服务运行在<code>80</code>端口。此外我们还给该服务指定了一个标签： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">$ echo &apos;&#123;&quot;service&quot;: &#123;&quot;name&quot;: &quot;web&quot;, &quot;tags&quot;: [&quot;rails&quot;], &quot;port&quot;: 80&#125;&#125;&apos; | sudo tee /etc/consul.d/web.json</span>
+</pre></td></tr></table></figure>
+<p>现在，我们重启agent，并指定Consul的配置文件目录</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line">$ consul agent -dev -config-dir=/etc/consul.d</span>
+<span class="line">==&gt; Starting Consul agent...</span>
+<span class="line">...</span>
+<span class="line">    [INFO] agent: Synced service &apos;web&apos;</span>
+<span class="line">...</span>
+</pre></td></tr></table></figure>
+<p>在启动的日志输出中你会看到<code>synced the web service</code>字样。这就意味着该agent从服务定义配置文件中加载了服务定义，并且成功注册到服务的<code>catalog</code>中。</p>
+<p>如果你想要注册多个服务，你可以创建多个服务定义文件在Consul的配置目录中。</p>
+<h3 id="Querying-Services"><a href="#Querying-Services" class="headerlink" title="Querying Services"></a>Querying Services</h3><hr>
+<p>一旦Agent启动并且服务注册成功，我们就可以通过DNS和HTTP API来查询服务信息。</p>
+<h4 id="DNS-API"><a href="#DNS-API" class="headerlink" title="DNS API"></a>DNS API</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+</pre></td><td class="code"><pre><span class="line">$ dig @127.0.0.1 -p 8600 web.service.consul</span>
+<span class="line">...</span>
+<span class="line"></span>
+<span class="line">;; QUESTION SECTION:</span>
+<span class="line">;web.service.consul.        IN  A</span>
+<span class="line"></span>
+<span class="line">;; ANSWER SECTION:</span>
+<span class="line">web.service.consul. 0   IN  A   172.20.20.11</span>
+</pre></td></tr></table></figure>
+<p>如你所见，返回了一个可以用的，带有结点IP地址的记录。 一条记录只能有一个IP地址。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+</pre></td><td class="code"><pre><span class="line">$ dig @127.0.0.1 -p 8600 web.service.consul SRV</span>
+<span class="line">...</span>
+<span class="line"></span>
+<span class="line">;; QUESTION SECTION:</span>
+<span class="line">;web.service.consul.        IN  SRV</span>
+<span class="line"></span>
+<span class="line">;; ANSWER SECTION:</span>
+<span class="line">web.service.consul. 0   IN  SRV 1 1 80 Armons-MacBook-Air.node.dc1.consul.</span>
+<span class="line"></span>
+<span class="line">;; ADDITIONAL SECTION:</span>
+<span class="line">Armons-MacBook-Air.node.dc1.consul. 0 IN A  172.20.20.11</span>
+</pre></td></tr></table></figure>
+<p>也可以通过DNS查询指定标签的服务：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+</pre></td><td class="code"><pre><span class="line">$ dig @127.0.0.1 -p 8600 rails.web.service.consul</span>
+<span class="line">...</span>
+<span class="line"></span>
+<span class="line">;; QUESTION SECTION:</span>
+<span class="line">;rails.web.service.consul.      IN  A</span>
+<span class="line"></span>
+<span class="line">;; ANSWER SECTION:</span>
+<span class="line">rails.web.service.consul.   0   IN  A   172.20.20.11</span>
+</pre></td></tr></table></figure>
+<p><code>rails</code>就是服务<code>web</code>的标签。</p>
+<h4 id="HTTP-API"><a href="#HTTP-API" class="headerlink" title="HTTP API"></a>HTTP API</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+</pre></td><td class="code"><pre><span class="line">$ curl http://localhost:8500/v1/catalog/service/web</span>
+<span class="line">[&#123;&quot;Node&quot;:&quot;Armons-MacBook-Air&quot;,&quot;Address&quot;:&quot;172.20.20.11&quot;,&quot;ServiceID&quot;:&quot;web&quot;, \</span>
+<span class="line">    &quot;ServiceName&quot;:&quot;web&quot;,&quot;ServiceTags&quot;:[&quot;rails&quot;],&quot;ServicePort&quot;:80&#125;]</span>
+</pre></td></tr></table></figure>
+<p>catalog API 给出了指定服务的所有结点信息。就像我们随后看到的健康检查一样，你通常只想查询健康的服务实例。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+</pre></td><td class="code"><pre><span class="line">$ curl &apos;http://localhost:8500/v1/health/service/web?passing&apos;</span>
+<span class="line">[&#123;&quot;Node&quot;:&quot;Armons-MacBook-Air&quot;,&quot;Address&quot;:&quot;172.20.20.11&quot;,&quot;Service&quot;:&#123; \</span>
+<span class="line">    &quot;ID&quot;:&quot;web&quot;, &quot;Service&quot;:&quot;web&quot;, &quot;Tags&quot;:[&quot;rails&quot;],&quot;Port&quot;:80&#125;, &quot;Checks&quot;: ...&#125;]</span>
+</pre></td></tr></table></figure>
+<h3 id="Updating-Services"><a href="#Updating-Services" class="headerlink" title="Updating Services"></a>Updating Services</h3><hr>
+<p>服务定义的修改可以通过修改服务定义文件，并给agent发送<code>SIGHUP</code>信号即可。这样你可以不停机，同时不影响服务查询的情况下修改服务定义。此外，也可以通过HTTP API 来动态添加，删除，修改服务。</p>
+<h3 id="Consul-Cluster"><a href="#Consul-Cluster" class="headerlink" title="Consul Cluster"></a>Consul Cluster</h3><p>我们已经启动了我们第一个agent，并在该agent上进行了服务注册和查询。这表明了Consul的使用是多么的简单，但是没有展示如何基于该agent进行扩展为生产环境级别的服务发现基础设施。该该小节，我们将搭建一个真正的集群。</p>
+<p>当一个agent启动后，它是不知道其它agent的存在的：它自己处于一个隔离的只有一个结点的集群。如果要了解其它节点的信息，则该agent必须加入已有的集群。为了加入已有的集群，它只需要知道已有集群中一个结点的信息即可。加入集群后，它会通过<code>gossip</code>协议快速发现集群中的其它结点。一个 Consul agent 可以加入任何其它的agent，而不仅仅运行在server模式。</p>
+<h4 id="Starting-the-Agents"><a href="#Starting-the-Agents" class="headerlink" title="Starting the Agents"></a>Starting the Agents</h4><p>分别在两台机器上执行下面的命令</p>
+<p>10.13.40.95</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">agent -server -bootstrap-expect=1 -data-dir=/tmp/consul -node=agent-one -bind=10.13.40.95 -enable-script-checks=true -config-dir=/usr/local/consul/conf</span>
+</pre></td></tr></table></figure>
+<p>10.110.82.169 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">agent -server -bootstrap-expect=1 -data-dir=/tmp/consul -node=agent-two -bind=10.110.82.169 -enable-script-checks=true -config-dir=/usr/local/consul/conf</span>
+</pre></td></tr></table></figure>
+<p>到目前为止我们拥有了2个集群，每个集群都只有一个结点。相互之间并不知道彼此的存在。</p>
+<h4 id="Joining-a-Cluster"><a href="#Joining-a-Cluster" class="headerlink" title="Joining a Cluster"></a>Joining a Cluster</h4><hr>
+<p>通过下面的命令来组件集群：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+</pre></td><td class="code"><pre><span class="line">/usr/local/consul/bin/consul join 10.110.82.169</span>
+<span class="line">Successfully joined cluster by contacting 1 nodes.</span>
+</pre></td></tr></table></figure>
+<p>通过命令<code>members</code>来检测集群是否搭建成功：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+</pre></td><td class="code"><pre><span class="line">/usr/local/consul/bin/consul members</span>
+<span class="line">Node       Address             Status  Type    Build  Protocol  DC   Segment</span>
+<span class="line">agent-one  10.13.40.95:8301    alive   server  1.0.2  2         dc1  &lt;all&gt;</span>
+<span class="line">agent-two  10.110.82.169:8301  alive   server  1.0.2  2         dc1  &lt;all&gt;</span>
+</pre></td></tr></table></figure>
+<h4 id="Auto-joining-a-Cluster-on-Start"><a href="#Auto-joining-a-Cluster-on-Start" class="headerlink" title="Auto-joining a Cluster on Start"></a>Auto-joining a Cluster on Start</h4><hr>
+<p>Consul facilitates auto-join by enabling the auto-discovery of instances in AWS, Google Cloud or Azure with a given tag key/value. To use the integration, add the retry_join_ec2, retry_join_gce or the retry_join_azure nested object to your Consul configuration file. This will allow a new node to join the cluster without any hardcoded configuration. Alternatively, you can join a cluster at startup using the -join flag or start_join setting with hardcoded addresses of other known Consul agents.</p>
+<p>实践中，当在数据中心启动一个新的Consul结点，它应该自动加入Consul集群而不应该通过人工的方式来加入。</p>
+<h4 id="Querying-Nodes"><a href="#Querying-Nodes" class="headerlink" title="Querying Nodes"></a>Querying Nodes</h4><hr>
+<p>和查询服务一样，Consul提供了API来查询结点的信息，你可以通过DNS和HTTP API来进行查询。</p>
+<p>针对DNS API, 结点的查询命令结构为:<code>NAME.node.consul</code> 或 <code>NAME.node.DATACENTER.consul</code>。如果不知道数据中心信息，那么该查询只会查询本数据中心内的结点。</p>
+<p>例如，在结点<code>agent-one</code>，我们可以查询结点<code>agent-two</code>的信息:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+</pre></td><td class="code"><pre><span class="line">dig @127.0.0.1 -p 8600 agent-two.node.consul</span>
+<span class="line">...</span>
+<span class="line"></span>
+<span class="line">;; QUESTION SECTION:</span>
+<span class="line">;agent-two.node.consul. IN  A</span>
+<span class="line"></span>
+<span class="line">;; ANSWER SECTION:</span>
+<span class="line">agent-two.node.consul.  0 IN    A   172.20.20.11</span>
+</pre></td></tr></table></figure>
+<h4 id="Leaving-a-Cluster"><a href="#Leaving-a-Cluster" class="headerlink" title="Leaving a Cluster"></a>Leaving a Cluster</h4><hr>
+<p>otherwise, other nodes will detect it as having failed. The difference is covered in more detail here.</p>
+<p>退出Consul集群，你可以优雅的退出（<code>Ctrl-C</code>）agent 进程 或 kill agent进程。优雅的退出集群会允许结点慢慢进入离开状态，其它结点也会收到通知信息。虽然其它结点也会检查到离开的结点，但是两者还是有不同的。具体可以参考<a href="https://www.consul.io/intro/getting-started/agent.html#stopping" target="_blank" rel="external">https://www.consul.io/intro/getting-started/agent.html#stopping</a></p>
+<h3 id="Health-Checks"><a href="#Health-Checks" class="headerlink" title="Health Checks"></a>Health Checks</h3><p>我们已经看到了使用Consul时多么的简单，添加集群结点，添加服务，查询结点和服务的信息都很容易。在该小节，我们将继续添加结点和服务的健康检查机制。健康检查是服务发现的关键组件，可以防止使用不健康的服务。</p>
+<h4 id="Defining-Checks"><a href="#Defining-Checks" class="headerlink" title="Defining Checks"></a>Defining Checks</h4><p>Similar to a service, a check can be registered either by providing a check definition or by making the appropriate calls to the HTTP API.</p>
+<p>We will use the check definition approach because, just like with services, definitions are the most common way to set up checks.</p>
+<p>与服务定义类似，可以通过提供<code>检查定义</code>或通过调用对应的HTTP API来注册<code>检查</code>。</p>
+<p>我们将使用<code>检查定义</code>方法，因为就像服务一样，定义是设置检查最常用的方法。</p>
+<p>在Consul的配置文件目录创建2定义文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+</pre></td><td class="code"><pre><span class="line">~$ echo &apos;&#123;&quot;check&quot;: &#123;&quot;name&quot;: &quot;ping&quot;,</span>
+<span class="line">  &quot;script&quot;: &quot;ping -c1 google.com &gt;/dev/null&quot;, &quot;interval&quot;: &quot;30s&quot;&#125;&#125;&apos; \</span>
+<span class="line">  &gt;/etc/consul.d/ping.json</span>
+<span class="line"></span>
+<span class="line">~$ echo &apos;&#123;&quot;service&quot;: &#123;&quot;name&quot;: &quot;web&quot;, &quot;tags&quot;: [&quot;rails&quot;], &quot;port&quot;: 80,</span>
+<span class="line">  &quot;check&quot;: &#123;&quot;script&quot;: &quot;curl localhost &gt;/dev/null 2&gt;&amp;1&quot;, &quot;interval&quot;: &quot;10s&quot;&#125;&#125;&#125;&apos; \</span>
+<span class="line">  &gt;/etc/consul.d/web.json</span>
+</pre></td></tr></table></figure>
+<p>第一个定义添加了一个名为<code>ping</code>的主机级别的检查。 此检查运行间隔为30秒，调用<code>ping -c1 google.com</code>。 在基于脚本的运行状况检查上，检查以与启动Consul进程相同的用户身份运行。 如果该命令以非零退出码退出，则该节点将被标记为不健康。 这是任何基于脚本的健康检查的共同约定。</p>
+<p>第二个命令修改名为web的服务，添加一个检查，每隔10秒通过curl发送一个请求，以验证Web服务器是否可访问。 与主机级运行状况检查一样，如果脚本以非零退出代码退出，服务将被标记为不健康。</p>
+<p>现在重启第二个agent， 可以通过<code>consule reload</code> 或 通过给agent发送<code>SIGHUP</code>信号。你应该看到下面的日志信息： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+</pre></td><td class="code"><pre><span class="line">==&gt; Starting Consul agent...</span>
+<span class="line">...</span>
+<span class="line">    [INFO] agent: Synced service &apos;web&apos;</span>
+<span class="line">    [INFO] agent: Synced check &apos;service:web&apos;</span>
+<span class="line">    [INFO] agent: Synced check &apos;ping&apos;</span>
+<span class="line">    [WARN] Check &apos;service:web&apos; is now critical</span>
+</pre></td></tr></table></figure>
+<p>前几行表示代理已经同步了新的定义。 最后一行表明我们为Web服务添加的检查是至关重要的。 这是因为我们实际上没有运行Web服务器，所以<code>curl</code>测试失败了！</p>
+<h4 id="Checking-Health-Status"><a href="#Checking-Health-Status" class="headerlink" title="Checking Health Status"></a>Checking Health Status</h4><p>现在我们已经添加了一些简单的检查，我们可以使用HTTP API来检查它们。 首先，我们可以使用这个命令查找任何失败的检查（注意，这可以在任一节点上运行）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+</pre></td><td class="code"><pre><span class="line">~$ curl http://localhost:8500/v1/health/state/critical</span>
+<span class="line">[&#123;&quot;Node&quot;:&quot;agent-two&quot;,&quot;CheckID&quot;:&quot;service:web&quot;,&quot;Name&quot;:&quot;Service &apos;web&apos; check&quot;,&quot;Status&quot;:&quot;critical&quot;,&quot;Notes&quot;:&quot;&quot;,&quot;ServiceID&quot;:&quot;web&quot;,&quot;ServiceName&quot;:&quot;web&quot;,&quot;ServiceTags&quot;:[&quot;rails&quot;]&#125;]</span>
+</pre></td></tr></table></figure>
+<p>我们可以看到，只有一个检查，我们的Web服务检查，在临界状态。</p>
+<p>另外，我们可以尝试使用DNS查询Web服务。 由于服务不健康，Consul 不会返回任何结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line">dig @127.0.0.1 -p 8600 web.service.consul</span>
+<span class="line">...</span>
+<span class="line"></span>
+<span class="line">;; QUESTION SECTION:</span>
+<span class="line">;web.service.consul.        IN  A</span>
+</pre></td></tr></table></figure>
+<h3 id="KV-Data"><a href="#KV-Data" class="headerlink" title="KV Data"></a>KV Data</h3><p>Consul除了提供服务发现和综合健康检查之外，还提供一个易于使用的KV存储。 这可以用来保存动态配置，协助服务协调，建立领导者选举，并使开发人员可以考虑构建的任何东西。</p>
+<p>这一步假定您至少有一个Consul代理已经在运行。</p>
+<h4 id="Simple-Usage"><a href="#Simple-Usage" class="headerlink" title="Simple Usage"></a>Simple Usage</h4><p>为了演示开始有多简单，我们将操作K / V存储中的几个键。 有两种方式与Consul KV存储进行交互：通过HTTP API和Consul KV CLI。 以下示例显示使用Consul KV CLI，因为它是最容易入门的。 对于更高级的集成，您可能需要使用Consul KV HTTP API</p>
+<p>首先让我们探索KV存储。 我们可以向Consul询问名为redis / config / minconns的路径上的密钥的值：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+</pre></td><td class="code"><pre><span class="line">$ consul kv get redis/config/minconns</span>
+<span class="line">Error! No key exists at: redis/config/minconns</span>
+</pre></td></tr></table></figure>
+<p>As you can see, we get no result, which makes sense because there is no data in the KV store. Next we can insert or “put” values into the KV store.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+</pre></td><td class="code"><pre><span class="line">$ consul kv put redis/config/minconns 1</span>
+<span class="line">Success! Data written to: redis/config/minconns</span>
+<span class="line"></span>
+<span class="line">$ consul kv put redis/config/maxconns 25</span>
+<span class="line">Success! Data written to: redis/config/maxconns</span>
+<span class="line"></span>
+<span class="line">$ consul kv put -flags=42 redis/config/users/admin abcd1234</span>
+<span class="line">Success! Data written to: redis/config/users/admin</span>
+</pre></td></tr></table></figure>
+<p>Now that we have keys in the store, we can query for the value of individual keys:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+</pre></td><td class="code"><pre><span class="line">$ consul kv get redis/config/minconns</span>
+<span class="line">1</span>
+</pre></td></tr></table></figure>
+<p>Consul retains additional metadata about the field, which is retrieved using the -detailed flag:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+</pre></td><td class="code"><pre><span class="line">$ consul kv get -detailed redis/config/minconns</span>
+<span class="line">CreateIndex      207</span>
+<span class="line">Flags            0</span>
+<span class="line">Key              redis/config/minconns</span>
+<span class="line">LockIndex        0</span>
+<span class="line">ModifyIndex      207</span>
+<span class="line">Session          -</span>
+<span class="line">Value            1</span>
+</pre></td></tr></table></figure>
+<p>For the key “redis/config/users/admin”, we set a flag value of 42. All keys support setting a 64-bit integer flag value. This is not used internally by Consul, but it can be used by clients to add meaningful metadata to any KV.</p>
+<p>It is possible to list all the keys in the store using the recurse options. Results will be returned in lexicographical order:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+</pre></td><td class="code"><pre><span class="line">$ consul kv get -recurse</span>
+<span class="line">redis/config/maxconns:25</span>
+<span class="line">redis/config/minconns:1</span>
+<span class="line">redis/config/users/admin:abcd1234</span>
+</pre></td></tr></table></figure>
+<p>To delete a key from the Consul KV store, issue a “delete” call:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+</pre></td><td class="code"><pre><span class="line">$ consul kv delete redis/config/minconns</span>
+<span class="line">Success! Deleted key: redis/config/minconns</span>
+</pre></td></tr></table></figure>
+<p>It is also possible to delete an entire prefix using the recurse option:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+</pre></td><td class="code"><pre><span class="line">$ consul kv delete -recurse redis</span>
+<span class="line">Success! Deleted keys with prefix: redis</span>
+</pre></td></tr></table></figure>
+<p>To update the value of an existing key, “put” a value at the same path:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+</pre></td><td class="code"><pre><span class="line">$ consul kv put foo bar</span>
+<span class="line"></span>
+<span class="line">$ consul kv get foo</span>
+<span class="line">bar</span>
+<span class="line"></span>
+<span class="line">$ consul kv put foo zip</span>
+<span class="line"></span>
+<span class="line">$ consul kv get foo</span>
+<span class="line">zip</span>
+</pre></td></tr></table></figure>
+<p>Consul can provide atomic key updates using a Check-And-Set operation. To perform a CAS operation, specify the -cas flag:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line">$ consul kv put -cas -modify-index=123 foo bar</span>
+<span class="line">Success! Data written to: foo</span>
+<span class="line"></span>
+<span class="line">$ consul kv put -cas -modify-index=123 foo bar</span>
+<span class="line">Error! Did not write to foo: CAS failed</span>
+</pre></td></tr></table></figure>
+<p>In this case, the first CAS update succeeds because the index is 123. The second operation fails because the index is no longer 123.</p>
+<h3 id="Consul-Web-UI"><a href="#Consul-Web-UI" class="headerlink" title="Consul Web UI"></a>Consul Web UI</h3><p>Consul comes with support for beautiful, functional web UIs out of the box. UIs can be used for viewing all services and nodes, for viewing all health checks and their current status, and for reading and setting key/value data. The UIs automatically support multi-datacenter.</p>
+<img src="/2017/12/31/consul-quick-start/consul_web_ui-3a1e7bf9.png" alt="consul_web_ui-3a1e7bf9.png" title="">
+<p>To set up the self-hosted UI, start the Consul agent with the -ui parameter:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+</pre></td><td class="code"><pre><span class="line">$ consul agent -ui</span>
+<span class="line">...</span>
+</pre></td></tr></table></figure>
+<p>The UI is available at the /ui path on the same port as the HTTP API. By default this is <a href="http://localhost:8500/ui" target="_blank" rel="external">http://localhost:8500/ui</a>.</p>
+<p>You can view a live demo of the Consul Web UI here.</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/12/31/consul-quick-start.html">consul快速启动</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">kongwenqiang</a></p>
+        <p><span>发布时间:</span>2017-12-31, 09:25:12</p>
+        <p><span>最后更新:</span>2017-12-31, 20:50:31</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/12/31/consul-quick-start.html" title="consul快速启动">https://leokongwq.github.io/2017/12/31/consul-quick-start.html</a>
+            <span class="copy-path" data-clipboard-text="原文: https://leokongwq.github.io/2017/12/31/consul-quick-start.html　　作者: kongwenqiang" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2018/01/01/consul-vs-other-software.html">
+                    consul和其它软件的比较
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/12/22/computer-science-bus-arbitration.html">
+                    CPU总线仲裁
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#What-is-Consul"><span class="toc-number">2.</span> <span class="toc-text">What is Consul?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Basic-Architecture-of-Consul"><span class="toc-number">3.</span> <span class="toc-text">Basic Architecture of Consul</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Installing-Consul"><span class="toc-number">4.</span> <span class="toc-text">Installing Consul</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Verifying-the-Installation"><span class="toc-number">4.1.</span> <span class="toc-text">Verifying the Installation</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Run-the-Consul-Agent"><span class="toc-number">5.</span> <span class="toc-text">Run the Consul Agent</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Starting-the-Agent"><span class="toc-number">5.1.</span> <span class="toc-text">Starting the Agent</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Stopping-the-Agent"><span class="toc-number">6.</span> <span class="toc-text">Stopping the Agent</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Registering-Services"><span class="toc-number">7.</span> <span class="toc-text">Registering Services</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Defining-a-Service"><span class="toc-number">7.1.</span> <span class="toc-text">Defining a Service</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Querying-Services"><span class="toc-number">8.</span> <span class="toc-text">Querying Services</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DNS-API"><span class="toc-number">8.1.</span> <span class="toc-text">DNS API</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HTTP-API"><span class="toc-number">8.2.</span> <span class="toc-text">HTTP API</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Updating-Services"><span class="toc-number">9.</span> <span class="toc-text">Updating Services</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Consul-Cluster"><span class="toc-number">10.</span> <span class="toc-text">Consul Cluster</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Starting-the-Agents"><span class="toc-number">10.1.</span> <span class="toc-text">Starting the Agents</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Joining-a-Cluster"><span class="toc-number">10.2.</span> <span class="toc-text">Joining a Cluster</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Auto-joining-a-Cluster-on-Start"><span class="toc-number">10.3.</span> <span class="toc-text">Auto-joining a Cluster on Start</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Querying-Nodes"><span class="toc-number">10.4.</span> <span class="toc-text">Querying Nodes</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Leaving-a-Cluster"><span class="toc-number">10.5.</span> <span class="toc-text">Leaving a Cluster</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Health-Checks"><span class="toc-number">11.</span> <span class="toc-text">Health Checks</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Defining-Checks"><span class="toc-number">11.1.</span> <span class="toc-text">Defining Checks</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Checking-Health-Status"><span class="toc-number">11.2.</span> <span class="toc-text">Checking Health Status</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#KV-Data"><span class="toc-number">12.</span> <span class="toc-text">KV Data</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Simple-Usage"><span class="toc-number">12.1.</span> <span class="toc-text">Simple Usage</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Consul-Web-UI"><span class="toc-number">13.</span> <span class="toc-text">Consul Web UI</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"consul快速启动　| 戒修-沉迷技术的小沙弥　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js'];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+        <section id="comments">
+    <style> aside.comment-bar { margin: auto 30px; }</style>
+    <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function(){
+            this.page.url = 'https://leokongwq.github.io/2017/12/31/consul-quick-start.html';
+            this.page.identifier = '2017/12/31/consul-quick-start.html';
+        };
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = '//leokongwq.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        }
+    </script>
+    
+    <script> loadComment(); </script>
+
+</section>
+
+
+    
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2018/01/01/consul-vs-other-software.html" title="上一篇: consul和其它软件的比较">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/12/22/computer-science-bus-arbitration.html" title="下一篇: CPU总线仲裁">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/06/spring-extension-point-autoconfig-summary.html">spring扩展点及springboot自动配置总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/12/openresy-lua-image-server.html">基于Openresy的图片服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/06/linux-file-system-schedule.html">Linux文件系统调用算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/31/openresty-health-check-dynamic-up-down.html">基于openresty的后端应用健康检查-动态上下线</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/tcp-state-transfer-diagram.html">TCP状态转化总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/27/openresty-dynamic-upstream.html">openresty动态upstream实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/19/distribute-lock-some-way.html">分布式锁的几种实现方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/19/distribute-system-consistent.html">分布式系统一致性</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/kotlin-coroutine-learn.html">kotlin之coroutine学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/mac-autostart.html">mac上禁止jenkins自启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/01/gossip-intro.html">Gossip算法介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/01/consul-vs-other-software.html">consul和其它软件的比较</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/31/consul-quick-start.html">consul快速启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/22/computer-science-bus-arbitration.html">CPU总线仲裁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/21/java-agent-instrumentation.html">java Instrumentation 和 Agent</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/21/activemq-monitor-hawtio.html">activemq监控之hawtio</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/20/centos-crond.html">centos下安装crond</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/16/vertx-async-callback-hell.html">vert.x异步回调地狱处理方式总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/15/vertx-Future.html">vertx-Future</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/06/vertx-cluster.html">vertx集群模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/06/microservices-gateway.html">微服务之网关</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/vertx-command-line-options.html">vertx命令行选项解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/04/vertx-web-BodyHandler.html">vert.x web开发之BodyHandler</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/02/vertx-web-global-exception.html">vertx中web全局异常处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-vertx-jdbc-client.html">vertx中vertx-jdbc-client使用问题总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-jdbc-datasource.html">vertx对jdbc数据源的支持</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-command-run.html">vert.x run 命令解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/30/java8-CompletableFuture-1.html">java8中CompletableFuture解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/vertx-http-server-analyze.html">vertx创建http服务器分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/http-content-type.html">http协议之content-type</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/vertx-Vertx.html">vert.x之Vertx类解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/21/vertx-web-route.html">vert.x web开发之route</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/21/vertx-web-router.html">vert.x web开发之router</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-cache.html">配置 Vert.x 缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-Launcher.html">vertx-启动器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-access-filesystem.html">vertx-访问文件系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-cluster-lock-counter.html">vertx-集群范围锁-计数器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-share-data.html">vertx-共享数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-tcp.html">vertx编程tcp服务端和客户端</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-http.html">vertx编程http服务端和客户端</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-buffer.html">vertx中的buffer</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-json.html">vertx中的json</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-event-bus.html">vertx-事件总线</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-timer.html">vertx-执行周期性/延迟性操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-context.html">vertx-context</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-verticle.html">vertx-verticle介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-quickstart.html">vert.x入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/10/mysql-tools-code.html">mysql常用工具SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/06/maven-useful-slices.html">maven使用知识汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/21/mysql-read-only-transaction.html">mysql只读事务解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/30/linux-clean-dns-cache.html">Linux中如何清除DNS缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/linux-disk-raid.html">linux磁盘阵列简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/26/linux-centos7-rc-local.html">centos7中rc.local不起作用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/24/understanding-maven-snapshot.html">理解maven中SNAPSHOT版本的作用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/22/python-build-in-chapter-one.html">python内置函数-第一篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/22/linux-kill-parent-and-child-process.html">linux中kill主进程和所有子进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/21/why-enum-singleton-are-serialization-safe.html">为什么用枚举实现的单例模式可以防止反序列化？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/computer-how-float-stored.html">浮点数在计算机中是如何存储的？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/17/mysql-data-types-date-time.html">mysql数据类型-日期&时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/16/mysql-data-types-numeric.html">mysql数据类型-数字类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/15/mysql-data-types-set.html">mysql数据类型-集合</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/15/mysql-data-types-enum.html">mysql数据类型-枚举类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/mysql-data-types-string.html">mysql数据类型-字符串类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/11/python-multiprocessing.html">python多进程简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/07/python-package.html">python包机制简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/05/python-file-read.html">python文件读写的几种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/24/python-multi-thread.html">python中的多线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/23/java-synchronized-detail.html">深入分析synchronized的实现原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/22/python-useful-codes.html">Python常用的代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/21/java-baised-locking.html">java中的偏向锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/06/mysql-deadlock-detection.html">mysql检测和处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/06/mysql-timeout.html">mysql中重要超时处理机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/22/maven-resource-plugin.html">maven-resource-plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/19/java-Security-Illegal-key-size.html">java-Security-Illegal-key-size</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/19/linux-find.html">linux find使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/spring-MessageConverter.html">spring中HttpMessageConverter详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/mysql-transaction.html">mysql和事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/11/mysql-locks.html">mysql中的锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/linux-task-on-boot.html">linux开机启动任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/mysql-batch-update-column.html">mysql批量修改列类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/19/mongodb-enable-query-log.html">mongodb开启查询日志</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/18/best-practices-for-a-pragmatic-restful-api.html">RESTful API 设计最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/18/rest-introduce.html">rest架构介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/springboot-mongo.html">springboot-mongo</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/16/idea-jvm-options.html">mac下idea虚拟机参数设置</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/12/linux-tool-traceroute.html">linux工具之traceroute</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/10/curl-learn.html">curl学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/08/java-enum-abstractMethod.html">java中的枚举是否可以有抽象方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/spring-ExceptionResolver.html">spring错误处理之HandlerExceptionResolver</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/spring-ErrorPageFilter.html">SpringBoot异常处理之ErrorPageFilter</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/05/spring-aop-MethodAnnotation.html">spring中AOP获取方法上的注解信息</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/02/spring-expandPoint.html">spring扩展点整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/29/maven-dependency-scope.html">maven jar包依赖范围总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/25/java-web-exception.html">java web 开发异常处理总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/springboot-tomcat.html">springboot发布到tomcat</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql-date-datetime-timestamp.html">mysql中date，datetime，timestamp的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/13/raft-protocol.html">raft协议简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/13/js-cross-domain.html">js跨域解决方案详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/28/java-netty-idleStateHandler.html">netty如何实现心跳检查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/28/why-oauth2-use-authorization-code.html">为什么在oauth2认证中需要使用授权码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/27/java-Executors.html">java线程池工具类Executors</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/27/mq-kafka-producer-partitioner.html">kafka发送消息分区选择策略详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-thread-dump.html">java中生成线程堆栈</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-Thread-state.html">java线程生命周期和状态</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-Thread-join.html">java中线程join方法的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-ThreadPoolExecutor-RejectedExecutionHandler.html">java线程池-RejectedExecutionHandler</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-memorymapped-file-and-io.html">java中内存映射文件和IO</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-difference-between-direct-non-direct-mapped-bytebuffer-nio.html">direct, non-direct, mapped bytebuffer区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-difference-between-stack-and-heap.html">java中栈和堆的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-how-to-create-immutable-class.html">java中如何创建不可变对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-interview-questions-answers-from-last-5-years.html">过去5年Java面试题精选</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-why-string-is-immutable-or-final.html">为什么在java中String是不可变或final</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-lock-and-condition-example-producer-consumer.html">java中使用锁和条件对象实现生产者-消费者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-why-wait-notify-called-in-synchronized-block.html">为什么wait和notify必须在同步方法或同步块中调用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-why-java-not-support-multi-inheritances.html">为何java不支持多继承</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql-locks-intro.html">mysql锁介绍（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-top10-Tricky-questions.html">诡异的java面试题TOP10</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-why-wait-notify-and-notifyall-defined-in-object.html">java-为什么wait，notify和notifyall定义在Object中</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-notify-notifyall.html">java中notify和notifyall的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/18/java-xml-parser.html">java中xml解析器介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/smooth-online-offline-service.html">服务节点平滑上下线</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/07/mq-kafka-blogs.html">kafka资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/mq-kafka-tutorial.html">kafka入门教程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/microservice-links.html">微服务资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/04/ddd-books.html">领域驱动设计书单</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/jms-message-order.html">jms-如何保证消息的顺序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/22/golang-param-pass-value-or-point.html">值传递, 指针传递 这是一个问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/21/golang-how-to-write-go-code.html">如何开发GO代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BigData-summary.html">大数据处理总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-HashSearch.html">algo-HashSearch</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BlockSearch.html">分块查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BinaryTreeSearch.html">二叉排序树查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BinarySearch.html">二分查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/SearchAlgo.html">查找算法总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-HeapSort.html">堆排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-QuickSort.html">快速排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-InsertionSort.html">插入排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-mergesort.html">归并排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-bucketsort.html">桶排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-bubblesort.html">冒泡排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/17/java8-CompletableFuture.html">java8中CompletableFuture详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/17/java-zookeeper-curator.html">zookeeper客户端之curator</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/16/Java-PriorityQueue.html">Java优先级队列PriorityQueue</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/13/java-LockSupport.html">java-LockSupport详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/mq-rocketmq-cluster.html">rocketmq集群搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/mq-rocketmq-quickstart.html">rocketmq快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/linux-zero-copy.html">linux零拷贝原理（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/11/java-jdk9-new-features.html">java-jdk9-new-features</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/java-Experienced-Developer-Teach-You-Five-Things.html">经验丰富的Java开发者教给你的五件事</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/mq-pages.html">MQ资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/DTP-best-practice.html">分布式事务典型处理方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/spring-xa-transactions-using.html">使用spring处理分布式事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql-text-defaultValue.html">mysql-text-defaultValue</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-understanding-jta.html">深入理解JTA事务处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-jta-deeplearning.html">JTA 深度历险 - 原理与实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-management-under-j2ee.html">J2EE事务管理详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/02/java-design-pattern-summary.html">java-design_pattern-summary</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/02/spring-DTP-patterns.html">spring处理分布式事务（使用或不使用XA）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/01/mysql-master-slave-thinking.html">mysql-master-slave-thinking</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-finally.html">java魔法之finally</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-0xCAFEBABE.html">java魔法之0xCAFEBABE</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-java-dot-net-dot-url.html">java魔法之java.net.Url</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-unsafe.html">java魔法之unsafe</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-AtomicLong.html">java中原子变量之AtomicLong</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/30/distribute-transaction-manage.html">分布式系统的事务处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/30/the-pattern-updateCache.html">缓存更新的套路</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/29/java8-lambda.html">java8 lambda表达式详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/spring-annotation-value.html">spring中注解@Value解密</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/spring-PropertyPlaceholderConfigurer.html">spring扩展点之PropertyPlaceholderConfigurer</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/mac-install-python-mysql.html">mac上安装Python-Mysql</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/27/mysql-mofidy-charset.html">mysql修改表-字段-库的字符集</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/25/java8-stream.html">java8-stream</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/23/java8-optional.html">java8-optional</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/23/java-8-features-tutorial.html">java-8-features-tutorial</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/06/java-DesignPatterns-flyweight.html">java-设计模式之-享元模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/05/java-Design-Patterns-builder.html">java-设计模式之-建造者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/03/java-DesignPatterns-proxy.html">java-设计模式之-代理模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-adapter.html">java-设计模式之-适配器模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-bridge.html">java-设计模式之-桥接模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/golang-execute-file-path.html">java-设计模式之-外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-facade.html">java-设计模式之-外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/28/java-DesignPatterns-command.html">java-设计模式之-命令模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/26/java-DesignPatterns-abstractFactory.html">java-设计模式之-抽象工厂模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/26/java-DesignPatterns-factoryMethod.html">java-设计模式之-工程方法模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-simpleFactory.html">java-设计模式之-简单工程模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-decorator.html">java-设计模式之-装饰者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/nginx-cache.html">nginx缓存功能介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-observer.html">java设计模式之-观察者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/nginx-rewrite.html">nginx配置rewrite指令详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-singleton.html">java实现单例模式的几种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-Singleton.html">设计模式之-单例模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-UML.html">设计模式之-UML类图快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-Strategy.html">设计模式之-策略模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/22/java-HashMap-MaxmumEntries.html">java中HashMap的最大容量解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/18/algo-stack-calculateExp.html">用栈实现后缀表达式的计算</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/16/algo-prime-number.html">素数相关</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/16/algo-gcd.html">求两个整数的最大公约数</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/java-HowThreadLocalWork.html">ThreadLocal正解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/java-Reference.html">java Reference 详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/SpringMVC-annotationDriven.html">mvc:annotation-driver</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/11/golang-effective-go.html">golang-effective-go</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/10/openresty-lua-nginx-module.html">openresty-lua-nginx-module</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/09/linux-max-fd.html">linux中最大文件描述符数</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/09/the-difference-between-301-and-302.html">HTTP301和302的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/nodejs-heapdump.html">nodejs调试工具之heapdump简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/nodejs-gc.html">Node.js 调试 GC 以及内存暴涨的分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/07/nodejs-debug.html">NodeJS的代码调试和性能调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/07/siege-introduce.html">压测工具siege简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/06/binary-search-tree.html">二叉查找树</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/full-print-BinaryTree.html">full-print-BinaryTree</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/best-10-practice-from-linkedin.html">LinkedIn关于提高Node.JS服务的10个建议</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/distributed-id-generation.html">5分钟了解分布式ID生成方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/27/java-LinkedList.html">java-LinkedList实现解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/java-LinkedHashMap.html">java-LinkedHashMap知识点汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/java-HashMap.html">java-HashMap知识点汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/japanese-50-yin.html">日语50音图学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/25/linux-netcat.html">Linux Netcat 命令用法简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/24/linux-backlog-maxconn.html">linux网络编程backlog和somaxconn</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/21/npm-11-useful-tips.html">npm11个提供工作效率的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/linux-network-io.html">Linux IO模式及 select、poll、epoll详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/linux-io-epoll.html">Linux下的I/O复用与epoll详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/mac-osx-kernel.html">mac-osx-kernel</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/java-real-data-type-size.html">Java中数据类型真实的内存占用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/19/vim-fileencoding.html">vim-文件编码</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-exports-and-module-expots.html">nodejs中exports和module.expots异同</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-os.html">nodejs模块-os模块</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-path.html">nodejs模块path简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/Fibers-and-Threads-in-node.html">Fibers-and-Threads-in-node</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-querystring.html">nodejs模块之querystring</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-Readline.html">nodejs模块之readline</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/jquery-selector.html">jquery选择器详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/pm2-readme.html">pm2使用简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/fastjson-use.html">fastjson使用简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/character-set.html">字符集详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/linux-hostname.html">linux命令hostname详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/linux-delete-file-not-free-the-space.html">linux删除文件但磁盘空间不释放</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodeJs-module-async.html">nodeJs解决异步回调方案之module-async</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/redis-sentinel.html">redis哨兵功能简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/http-cache.html">http缓存详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-import.html">golang中import语句详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-thread-profile.html">java线程必备知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/nodejs-globals.html">Nodejs全局对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-flag.html">golang命令行参数解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-file.html">golang文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-userinfo.html">golang 用户信息获取</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-time.html">golang时间操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-BlockingQueue.html">Java的BlockingQueue详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-runnable-callable-future.html">Java中的Runnable、Callable、Future、FutureTask的区别与示例</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/java-Queue.html">java队列Queue接口详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/strace-learn.html">手把手教你用Strace诊断问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/too-many-open-files.html">too-many-open-files</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/linux-strace.html">linux工具-strace</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/http-tranfer-encoding.html">HTTP 协议中的 Transfer-Encoding</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/lombook.html">lombook工具包简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-file-size.html">golang编译后文件编写的技巧</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-cross-compile.html">golang交叉编译</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-string.html">Go性能优化技巧-string</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-array.html">Go性能优化技巧-array</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-map.html">Go性能优化技巧-map</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-defer.html">golang之defer简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-chan.html">golang之chan简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-build-version.html">golang自动生成版本信息</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/how-to-get-goroutine-id.html">如何获取goroutine的id</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/fifty-common-Mistakes-for-New-Golang-Devs.html">50个go新手开发常见的错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/ten-best-practise-for-java-exception.html">java异常处理最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-error-handler.html">golang错误处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/seven-things-about-golang.html">关于go你必须知道的7件事</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-tools-build.html">go自带工具build的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-gdb-debug.html">golang程序GDB调试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/hexo-post-asset-folder-html.html">hexo使用post_asset_folder功能文章链接不能以html结尾</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/hexo-codeblock-multiblank.html">hexo代码块前后空白行问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/java-serialization-deepknow.html">java-serialization-deepknow</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-unsafe.html">golang的unsafe包简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/IDCardNo-algo.html">身份证号验证算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/byte-order.html">网络字节序</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-testing.html">golang代码测试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/linux-tool-dig.html">linux-tool-dig</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-md5.html">golang计算字符串MD5</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-time-format.html">golang时间格式化</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-open-browser.html">golang打开系统浏览器</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/mq-compare.html">常见MQ产品比较</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/golang-user-define-json-UnmarshalJSON.html">golang进行json数据的解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-join-point-ofTwoIntersectList.html">查找无环单链表的相交节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/isIntersectWithLoop.html">单链表-链表有环如何判断相交</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-the-join-point-in-list.html">找出单链表有环的入口节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/list-hasCircle.html">判断单链表是否有环</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-mid-post-in-list.html">找出单链表的中间节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-the-kth-node-in-list.html">找出单链表倒数第K个节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/reverse-one-direction-list.html">单链表逆转</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/delete-listNode-in-O1.html">O(1)时间内删除链表节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/reverse-print-list.html">单链表的逆序打印</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/merge-two-sorted-list.html">合并两个升序的单向链表</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/print-NxN-matrix.html">打印NxN矩阵的对角线</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/service-discovery.html">服务发现介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/web-reply-attack.html">web重放攻击介绍和防御方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/process-exception-in-web-dev.html">web开发异常统一处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/maven-test.html">maven-surefire-plugin简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/spring-aop-pointcut-expression.html">spring aop 切点表达式介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/avoid-NullPointException-Java.html">java程序避免NullPointException最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/11/jvm-codecache.html">JVM-codecache内存区域介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/13/logstash-input-file.html">logstash-input-file</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/12/when-to-use-hadoop-toolbox.html">Hadoop-Hbase-Hive-Pig关系</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/14/JVM-Tools.html">有用的JVM工具简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/12/IllegalMonitorStateException.html">诡异的异常IllegalMonitorStateException</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/11/HowMysqlLoadDataWorks.html">mysql load data infile 简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/10/why-not-use-finalize.html">为什么不使用finalize</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/14/mac-sshd.html">mac-sshd</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/theDayEndOfJd.html">朝林最后一天</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/java-Guava-Splitor.html">Guava-Spilitor</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/java-Guava-Joiner.html">Guava-Joiner</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/17/springMVCOutlines.html">Spring MVC HandlerMapping HandlerAdapter</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/17/howJekyllWorks.html">How Jekyll works</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/githubblog.html">Jekyll 快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/JVMOptimize.html">JVM常用参数和调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/JVMGcAlgorithm.html">JVM垃圾收集算法</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2018 kongwenqiang
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<script>
+    var inputArea = document.querySelector("#local-search-input");
+    var getSearchFile = function(){
+        var path = "/search.xml";
+        alert(11111);
+        searchFunc(path, 'local-search-input', 'local-search-result');
+    }
+    inputArea.onfocus = function(){
+      getSearchFile()
+    }
+
+    var $resetButton = $("#search-form .fa-times");
+
+    var $resultArea = $("#local-search-result");
+    inputArea.oninput = function(){ $resetButton.show(); }
+
+    resetSearch = function(){
+        $resultArea.html("");
+        document.querySelector("#search-form").reset();
+        $resetButton.hide();
+        $(".no-result").hide();
+    }
+
+    inputArea.onkeydown = function(){
+        if(event.keyCode==13) {
+          return false
+        }
+    }
+
+    $resultArea.bind("DOMNodeRemoved DOMNodeInserted", function(e) {
+        if (!$(e.target).text()) {
+            $(".no-result").show(200);
+        } else {
+          $(".no-result").hide();
+        }
+    })
+
+</script>
+
+  </div>
+</body>
+</html>

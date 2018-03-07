@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="kongwenqiang" />
+
+
+
+<meta name="description" content="前言Time is changing and so is Java interviews. Gone are the days, when knowing the difference between String and StringBuffer can help you to go through the second round of interview, questions are bec">
+<meta property="og:type" content="article">
+<meta property="og:title" content="过去5年Java面试题精选">
+<meta property="og:url" content="https://leokongwq.github.io/2017/02/25/java-interview-questions-answers-from-last-5-years.html">
+<meta property="og:site_name" content="戒修-沉迷技术的小沙弥">
+<meta property="og:description" content="前言Time is changing and so is Java interviews. Gone are the days, when knowing the difference between String and StringBuffer can help you to go through the second round of interview, questions are bec">
+<meta property="og:image" content="https://leokongwq.github.io/2017/02/25/java-interview-questions-answers-from-last-5-years/JVM-JRE.jpg">
+<meta property="og:image" content="https://leokongwq.github.io/2017/02/25/java-interview-questions-answers-from-last-5-years/java_heaps_memory.jpg">
+<meta property="og:image" content="https://leokongwq.github.io/2017/02/25/java-interview-questions-answers-from-last-5-years/Difference-between-stack-heap.jpg">
+<meta property="og:updated_time" content="2017-02-25T09:59:40.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="过去5年Java面试题精选">
+<meta name="twitter:description" content="前言Time is changing and so is Java interviews. Gone are the days, when knowing the difference between String and StringBuffer can help you to go through the second round of interview, questions are bec">
+<meta name="twitter:image" content="https://leokongwq.github.io/2017/02/25/java-interview-questions-answers-from-last-5-years/JVM-JRE.jpg">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="戒修-沉迷技术的小沙弥" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>过去5年Java面试题精选 | 戒修-沉迷技术的小沙弥</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<script src="/js/search.js"></script>
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">kongwenqiang</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">我喜欢GO</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:leokongwq@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/leokongwq" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AOP/">AOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ActiveQM/">ActiveQM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/">MQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/">NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Nginx/">Nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OS/">OS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Openresy/">Openresy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/">TCP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/algo/">algo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aop/">aop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cache/">cache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/computer/">computer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/consul/">consul</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/curl/">curl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devtools/">devtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/">golang</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gossip/">gossip</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava/">guava</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hive/">hive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java8/">java8</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdk/">jdk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jekyll/">jekyll</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/json/">json</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jta/">jta</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jvm/">jvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mac/">mac</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/microservices/">microservices</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mq/">mq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/netty/">netty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/npm/">npm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth2/">oauth2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openresty/">openresty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/osx/">osx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pig/">pig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soa/">soa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-mvc/">spring-mvc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springMVC/">springMVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springboot/">springboot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqoop/">sqoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uml/">uml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vert-x/">vert.x</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web/">web</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web安全/">web安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xa/">xa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml/">xml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zookeeper/">zookeeper</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发/">并发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微服务/">微服务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/随笔/">随笔</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.imhan.com">Hanny&#39;s Blog</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.chepoo.com">IT技术精华网</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">只想做个好程序员!</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">kongwenqiang</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">kongwenqiang</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">我喜欢GO</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:leokongwq@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/leokongwq" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-java-interview-questions-answers-from-last-5-years" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/02/25/java-interview-questions-answers-from-last-5-years.html" class="article-date">
+      <time datetime="2017-02-25T02:34:59.000Z" itemprop="datePublished">2017-02-25</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      过去5年Java面试题精选
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/java/">java</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/面试/">面试</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Time is changing and so is Java interviews. Gone are the days, when knowing the difference between String and StringBuffer can help you to go through the second round of interview, questions are becoming more advanced and interviewers are asking more deep questions. When I started my career, questions like <a href="http://javarevisited.blogspot.sg/2011/09/difference-vector-vs-arraylist-in-java.html" target="_blank" rel="external">Vector vs Array</a> and <a href="http://javarevisited.blogspot.sg/2010/10/difference-between-hashmap-and.html" target="_blank" rel="external">HashMap vs Hashtable</a> were the most popular ones and just memorizing them gives you a good chance to do well in interviews, but not anymore. Nowadays, you will get questions from the areas where not many Java programmer looks e.g. NIO, patterns, sophisticated unit testing or those which are hard to master e.g. concurrency, algorithms, data structures and coding.</p>
+<a id="more"></a>
+<p>Since I like to explore interview questions, I have got this huge list of questions with me, which contains lots and lots of questions from different topics. I have been preparing this MEGA list from quite some time and now It’s ready to share with you guys. It contains interview questions not only from classic topics like threads, collections, equals and hashcode, sockets but also from NIO, array, string, java 8 and much more.</p>
+<p>It has questions for both entry level Java programmers and senior developers with years of experience. No matter whether you are a Java developer of 1, 2, 3, 4, 5, 6, 8, 9 or even 10 years of experience, you will find something interesting in this list. It contains questions which are super easy to answer, and also, a question which is tricky enough for even seasoned Java programmers.</p>
+<p>Given the list is long and we have questions from everywhere, it’s imperative that answers must be short, concise and crisp, no fluffing at all. So apart from this paragraph, you will only hear from me is the questions and answers, no more context, no more feedback and no more evaluation. For that, I have already written blog posts, where you can find my views on a particular question, e.g. why I like that question, what makes them challenging and what kind of answer you should expect from candidates.</p>
+<p>This list is a little bit different and I encourage you to share questions and answers in a similar way so that it should be easy to revise. I hope this list can be a great use for both interviewer and candidates, the interviewer can, of course, put a little variety on questions to bring novelty and surprise element, which is important for a good interview. While a candidate, can expand and test their knowledge about key areas of Java programming language and platform. In 2015 and in coming years the focus will be more on advanced concurrency concept, JVM internals, 32-bit vs 64-bit JVM, unit testing, and clean code. I am sure, once you read through this MEGA list of Java interview question, you should be able to do well on both <a href="http://java67.blogspot.sg/2015/03/top-40-core-java-interview-questions-answers-telephonic-round.html" target="_blank" rel="external">telephonic</a> and face to face programming interviews.</p>
+<h3 id="Important-Topics-for-Java-Interviews"><a href="#Important-Topics-for-Java-Interviews" class="headerlink" title="Important Topics for Java Interviews"></a>Important Topics for Java Interviews</h3><p>Apart from quantity, as you can see with a huge number of questions, I have worked hard to maintain quality as well. I have not only shared questions from all important topics but also ensured to include so-called advanced topics which many programmers do not prefer to prepare or just left out because they have not worked on that. Java NIO and JVM internals questions are best examples of that. You can keep design patterns also on the same list but growing number of an experienced programmer are now well aware of GOF design patterns and when to use them. I have also worked hard to keep this list up-to-date to include what interviewers are asking in 2015 and what will be their core focus on coming years. To give you an idea, this list of Java interview questions includes following topics:</p>
+<ol>
+<li>Multithreading, concurrency and thread basics</li>
+<li>Date type conversion and fundamentals</li>
+<li>Garbage Collection</li>
+<li>Java Collections Framework</li>
+<li>Array</li>
+<li>String</li>
+<li>GOF Design Patterns</li>
+<li>SOLID design principles</li>
+<li>Abstract class and interface</li>
+<li>Java basics e.g. equals() and hashcode</li>
+<li>Generics and Enum</li>
+<li>Java IO and NIO</li>
+<li>Common Networking protocols</li>
+<li>Data structure and algorithm in Java</li>
+<li>Regular expressions</li>
+<li>JVM internals</li>
+<li>Java Best Practices</li>
+<li>JDBC</li>
+<li>Date, Time, and Calendar</li>
+<li>XML Processing in Java</li>
+<li>JUnit</li>
+<li>Programming</li>
+</ol>
+<p>You guys are also lucky that nowadays there are some good books available to prepare for Java interviews, one of them   which I particularly find useful and interesting to read is <a href="http://www.amazon.com/Java-Programming-Interviews-Exposed-Markham/dp/1118722868?tag=javamysqlanta-20" target="_blank" rel="external">Java Programming Interview Exposed by Markham</a>. It will take you to some of the most important topics for Java and JEE interviews, worth reading even if you are not preparing for Java interview.</p>
+<h3 id="Top-120-Java-Interview-Questions-Answers"><a href="#Top-120-Java-Interview-Questions-Answers" class="headerlink" title="Top 120 Java Interview Questions Answers"></a>Top 120 Java Interview Questions Answers</h3><p>So now the time has come to introduce you to this MEGA list of 120 Java questions collected from various interviews of last 5 years. I am sure you have seen many of these questions personally on your interviews and many of you would have answered them correctly as well.</p>
+<h4 id="Multithreading-Concurrency-and-Thread-basics-Questions"><a href="#Multithreading-Concurrency-and-Thread-basics-Questions" class="headerlink" title="Multithreading, Concurrency and Thread basics Questions"></a>Multithreading, Concurrency and Thread basics Questions</h4><p>1) Can we make array volatile in Java?</p>
+<p>This is one of the tricky Java multi-threading questions you will see in senior Java developer Interview. Yes, you can make an array volatile in Java but only the reference which is pointing to an array, not the whole array. What I mean, if one thread changes the reference variable to points to another array, that will provide a volatile guarantee, but if multiple threads are changing individual array elements they won’t be having happens before guarantee provided by the volatile modifier.</p>
+<p>2) Can volatile make a non-atomic operation to atomic?</p>
+<p>This another good question I love to ask on volatile, mostly as a follow-up of the previous question. This question is also not easy to answer because volatile is not about atomicity, but there are cases where you can use a volatile variable to make the operation atomic.</p>
+<p>One example I have seen is having a long field in your class. If you know that a long field is accessed by more than one thread e.g. a counter, a price field or anything, you better make it volatile. Why? because reading to a long variable is not atomic in Java and done in two steps, If one thread is writing or updating long value, it’s possible for another thread to see half value (fist 32-bit). While reading/writing a volatile long or double (64 bit) is atomic.</p>
+<p>3) What are practical uses of volatile modifier? </p>
+<p>One of the practical use of the volatile variable is to make reading double and long atomic. Both double and long are 64-bit wide and they are read in two parts, first 32-bit first time and next 32-bit second time, which is non-atomic but volatile double and long read is atomic in Java. Another use of the volatile variable is to provide a memory barrier, just like it is used in Disrupter framework. Basically, Java Memory model inserts a write barrier after you write to a volatile variable and a read barrier before you read it. Which means, if you write to volatile field then it’s guaranteed that any thread accessing that variable will see the value you wrote and anything you did before doing that right into the thread is guaranteed to have happened and any updated data values will also be visible to all threads, because the memory barrier flushed all other writes to the cache.</p>
+<p>4) What guarantee volatile variable provides? (answer)</p>
+<p>volatile variables provide the guarantee about ordering and visibility e.g. volatile assignment cannot be re-ordered with other statements but in the absence of any synchronization instruction compiler, JVM or JIT are free to reorder statements for better performance. volatile also provides the happens-before guarantee which ensures changes made in one thread is visible to others. In some cases volatile also provide atomicity e.g. reading 64-bit data types like long and double are not atomic but read of volatile double or long is atomic.</p>
+<p>5) Which one would be easy to write? synchronization code for 10 threads or 2 threads?</p>
+<p>In terms of writing code, both will be of same complexity because synchronization code is independent of a number of threads. Choice of synchronization though depends upon a number of threads because the number of thread present more contention, so you go for advanced synchronization technique e.g. lock stripping, which requires more complex code and expertise.</p>
+<p>6) How do you call wait() method? using if block or loop? Why? (answer)</p>
+<p>wait() method should always be called in loop because it’s possible that until thread gets CPU to start running again the condition might not hold, so it’s always better to check condition in loop before proceeding. Here is the standard idiom of using wait and notify method in Java:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+</pre></td><td class="code"><pre><span class="line"><span class="comment">// The standard idiom for using the wait method</span></span>
+<span class="line"><span class="keyword">synchronized</span> (obj) &#123;</span>
+<span class="line">   <span class="keyword">while</span> (condition does not hold)</span>
+<span class="line">      obj.wait(); <span class="comment">// (Releases lock, and reacquires on wakeup)</span></span>
+<span class="line">      ... <span class="comment">// Perform action appropriate to condition</span></span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>See Effective Java Item 69 to learn more about why wait method should call in the loop.</p>
+<p>7)  What is false sharing in the context of multi-threading? </p>
+<p>false sharing is one of the well-known performance issues on multi-core systems, where each process has its local cache. false sharing occurs when threads on different processor modify variables that reside on same cache line as shown in the following image:</p>
+
+<p>Java Interview questions for experienced programmers</p>
+<p>False sharing is very hard to detect because the thread may be accessing completely different global variables that happen to be relatively close together in memory. Like many concurrency issues, the primary way to avoid false sharing is careful code review and aligning your data structure with the size of a cache line.</p>
+<p>8) What is busy spin? Why should you use it?</p>
+<p>Busy spin is one of the technique to wait for events without releasing CPU. It’s often done to avoid losing data in CPU cached which is lost if the thread is paused and resumed in some other core. So, if you are working on low latency system where your order processing thread currently doesn’t have any order, instead of sleeping or calling wait(), you can just loop and then again check the queue for new messages. It’s only beneficial if you need to wait for a very small amount of time e.g. in micro seconds or nano seconds. LMAX Disrupter framework, a high-performance inter-thread messaging library has a BusySpinWaitStrategy which is based on this concept and uses a busy spin loop for EventProcessors waiting on the barrier.</p>
+<p>9) How do you take thread dump in Java?</p>
+<p>You can take a thread dump of Java application in Linux by using kill -3 PID, where PID is the process id of Java process. In Windows, you can press Ctrl + Break. This will instruct JVM to print thread dump in standard out or err and it could go to console or log file depending upon your application configuration. If you have used Tomcat then when</p>
+<p>10) is Swing thread-safe? (answer)</p>
+<p>No, Swing is not thread-safe. You cannot update Swing components e.g. JTable, JList or JPanel from any thread, in fact, they must be updated from GUI or AWT thread. That’s why swings provide invokeAndWait() and invokeLater() method to request GUI update from any other threads. This methods put update request in AWT threads queue and can wait till update or return immediately for an asynchronous update. You can also check the detailed answer to learn more</p>
+<p>11) What is a thread local variable in Java? (answer)</p>
+<p>Thread-local variables are variables confined to a thread, its like thread’s own copy which is not shared between multiple threads. Java provides a ThreadLocal class to support thread-local variables. It’s one of the many ways to achieve thread-safety. Though be careful while using thread local variable in manged environment e.g. with web servers where worker thread out lives any application variable. Any thread local variable which is not removed once its work is done can potentially cause a memory leak in Java application.</p>
+<p>12) Write wait-notify code for producer-consumer problem? (answer)</p>
+<p>Please see the answer for a code example. Just remember to call wait() and notify() method from synchronized block and test waiting for condition on the loop instead of if block.</p>
+<p>13) Write code for thread-safe Singleton in Java? (answer)</p>
+<p>Please see the answer for a code example and step by step guide to creating thread-safe singleton class in Java. When we say thread-safe, which means Singleton should remain singleton even if initialization occurs in the case of multiple threads. Using Java enum as Singleton class is one of the easiest ways to create a thread-safe singleton in Java.</p>
+<p>14) The difference between sleep and wait in Java? (answer)</p>
+<p>Though both are used to pause currently running thread, sleep() is actually meant for short pause because it doesn’t release lock, while wait() is meant for conditional wait and that’s why it release lock which can then be acquired by another thread to change the condition on which it is waiting.</p>
+<p>15) What is an immutable object? How do you create an Immutable object in Java? (answer)</p>
+<p>Immutable objects are those whose state cannot be changed once created. Any modification will result in a new object e.g. String, Integer, and other wrapper class. Please see the answer for step by step guide to creating Immutable class in Java.</p>
+<p>16) Can we create an Immutable object, which contains a mutable object?</p>
+<p>Yes, its possible to create an Immutable object which may contain a mutable object, you just need to be a little bit careful not to share the reference of the mutable component, instead, you should return a copy of it if you have to. Most common example is an Object which contain the reference of java.util.Date object.</p>
+<h4 id="数据类型和基本的Java面试题"><a href="#数据类型和基本的Java面试题" class="headerlink" title="数据类型和基本的Java面试题"></a>数据类型和基本的Java面试题</h4><p>17) Java中使用哪个数据类型来表示价格？</p>
+<p>BigDecimal。如果内存不是问题，性能不是关键，否则用预定义精度双精度。</p>
+<p>18) 如何将bytes转为String</p>
+<p>可以使用String类的构造函数，它接收一个字节数组。需要注意的是字符串的编码，如果你没有指定编码方式，则使用系统默认的值。</p>
+<p>19) Java中如何将bytes转为long？</p>
+<p>参考<a href="http://blog.csdn.net/defonds/article/details/8782785" target="_blank" rel="external">http://blog.csdn.net/defonds/article/details/8782785</a></p>
+<p>20) 是否可以将一个int强制转为byte？如果int的值大于byte所能表达的最大值会发生什么？</p>
+<p>可以, 我们可以转换，但在Java中int为32位长，而byte在Java中为8位长，因此当你将一个int转换为字节时，高24位会丢失，一个字节只能保存-128到128的值。</p>
+<p>21) 有两个类，B继承自A, C继承自B, 是否可以将B转为C, 如：</p>
+<pre><code>C = (C) B;
+</code></pre><p>不可以，只能向上类型转换。</p>
+<p>22) 哪一个类包含<code>clone</code>方法？ Cloneable 或 Object？</p>
+<p><code>java.lang.Cloneable</code> 是一个标志接口，没有包含任何方法。<code>clone</code>方法定义在Object类中（是一个native方法）。</p>
+<p>23) Java中<code>++</code>操作是否是现场安全的？</p>
+<p>它不是一个线程安全的操作符，因为它涉及多个指令，如读取一个值，累加，并将其存储回内存。</p>
+<p>24) 操作 <code>a = a + b</code> 和 <code>a += b</code>的区别？</p>
+<p>操作符<code>+=</code>会隐式的相加的结果转为保存相加结果变量的类型。当你将类型为<code>byte</code>,<code>shot</code>或<code>int</code>的两个变量相加，第一步会将变量的类型提升为int,然后再相加。如果相加的结果大于变量a的类型最大值，则<code>a+b</code>会给出编译错误，但是<code>a+=b</code>则不会。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">byte</span> a = <span class="number">127</span>;</span>
+<span class="line"><span class="keyword">byte</span> b = <span class="number">127</span>;</span>
+<span class="line">b = a + b; <span class="comment">// error : cannot convert from int to byte</span></span>
+<span class="line">b += a; <span class="comment">// ok</span></span>
+</pre></td></tr></table></figure>
+<p>25) 是否可以不进行类型转换而将一个double值存入long变量？</p>
+<p>不，你不能将一个double值存储到一个long变量而不进行转换，因为double的范围更长，你需要类型转换。 回答这个问题并不难，但许多开发者还是错了，因为混淆在Java中double类型和long类型纠结谁大。</p>
+<p>26) 表达式 <code>3*0.1 == 0.3</code>的返回值是true还是false?</p>
+<p>这真的一个诡异的Java问题。在100个Java开发者中只有5个人能正确回答该问题并给出合理的解释。简短的答案是：一些浮点数不能被精确的表示。</p>
+<p>27) 哪一个会占用更多的内存空间, int 还是 Integer ?</p>
+<p>这个毋庸置疑了，必须是Integer</p>
+<p>28) Java中的String为什么是不可变的？</p>
+<p>One of my favorite Java interview question. The String is Immutable in java because java designer thought that string will be heavily used and making it immutable allow some optimization easy sharing same String object between multiple clients. See the link for the more detailed answer. This is a great question for Java programmers with less experience as it gives them food for thought, to think about how things works in Java, what Jave designers might have thought when they created String class etc.</p>
+<p>29) String可以用在switch case语句中吗？</p>
+<p>从Java 7开始，我们可以在switch语句中使用String，但它只是语法糖。 原因是使用了字符串内部的哈希码用于switch。</p>
+<p>30) 什么是Java中的构造器链？</p>
+<p>当你在一个构造函数中调用另一个构造函数时，这种情况被称为构造器链。这种情况是因为你重载了多个构造函数。</p>
+<h4 id="JVM-Internals-and-Garbage-Collection-Interview-Questions"><a href="#JVM-Internals-and-Garbage-Collection-Interview-Questions" class="headerlink" title="JVM Internals and Garbage Collection Interview Questions"></a>JVM Internals and Garbage Collection Interview Questions</h4><p>在2015年，我在各种Java访谈中看到关于JVM内部原理和垃圾收集调整，监控Java应用程序和处理Java性能问题的关注在持续上升。 这实际上成为面试任何经验丰富的Java开发人员的主要议题，如技术主管，副总裁或团队领导。 如果你觉得你缺乏这方面的经验和知识，那么你应该阅读我的Java性能书籍列表中提到的至少一本书<a href="http://javarevisited.blogspot.com/2014/07/top-5-java-performance-tuning-books.html" target="_blank" rel="external">Java Performance books</a>。 </p>
+<p>31) int类型在64-bit JVM上的大小？</p>
+<p>int变量的大小在Java中是不变的，它总是32位，与平台无关。 这意味着在32位和64位Java虚拟机中基本int的大小是相同的。</p>
+<p>32) 串行收集器和并行收集器的区别？</p>
+<p>即使串行和并行收集器在垃圾收集期间导致<code>Stop The World</code>。 它们之间的主要区别是串行收集器是默认的复制收集器，它只使用一个GC线程进行垃圾收集，而并行收集器使用多个GC线程进行垃圾收集。</p>
+<p>33) 32位和64位JVM中的int变量的大小是多少？ </p>
+<p>int的大小在32位和64位JVM中是相同的，它总是32位或4字节。</p>
+<p>34) Java中弱引用和软应用的区别是？</p>
+<p>虽然WeakReference和SoftReference都有助于垃圾收集器和内存的高效使用，但是WeakReference只要最后一个强引用丢失就可以进行垃圾收集，而SoftReference只有在内存空间不足的情况下才会进行回收。</p>
+<p>35) WeakHashMap 是如何工作的？</p>
+<p>WeakHashMap的工作方式类似于正常的HashMap，但对键使用WeakReference，这意味着如果键对象没有任何引用，那么键/值映射都将有资格进行垃圾回收。</p>
+<p>36) 虚拟机参数-XX:+UseCompressedOops的作用是什么？为什么使用它？</p>
+<p>当您将Java应用程序从32位迁移到64位JVM时，堆容量突然增加，几乎翻倍，原因是普通对象指针从32位增加到64位。 这也影响你可以在CPU缓存中保留多少数据(CPU缓存比内存小得多)。 因为移动到64位JVM的主要动机是使用更大的堆，所以可以使用压缩的OOP来节省一些内存。 通过使用<code>-XX:+UseCompressedOops</code>，JVM使用32位OOP而不是64位OOP。</p>
+<p>37) 你如何在代码中检查JVM是32位的还是64位的？</p>
+<p>你可以通过一些系统变量来检查，例如：<code>sun.arch.data.model</code> 或 <code>os.arch</code></p>
+<p>38) 32位和64位JVM的堆最大值是多少？</p>
+<p>理论上，可以分配给32位JVM的最大堆内存是2 ^ 32，就是4GB，但实际上这个限制小得多。 在操作系统之间这个值也是变化的。 在Windows中大概是<code>1.5GB</code>，在Solaris中几乎达到<code>3GB</code>。 64位JVM允许你指定更大的堆大小，理论上2 ^ 64这是相当大，但实际上你可以指定堆空间高达<code>100GBs</code>。 甚至有JVM。 Azul这里也有1000个gig的堆空间。</p>
+<p>39) JRE，JDK，JVM和JIT有什么区别？ </p>
+<p>JRE代表Java运行时，它需要运行Java应用程序。 JDK代表Java开发工具包，并提供了开发Java程序的工具。 Java编译器。 它还包含JRE。 JVM代表Java虚拟机，它是负责运行Java应用程序的进程。 JIT代表即时编译，当跨越的某些阈值（即主要是热代码被转换为本地代码）时，通过将Java字节代码转换为本地代码来帮助提高Java应用程序的性能。</p>
+<img src="/2017/02/25/java-interview-questions-answers-from-last-5-years/JVM-JRE.jpg" alt="JVM-JRE.jpg" title="">
+<h4 id="3年经验的开发者Java面试题"><a href="#3年经验的开发者Java面试题" class="headerlink" title="3年经验的开发者Java面试题"></a>3年经验的开发者Java面试题</h4><p>40) 解释Java堆空间和垃圾收集? (<a href="http://javarevisited.blogspot.sg/2011/05/java-heap-space-memory-size-jvm.html" target="_blank" rel="external">answer</a>)</p>
+<p>Garbage collection is the process inside JVM which reclaims memory from dead objects for future allocation.</p>
+<p>当使用java命令启动一个Java进程时，操作系统会为该进程分配内存。 此内存的一部分用于创建堆空间，用于在程序中创建对象在时为其分配内存。 垃圾收集是JVM中回收已经死亡对象的内存空间供新对象创建使用的的处理过程。</p>
+<img src="/2017/02/25/java-interview-questions-answers-from-last-5-years/java_heaps_memory.jpg" alt="java_heaps_memory.jpg" title="">
+<p>41) 你能保证垃圾收集过程吗？</p>
+<p>不，你不能保证垃圾收集，虽然你可以使用System.gc（）或Runtime.gc（）方法请求。</p>
+<p>42) 如何从Java程序中查找内存使用情况？ 有多少百分比的堆被使用？</p>
+<p>你可以使用<code>java.lang.Runtime</code>类中的内存相关方法来获取Java中的可用内存，总内存和最大堆内存。 通过使用这些方法，您可以了解使用堆的百分比和剩余的堆空间。 <code>Runtime.freeMemory()</code>返回以字节为单位的可用内存量，<code>Runtime.totalMemory()</code>返回总内存（以字节为单位），<code>Runtime.maxMemory()</code>返回最大内存（以字节为单位）。</p>
+<p>43) java中堆和栈的区别是？</p>
+<p>栈和堆是JVM中不同的内存区域，它们用于不同的目的。 栈用于保存方法调用栈帧和局部变量，而对象总是从堆中分配内存。 堆栈通常比堆内存小得多，并且没有在多个线程之间共享，但是堆在JVM中的所有线程之间共享。</p>
+<img src="/2017/02/25/java-interview-questions-answers-from-last-5-years/Difference-between-stack-heap.jpg" alt="Difference-between-stack-heap.jpg" title="">
+<h4 id="Java基本概念面试题"><a href="#Java基本概念面试题" class="headerlink" title="Java基本概念面试题"></a>Java基本概念面试题</h4><p>44) “a == b” 和 “a.equals(b)”之间的区别？</p>
+<p>如果a和b都是一个对象，并且只有当两个引用都指向堆空间中的同一个对象时，a = b才会进行对象引用匹配，另一方面，a.equals（b）用于逻辑映射， 它期望一个对象重写这个方法来提供逻辑等同。 例如，String类覆盖此equals()方法，以便可以比较两个字符串，这两个字符串是不同的对象，但包含相同的字母。</p>
+<p>45) <code>a.hashCode()</code>的作用是？它和<code>a.equals(b)</code>有什么关联？</p>
+<p><code>hashCode()</code>方法返回对应于对象的int哈希值。 它用于基于散列的集合类，例如Hashtable，HashMap，LinkedHashMap等。 它与<code>equals()</code>方法紧密相关。 根据Java规范，使用<code>equals()</code>方法彼此相等的两个对象必须具有相同的哈希码。</p>
+<p>46) final, finalize 和 finally之间的区别?</p>
+<p>The final is a modifier which you can apply to variable, methods and classes. If you make a variable final it means its value cannot be changed once initialized. finalize is a method, which is called just before an object is a garbage collected, giving it last chance to resurrect itself, but the call to finalize is not guaranteed. finally is a keyword which is used in exception handling along with try and catch. the finally block is always executed irrespective of whether an exception is thrown from try block or not.</p>
+<p>final是一个修饰符，你可以应用于变量，方法和类。 如果你一个变量final的，这意味着它的值一旦初始化就不能改变。 finalize是一个方法，它在一个对象被垃圾收集之前被调用，给它最后一次机会来复活自己，但是对finalize的调用不能保证。 finally是一个用于异常处理以及try和catch的关键字。 无论是否从try块抛出异常，始终执行finally块</p>
+<p>47) 什么是Java中的编译时常量？ 使用它的风险是什么？</p>
+<p><code>public static final</code>变量也称为编译时常量，public是可选的。 它们在编译时被替换为实际值，因为编译器预先知道它们的值，并且知道它在运行时不能被改变。 其中一个问题是，如果你碰巧使用一个内部或第三方库中的<code>public static final</code>变量，并且它们的值更改后，客户端仍将使用旧值，即使部署新版本的JAR 。 为避免这种情况，请确保在升级依赖项JAR文件时编译程序。</p>
+<h4 id="Java集合框架面试题"><a href="#Java集合框架面试题" class="headerlink" title="Java集合框架面试题"></a>Java集合框架面试题</h4><p>它还包含Java中的数据结构和算法访问问题，数组，链表，HashMap，ArrayList，Hashtable，Stack，Queue，PriorityQueue，LinkedHashMap和ConcurrentHashMap问题。</p>
+<p>48) Java中List, Set, Map, 和 Queue 之间的区别是？</p>
+<p>List是有序的集合并允许元素重复。它还提供了常数时间的查询（根据下标）。但这不是由List接口包装的。 Set是一个无序的集合，不允许重复元素。</p>
+<p>49) poll() 和 remove() 的区别？</p>
+<p><code>poll()</code> 和 <code>remove()</code>都是从队列里面获取对象，如果队列为空则poll返回null, remove则会抛出异常。</p>
+<p>50) LinkedHashMap 和 PriorityQueue 的区别？</p>
+<p>PriorityQueue保证最低或最高优先级元素始终保留在队列的头部，但LinkedHashMap维护元素插入的顺序。 当你遍历一个PriorityQueue，迭代器不保证任何顺序，但LinkedHashMap的迭代器确保插入元素的顺序。</p>
+<p>51) Java ArrayList 和 LinkedList的不同？</p>
+<p>它们之间的明显区别是ArrrayList由数组数据结构支持，支持随机访问，LinkedList由链表数据结构支持，不支持随机访问。 使用索引访问ArrayList中的元素时间复杂度是O（1），但是在LinkedList中是O（n）。 </p>
+<p>52) 有哪几种方法可以排序一个集合？</p>
+<p>你可以使用本身具有排序功能的集合,例如：TreeSet, TreeMap。 当然也可以通过<code>Collections.sort()</code>对集合进行排序。</p>
+<p>53) Java中如何打印数组？</p>
+<p>你可以使用<code>Arrays.toString()</code>和<code>Arrays.deepToString()</code>方法打印数组。 由于数组本身不实现<code>toString()</code>，将数组传递给<code>System.out.println()</code>将不会打印其内容，而<code>Arrays.toString()</code>将打印数组中的每个元素。</p>
+<p>54) Java中的 LinkedList 是单链表还是双链表?</p>
+<p>答案是：双链表</p>
+<p>55) Java中使用哪种类型的树来实现TreeMap?</p>
+<p>java中使用红黑树来实现TreeMap。</p>
+<p>56) Hashtable 和 HashMap的区别？</p>
+<p>这两个类之间有很多区别，其中一些如下：<br>a）Hashtable是一个遗留的类，从JDK1开始就存在了，HashMap是后来添加。<br>b）Hashtable线程安全的，速度更慢，HashMap线程安全的，速度更快<br>c）Hashtable不允许空键值对，但HashMap允许一个空键值对。</p>
+<p>57) Java中的HashSet时如何工作的？</p>
+<p>HashSet在内部使用HashMap实现。 由于Map需要键和值，因此所有键都使用一个默认值。 与HashMap类似，HashSet不允许重复的键，并允许一个null键，我的意思是你只能在HashSet中存储一个null对象。</p>
+<p>58) 编写代码在迭代ArrayList的过程中删除元素？</p>
+<p>这里的关键是检查候选者是否使用ArrayList的remove（）还是 Iterator的remove（）。 这里是示例代码，它使用正确的方式在循环中从ArrayList中删除元素并避免ConcurrentModificationException异常。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+<span class="line">43</span>
+<span class="line">44</span>
+<span class="line">45</span>
+<span class="line">46</span>
+<span class="line">47</span>
+<span class="line">48</span>
+<span class="line">49</span>
+<span class="line">50</span>
+<span class="line">51</span>
+<span class="line">52</span>
+<span class="line">53</span>
+<span class="line">54</span>
+<span class="line">55</span>
+<span class="line">56</span>
+<span class="line">57</span>
+<span class="line">58</span>
+<span class="line">59</span>
+<span class="line">60</span>
+<span class="line">61</span>
+<span class="line">62</span>
+<span class="line">63</span>
+<span class="line">64</span>
+<span class="line">65</span>
+<span class="line">66</span>
+<span class="line">67</span>
+<span class="line">68</span>
+<span class="line">69</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span>
+<span class="line"><span class="keyword">import</span> java.util.Iterator;</span>
+<span class="line"><span class="keyword">import</span> java.util.List;</span>
+<span class="line"></span>
+<span class="line"><span class="comment">/**</span>
+<span class="line">  * Java program to demonstrate how to remove object form List and differnece</span>
+<span class="line">  * between Iterator's remove() method and Colection's remove() method in Java</span>
+<span class="line">  *</span>
+<span class="line">  * <span class="doctag">@author</span> http://javarevisited.blogspot.com</span>
+<span class="line"> */</span></span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ObjectRemovalTest</span> </span>&#123;</span>
+<span class="line">  </span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String args[])</span> </span>&#123;</span>
+<span class="line">      </span>
+<span class="line">       List markets = <span class="keyword">new</span> ArrayList();</span>
+<span class="line">     </span>
+<span class="line">       StockExchange TSE = <span class="keyword">new</span> StockExchange()&#123;</span>
+<span class="line">         </span>
+<span class="line">            <span class="meta">@Override</span></span>
+<span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isClosed</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span>
+<span class="line">            &#125;         </span>
+<span class="line">       &#125;;</span>
+<span class="line">     </span>
+<span class="line">       StockExchange HKSE = <span class="keyword">new</span> StockExchange()&#123;</span>
+<span class="line"></span>
+<span class="line">            <span class="meta">@Override</span></span>
+<span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isClosed</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span>
+<span class="line">            &#125;         </span>
+<span class="line">       &#125;;</span>
+<span class="line">      </span>
+<span class="line">       StockExchange NYSE = <span class="keyword">new</span> StockExchange()&#123;</span>
+<span class="line"></span>
+<span class="line">            <span class="meta">@Override</span></span>
+<span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isClosed</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span>
+<span class="line">            &#125;         </span>
+<span class="line">       &#125;;</span>
+<span class="line">      </span>
+<span class="line">       markets.add(TSE);</span>
+<span class="line">       markets.add(HKSE);</span>
+<span class="line">       markets.add(NYSE);</span>
+<span class="line">     </span>
+<span class="line">     </span>
+<span class="line">       Iterator itr = markets.iterator();</span>
+<span class="line">     </span>
+<span class="line">       <span class="keyword">while</span>(itr.hasNext())&#123;</span>
+<span class="line">           StockExchange exchange = itr.next();</span>
+<span class="line">           <span class="keyword">if</span>(exchange.isClosed())&#123;</span>
+<span class="line">               markets.remove(exchange); <span class="comment">//Use itr.remove() method</span></span>
+<span class="line">           &#125;</span>
+<span class="line">       &#125;</span>
+<span class="line">           </span>
+<span class="line">    &#125;    </span>
+<span class="line">  </span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">StockExchange</span></span>&#123;</span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isClosed</span><span class="params">()</span></span>;</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="comment">// 输出</span></span>
+<span class="line"></span>
+<span class="line">Exception in thread <span class="string">"main"</span> java.util.ConcurrentModificationException</span>
+<span class="line">        at java.util.AbstractList$Itr.checkForComodification(AbstractList.java:<span class="number">372</span>)</span>
+<span class="line">        at java.util.AbstractList$Itr.next(AbstractList.java:<span class="number">343</span>)</span>
+<span class="line">        at ObjectRemovalTest.main(StringReplace.java:<span class="number">63</span>)</span>
+<span class="line">Java Result: <span class="number">1</span></span>
+</pre></td></tr></table></figure>
+<p>59) 如何编写我们自己的容器类，并可以在for-each循环中使用？</p>
+<p>是的，你可以编写自己的容器类。 如果你想使用Java中的高级for循环你需要实现Iterable接口。 如果你实现Collection接口，那么默认你就会获得该能力。</p>
+<p>60) ArrayList 和 HashMap 的默认大小是？</p>
+<p>从Java7开始，ArrayList的默认大小是10，HashMap的默认容量是16，并且不是2的N次幂。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line"><span class="comment">// from ArrayList.java JDK 1.7</span></span>
+<span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_CAPACITY = <span class="number">10</span>;  </span>
+<span class="line"></span>
+<span class="line"><span class="comment">//from HashMap.java JDK 7</span></span>
+<span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_INITIAL_CAPACITY = <span class="number">1</span> &lt;&lt; <span class="number">4</span>; <span class="comment">// aka 16</span></span>
+</pre></td></tr></table></figure>
+<p>61) 两个不等的对象可能具有相同的哈希码吗?</p>
+<p>当然了</p>
+<p>62) 两个相等的对象有不同的哈希码吗？</p>
+<p>不可以，根据hash code的契约这是不可能的。</p>
+<p>63) 是否可以在hashCode方法中返回随机的值？</p>
+<p>不可以，同一个对象的哈希码应该总是相同的。</p>
+<p>64) Comparator 和 Comparable的区别？</p>
+<p>Comparable接口用于定义对象的自然顺序，而Comparator用于自定义顺序。 Comparable可以总是一个，但我们可以有多个比较器来定义对象的比较顺序。</p>
+<p>65) 为什么在复写equals方法时需要同时复写hashCode方法？</p>
+<p>因为equals有代码约定，重写equals和hashcode需在一起。因为许多容器类像HashMap或HashSet取决于hashcode和equals契约。</p>
+<h3 id="Java-IO-和-NIO-面试问题"><a href="#Java-IO-和-NIO-面试问题" class="headerlink" title="Java IO 和 NIO 面试问题"></a>Java IO 和 NIO 面试问题</h3><p>从Java面试的角度来看，IO非常重要。 您应该对旧的Java IO，NIO和NIO2非常了解， 并了解一些操作系统和磁盘IO基础知识。 这里有一些Java IO的常见问题。</p>
+<p>66) 在我的程序中，我有三个socket, 那我应该使用多少个线程来处理它们呢？</p>
+<p>67) 在Java中如何创建 ByteBuffer?</p>
+<p>答案是：wrap, allocate, allocateDirect</p>
+<p>68) 在Java中如何读取或写入ByteBuffer?</p>
+<p>69) Java使用的时大端还是小端字节序？</p>
+<p>答案是：大端。 ByteOrder.nativeOrder()可以查看主机的字节序 ； 网络字节序也是大端。</p>
+<p>70) ByteBuffer 的字节序是什么样的?</p>
+<p>答案是：大端</p>
+<p>71) Java中<code>direct buffer</code> 和 <code>non-direct buffer</code> 的区别是？</p>
+<p><a href="http://javarevisited.blogspot.jp/2015/08/difference-between-direct-non-direct-mapped-bytebuffer-nio-java.html" target="_blank" rel="external">http://javarevisited.blogspot.jp/2015/08/difference-between-direct-non-direct-mapped-bytebuffer-nio-java.html</a></p>
+<p>72) 什么是Java中的内存映射缓存？</p>
+<p><a href="http://javarevisited.blogspot.sg/2012/01/memorymapped-file-and-io-in-java.html" target="_blank" rel="external">http://javarevisited.blogspot.sg/2012/01/memorymapped-file-and-io-in-java.html</a></p>
+<p>73) socket的选项<code>TCP NO DELAY</code>是什么意思?</p>
+<p><a href="http://blog.csdn.net/huang_xw/article/details/7340241" target="_blank" rel="external"> java socket参数详解:TcpNoDelay</a></p>
+<p>74) What is the difference between TCP and UDP protocol?</p>
+<p><a href="http://javarevisited.blogspot.jp/2014/07/9-difference-between-tcp-and-udp-protocol.html" target="_blank" rel="external">http://javarevisited.blogspot.jp/2014/07/9-difference-between-tcp-and-udp-protocol.html</a></p>
+<p>75) The difference between ByteBuffer and StringBuffer in Java?</p>
+<p>答案：者两个可以比较吗？</p>
+<h3 id="java-最佳实践面试题"><a href="#java-最佳实践面试题" class="headerlink" title="java 最佳实践面试题"></a>java 最佳实践面试题</h3><p>包含来自Java编程不同部分的最佳实践。 集合，字符串，IO，多线程，错误和异常处理，设计模式等。本节主要面向负责产品的Java开发人员，技术主管，VP，团队领导和编程人员。 如果你想创造优质的产品，你必须知道并遵循最佳实践。</p>
+<p>76) 编写多线程代码时你所遵循的最佳实践是什么<a href="http://javarevisited.blogspot.com/2015/05/top-10-java-multithreading-and.html" target="_blank" rel="external">answer</a>？</p>
+<p>下面是我在编写多线程代码是遵循的最佳实践：</p>
+<p>a) 总是给线程进行命名，这样在调试时非常有帮助。<br>b) 最小化同步范围，不要同步整个方法，而是应该只同步临界区代码块。<br>c) 如果可以的话优先使用 volatile 而不是 synchronized<br>e) 使用高级别并发工具类来实现线程间的通信。例如BlockingQueue, CountDownLatch and Semeaphore.<br>e) 优先使用并发集合而不是同步集合。它们提供了更好的可扩展性。</p>
+<p>77) 告诉我一些你使用Java集合框架的最佳实践？</p>
+<p>下面是我使用Java集合框架的最佳实践：</p>
+<p>a) 总是使用合适的集合类。例如：如果你需要非同步的list，你应该使用ArrayList而不是Vector。<br>b) 优先使用并发集合而不是同步结合类。并发集合有更好的扩展性。<br>c) 总是使用接口类型来引用类的实例。例如：List , Map等<br>d) 使用迭代器遍历集合元素。<br>e) 总是使用泛型集合。</p>
+<p>78) 告诉我在Java中你使用线程的5条最佳实践？</p>
+<p>a) 命名你的线程。<br>b) 保持你的任务和线程的分离，使用 Runnable 或 Callable 配和executor一起。<br>c) 使用线程池。<br>d) 使用 volatile 来指示编译器处理重拍序，内存可见性和原子性问题。<br>e) 编码使用ThreadLocal,因为不正确的使用方式会导致内存泄露。</p>
+<p>79) 说出 5 条 IO 相关的最佳实践？</p>
+<p>IO对于Java应用程序的性能非常重要。 理想情况下，应在应用程序的关键路径避免IO。 以下是你可以遵循的Java IO最佳做法：</p>
+<p>a) 使用带有缓存区的IO类，而不是每次处理一个字节或字符的类。<br>b) 使用NIO或NIO2里面的类<br>c) 总是在finally块中关闭流，或者使用 try-with-resource 语句。<br>d) 使用内存映射文件来提高IO速度。</p>
+<p>如果Java候选人不知道IO和NIO，尤其是如果他有至少2到4年的经验，那他需要阅读一些这方面的资料。</p>
+<p>80) 说出5个你使用JDBC时遵循的最佳实践？</p>
+<p>另一个对有7到8年的经验的Java开发人员来说的最佳实践。 为什么它很重要？ 因为它们是在代码中设定趋势并教育初级开发人员的。 有很多最佳做法，你可以根据你的confort和convinners命名。 这里有一些更常见的：</p>
+<p>a) 使用批量语句来insert或update数据<br>b) 使用预编译SQL来避免SQL异常和提高效率<br>c) 使用数据库连接池<br>d) 使用列名来访问结果集而不是下标索引。<br>e) 不要使用用户的输入数据来拼接SQL，避免SQL注入。</p>
+<p>81) 说出Java中方法重载的最佳实践？</p>
+<p>以下是在Java中重载方法时可以遵循的一些最佳做法，以避免与自动装箱混淆：</p>
+<p>a) 不要重载一个参数类型是<code>int</code>,另一个参数类型是<code>Integer</code>的方法。<br>b) 不要重载方法，其中参数数量相同，只有参数的顺序不同。<br>c) 在重载方法时，参数数量超过5个请使用可变参数。</p>
+<h3 id="日期，时间，日历相关Java面试题"><a href="#日期，时间，日历相关Java面试题" class="headerlink" title="日期，时间，日历相关Java面试题"></a>日期，时间，日历相关Java面试题</h3><p>82) SimpleDateFormat 是多线程安全的吗？</p>
+<p>不幸的是，DateFormat及其所有的实现，包括SimpleDateFormat不是线程安全的，因此不应该在多线程程序中使用，直到应用外部线程安全措施。 将SimpleDateFormat对象绑定到ThreadLocal变量中。 如果你不这样做，你将得到一个不正确的结果，在解析或格式化日期在Java。 虽然，对于所有实际日期时间的目的，我强烈建议joda时间图书馆。</p>
+<p>83) 在Java中你如何格式化一个日期对象？</p>
+<p>在Java中你可以使用<code>SimpleDateForma</code> 和 <code>joda-time</code>库。DateFormat 类允许你已各种流行的方式格式化日期。</p>
+<p>84) 如何在Java中的格式化日期中显示时区? (<a href="http://java67.blogspot.sg/2013/01/how-to-format-date-in-java-simpledateformat-example.html" target="_blank" rel="external">answer</a>)</p>
+<p>85) Java中<code>java.util.Date</code> 和  <code>java.sql.Date</code> 有什么不同？<a href="http://java67.blogspot.sg/2014/02/how-to-convert-javautildate-to-javasqldate-example.html" target="_blank" rel="external">answer</a></p>
+<p>86) Java中如何计算两个日期的差异? (<a href="http://javarevisited.blogspot.sg/2015/07/how-to-find-number-of-days-between-two-dates-in-java.html" target="_blank" rel="external">program</a>)</p>
+<p>87) Java中如何将字符串(YYYYMMDD) 转为Date类型？<a href="http://java67.blogspot.sg/2014/12/string-to-date-example-in-java-multithreading.html" target="_blank" rel="external">code</a></p>
+<p>答案：DateFormat.parse</p>
+<h3 id="JUnit-单元测试面试题"><a href="#JUnit-单元测试面试题" class="headerlink" title="JUnit 单元测试面试题"></a>JUnit 单元测试面试题</h3><p>89) 你如何测试静态方法? (answer)</p>
+<p>在Java中可以使用PowerMock库来测试静态方法。</p>
+<p>90) How to do you test a method for an exception using JUnit? (answer)</p>
+<p>91) 你曾经使用哪个单元测试库来测试Java程序? (<a href="">answer</a>)</p>
+<p>92) @Before 和 @BeforeClass 注解的区别是? (<a href="http://javarevisited.blogspot.sg/2013/04/JUnit-tutorial-example-test-exception-thrown-by-java-method.html" target="_blank" rel="external">answer</a>)</p>
+<h3 id="编程代码面试-Questions"><a href="#编程代码面试-Questions" class="headerlink" title="编程代码面试 Questions"></a>编程代码面试 Questions</h3><p>93) 如何测试一个字符串只包含数字字符？(<a href="http://java67.blogspot.com/2014/01/java-regular-expression-to-check-numbers-in-String.html" target="_blank" rel="external">solution</a>)</p>
+<p>94) How to write LRU cache in Java using Generics? (answer)</p>
+<p>95) Write a Java program to convert bytes to long? (answer)</p>
+<p>96) How to reverse a String in Java without using StringBuffer? (solution)</p>
+<p>97) How to find the word with the highest frequency from a file in Java? (solution)</p>
+<p>98) How do you check if two given String are anagrams? (solution)</p>
+<p>99) How to print all permutation of a String in Java? (solution)</p>
+<p>100) How do you print duplicate elements from an array in Java? (solution)</p>
+<p>101) How to convert String to int in Java? (solution)</p>
+<p>102) How to swap two integers without using temp variable? (solution)</p>
+<h3 id="OOP-和-Design-Patterns"><a href="#OOP-和-Design-Patterns" class="headerlink" title="OOP 和 Design Patterns"></a>OOP 和 Design Patterns</h3><p>It contains Java Interview questions from SOLID design principles, OOP fundamentals e.g. class, object, interface, Inheritance, Polymorphism, Encapsulation, and Abstraction as well as more advanced concepts like Composition, Aggregation, and Association. It also contains questions from GOF design patterns.</p>
+<p>103) 什么是接口? 如果你不能编写任何的具体逻辑时你为什么使用接口？</p>
+<p>接口是用来定义API的。 它告诉你如何使用它的契约。它还支持抽象，因为客户端可以使用接口方法来引用多个实现。 通过使用List接口，您可以利用ArrayList的随机访问以及LinkedList的灵活插入和删除。 该接口不允许你编写代码保持事物抽象，但从Java 8，你可以声明静态和默认方法内部接口是具体的。</p>
+<p>104) Java中抽象类和接口有哪些不同?<a href="http://javarevisited.blogspot.sg/2013/05/difference-between-abstract-class-vs-interface-java-when-prefer-over-design-oops.html" target="_blank" rel="external">answer</a></p>
+<p>在Java中的抽象类和接口之间有多个区别，但最重要的是Java对允许一个类只扩展一个类但允许它实现多个接口的限制。 抽象类很好地定义类的默认行为，但是接口很好定义类型，稍后用于实现多态性。 </p>
+<p>105) Which design pattern have you used in your production code? apart from Singleton?</p>
+<p>This is something you can answer from your experience. You can generally say about dependency injection, factory pattern, decorator pattern or observer pattern, whichever you have used. Though be prepared to answer follow-up question based upon the pattern you choose.</p>
+<p>106) Can you explain Liskov Substitution principle? (answer)</p>
+<p>This is one of the toughest questions I have asked in Java interviews. Out of 50 candidates, I have almost asked only 5 have managed to answer it. I am not posting an answer to this question as I like you to do some research, practice and spend some time to understand this confusing principle well.</p>
+<p>107) What is Law of Demeter violation? Why it matters? (answer)</p>
+<p>Believe it or not, Java is all about application programming and structuring code. If  you have good knowledge of common coding best practices, patterns and what not to do than only you can write quality code.  Law of Demeter suggests you “talk to friends and not stranger”, hence used to reduce coupling between classes.</p>
+<p>108) What is Adapter pattern? When to use it?</p>
+<p>Another frequently asked Java design pattern questions. It provides interface conversion. If your client is using some interface but you have something else, you can write an Adapter to bridge them together. This is good for Java software engineer having 2 to 3 years experience because the question is neither difficult nor tricky but requires knowledge of OOP design patterns.</p>
+<p>109) What is “dependency injection” and “inversion of control”? Why would someone use it? (answer)</p>
+<p>110) What is an abstract class? How is it different from an interface? Why would you use it? (answer)</p>
+<p>One more classic question from Programming Job interviews, it is as old as chuck Norris. An abstract class is a class which can have state, code and implementation, but an interface is a contract which is totally abstract. Since I have answered it many times, I am only giving you the gist here but you should read the article linked to answer to learn this useful concept in much more detail.</p>
+<p>111) Which one is better constructor injection or setter dependency injection? (answer)</p>
+<p>Each has their own advantage and disadvantage. Constructor injection guaranteed that class will be initialized with all its dependency, but setter injection provides flexibility to set an optional dependency. Setter injection is also more readable if you are using an XML file to describe dependency. Rule of thumb is to use constructor injection for mandatory dependency and use setter injection for optional dependency.</p>
+<p>112) What is difference between dependency injection and factory design pattern? (answer)</p>
+<p>Though both patterns help to take out object creation part from application logic, use of dependency injection results in cleaner code than factory pattern. By using dependency injection, your classes are nothing but POJO which only knows about dependency but doesn’t care how they are acquired. In the case of factory pattern, the class also needs to know about factory to acquire dependency. hence, DI results in more testable classes than factory pattern. Please see the answer for a more detailed discussion on this topic.</p>
+<p>113) Difference between Adapter and Decorator pattern? (answer)</p>
+<p>Though the structure of Adapter and Decorator pattern is similar, the difference comes on the intent of each pattern. The adapter pattern is used to bridge the gap between two interfaces, but Decorator pattern is used to add new functionality into the class without the modifying existing code.</p>
+<p>114) Difference between Adapter and Proxy Pattern? (answer)</p>
+<p>Similar to the previous question, the difference between Adapter and Proxy patterns is in their intent. Since both Adapter and Proxy pattern encapsulate the class which actually does the job, hence result in the same structure, but Adapter pattern is used for interface conversion while the Proxy pattern is used to add an extra level of indirection to support distribute, controlled or intelligent access.</p>
+<p>115) What is Template method pattern? (answer)</p>
+<p>Template pattern provides an outline of an algorithm and lets you configure or customize its steps. For examples, you can view a sorting algorithm as a template to sort object. It defines steps for sorting but let you configure how to compare them using Comparable or something similar in another language. The method which outlines the algorithms is also known as template method.</p>
+<p>116) When do you use Visitor design pattern? (answer)</p>
+<p>The visitor pattern is a solution of problem where you need to add operation on a class hierarchy but without touching them. This pattern uses double dispatch to add another level of indirection.</p>
+<p>117) When do you use Composite design pattern? (answer)</p>
+<p>Composite design pattern arranges objects into tree structures to represent part-whole hierarchies. It allows clients treat individual objects and container of objects uniformly. Use Composite pattern when you want to represent part-whole hierarchies of objects.</p>
+<p>118) The difference between Inheritance and Composition? (answer)</p>
+<p>Though both allows code reuse, Composition is more flexible than Inheritance because it allows you to switch to another implementation at run-time. Code written using Composition is also easier to test than code involving inheritance hierarchies.</p>
+<p>119) Describe overloading and overriding in Java? (answer)</p>
+<p>Both overloading and overriding allow you to write two methods of different functionality but with the same name, but overloading is compile time activity while overriding is run-time activity. Though you can overload a method in the same class, but you can only override a method in child classes. Inheritance is necessary for overriding.</p>
+<p>120) The difference between nested public static class and a top level class in Java? (answer)</p>
+<p>You can have more than one nested public static class inside one class, but you can only have one top-level public class in a Java source file and its name must be same as the name of Java source file.</p>
+<p>121) Difference between Composition, Aggregation and Association in OOP? (answer)</p>
+<p>If two objects are related to each other, they are said to be associated with each other. Composition and Aggregation are two forms of association in object-oriented programming. The composition is stronger association than Aggregation. In Composition, one object is OWNER of another object while in Aggregation one object is just USER of another object. If an object A is composed of object B then B doesn’t exist if A ceased to exists, but if object A is just an aggregation of object B then B can exists even if A ceased to exist.</p>
+<p>122) Give me an example of design pattern which is based upon open closed principle? (answer)</p>
+<p>This is one of the practical questions I ask experienced Java programmer. I expect them to know about OOP design principles as well as patterns. Open closed design principle asserts that your code should be open for extension but closed for modification. Which means if you want to add new functionality, you can add it easily using the new code but without touching already tried and tested code.  There are several design patterns which are based upon open closed design principle e.g. Strategy pattern if you need a new strategy, just implement the interface and configure, no need to modify core logic. One working example is Collections.sort() method which is based on Strategy pattern and follows the open-closed principle, you don’t modify sort() method to sort a new object, what you do is just implement Comparator in your own way.</p>
+<p>123) Difference between Abstract factory and Prototype design pattern? (answer)</p>
+<p>This is the practice question for you, If you are feeling bored just reading and itching to write something, why not write the answer to this question. I would love to see an example the, which should answer where you should use the Abstract factory pattern and where is the Prototype pattern is more suitable.</p>
+<p>124) When do you use Flyweight pattern? (answer)</p>
+<p>This is another popular question from the design pattern. Many Java developers with 4 to 6 years of experience know the definition but failed to give any concrete example. Since many of you might not have used this pattern, it’s better to look examples from JDK. You are more likely have used them before and they are easy to remember as well. Now let’s see the answer.<br>Flyweight pattern allows you to share object to support large numbers without actually creating too many objects. In order to use Flyweight pattern, you need to make your object Immutable so that they can be safely shared. String pool and pool of Integer and Long object in JDK are good examples of Flyweight pattern.</p>
+<h3 id="Miscellaneous-Java-Interview-Questions"><a href="#Miscellaneous-Java-Interview-Questions" class="headerlink" title="Miscellaneous Java Interview Questions"></a>Miscellaneous Java Interview Questions</h3><p>It contains XML Processing in Java Interview question, JDBC Interview question, Regular expressions Interview questions, Java Error and Exception Interview Questions, Serialization,</p>
+<p>125) The difference between nested static class and top level class? (answer)</p>
+<p>One of the fundamental questions from Java basics. I ask this question only to junior Java developers of 1 to 2 years of experience as it’s too easy for an experience Java programmers. The answer is simple, a public top level class must have the same name as the name of the source file, there is no such requirement for nested static class. A nested class is always inside a top level class and you need to use the name of the top-level class to refer nested static class e.g. HashMap.Entry is a nested static class, where HashMap is a top level class and Entry is nested static class.</p>
+<p>126) Can you write a regular expression to check if String is a number? (solution)</p>
+<p>If you are taking Java interviews then you should ask at least one question on the regular expression. This clearly differentiates an average programmer with a good programmer. Since one of the traits of a good developer is to know tools, regex is the best tool for searching something in the log file, preparing reports etc. Anyway, answer to this question is, a numeric String can only contain digits i.e. 0 to 9 and + and - sign that too at start of the String, by using this information you can write following regular expression to check if given String is number or not</p>
+<p>127) The difference between checked and unchecked Exception in Java? (answer)</p>
+<p>checked exception is checked by the compiler at compile time. It’s mandatory for a method to either handle the checked exception or declare them in their throws clause. These are the ones which are a sub class of Exception but doesn’t descend from RuntimeException. The unchecked exception is the descendant of RuntimeException and not checked by the compiler at compile time. This question is now becoming less popular and you would only find this with interviews with small companies, both investment banks and startups are moved on from this question.</p>
+<p>128) The difference between throw and throws in Java? (answer)</p>
+<p>the throw is used to actually throw an instance of java.lang.Throwable class, which means you can throw both Error and Exception using throw keyword e.g.</p>
+<p>throw new IllegalArgumentException(“size must be multiple of 2”)</p>
+<p>On the other hand, throws is used as part of method declaration and signals which kind of exceptions are thrown by this method so that its caller can handle them. It’s mandatory to declare any unhandled checked exception in throws clause in Java. Like the previous question, this is another frequently asked Java interview question from errors and exception topic but too easy to answer.</p>
+<p>129) The difference between Serializable and Externalizable in Java? (answer)</p>
+<p>This is one of the frequently asked questions from Java Serialization. The interviewer has been asking this question since the day Serialization was introduced in Java, but yet only a few good candidate can answer this question with some confidence and practical knowledge. Serializable interface is used to make Java classes serializable so that they can be transferred over network or their state can be saved on disk, but it leverages default serialization built-in JVM, which is expensive, fragile and not secure. Externalizable allows you to fully control the Serialization process, specify a custom binary format and add more security measure.</p>
+<p>130) The difference between DOM and SAX parser in Java? (answer)</p>
+<p>Another common Java question but from XML parsing topic. It’s rather simple to answer and that’s why many interviewers prefers to ask this question on the telephonic round. DOM parser loads the whole XML into memory to create a tree based DOM model which helps it quickly locate nodes and make a change in the structure of XML while SAX parser is an event based parser and doesn’t load the whole XML into memory. Due to this reason DOM is faster than SAX but require more memory and not suitable to parse large XML files.</p>
+<p>131) Tell me 3 features introduced on JDK 1.7? (answer)</p>
+<p>This is one of the good questions I ask to check whether the candidate is aware of recent development in Java technology space or not. Even though JDK 7 was not a big bang release like JDK 5 or JDK 8, it still has a lot of good feature to count on e.g. try-with-resource statements, which free you from closing streams and resources when you are done with that, Java automatically closes that. Fork-Join pool to implement something like the Map-reduce pattern in Java. Allowing String variable and literal into switch statements. Diamond operator for improved type inference, no need to declare generic type on the right-hand side of variable declaration anymore, results in more readable and succinct code. Another worth noting feature introduced was improved exception handling e.g. allowing you to catch multiple exceptions in the same catch block.</p>
+<p>132) Tell me 5 features introduced in JDK 1.8? (answer)</p>
+<p>This is the follow-up question of the previous one. Java 8 is path breaking release in Java’s history, here are the top 5 features from JDK 8 release<br>Lambda expression, which allows you pass an anonymous function as object.<br>Stream API, take advantage of multiple cores of modern CPU and allows you to write succinct code.<br>Date and Time API, finally you have a solid and easy to use date and time library right into JDK<br>Extension methods, now you can have static and default method into your interface<br>Repeated annotation, allows you apply the same annotation multiple times on a type</p>
+<p>133) What is the difference between Maven and ANT in Java? (answer)</p>
+<p>Another great question to check the all round knowledge of Java developers. It’s easy to answer questions from core Java but when you ask about setting things up, building Java artifacts, many Java software engineer struggles. Coming back to the answer of this question, Though both are build tool and used to create Java application build, Maven is much more than that. It provides standard structure for Java project based upon “convention over configuration” concept and automatically manage dependencies (JAR files on which your application is dependent) for Java application. Please see the answer for more differences between Maven and ANT tool.</p>
+<p>That’s all guys, lots of Java Interview questions? isn’t it? I am sure if you can answer this list of Java questions you can easily crack any core Java or advanced Java interview. Though I have not included questions from Java EE or J2EE topics e.g. Servlet, JSP, JSF, JPA, JMS, EJB or any other Java EE technology or from major web frameworks like Spring MVC, Struts 2.0, Hibernate or both SOAP and RESTful web services, it’s still useful for Java developers preparing for Java web developer position, because every Java interview starts with questions from fundamentals and JDK API. If you think, I have missed any popular Java question here and you think it should be in this list then feel free to suggest me. My goal is to create the best list of Java Interview Questions with latest and greatest question from recent interviews.</p>
+<h3 id="Related-Java-EE-Interview-Questions"><a href="#Related-Java-EE-Interview-Questions" class="headerlink" title="Related Java EE Interview Questions"></a>Related Java EE Interview Questions</h3><p>For my Java EE friends, here are web development specific questions, which you can use to prepare for JEE part:<br>Top 10 Spring Framework Interview Questions with Answers (see here)<br>10 Great XML Interview Questions for Java Programmers (read here)<br>20 Great Java Design Pattern Questions asked on Interviews (see here)<br>10 popular Struts Interview Questions for Java developers (list)<br>20 Tibco Rendezvous and EMS Interview Questions (read more)<br>10 frequently asked Servlet Interview Questions with Answers (see here)<br>20 jQuery Interview Questions for Java Web Developers (list)<br>10 Great Oracle Interview Questions for Java developers (see here)<br>Top 10 JSP Questions  from J2EE Interviews (read here)<br>12 Good RESTful Web Services Questions from Interviews (read here)<br>Top 10 EJB Interview Questions and Answers (see here)<br>Top 10 JMS and MQ Series Interview Questions and Answers (list)<br>10 Great Hibernate Interview Questions for Java EE developers (see here)<br>10 Great JDBC Interview Questions for Java Programmers (questions)<br>15 Java NIO and Networking Interview Questions with Answers (see here)<br>Top 10 XSLT Interview Questions with Answers (read more)<br>15 Data Structure and Algorithm Questions from Java Interviews (read here)<br>Top 10 Trick Java Interview Questions and Answers (see here)<br>Top 40 Core Java Phone Interview Questions with answers (list)</p>
+<h3 id="Recommended-Books-for-Java-Programmers"><a href="#Recommended-Books-for-Java-Programmers" class="headerlink" title="Recommended Books for Java Programmers"></a>Recommended Books for Java Programmers</h3><p>If you are looking for some goods to prepare for your Java Interviews, You can take a look at following books to cover both theory and coding questions:<br>9 Must Read Books for Java Developers (<a href="https://javarevisited.blogspot.com/2013/01/top-5-java-programming-books-best-good.html" target="_blank" rel="external">see book</a>)<br>5 Java Performance Tuning Books for Experienced Programmers (<a href="https://javarevisited.blogspot.com/2014/07/top-5-java-performance-tuning-books.html" target="_blank" rel="external">see book</a>)<br>5 Good Books for Java JEE Interviews (<a href="https://javarevisited.blogspot.com/2015/12/5-good-books-for-java-jee-programming.html" target="_blank" rel="external">see book</a>)<br>5 Books to learn Data Structure and Algorithms (<a href="https://javarevisited.blogspot.com/2015/07/5-data-structure-and-algorithm-books-best-must-read.html" target="_blank" rel="external">see book</a>)<br>5 Hibernate Books for Java Developers (<a href="https://javarevisited.blogspot.com/2014/01/top-5-hibernate-books-for-java-programmers-learning.html" target="_blank" rel="external">see book</a>)<br>5 Spring Books for Java Developers (<a href="https://javarevisited.blogspot.com/2013/03/5-good-books-to-learn-spring-framework-mvc-java-programmer.html" target="_blank" rel="external">see book</a>)</p>
+<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><p>The Java Virtual Machine Spefication (<a href="https://docs.oracle.com/javase/specs/jvms/se7/html/" target="_blank" rel="external">see here</a>)<br>The Java language Specification (Java SE 8) (<a href="https://docs.oracle.com/javase/specs/jls/se8/html/index.html" target="_blank" rel="external">see here</a>)<br>Java SE 8 API Specification (<a href="https://docs.oracle.com/javase/8/docs/api/" target="_blank" rel="external">see here</a>)</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/02/25/java-interview-questions-answers-from-last-5-years.html">过去5年Java面试题精选</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">kongwenqiang</a></p>
+        <p><span>发布时间:</span>2017-02-25, 10:34:59</p>
+        <p><span>最后更新:</span>2017-02-25, 17:59:40</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/02/25/java-interview-questions-answers-from-last-5-years.html" title="过去5年Java面试题精选">https://leokongwq.github.io/2017/02/25/java-interview-questions-answers-from-last-5-years.html</a>
+            <span class="copy-path" data-clipboard-text="原文: https://leokongwq.github.io/2017/02/25/java-interview-questions-answers-from-last-5-years.html　　作者: kongwenqiang" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/02/25/java-how-to-create-immutable-class.html">
+                    java中如何创建不可变对象
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/02/25/java-why-string-is-immutable-or-final.html">
+                    为什么在java中String是不可变或final
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Important-Topics-for-Java-Interviews"><span class="toc-number">2.</span> <span class="toc-text">Important Topics for Java Interviews</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Top-120-Java-Interview-Questions-Answers"><span class="toc-number">3.</span> <span class="toc-text">Top 120 Java Interview Questions Answers</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Multithreading-Concurrency-and-Thread-basics-Questions"><span class="toc-number">3.1.</span> <span class="toc-text">Multithreading, Concurrency and Thread basics Questions</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#数据类型和基本的Java面试题"><span class="toc-number">3.2.</span> <span class="toc-text">数据类型和基本的Java面试题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#JVM-Internals-and-Garbage-Collection-Interview-Questions"><span class="toc-number">3.3.</span> <span class="toc-text">JVM Internals and Garbage Collection Interview Questions</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3年经验的开发者Java面试题"><span class="toc-number">3.4.</span> <span class="toc-text">3年经验的开发者Java面试题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Java基本概念面试题"><span class="toc-number">3.5.</span> <span class="toc-text">Java基本概念面试题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Java集合框架面试题"><span class="toc-number">3.6.</span> <span class="toc-text">Java集合框架面试题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java-IO-和-NIO-面试问题"><span class="toc-number">4.</span> <span class="toc-text">Java IO 和 NIO 面试问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java-最佳实践面试题"><span class="toc-number">5.</span> <span class="toc-text">java 最佳实践面试题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日期，时间，日历相关Java面试题"><span class="toc-number">6.</span> <span class="toc-text">日期，时间，日历相关Java面试题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JUnit-单元测试面试题"><span class="toc-number">7.</span> <span class="toc-text">JUnit 单元测试面试题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编程代码面试-Questions"><span class="toc-number">8.</span> <span class="toc-text">编程代码面试 Questions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OOP-和-Design-Patterns"><span class="toc-number">9.</span> <span class="toc-text">OOP 和 Design Patterns</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Miscellaneous-Java-Interview-Questions"><span class="toc-number">10.</span> <span class="toc-text">Miscellaneous Java Interview Questions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Related-Java-EE-Interview-Questions"><span class="toc-number">11.</span> <span class="toc-text">Related Java EE Interview Questions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Recommended-Books-for-Java-Programmers"><span class="toc-number">12.</span> <span class="toc-text">Recommended Books for Java Programmers</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#References"><span class="toc-number">13.</span> <span class="toc-text">References</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"过去5年Java面试题精选　| 戒修-沉迷技术的小沙弥　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js'];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+        <section id="comments">
+    <style> aside.comment-bar { margin: auto 30px; }</style>
+    <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function(){
+            this.page.url = 'https://leokongwq.github.io/2017/02/25/java-interview-questions-answers-from-last-5-years.html';
+            this.page.identifier = '2017/02/25/java-interview-questions-answers-from-last-5-years.html';
+        };
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = '//leokongwq.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        }
+    </script>
+    
+    <script> loadComment(); </script>
+
+</section>
+
+
+    
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/02/25/java-how-to-create-immutable-class.html" title="上一篇: java中如何创建不可变对象">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/02/25/java-why-string-is-immutable-or-final.html" title="下一篇: 为什么在java中String是不可变或final">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/06/spring-extension-point-autoconfig-summary.html">spring扩展点及springboot自动配置总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/12/openresy-lua-image-server.html">基于Openresy的图片服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/06/linux-file-system-schedule.html">Linux文件系统调用算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/31/openresty-health-check-dynamic-up-down.html">基于openresty的后端应用健康检查-动态上下线</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/tcp-state-transfer-diagram.html">TCP状态转化总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/27/openresty-dynamic-upstream.html">openresty动态upstream实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/19/distribute-lock-some-way.html">分布式锁的几种实现方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/19/distribute-system-consistent.html">分布式系统一致性</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/kotlin-coroutine-learn.html">kotlin之coroutine学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/mac-autostart.html">mac上禁止jenkins自启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/01/gossip-intro.html">Gossip算法介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/01/consul-vs-other-software.html">consul和其它软件的比较</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/31/consul-quick-start.html">consul快速启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/22/computer-science-bus-arbitration.html">CPU总线仲裁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/21/java-agent-instrumentation.html">java Instrumentation 和 Agent</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/21/activemq-monitor-hawtio.html">activemq监控之hawtio</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/20/centos-crond.html">centos下安装crond</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/16/vertx-async-callback-hell.html">vert.x异步回调地狱处理方式总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/15/vertx-Future.html">vertx-Future</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/06/vertx-cluster.html">vertx集群模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/06/microservices-gateway.html">微服务之网关</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/vertx-command-line-options.html">vertx命令行选项解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/04/vertx-web-BodyHandler.html">vert.x web开发之BodyHandler</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/02/vertx-web-global-exception.html">vertx中web全局异常处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-vertx-jdbc-client.html">vertx中vertx-jdbc-client使用问题总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-jdbc-datasource.html">vertx对jdbc数据源的支持</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-command-run.html">vert.x run 命令解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/30/java8-CompletableFuture-1.html">java8中CompletableFuture解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/vertx-http-server-analyze.html">vertx创建http服务器分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/http-content-type.html">http协议之content-type</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/vertx-Vertx.html">vert.x之Vertx类解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/21/vertx-web-route.html">vert.x web开发之route</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/21/vertx-web-router.html">vert.x web开发之router</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-cache.html">配置 Vert.x 缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-Launcher.html">vertx-启动器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-access-filesystem.html">vertx-访问文件系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-cluster-lock-counter.html">vertx-集群范围锁-计数器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-share-data.html">vertx-共享数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-tcp.html">vertx编程tcp服务端和客户端</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-http.html">vertx编程http服务端和客户端</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-buffer.html">vertx中的buffer</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-json.html">vertx中的json</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-event-bus.html">vertx-事件总线</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-timer.html">vertx-执行周期性/延迟性操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-context.html">vertx-context</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-verticle.html">vertx-verticle介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-quickstart.html">vert.x入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/10/mysql-tools-code.html">mysql常用工具SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/06/maven-useful-slices.html">maven使用知识汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/21/mysql-read-only-transaction.html">mysql只读事务解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/30/linux-clean-dns-cache.html">Linux中如何清除DNS缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/linux-disk-raid.html">linux磁盘阵列简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/26/linux-centos7-rc-local.html">centos7中rc.local不起作用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/24/understanding-maven-snapshot.html">理解maven中SNAPSHOT版本的作用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/22/python-build-in-chapter-one.html">python内置函数-第一篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/22/linux-kill-parent-and-child-process.html">linux中kill主进程和所有子进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/21/why-enum-singleton-are-serialization-safe.html">为什么用枚举实现的单例模式可以防止反序列化？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/computer-how-float-stored.html">浮点数在计算机中是如何存储的？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/17/mysql-data-types-date-time.html">mysql数据类型-日期&时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/16/mysql-data-types-numeric.html">mysql数据类型-数字类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/15/mysql-data-types-set.html">mysql数据类型-集合</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/15/mysql-data-types-enum.html">mysql数据类型-枚举类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/mysql-data-types-string.html">mysql数据类型-字符串类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/11/python-multiprocessing.html">python多进程简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/07/python-package.html">python包机制简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/05/python-file-read.html">python文件读写的几种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/24/python-multi-thread.html">python中的多线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/23/java-synchronized-detail.html">深入分析synchronized的实现原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/22/python-useful-codes.html">Python常用的代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/21/java-baised-locking.html">java中的偏向锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/06/mysql-deadlock-detection.html">mysql检测和处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/06/mysql-timeout.html">mysql中重要超时处理机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/22/maven-resource-plugin.html">maven-resource-plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/19/java-Security-Illegal-key-size.html">java-Security-Illegal-key-size</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/19/linux-find.html">linux find使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/spring-MessageConverter.html">spring中HttpMessageConverter详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/mysql-transaction.html">mysql和事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/11/mysql-locks.html">mysql中的锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/linux-task-on-boot.html">linux开机启动任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/mysql-batch-update-column.html">mysql批量修改列类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/19/mongodb-enable-query-log.html">mongodb开启查询日志</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/18/best-practices-for-a-pragmatic-restful-api.html">RESTful API 设计最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/18/rest-introduce.html">rest架构介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/springboot-mongo.html">springboot-mongo</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/16/idea-jvm-options.html">mac下idea虚拟机参数设置</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/12/linux-tool-traceroute.html">linux工具之traceroute</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/10/curl-learn.html">curl学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/08/java-enum-abstractMethod.html">java中的枚举是否可以有抽象方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/spring-ExceptionResolver.html">spring错误处理之HandlerExceptionResolver</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/spring-ErrorPageFilter.html">SpringBoot异常处理之ErrorPageFilter</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/05/spring-aop-MethodAnnotation.html">spring中AOP获取方法上的注解信息</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/02/spring-expandPoint.html">spring扩展点整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/29/maven-dependency-scope.html">maven jar包依赖范围总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/25/java-web-exception.html">java web 开发异常处理总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/springboot-tomcat.html">springboot发布到tomcat</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql-date-datetime-timestamp.html">mysql中date，datetime，timestamp的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/13/raft-protocol.html">raft协议简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/13/js-cross-domain.html">js跨域解决方案详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/28/java-netty-idleStateHandler.html">netty如何实现心跳检查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/28/why-oauth2-use-authorization-code.html">为什么在oauth2认证中需要使用授权码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/27/java-Executors.html">java线程池工具类Executors</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/27/mq-kafka-producer-partitioner.html">kafka发送消息分区选择策略详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-thread-dump.html">java中生成线程堆栈</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-Thread-state.html">java线程生命周期和状态</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-Thread-join.html">java中线程join方法的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-ThreadPoolExecutor-RejectedExecutionHandler.html">java线程池-RejectedExecutionHandler</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-memorymapped-file-and-io.html">java中内存映射文件和IO</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-difference-between-direct-non-direct-mapped-bytebuffer-nio.html">direct, non-direct, mapped bytebuffer区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-difference-between-stack-and-heap.html">java中栈和堆的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-how-to-create-immutable-class.html">java中如何创建不可变对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-interview-questions-answers-from-last-5-years.html">过去5年Java面试题精选</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-why-string-is-immutable-or-final.html">为什么在java中String是不可变或final</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-lock-and-condition-example-producer-consumer.html">java中使用锁和条件对象实现生产者-消费者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-why-wait-notify-called-in-synchronized-block.html">为什么wait和notify必须在同步方法或同步块中调用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-why-java-not-support-multi-inheritances.html">为何java不支持多继承</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql-locks-intro.html">mysql锁介绍（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-top10-Tricky-questions.html">诡异的java面试题TOP10</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-why-wait-notify-and-notifyall-defined-in-object.html">java-为什么wait，notify和notifyall定义在Object中</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-notify-notifyall.html">java中notify和notifyall的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/18/java-xml-parser.html">java中xml解析器介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/smooth-online-offline-service.html">服务节点平滑上下线</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/07/mq-kafka-blogs.html">kafka资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/mq-kafka-tutorial.html">kafka入门教程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/microservice-links.html">微服务资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/04/ddd-books.html">领域驱动设计书单</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/jms-message-order.html">jms-如何保证消息的顺序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/22/golang-param-pass-value-or-point.html">值传递, 指针传递 这是一个问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/21/golang-how-to-write-go-code.html">如何开发GO代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BigData-summary.html">大数据处理总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-HashSearch.html">algo-HashSearch</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BlockSearch.html">分块查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BinaryTreeSearch.html">二叉排序树查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BinarySearch.html">二分查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/SearchAlgo.html">查找算法总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-HeapSort.html">堆排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-QuickSort.html">快速排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-InsertionSort.html">插入排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-mergesort.html">归并排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-bucketsort.html">桶排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-bubblesort.html">冒泡排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/17/java8-CompletableFuture.html">java8中CompletableFuture详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/17/java-zookeeper-curator.html">zookeeper客户端之curator</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/16/Java-PriorityQueue.html">Java优先级队列PriorityQueue</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/13/java-LockSupport.html">java-LockSupport详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/mq-rocketmq-cluster.html">rocketmq集群搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/mq-rocketmq-quickstart.html">rocketmq快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/linux-zero-copy.html">linux零拷贝原理（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/11/java-jdk9-new-features.html">java-jdk9-new-features</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/java-Experienced-Developer-Teach-You-Five-Things.html">经验丰富的Java开发者教给你的五件事</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/mq-pages.html">MQ资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/DTP-best-practice.html">分布式事务典型处理方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/spring-xa-transactions-using.html">使用spring处理分布式事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql-text-defaultValue.html">mysql-text-defaultValue</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-understanding-jta.html">深入理解JTA事务处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-jta-deeplearning.html">JTA 深度历险 - 原理与实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-management-under-j2ee.html">J2EE事务管理详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/02/java-design-pattern-summary.html">java-design_pattern-summary</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/02/spring-DTP-patterns.html">spring处理分布式事务（使用或不使用XA）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/01/mysql-master-slave-thinking.html">mysql-master-slave-thinking</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-finally.html">java魔法之finally</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-0xCAFEBABE.html">java魔法之0xCAFEBABE</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-java-dot-net-dot-url.html">java魔法之java.net.Url</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-unsafe.html">java魔法之unsafe</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-AtomicLong.html">java中原子变量之AtomicLong</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/30/distribute-transaction-manage.html">分布式系统的事务处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/30/the-pattern-updateCache.html">缓存更新的套路</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/29/java8-lambda.html">java8 lambda表达式详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/spring-annotation-value.html">spring中注解@Value解密</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/spring-PropertyPlaceholderConfigurer.html">spring扩展点之PropertyPlaceholderConfigurer</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/mac-install-python-mysql.html">mac上安装Python-Mysql</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/27/mysql-mofidy-charset.html">mysql修改表-字段-库的字符集</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/25/java8-stream.html">java8-stream</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/23/java8-optional.html">java8-optional</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/23/java-8-features-tutorial.html">java-8-features-tutorial</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/06/java-DesignPatterns-flyweight.html">java-设计模式之-享元模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/05/java-Design-Patterns-builder.html">java-设计模式之-建造者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/03/java-DesignPatterns-proxy.html">java-设计模式之-代理模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-adapter.html">java-设计模式之-适配器模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-bridge.html">java-设计模式之-桥接模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/golang-execute-file-path.html">java-设计模式之-外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-facade.html">java-设计模式之-外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/28/java-DesignPatterns-command.html">java-设计模式之-命令模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/26/java-DesignPatterns-abstractFactory.html">java-设计模式之-抽象工厂模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/26/java-DesignPatterns-factoryMethod.html">java-设计模式之-工程方法模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-simpleFactory.html">java-设计模式之-简单工程模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-decorator.html">java-设计模式之-装饰者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/nginx-cache.html">nginx缓存功能介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-observer.html">java设计模式之-观察者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/nginx-rewrite.html">nginx配置rewrite指令详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-singleton.html">java实现单例模式的几种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-Singleton.html">设计模式之-单例模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-UML.html">设计模式之-UML类图快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-Strategy.html">设计模式之-策略模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/22/java-HashMap-MaxmumEntries.html">java中HashMap的最大容量解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/18/algo-stack-calculateExp.html">用栈实现后缀表达式的计算</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/16/algo-prime-number.html">素数相关</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/16/algo-gcd.html">求两个整数的最大公约数</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/java-HowThreadLocalWork.html">ThreadLocal正解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/java-Reference.html">java Reference 详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/SpringMVC-annotationDriven.html">mvc:annotation-driver</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/11/golang-effective-go.html">golang-effective-go</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/10/openresty-lua-nginx-module.html">openresty-lua-nginx-module</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/09/linux-max-fd.html">linux中最大文件描述符数</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/09/the-difference-between-301-and-302.html">HTTP301和302的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/nodejs-heapdump.html">nodejs调试工具之heapdump简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/nodejs-gc.html">Node.js 调试 GC 以及内存暴涨的分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/07/nodejs-debug.html">NodeJS的代码调试和性能调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/07/siege-introduce.html">压测工具siege简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/06/binary-search-tree.html">二叉查找树</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/full-print-BinaryTree.html">full-print-BinaryTree</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/best-10-practice-from-linkedin.html">LinkedIn关于提高Node.JS服务的10个建议</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/distributed-id-generation.html">5分钟了解分布式ID生成方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/27/java-LinkedList.html">java-LinkedList实现解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/java-LinkedHashMap.html">java-LinkedHashMap知识点汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/java-HashMap.html">java-HashMap知识点汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/japanese-50-yin.html">日语50音图学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/25/linux-netcat.html">Linux Netcat 命令用法简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/24/linux-backlog-maxconn.html">linux网络编程backlog和somaxconn</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/21/npm-11-useful-tips.html">npm11个提供工作效率的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/linux-network-io.html">Linux IO模式及 select、poll、epoll详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/linux-io-epoll.html">Linux下的I/O复用与epoll详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/mac-osx-kernel.html">mac-osx-kernel</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/java-real-data-type-size.html">Java中数据类型真实的内存占用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/19/vim-fileencoding.html">vim-文件编码</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-exports-and-module-expots.html">nodejs中exports和module.expots异同</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-os.html">nodejs模块-os模块</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-path.html">nodejs模块path简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/Fibers-and-Threads-in-node.html">Fibers-and-Threads-in-node</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-querystring.html">nodejs模块之querystring</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-Readline.html">nodejs模块之readline</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/jquery-selector.html">jquery选择器详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/pm2-readme.html">pm2使用简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/fastjson-use.html">fastjson使用简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/character-set.html">字符集详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/linux-hostname.html">linux命令hostname详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/linux-delete-file-not-free-the-space.html">linux删除文件但磁盘空间不释放</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodeJs-module-async.html">nodeJs解决异步回调方案之module-async</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/redis-sentinel.html">redis哨兵功能简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/http-cache.html">http缓存详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-import.html">golang中import语句详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-thread-profile.html">java线程必备知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/nodejs-globals.html">Nodejs全局对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-flag.html">golang命令行参数解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-file.html">golang文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-userinfo.html">golang 用户信息获取</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-time.html">golang时间操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-BlockingQueue.html">Java的BlockingQueue详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-runnable-callable-future.html">Java中的Runnable、Callable、Future、FutureTask的区别与示例</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/java-Queue.html">java队列Queue接口详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/strace-learn.html">手把手教你用Strace诊断问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/too-many-open-files.html">too-many-open-files</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/linux-strace.html">linux工具-strace</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/http-tranfer-encoding.html">HTTP 协议中的 Transfer-Encoding</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/lombook.html">lombook工具包简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-file-size.html">golang编译后文件编写的技巧</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-cross-compile.html">golang交叉编译</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-string.html">Go性能优化技巧-string</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-array.html">Go性能优化技巧-array</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-map.html">Go性能优化技巧-map</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-defer.html">golang之defer简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-chan.html">golang之chan简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-build-version.html">golang自动生成版本信息</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/how-to-get-goroutine-id.html">如何获取goroutine的id</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/fifty-common-Mistakes-for-New-Golang-Devs.html">50个go新手开发常见的错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/ten-best-practise-for-java-exception.html">java异常处理最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-error-handler.html">golang错误处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/seven-things-about-golang.html">关于go你必须知道的7件事</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-tools-build.html">go自带工具build的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-gdb-debug.html">golang程序GDB调试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/hexo-post-asset-folder-html.html">hexo使用post_asset_folder功能文章链接不能以html结尾</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/hexo-codeblock-multiblank.html">hexo代码块前后空白行问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/java-serialization-deepknow.html">java-serialization-deepknow</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-unsafe.html">golang的unsafe包简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/IDCardNo-algo.html">身份证号验证算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/byte-order.html">网络字节序</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-testing.html">golang代码测试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/linux-tool-dig.html">linux-tool-dig</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-md5.html">golang计算字符串MD5</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-time-format.html">golang时间格式化</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-open-browser.html">golang打开系统浏览器</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/mq-compare.html">常见MQ产品比较</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/golang-user-define-json-UnmarshalJSON.html">golang进行json数据的解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-join-point-ofTwoIntersectList.html">查找无环单链表的相交节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/isIntersectWithLoop.html">单链表-链表有环如何判断相交</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-the-join-point-in-list.html">找出单链表有环的入口节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/list-hasCircle.html">判断单链表是否有环</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-mid-post-in-list.html">找出单链表的中间节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-the-kth-node-in-list.html">找出单链表倒数第K个节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/reverse-one-direction-list.html">单链表逆转</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/delete-listNode-in-O1.html">O(1)时间内删除链表节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/reverse-print-list.html">单链表的逆序打印</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/merge-two-sorted-list.html">合并两个升序的单向链表</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/print-NxN-matrix.html">打印NxN矩阵的对角线</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/service-discovery.html">服务发现介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/web-reply-attack.html">web重放攻击介绍和防御方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/process-exception-in-web-dev.html">web开发异常统一处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/maven-test.html">maven-surefire-plugin简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/spring-aop-pointcut-expression.html">spring aop 切点表达式介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/avoid-NullPointException-Java.html">java程序避免NullPointException最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/11/jvm-codecache.html">JVM-codecache内存区域介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/13/logstash-input-file.html">logstash-input-file</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/12/when-to-use-hadoop-toolbox.html">Hadoop-Hbase-Hive-Pig关系</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/14/JVM-Tools.html">有用的JVM工具简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/12/IllegalMonitorStateException.html">诡异的异常IllegalMonitorStateException</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/11/HowMysqlLoadDataWorks.html">mysql load data infile 简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/10/why-not-use-finalize.html">为什么不使用finalize</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/14/mac-sshd.html">mac-sshd</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/theDayEndOfJd.html">朝林最后一天</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/java-Guava-Splitor.html">Guava-Spilitor</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/java-Guava-Joiner.html">Guava-Joiner</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/17/springMVCOutlines.html">Spring MVC HandlerMapping HandlerAdapter</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/17/howJekyllWorks.html">How Jekyll works</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/githubblog.html">Jekyll 快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/JVMOptimize.html">JVM常用参数和调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/JVMGcAlgorithm.html">JVM垃圾收集算法</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2018 kongwenqiang
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<script>
+    var inputArea = document.querySelector("#local-search-input");
+    var getSearchFile = function(){
+        var path = "/search.xml";
+        alert(11111);
+        searchFunc(path, 'local-search-input', 'local-search-result');
+    }
+    inputArea.onfocus = function(){
+      getSearchFile()
+    }
+
+    var $resetButton = $("#search-form .fa-times");
+
+    var $resultArea = $("#local-search-result");
+    inputArea.oninput = function(){ $resetButton.show(); }
+
+    resetSearch = function(){
+        $resultArea.html("");
+        document.querySelector("#search-form").reset();
+        $resetButton.hide();
+        $(".no-result").hide();
+    }
+
+    inputArea.onkeydown = function(){
+        if(event.keyCode==13) {
+          return false
+        }
+    }
+
+    $resultArea.bind("DOMNodeRemoved DOMNodeInserted", function(e) {
+        if (!$(e.target).text()) {
+            $(".no-result").show(200);
+        } else {
+          $(".no-result").hide();
+        }
+    })
+
+</script>
+
+  </div>
+</body>
+</html>

@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://leokongwq.github.io/2018/03/23/computer-booting-linux.html</loc>
+    
+    <lastmod>2018-05-13T15:36:32.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://leokongwq.github.io/2018/05/12/spring-rest-controller.html</loc>
     
     <lastmod>2018-05-13T15:23:40.000Z</lastmod>
@@ -12,13 +19,6 @@
     <loc>https://leokongwq.github.io/2018/05/12/spring-cache.html</loc>
     
     <lastmod>2018-05-12T15:21:37.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://leokongwq.github.io/2018/03/23/computer-booting-linux.html</loc>
-    
-    <lastmod>2018-03-24T00:52:12.000Z</lastmod>
     
   </url>
   

@@ -513,7 +513,7 @@ MathJax.Hub.Queue(function() {
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h2 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h2><h3 id="intel-CPU发展历史简介"><a href="#intel-CPU发展历史简介" class="headerlink" title="intel CPU发展历史简介"></a>intel CPU发展历史简介</h3><ul>
+              <h2 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h2><h3 id="intel-CPU发展历史简介"><a href="#intel-CPU发展历史简介" class="headerlink" title="intel CPU发展历史简介"></a>intel CPU发展历史简介</h3><ul>
 <li>1971年，Intel 发布了第一款的微处理器4004。它是一个<code>4位</code>的微处理器。</li>
 <li>1972年，Intel 发布了第一款八位处理器8008。它是一个<code>8位</code>的微处理器，地址总线(address bus)是<code>14位</code>的，就是说可以访问到<code>16K</code>的内存空间。</li>
 <li>1974年4月，Intel 发布了第二款八位处理器<code>8080</code>。它是8008是增强版，增加了几个累加器，使它可以访问<code>16位</code>(8+8)的内存地址，即<code>64K</code>范围内的地址空间。而且它也是公认的“第一款真正可用的微处理器”。8080的架构对8086产生了很大的影响，并且为 x86系列奠定了基础。</li>
@@ -521,49 +521,7 @@ MathJax.Hub.Queue(function() {
 <li>1982年，Intel 的80286面世了。它是第一款采用保护模式的x86微处理器。地址总线增加到<code>24</code>位使它可以访问到16M 的内存空间。</li>
 <li>1985年，Intel 发布了80386。一个拥有32位的微处理器。并且地址总数(address bus)也是32位的，寻址能力大幅提高到4G。</li>
 </ul>
-<h3 id="内存寻址和管理"><a href="#内存寻址和管理" class="headerlink" title="内存寻址和管理"></a>内存寻址和管理</h3><p>所谓寻址就是CPU查找数据或待执行指令位置的过程。</p>
-<p>在8080及以前的CPU中，内存寻址访问是绝对地址。就是<code>指令的地址即物理地址</code>，中间没有任何的转换。</p>
-<p>8086中，地址总线为20位，也就是说寻址空间为1M。 但是CPU中“算术逻辑运算单元（ALU）”的宽度，即数据总线却只有16位，也就是可直接加以运算的指针长度是16位的。如何填补这个空隙呢？可能的解决方案有多种，例如，可以像一些8位CPU中那样，增设一些20位的指令专用于地址运算和操作，但是那样又会造成CPU内存结构的不均匀。又例如，当时的PDP－11小型机也是16位的，但是其内存管理单元（MMU）可以将16位的地址映射到24位的地址空间。受此启发，Intel设计了一种在当时看来不失为巧妙的方法，即分段的方法。</p>
-<p>为了支持分段，Intel在8086 CPU中设置了四个段寄存器：CS、DS、SS和ES，分别用于可执行代码段、数据段、堆栈段及其它段。每个段寄存器都是<code>16</code>位的，对应于地址总线中的<code>高16位</code>。每条<code>访内</code>指令中的内部地址也都是<code>16位</code>的，但是在送上地址总线之前，CPU内部自动地把它与<code>某个段寄存器</code>中的内容相加。因为段寄存器中的内容对应于20位地址总线中的高16位(也就是把段寄存器左移4位)，所以相加时实际上是内存总线中的高12位与段寄存器中的16位相加，而低4位保留不变，这样就形成一个20位的实际地址，也就实现了从16位内存地址到20位实际地址的转换，或者叫“映射”。</p>
-<p>这种寻址方式也就是所谓的<code>实模式</code>。</p>
-<p>但在这种机制下，由段寄存器确定一个<code>基地址</code>，一个进程总是可以访问由此开始连续的64K字节地址空间，且<code>无法加以限制</code>。进一步，通过改变<code>段寄存器CS</code>的内容，这个进程可以随心所欲的访问内存中的任何一个单元，因此根本谈不上对系统和其它进程的保护。这就是<code>实模式</code>的最大缺点。也是后面引入<code>保护模式</code>的根本原因。</p>
-<p>80286的地址总线增加到24位使它可以访问到16M的内存空间。即使是可访的地址空间增加了，但它的分段大小依然是64K（因为段偏移量的大小为16位）。</p>
-<p>386是32位的CPU，数据、地址总线都是32位，因此寻址空间为4G。80386中对内存的管理有两种，一个是段式内存管理，一个是页式内存管理。</p>
-<p>由于Intel是在16位CPU基础上涉及32位CPU的，因此在32位处理器中，它继承了段寄存器。由于寻址空间的增大，16位的段寄存器已不能够提供基地址了()。这样就引入了一个数据结构来描述关于段的一些信息（即<code>段描述符</code>）。当一个访存指令发出一个内存地址时，CPU按照下面过程实现从指令中的32位逻辑地址到32位物理地址的转换：</p>
-<ol>
-<li>首先根据指令的性质来确定该使用哪一个段寄存器。</li>
-<li>根据段寄存器的内容，找到相应的<code>段描述结构</code>。</li>
-<li>从<code>段描述结构</code>中得到<code>基地址</code>。</li>
-<li>将指令中的地址作为位移，与段描述结构中规定的段长度相比，看是否越界；(基地址 + 偏移 是否大于规定的段长度)</li>
-<li>根据指令的性质和段描述符中的访问权限来确定是否越权；</li>
-<li>最后才将指令中的地址作为位移，与段基地址相加，得到物理地址。</li>
-</ol>
-<p>同时，在上面过程中，由于有对访问权限的检查，就实现了保护。</p>
-<p>面提到的“段描述结构”实际就是段描述符。80386中有<code>两个寄存器</code>，分别是全局的段描述表寄存器(<code>GDTR</code>)和局部的段描述表寄存器(<code>LDTR</code>)，用来指向存储在内存中的某个段描述表。原段寄存器(指的是CS,DS,SS等寄存器)中的<code>高13位</code>指明某个段描述符在段描述表中的偏移，这个偏移加上GDTR（或LDTR）中段描述表的基地址，就得到段描述符的地址。最后从段描述子中得到段的32位基地址和长度以及其它的一些信息（这些信息包括关于越界和权限检查）。</p>
-<p>段式内存管理只是386保护模式的一个部分，由于其效率的问题以及段是可变长度的，又发展出了页式内存管理。386处理器中有一个寄存器<code>CR0</code>，如果它的<code>PG</code>位为1，就打开了页式内存管理。</p>
-<p>页式内存管理是在由段式内存管理形成的地址上再加上一层地址映射。此时由段式管理形成的地址就不再是物理地址了，而是“线性地址”。段式内存管理先把“逻辑地址”映射为“线性地址”，再由页式内存管理把“线性地址”映射为“物理地址”；当不使用页式内存管理时，“线性地址”就直接用作“物理地址”。</p>
-<p>80386把内存分为4K的页面，每一个页面被映射到物理内存中任一块4K字节大小的空间（边界必须与4K字节对齐）。需要注意的是，在段式管理中，连续的逻辑地址经映射后在线性空间还是连续的，但连续的线性地址经映射后在物理空间却不一定连续。</p>
-<p>页式内存管理中，32位的线性地址划分为三个部分：10位的页目录表下标、10位的页面表下标、12位的页内地址偏移(2的12次方字节刚好是4KB)。CPU增加了一个<code>CR3</code>寄存器存放指向当前页目录表的指针。寻址方式就改为：</p>
-<ol>
-<li>从<code>CR3</code>取得页目录表的基地址；</li>
-<li>根据10位页目录表下标和1中得到的基地址，取得相应页面表的基地址；</li>
-<li>根据10位页面表下标和2中得到的基地址，从页面表中取得相应的页面描述项；</li>
-<li>将页面描述项中的页面基地址和线性地址中的12位页内偏移地址偏移相加，得到物理地址。</li>
-</ol>
-<p>同时，在地址转换的过程中也有越界和权限的检查，就不赘述了。</p>
-<p>还有一个特例，就是所谓的<code>Flat（平坦）地址模式</code>，Linux内核就是采用这种模式的。它是在段式内存管理的基础上，如果每个段寄存器都指向同一个段描述子，而此段描述子中把段的基地址设为0，长度设为最大（4G），这样就形成了一个覆盖整个地址空间的巨大段。此时逻辑地址就和物理地址相同。形象的看，这样的地址就没有层次结构（段:偏移）了，所以叫做平坦模式，它是段式管理的特例。</p>
-<h3 id="BIOS"><a href="#BIOS" class="headerlink" title="BIOS"></a>BIOS</h3><ol>
-<li>80x86 系列CPU可以运行在16位<code>实模式</code>和32<code>保护模式下</code></li>
-<li>80x86 系列CPU在加电时自动进入<code>实模式</code>，并且将代码段寄存器<code>CS</code>的值设为<code>0xFFFF</code>， 指令指针寄存器<code>IP</code>的值设置为<code>0x0000</code>。</li>
-<li><code>实模式</code>下<code>IP</code>是16位的，并且地址是绝对地址。保护模式下，<code>EIP</code>的值是32位，并且地址是线下地址。</li>
-<li>实模式下地址的计算是通过：<code>段地址 * 16 + 段偏移量</code>。 （都是从0开始计算）</li>
-<li>实模式下的寻址空间为1M，也就是从 0x00000 - 0xFFFFF </li>
-</ol>
-<h3 id="启动顺序"><a href="#启动顺序" class="headerlink" title="启动顺序"></a>启动顺序</h3><ol>
-<li>开解接通电源后，北桥芯片会向CPU发出一个<code>Reset</code>信号，让CPU复位初始化。<code>CS</code>寄存器和<code>IP</code>寄存器的值被分别设置为<code>0xFFFF</code>和<code>0x0000</code>。电源开始稳定供电后，芯片组便撤去<code>Reset</code>信号。CPU马上开始从绝对地址：<code>0xFFFF0</code>处开始执行。该地址其实是1M地址空间的最后16个字节处，并且就是BIOS程序所在的地址空间，放在这里的一般是一个跳转指令，跳到系统BIOS的真正开始代码处。</li>
-</ol>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://my.oschina.net/wuying/blog/53419" target="_blank" rel="external">理解“统一编址与独立编址、I/O端口与I/O内存”</a><br><a href="http://www.eefocus.com/mcu-dsp/400488/r0" target="_blank" rel="external">处理器系列之寻址空间详解</a><br><a href="http://memorymyann.iteye.com/blog/188764" target="_blank" rel="external">intel80X86的实地址模式和保护模式</a><br><a href="http://www.cnblogs.com/driftsand/archive/2013/02/16/2913743.html" target="_blank" rel="external">计算机的内存分配</a><br><a href="https://blog.csdn.net/acmilanvanbasten/article/details/38852153" target="_blank" rel="external">BIOS 工作流程解析</a><br><a href="https://blog.csdn.net/liuyez123/article/details/51096914" target="_blank" rel="external">X86/X64处理器体系结构及寻址模式</a></p>
-
+          
       
     </div>
     
@@ -576,6 +534,10 @@ MathJax.Hub.Queue(function() {
         <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/computer/">computer</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
     </div>
 
+      
+        <p class="article-more-link">
+          <a href="/2018/03/23/computer-booting-linux.html#more">阅读全文 >></a>
+        </p>
       
       <div class="clearfix"></div>
     </div>

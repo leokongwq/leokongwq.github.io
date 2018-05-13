@@ -273,6 +273,429 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-curl-learn" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/05/10/curl-learn.html" class="article-date">
+      <time datetime="2017-05-10T13:29:11.000Z" itemprop="datePublished">2017-05-10</time>
+</a>
+
+ 
+    <a href="/2017/05/10/curl-learn.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/05/10/curl-learn.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/10/curl-learn.html">curl学习笔记</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在日常的开发和问题处理中，经常会使用<code>curl</code>命令来测试http接口，今天偶尔了解到可以通过curl测试接口的性能耗时问题，特此完整的学习下<code>curl</code>命令的基本使用和高级用法。</p>
+<h3 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h3><h4 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h4><p>curl [options…] url</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/web/">web</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/curl/">curl</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/05/10/curl-learn.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
+    <article id="post-java-enum-abstractMethod" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/04/08/java-enum-abstractMethod.html" class="article-date">
+      <time datetime="2017-04-07T16:19:09.000Z" itemprop="datePublished">2017-04-08</time>
+</a>
+
+ 
+    <a href="/2017/04/08/java-enum-abstractMethod.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/04/08/java-enum-abstractMethod.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/08/java-enum-abstractMethod.html">java中的枚举是否可以有抽象方法</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>偶然在代码中看到枚举中定义了抽象方法，觉得很奇怪。以前从来没有想过还可以这么用，真是涨姿势。</p>
+<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> Animal &#123;</span>
+<span class="line">    CAT &#123;</span>
+<span class="line">        <span class="function"><span class="keyword">public</span> String <span class="title">makeNoise</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="string">"MEOW!"</span>; &#125;</span>
+<span class="line">    &#125;,</span>
+<span class="line">    DOG &#123;</span>
+<span class="line">        <span class="function"><span class="keyword">public</span> String <span class="title">makeNoise</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="string">"WOOF!"</span>; &#125;</span>
+<span class="line">    &#125;;</span>
+<span class="line"></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> String <span class="title">makeNoise</span><span class="params">()</span></span>;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>参考自：<a href="http://stackoverflow.com/questions/7413872/can-an-enum-have-abstract-methods">http://stackoverflow.com/questions/7413872/can-an-enum-have-abstract-methods</a></p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/java/">java</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/面试/">面试</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/04/08/java-enum-abstractMethod.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
+    <article id="post-spring-ExceptionResolver" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/04/07/spring-ExceptionResolver.html" class="article-date">
+      <time datetime="2017-04-07T08:12:09.000Z" itemprop="datePublished">2017-04-07</time>
+</a>
+
+ 
+    <a href="/2017/04/07/spring-ExceptionResolver.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/04/07/spring-ExceptionResolver.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/07/spring-ExceptionResolver.html">spring错误处理之HandlerExceptionResolver</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="错误处理接口"><a href="#错误处理接口" class="headerlink" title="错误处理接口"></a>错误处理接口</h3><p>spring的错误处理主要是由接口<code>HandlerExceptionResolver</code>来定义的。不同的实现类有自己不同的错误处理机制。如果没有合适的Handler错误处理器，则最终会被容器处理，例如tomcat。好在spring本身提供了好多错误处理工我们使用，很少需要我们开发自己的错误处理器。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/java/">java</a><a class="article-category-link" href="/categories/java/spring/">spring</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/04/07/spring-ExceptionResolver.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
+    <article id="post-spring-ErrorPageFilter" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/04/07/spring-ErrorPageFilter.html" class="article-date">
+      <time datetime="2017-04-07T06:35:53.000Z" itemprop="datePublished">2017-04-07</time>
+</a>
+
+ 
+    <a href="/2017/04/07/spring-ErrorPageFilter.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/04/07/spring-ErrorPageFilter.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/07/spring-ErrorPageFilter.html">SpringBoot异常处理之ErrorPageFilter</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="ErrorPageFilter-简介"><a href="#ErrorPageFilter-简介" class="headerlink" title="ErrorPageFilter 简介"></a>ErrorPageFilter 简介</h3><p>ErrorPageFilter是SpringBoot在1.4.0版本提供的一个类，本质上是一个Filter。 它的作用主要有两方面：</p>
+<ol>
+<li>提供应用程序注册ErrorPage的接口，此时它的角色是：ErrorPageRegistry</li>
+<li>处理应用程序异常，根据异常的类型转发到对应的ErrorPage页, 从而不依赖部署的容器错误处理机制</li>
+</ol>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/java/">java</a><a class="article-category-link" href="/categories/java/spring/">spring</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/04/07/spring-ErrorPageFilter.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-spring-aop-MethodAnnotation" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -826,445 +1249,6 @@ MathJax.Hub.Queue(function() {
       
     <div class="article-tag tagcloud">
         <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-raft-protocol" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/13/raft-protocol.html" class="article-date">
-      <time datetime="2017-03-13T10:27:06.000Z" itemprop="datePublished">2017-03-13</time>
-</a>
-
- 
-    <a href="/2017/03/13/raft-protocol.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/03/13/raft-protocol.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/13/raft-protocol.html">raft协议简介</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="raft是什么？"><a href="#raft是什么？" class="headerlink" title="raft是什么？"></a>raft是什么？</h3><p>raft是一个分布式一致性算法。</p>
-<h3 id="raft-系统结点分类"><a href="#raft-系统结点分类" class="headerlink" title="raft 系统结点分类"></a>raft 系统结点分类</h3><ul>
-<li>Follower</li>
-<li>Leader</li>
-<li>Candidate</li>
-</ul>
-<h3 id="Leader选举"><a href="#Leader选举" class="headerlink" title="Leader选举"></a>Leader选举</h3><p>raft系统结点启动时的身份是：<code>Follower</code>。 如果Follower结点不能和Leader结点进行通信则会变为Candidate结点，然后Candidate结点请求其它结点进行投票。其它结点会以它们的投票结果进行响应。如果Candidate获取了大多数的投票则会变为Leader结点。该过程称为Leader选举。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/架构/">架构</a>
-    </div>
-
-
-      
-      
-        <p class="article-more-link">
-          <a href="/2017/03/13/raft-protocol.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-js-cross-domain" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/13/js-cross-domain.html" class="article-date">
-      <time datetime="2017-03-13T01:13:37.000Z" itemprop="datePublished">2017-03-13</time>
-</a>
-
- 
-    <a href="/2017/03/13/js-cross-domain.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/03/13/js-cross-domain.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/13/js-cross-domain.html">js跨域解决方案详解</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>本文转载自：<a href="https://segmentfault.com/a/1190000000718840">详解js跨域问题</a></p>
-<h3 id="什么是跨域？"><a href="#什么是跨域？" class="headerlink" title="什么是跨域？"></a>什么是跨域？</h3><p>概念：只要协议、域名、端口有任何一个不同，都被当作是不同的域。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-</pre></td><td class="code"><pre><span class="line">URL                      说明       是否允许通信</span>
-<span class="line">http:<span class="comment">//www.a.com/a.js</span></span>
-<span class="line">http:<span class="comment">//www.a.com/b.js     同一域名下   允许</span></span>
-<span class="line">http:<span class="comment">//www.a.com/lab/a.js</span></span>
-<span class="line">http:<span class="comment">//www.a.com/script/b.js 同一域名下不同文件夹 允许</span></span>
-<span class="line">http:<span class="comment">//www.a.com:8000/a.js</span></span>
-<span class="line">http:<span class="comment">//www.a.com/b.js     同一域名，不同端口  不允许</span></span>
-<span class="line">http:<span class="comment">//www.a.com/a.js</span></span>
-<span class="line">https:<span class="comment">//www.a.com/b.js 同一域名，不同协议 不允许</span></span>
-<span class="line">http:<span class="comment">//www.a.com/a.js</span></span>
-<span class="line">http:<span class="comment">//70.32.92.74/b.js 域名和域名对应ip 不允许</span></span>
-<span class="line">http:<span class="comment">//www.a.com/a.js</span></span>
-<span class="line">http:<span class="comment">//script.a.com/b.js 主域相同，子域不同 不允许</span></span>
-<span class="line">http:<span class="comment">//www.a.com/a.js</span></span>
-<span class="line">http:<span class="comment">//a.com/b.js 同一域名，不同二级域名（同上） 不允许（cookie这种情况下也不允许访问）</span></span>
-<span class="line">http:<span class="comment">//www.cnblogs.com/a.js</span></span>
-<span class="line">http:<span class="comment">//www.a.com/b.js 不同域名 不允许</span></span>
-</pre></td></tr></table></figure>
-<p>对于端口和协议的不同，只能通过后台来解决</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/js/">js</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/面试/">面试</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/03/13/js-cross-domain.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-java-netty-idleStateHandler" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/02/28/java-netty-idleStateHandler.html" class="article-date">
-      <time datetime="2017-02-28T13:08:11.000Z" itemprop="datePublished">2017-02-28</time>
-</a>
-
- 
-    <a href="/2017/02/28/java-netty-idleStateHandler.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/02/28/java-netty-idleStateHandler.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/02/28/java-netty-idleStateHandler.html">netty如何实现心跳检查</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Java网络编程中，处理Idle事件是很必须的，一般情况下，客户端与服务端在指定时间内没有任何读写请求，就会认为连接是idle的。此时需要有某种机制来实现idle连接的检查，并通过心跳包来保持连接的存活。Netty作为时下非常流行的Java网络编程库，当然提供了空闲连接检查的能力。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/java/">java</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/netty/">netty</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/02/28/java-netty-idleStateHandler.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-why-oauth2-use-authorization-code" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/02/28/why-oauth2-use-authorization-code.html" class="article-date">
-      <time datetime="2017-02-28T11:03:38.000Z" itemprop="datePublished">2017-02-28</time>
-</a>
-
- 
-    <a href="/2017/02/28/why-oauth2-use-authorization-code.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/02/28/why-oauth2-use-authorization-code.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/02/28/why-oauth2-use-authorization-code.html">为什么在oauth2认证中需要使用授权码</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>曾经被问到过为什么Oauth2的认证中需要一个授权码，当时的分析觉得是为了安全性。当时开发时也没有阅读过Oauth2的规范。没有仔细分析过原因，只是知道Oauth2分了好几种认证方式。今天就看看究竟是什么原因。</p>
-<h3 id="Oauth2认证分类和流程参考资料"><a href="#Oauth2认证分类和流程参考资料" class="headerlink" title="Oauth2认证分类和流程参考资料"></a>Oauth2认证分类和流程参考资料</h3><p><a href="https://blog.yorkxin.org/2013/09/30/oauth2-4-1-auth-code-grant-flow" target="_blank" rel="external">https://blog.yorkxin.org/2013/09/30/oauth2-4-1-auth-code-grant-flow</a><br><a href="https://tools.ietf.org/html/draft-ietf-oauth-v2-22#section-1.3.1" target="_blank" rel="external">https://tools.ietf.org/html/draft-ietf-oauth-v2-22#section-1.3.1</a><br><a href="http://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html" target="_blank" rel="external">理解OAuth 2.0</a><br><a href="https://oauth.net/2/" target="_blank" rel="external">https://oauth.net/2/</a><br><a href="http://stackoverflow.com/questions/8666316/facebook-oauth-2-0-code-and-token" target="_blank" rel="external">http://stackoverflow.com/questions/8666316/facebook-oauth-2-0-code-and-token</a></p>
-<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><ol>
-<li>从以上的参考资料可以了解到，为什么使用授权码，这个问题本身就是不成立的。因为简化版这种授权类型就不用授权码。这中类型的授权是针对JS客户端的（没有后端服务器）。</li>
-<li>基于授权码这种认证方式存在的原因是：安全性。</li>
-</ol>
-<blockquote>
-<p>The authorization code provides a few important security benefits such as the ability to authenticate the client, and the transmission of the access token directly to the client without passing it through the resource owner’s user-agent, potentially exposing it to others, including the resource owner.</p>
-</blockquote>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/web/">web</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oauth2/">oauth2</a></li></ul>
     </div>
 
       

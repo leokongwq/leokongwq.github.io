@@ -23,7 +23,7 @@ Spring在内部使用HttpMessageConverters将响应转换为所需的格式[JSON
 <meta property="og:site_name" content="戒修-沉迷技术的小沙弥">
 <meta property="og:description" content="前言Spring为开发REST服务提供一流的支持。在本文中，我们将使用Spring 4 @RestController注解开发基于Spring 4 MVC的RESTful JSON服务和RESTful XML服务。
 Spring在内部使用HttpMessageConverters将响应转换为所需的格式[JSON / XML / etc ..]，这些格式基于类路径中可用的某些库，并可以选择使用请求中">
-<meta property="og:updated_time" content="2018-05-13T14:51:36.000Z">
+<meta property="og:updated_time" content="2018-05-13T15:23:40.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="基于Spring构建RESTFUL风格的controller">
 <meta name="twitter:description" content="前言Spring为开发REST服务提供一流的支持。在本文中，我们将使用Spring 4 @RestController注解开发基于Spring 4 MVC的RESTful JSON服务和RESTful XML服务。
@@ -739,6 +739,315 @@ Spring在内部使用HttpMessageConverters将响应转换为所需的格式[JSON
 <li>@PathVariable：这个注解表示一个方法参数应该绑定到一个URI模板变量[‘}’]。基本上，<code>@RestController</code>，<code>@RequestBody</code>，<code>ResponseEntity</code>和<code>@PathVariable</code>是你在Spring 4中实现一个REST API所需要知道的。另外，spring提供了几个支持类来帮助你实现一些自定义的东西。</li>
 <li>MediaType：使用<code>@RequestMapping</code>注释，你可以另外指定要通过特定控制器方法生成或使用的<code>MediaType</code>（使用生成或消费属性），以进一步缩小映射范围。</li>
 </ul>
+<h3 id="使用RestTemplate编写REST客户端"><a href="#使用RestTemplate编写REST客户端" class="headerlink" title="使用RestTemplate编写REST客户端"></a>使用RestTemplate编写REST客户端</h3><p>PostMan是一个很棒用来测试Rest API的客户端。 但是，如果你想要在应用程序中调用基于REST的Web服务，则需要为你的应用程序提供REST客户端。 最受欢迎的HTTP客户端之一是Apache HttpComponents HttpClient。 但是，该客户端提供的功能过于基础，需要自己编写大量符合REST风格的代码。</p>
+<p>Spring提供的RestTemplate提供了更高级别的方法，这些方法对应于六种主要的HTTP方法中的每一种，这些方法使得调用许多RESTful服务只需一行代码，并成为实施REST的最佳实践。</p>
+<p>下面显示了HTTP方法和相应的RestTemplate方法来处理这种类型的HTTP请求。</p>
+<p>HTTP 方法和 RestTemplate 方法对应关系:</p>
+<ul>
+<li>HTTP GET : getForObject, getForEntity</li>
+<li>HTTP PUT : put(String url, Object request, String…​urlVariables)</li>
+<li>HTTP DELETE : delete</li>
+<li>HTTP POST : postForLocation(String url, Object request, String…​ urlVariables), postForObject(String url, Object request, Class responseType, String…​ uriVariables)</li>
+<li>HTTP HEAD : headForHeaders(String url, String…​ urlVariables)</li>
+<li>HTTP OPTIONS : optionsForAllow(String url, String…​ urlVariables)</li>
+<li>HTTP PATCH and others : exchange execute</li>
+</ul>
+<h4 id="自定义REST客户端，使用先前创建的REST服务"><a href="#自定义REST客户端，使用先前创建的REST服务" class="headerlink" title="自定义REST客户端，使用先前创建的REST服务"></a>自定义REST客户端，使用先前创建的REST服务</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+<span class="line">43</span>
+<span class="line">44</span>
+<span class="line">45</span>
+<span class="line">46</span>
+<span class="line">47</span>
+<span class="line">48</span>
+<span class="line">49</span>
+<span class="line">50</span>
+<span class="line">51</span>
+<span class="line">52</span>
+<span class="line">53</span>
+<span class="line">54</span>
+<span class="line">55</span>
+<span class="line">56</span>
+<span class="line">57</span>
+<span class="line">58</span>
+<span class="line">59</span>
+<span class="line">60</span>
+<span class="line">61</span>
+<span class="line">62</span>
+<span class="line">63</span>
+<span class="line">64</span>
+<span class="line">65</span>
+<span class="line">66</span>
+<span class="line">67</span>
+<span class="line">68</span>
+<span class="line">69</span>
+<span class="line">70</span>
+<span class="line">71</span>
+<span class="line">72</span>
+<span class="line">73</span>
+<span class="line">74</span>
+<span class="line">75</span>
+<span class="line">76</span>
+<span class="line">77</span>
+<span class="line">78</span>
+<span class="line">79</span>
+<span class="line">80</span>
+<span class="line">81</span>
+<span class="line">82</span>
+<span class="line">83</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.net.URI;</span>
+<span class="line"><span class="keyword">import</span> java.util.LinkedHashMap;</span>
+<span class="line"><span class="keyword">import</span> java.util.List;</span>
+<span class="line"> </span>
+<span class="line"><span class="keyword">import</span> org.springframework.web.client.RestTemplate;</span>
+<span class="line"> </span>
+<span class="line"><span class="keyword">import</span> com.websystique.springmvc.model.User;</span>
+<span class="line"> </span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringRestTestClient</span> </span>&#123;</span>
+<span class="line"> </span>
+<span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String REST_SERVICE_URI = <span class="string">"&lt;a class="</span>vglnk<span class="string">" href="</span>http:<span class="comment">//localhost:8080/Spring4MVCCRUDRestService" rel="nofollow"&gt;&lt;span&gt;http&lt;/span&gt;&lt;span&gt;://&lt;/span&gt;&lt;span&gt;localhost&lt;/span&gt;&lt;span&gt;:&lt;/span&gt;&lt;span&gt;8080&lt;/span&gt;&lt;span&gt;/&lt;/span&gt;&lt;span&gt;Spring4MVCCRUDRestService&lt;/span&gt;&lt;/a&gt;";</span></span>
+<span class="line">     </span>
+<span class="line">    <span class="comment">/* GET */</span></span>
+<span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span>
+<span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">listAllUsers</span><span class="params">()</span></span>&#123;</span>
+<span class="line">        System.out.println(<span class="string">"Testing listAllUsers API-----------"</span>);</span>
+<span class="line">         </span>
+<span class="line">        RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span>
+<span class="line">        List&lt;LinkedHashMap&lt;String, Object&gt;&gt; usersMap = restTemplate.getForObject(REST_SERVICE_URI+<span class="string">"/user/"</span>, List.class);</span>
+<span class="line">         </span>
+<span class="line">        <span class="keyword">if</span>(usersMap!=<span class="keyword">null</span>)&#123;</span>
+<span class="line">            <span class="keyword">for</span>(LinkedHashMap&lt;String, Object&gt; map : usersMap)&#123;</span>
+<span class="line">                System.out.println(<span class="string">"User : id="</span>+map.get(<span class="string">"id"</span>)+<span class="string">", Name="</span>+map.get(<span class="string">"name"</span>)+<span class="string">", Age="</span>+map.get(<span class="string">"age"</span>)+<span class="string">", Salary="</span>+map.get(<span class="string">"salary"</span>));;</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125;<span class="keyword">else</span>&#123;</span>
+<span class="line">            System.out.println(<span class="string">"No user exist----------"</span>);</span>
+<span class="line">        &#125;</span>
+<span class="line">    &#125;</span>
+<span class="line">     </span>
+<span class="line">    <span class="comment">/* GET */</span></span>
+<span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">getUser</span><span class="params">()</span></span>&#123;</span>
+<span class="line">        System.out.println(<span class="string">"Testing getUser API----------"</span>);</span>
+<span class="line">        RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span>
+<span class="line">        User user = restTemplate.getForObject(REST_SERVICE_URI+<span class="string">"/user/1"</span>, User.class);</span>
+<span class="line">        System.out.println(user);</span>
+<span class="line">    &#125;</span>
+<span class="line">     </span>
+<span class="line">    <span class="comment">/* POST */</span></span>
+<span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">createUser</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">        System.out.println(<span class="string">"Testing create User API----------"</span>);</span>
+<span class="line">        RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span>
+<span class="line">        User user = <span class="keyword">new</span> User(<span class="number">0</span>,<span class="string">"Sarah"</span>,<span class="number">51</span>,<span class="number">134</span>);</span>
+<span class="line">        URI uri = restTemplate.postForLocation(REST_SERVICE_URI+<span class="string">"/user/"</span>, user, User.class);</span>
+<span class="line">        System.out.println(<span class="string">"Location : "</span>+uri.toASCIIString());</span>
+<span class="line">    &#125;</span>
+<span class="line"> </span>
+<span class="line">    <span class="comment">/* PUT */</span></span>
+<span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">updateUser</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">        System.out.println(<span class="string">"Testing update User API----------"</span>);</span>
+<span class="line">        RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span>
+<span class="line">        User user  = <span class="keyword">new</span> User(<span class="number">1</span>,<span class="string">"Tomy"</span>,<span class="number">33</span>, <span class="number">70000</span>);</span>
+<span class="line">        restTemplate.put(REST_SERVICE_URI+<span class="string">"/user/1"</span>, user);</span>
+<span class="line">        System.out.println(user);</span>
+<span class="line">    &#125;</span>
+<span class="line"> </span>
+<span class="line">    <span class="comment">/* DELETE */</span></span>
+<span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">deleteUser</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">        System.out.println(<span class="string">"Testing delete User API----------"</span>);</span>
+<span class="line">        RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span>
+<span class="line">        restTemplate.delete(REST_SERVICE_URI+<span class="string">"/user/3"</span>);</span>
+<span class="line">    &#125;</span>
+<span class="line"> </span>
+<span class="line"> </span>
+<span class="line">    <span class="comment">/* DELETE */</span></span>
+<span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">deleteAllUsers</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">        System.out.println(<span class="string">"Testing all delete Users API----------"</span>);</span>
+<span class="line">        RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span>
+<span class="line">        restTemplate.delete(REST_SERVICE_URI+<span class="string">"/user/"</span>);</span>
+<span class="line">    &#125;</span>
+<span class="line"> </span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String args[])</span></span>&#123;</span>
+<span class="line">        listAllUsers();</span>
+<span class="line">        getUser();</span>
+<span class="line">        createUser();</span>
+<span class="line">        listAllUsers();</span>
+<span class="line">        updateUser();</span>
+<span class="line">        listAllUsers();</span>
+<span class="line">        deleteUser();</span>
+<span class="line">        listAllUsers();</span>
+<span class="line">        deleteAllUsers();</span>
+<span class="line">        listAllUsers();</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+</pre></td><td class="code"><pre><span class="line">Testing listAllUsers API-----------</span>
+<span class="line">User : id=1, Name=Sam, Age=30, Salary=70000.0</span>
+<span class="line">User : id=2, Name=Tom, Age=40, Salary=50000.0</span>
+<span class="line">User : id=3, Name=Jerome, Age=45, Salary=30000.0</span>
+<span class="line">User : id=4, Name=Silvia, Age=50, Salary=40000.0</span>
+<span class="line">Testing getUser API----------</span>
+<span class="line">User [id=1, name=Sam, age=30, salary=70000.0]</span>
+<span class="line">Testing create User API----------</span>
+<span class="line">Location : &lt;a class=&quot;vglnk&quot; href=&quot;http://localhost:8080/Spring4MVCCRUDRestService/user/5&quot; rel=&quot;nofollow&quot;&gt;&lt;span&gt;http&lt;/span&gt;&lt;span&gt;://&lt;/span&gt;&lt;span&gt;localhost&lt;/span&gt;&lt;span&gt;:&lt;/span&gt;&lt;span&gt;8080&lt;/span&gt;&lt;span&gt;/&lt;/span&gt;&lt;span&gt;Spring4MVCCRUDRestService&lt;/span&gt;&lt;span&gt;/&lt;/span&gt;&lt;span&gt;user&lt;/span&gt;&lt;span&gt;/&lt;/span&gt;&lt;span&gt;5&lt;/span&gt;&lt;/a&gt;</span>
+<span class="line">Testing listAllUsers API-----------</span>
+<span class="line">User : id=1, Name=Sam, Age=30, Salary=70000.0</span>
+<span class="line">User : id=2, Name=Tom, Age=40, Salary=50000.0</span>
+<span class="line">User : id=3, Name=Jerome, Age=45, Salary=30000.0</span>
+<span class="line">User : id=4, Name=Silvia, Age=50, Salary=40000.0</span>
+<span class="line">User : id=5, Name=Sarah, Age=51, Salary=134.0</span>
+<span class="line">Testing update User API----------</span>
+<span class="line">User [id=1, name=Tomy, age=33, salary=70000.0]</span>
+<span class="line">Testing listAllUsers API-----------</span>
+<span class="line">User : id=1, Name=Tomy, Age=33, Salary=70000.0</span>
+<span class="line">User : id=2, Name=Tom, Age=40, Salary=50000.0</span>
+<span class="line">User : id=3, Name=Jerome, Age=45, Salary=30000.0</span>
+<span class="line">User : id=4, Name=Silvia, Age=50, Salary=40000.0</span>
+<span class="line">User : id=5, Name=Sarah, Age=51, Salary=134.0</span>
+<span class="line">Testing delete User API----------</span>
+<span class="line">Testing listAllUsers API-----------</span>
+<span class="line">User : id=1, Name=Tomy, Age=33, Salary=70000.0</span>
+<span class="line">User : id=2, Name=Tom, Age=40, Salary=50000.0</span>
+<span class="line">User : id=4, Name=Silvia, Age=50, Salary=40000.0</span>
+<span class="line">User : id=5, Name=Sarah, Age=51, Salary=134.0</span>
+<span class="line">Testing all delete Users API----------</span>
+<span class="line">Testing listAllUsers API-----------</span>
+<span class="line">No user exist----------</span>
+</pre></td></tr></table></figure>
+<h3 id="REST-API-添加-CORS-支持"><a href="#REST-API-添加-CORS-支持" class="headerlink" title="REST API 添加 CORS 支持"></a>REST API 添加 CORS 支持</h3><p>在访问REST API时，您可能会面临有关同源策略的问题。</p>
+<p>可能的错误如下：</p>
+<ul>
+<li>“no” Access-Control-Allow-Origin“标题出现在请求的资源上。 原因’<a href="http://127.0.0.1:8080&#39;因此不被允许访问。“或" target="_blank" rel="external">http://127.0.0.1:8080&#39;因此不被允许访问。“或</a></li>
+<li>“XMLHttpRequest无法加载<code>http://abc.com/bla</code>。 原始<code>http：// localhost：12345</code>不被Access-Control-Allow-Origin允许。“在这种情况下很常见。</li>
+</ul>
+<p>解决方案是Cross-Origin Resource Sharing(跨源资源共享)。 基本上，在服务器端，我们可以返回额外的CORS访问控制头和响应，这最终将允许进一步的域间通信。</p>
+<p>在Spring中，我们可以编写一个简单的过滤器，在每个响应中添加这些CORS特定的响应头信息。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> javax.servlet.Filter;</span>
+<span class="line"><span class="keyword">import</span> javax.servlet.FilterChain;</span>
+<span class="line"><span class="keyword">import</span> javax.servlet.FilterConfig;</span>
+<span class="line"><span class="keyword">import</span> javax.servlet.ServletException;</span>
+<span class="line"><span class="keyword">import</span> javax.servlet.ServletRequest;</span>
+<span class="line"><span class="keyword">import</span> javax.servlet.ServletResponse;</span>
+<span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span>
+<span class="line"> </span>
+<span class="line"></span>
+<span class="line"><span class="meta">@WebFilter</span> </span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CORSFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span>
+<span class="line"> </span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest req, ServletResponse res, FilterChain chain)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span>
+<span class="line">        System.out.println(<span class="string">"Filtering on..........................................................."</span>);</span>
+<span class="line">        HttpServletResponse response = (HttpServletResponse) res;</span>
+<span class="line">        response.setHeader(<span class="string">"Access-Control-Allow-Origin"</span>, <span class="string">"*"</span>);</span>
+<span class="line">        response.setHeader(<span class="string">"Access-Control-Allow-Methods"</span>, <span class="string">"POST, GET, PUT, OPTIONS, DELETE"</span>);</span>
+<span class="line">        response.setHeader(<span class="string">"Access-Control-Max-Age"</span>, <span class="string">"3600"</span>);</span>
+<span class="line">        response.setHeader(<span class="string">"Access-Control-Allow-Headers"</span>, <span class="string">"x-requested-with"</span>);</span>
+<span class="line">        chain.doFilter(req, res);</span>
+<span class="line">    &#125;</span>
+<span class="line"> </span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(FilterConfig filterConfig)</span> </span>&#123;&#125;</span>
+<span class="line"> </span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123;&#125;</span>
+<span class="line"> </span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
 <h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="http://websystique.com/springmvc/spring-mvc-4-restful-web-services-crud-example-resttemplate/" target="_blank" rel="external">spring-mvc-4-restful-web-services-crud-example-resttemplate</a></p>
 
       
@@ -751,7 +1060,7 @@ Spring在内部使用HttpMessageConverters将响应转换为所需的格式[JSON
         <p><span>本文标题:</span><a href="/2018/05/12/spring-rest-controller.html">基于Spring构建RESTFUL风格的controller</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">kongwenqiang</a></p>
         <p><span>发布时间:</span>2018-05-12, 23:23:46</p>
-        <p><span>最后更新:</span>2018-05-13, 22:51:36</p>
+        <p><span>最后更新:</span>2018-05-13, 23:23:40</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2018/05/12/spring-rest-controller.html" title="基于Spring构建RESTFUL风格的controller">https://leokongwq.github.io/2018/05/12/spring-rest-controller.html</a>
             <span class="copy-path" data-clipboard-text="原文: https://leokongwq.github.io/2018/05/12/spring-rest-controller.html　　作者: kongwenqiang" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -781,7 +1090,7 @@ Spring在内部使用HttpMessageConverters将响应转换为所需的格式[JSON
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第一步-添加实体类"><span class="toc-number">2.</span> <span class="toc-text">第一步 添加实体类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第二步-添加-Controller"><span class="toc-number">3.</span> <span class="toc-text">第二步 添加 Controller</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#json"><span class="toc-number">3.1.</span> <span class="toc-text">json</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#xml"><span class="toc-number">3.2.</span> <span class="toc-text">xml</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ContentNegotiationStrategy"><span class="toc-number">4.</span> <span class="toc-text">ContentNegotiationStrategy</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ServletPathExtensionContentNegotiationStrategy"><span class="toc-number">4.1.</span> <span class="toc-text">ServletPathExtensionContentNegotiationStrategy</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HeaderContentNegotiationStrategy"><span class="toc-number">4.2.</span> <span class="toc-text">HeaderContentNegotiationStrategy</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#REST快速理解"><span class="toc-number">5.</span> <span class="toc-text">REST快速理解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RestController"><span class="toc-number">6.</span> <span class="toc-text">RestController</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#详解"><span class="toc-number">6.1.</span> <span class="toc-text">详解</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考资料"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第一步-添加实体类"><span class="toc-number">2.</span> <span class="toc-text">第一步 添加实体类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#第二步-添加-Controller"><span class="toc-number">3.</span> <span class="toc-text">第二步 添加 Controller</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#json"><span class="toc-number">3.1.</span> <span class="toc-text">json</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#xml"><span class="toc-number">3.2.</span> <span class="toc-text">xml</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ContentNegotiationStrategy"><span class="toc-number">4.</span> <span class="toc-text">ContentNegotiationStrategy</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ServletPathExtensionContentNegotiationStrategy"><span class="toc-number">4.1.</span> <span class="toc-text">ServletPathExtensionContentNegotiationStrategy</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HeaderContentNegotiationStrategy"><span class="toc-number">4.2.</span> <span class="toc-text">HeaderContentNegotiationStrategy</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#REST快速理解"><span class="toc-number">5.</span> <span class="toc-text">REST快速理解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RestController"><span class="toc-number">6.</span> <span class="toc-text">RestController</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#详解"><span class="toc-number">6.1.</span> <span class="toc-text">详解</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用RestTemplate编写REST客户端"><span class="toc-number">7.</span> <span class="toc-text">使用RestTemplate编写REST客户端</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#自定义REST客户端，使用先前创建的REST服务"><span class="toc-number">7.1.</span> <span class="toc-text">自定义REST客户端，使用先前创建的REST服务</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#REST-API-添加-CORS-支持"><span class="toc-number">8.</span> <span class="toc-text">REST API 添加 CORS 支持</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考资料"><span class="toc-number">9.</span> <span class="toc-text">参考资料</span></a></li></ol>
         
     </div>
     <style>

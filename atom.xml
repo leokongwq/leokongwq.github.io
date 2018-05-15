@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://leokongwq.github.io/"/>
-  <updated>2018-05-13T15:23:40.000Z</updated>
+  <updated>2018-05-15T13:07:34.000Z</updated>
   <id>https://leokongwq.github.io/</id>
   
   <author>
@@ -14,6 +14,490 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>REST API 版本化</title>
+    <link href="https://leokongwq.github.io/2018/05/15/rest-version.html"/>
+    <id>https://leokongwq.github.io/2018/05/15/rest-version.html</id>
+    <published>2018-05-15T12:46:21.000Z</published>
+    <updated>2018-05-15T13:07:34.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>要管理应用接口业务逻辑的复杂性，需要你对API进行版本管理。版本控制可帮助你在需要变更服务逻辑时快速迭代。</p>
+<blockquote>
+<p>随着系统业务发展或逻辑复杂度的不断提高，API的变化是不可避免的。 当变更会破坏现有系统客户端的集成时，管理这种变化的影响可能是相当大的挑战。</p>
+</blockquote>
+<h2 id="何时对REST-API进行版本化"><a href="#何时对REST-API进行版本化" class="headerlink" title="何时对REST API进行版本化"></a>何时对REST API进行版本化</h2><p>只有在重大破坏性变更发生时才考虑对API进行版本升级。破坏性变更包括：</p>
+<ul>
+<li>一次或多次调用的响应数据格式发生了变化</li>
+<li>响应数据类型发生变化（例如，将整数变为浮点数）</li>
+<li>删除API返回数据的部分内</li>
+</ul>
+<p>发生破坏性变更时，应该总是修改API的主版本号。</p>
+<p>非破坏性变更（如添加新的REST端点或新的响应参数）不需要更改主版本号。 </p>
+<a id="more"></a>
+<h2 id="REST-API-版本号如何定义"><a href="#REST-API-版本号如何定义" class="headerlink" title="REST API 版本号如何定义"></a>REST API 版本号如何定义</h2><p>REST 没有提供任何关于API版本管理的指导规范，但是常用的实现方式有如下三种：</p>
+<h3 id="在URI上包含版本号"><a href="#在URI上包含版本号" class="headerlink" title="在URI上包含版本号"></a>在URI上包含版本号</h3><p>使用URI是最直接的方法（也是最常用的方法），尽管它违背了URI应该引用唯一资源的原则。 当版本更新时，您也可以保证客户端的集成。</p>
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+</pre></td><td class="code"><pre><span class="line">http://api.example.com/v1</span>
+<span class="line">http://apiv1.example.com</span>
+</pre></td></tr></table></figure>
+<p>版本号不必是数字，也不必使用<code>v[x]</code>这样语法指定。 替代方案包括日期，项目名称，季节或其他标识符，这些标识符对于产生API的团队来说足够有意义，并且随着版本的变化足够灵活地进行更改。</p>
+<h3 id="自定义请求头"><a href="#自定义请求头" class="headerlink" title="自定义请求头"></a>自定义请求头</h3><p>自定义请求头（例如<code>Accept-version</code>）允许你在版本之间保留URI，尽管它实际上是现有<code>Accept</code>头实现的内容协商行为的重复。</p>
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+</pre></td><td class="code"><pre><span class="line">Accept-version: v1</span>
+<span class="line">Accept-version: v2</span>
+</pre></td></tr></table></figure>
+<h3 id="使用请求头-Accept"><a href="#使用请求头-Accept" class="headerlink" title="使用请求头 Accept"></a>使用请求头 <code>Accept</code></h3><p>内容协商可能让你保留一组干净的URL，但你仍然必须处理在某处放置不同版本内容的复杂性。 这种负担往往会被上移到您的API控制器，这些控制器负责确定要发送的资源版本。 最终结果往往是更复杂的API，因为客户端在请求资源之前必须知道指定哪些头。</p>
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+</pre></td><td class="code"><pre><span class="line">Accept: application/vnd.example.v1+json</span>
+<span class="line">Accept: application/vnd.example+json;version=1.0</span>
+</pre></td></tr></table></figure>
+<p>在现实世界中，API永远不会变的完全稳定。 因此，如何管理这一变化非常重要。 对于大多数API而言，详细记录API的变更信息和逐渐废弃API是可行的方法。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;要管理应用接口业务逻辑的复杂性，需要你对API进行版本管理。版本控制可帮助你在需要变更服务逻辑时快速迭代。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;随着系统业务发展或逻辑复杂度的不断提高，API的变化是不可避免的。 当变更会破坏现有系统客户端的集成时，管理这种变化的影响可能是相当大的挑战。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;何时对REST-API进行版本化&quot;&gt;&lt;a href=&quot;#何时对REST-API进行版本化&quot; class=&quot;headerlink&quot; title=&quot;何时对REST API进行版本化&quot;&gt;&lt;/a&gt;何时对REST API进行版本化&lt;/h2&gt;&lt;p&gt;只有在重大破坏性变更发生时才考虑对API进行版本升级。破坏性变更包括：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;一次或多次调用的响应数据格式发生了变化&lt;/li&gt;
+&lt;li&gt;响应数据类型发生变化（例如，将整数变为浮点数）&lt;/li&gt;
+&lt;li&gt;删除API返回数据的部分内&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;发生破坏性变更时，应该总是修改API的主版本号。&lt;/p&gt;
+&lt;p&gt;非破坏性变更（如添加新的REST端点或新的响应参数）不需要更改主版本号。 &lt;/p&gt;
+    
+    </summary>
+    
+      <category term="web" scheme="https://leokongwq.github.io/categories/web/"/>
+    
+    
+      <category term="REST" scheme="https://leokongwq.github.io/tags/REST/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SpringBoot应用部署模式</title>
+    <link href="https://leokongwq.github.io/2018/05/15/spring-boot-deploy.html"/>
+    <id>https://leokongwq.github.io/2018/05/15/spring-boot-deploy.html</id>
+    <published>2018-05-15T09:32:00.000Z</published>
+    <updated>2018-05-15T10:48:59.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>越来越多的人开始使用SpringBoot来实现项目的快速开发。每个团队都会面临一个同样的问题：如何部署SpringBoot应用？大部分人会想：这还需要考虑？当然是同步<code>Fat Jar</code>的方式部署喽。现实是残酷的！可能的原因有：</p>
+<ul>
+<li>已有的发布系统不支持</li>
+<li>团队成员习惯了war包的部署方式</li>
+<li>外置的Servlet容器更容易配置</li>
+<li>文件路径相关的代码调整</li>
+<li>其它原因</li>
+</ul>
+<a id="more"></a>
+<p>SpringBoot 应用默认的打包结果是一个jar包。如果需要按照war包的形式进行部署，我们需要做如下的配置就能够实现。</p>
+<h3 id="第一步-扩展-SpringBootServletInitializer"><a href="#第一步-扩展-SpringBootServletInitializer" class="headerlink" title="第一步 扩展 SpringBootServletInitializer"></a>第一步 扩展 SpringBootServletInitializer</h3><p><code>SpringBootServletInitializer</code>是一个实现<code>WebApplicationInitializer</code>接口的抽象类，它是servlet 3.0+环境的主要抽象，以便以编程方式配置ServletContext。 它将Servlet，Filter和ServletContextInitializer bean从应用程序上下文绑定到servlet容器。</p>
+<h4 id="Main"><a href="#Main" class="headerlink" title="Main"></a>Main</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.websystique.springboot;</span>
+<span class="line"> </span>
+<span class="line"><span class="keyword">import</span> org.springframework.boot.SpringApplication;</span>
+<span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;</span>
+<span class="line"><span class="keyword">import</span> org.springframework.boot.builder.SpringApplicationBuilder;</span>
+<span class="line"><span class="keyword">import</span> org.springframework.boot.web.support.SpringBootServletInitializer;</span>
+<span class="line"> </span>
+<span class="line"><span class="meta">@SpringBootApplication</span>(scanBasePackages=&#123;<span class="string">"com.websystique.springboot"</span>&#125;)<span class="comment">// same as @Configuration @EnableAutoConfiguration @ComponentScan</span></span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringBootStandAloneWarApp</span> <span class="keyword">extends</span> <span class="title">SpringBootServletInitializer</span></span>&#123;</span>
+<span class="line"> </span>
+<span class="line">     </span>
+<span class="line">    <span class="meta">@Override</span></span>
+<span class="line">    <span class="function"><span class="keyword">protected</span> SpringApplicationBuilder <span class="title">configure</span><span class="params">(SpringApplicationBuilder application)</span> </span>&#123;</span>
+<span class="line">        <span class="keyword">return</span> application.sources(SpringBootStandAloneWarApp .class);</span>
+<span class="line">    &#125;</span>
+<span class="line">     </span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span>
+<span class="line">        SpringApplication.run(SpringBootStandAloneWarApp.class, args);</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="第二步-修改-Maven打包类型为’war’"><a href="#第二步-修改-Maven打包类型为’war’" class="headerlink" title="第二步 修改 Maven打包类型为’war’"></a>第二步 修改 Maven打包类型为’war’</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"&lt;a class="</span><span class="attr">vglnk</span>" <span class="attr">href</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span> <span class="attr">rel</span>=<span class="string">"nofollow"</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>http<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>://<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>maven<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>apache<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>org<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>POM<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>4<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span>" xmlns:xsi="<span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"vglnk"</span> <span class="attr">href</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span> <span class="attr">rel</span>=<span class="string">"nofollow"</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>http<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>://<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>www<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>w3<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>org<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>2001<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>XMLSchema<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>-<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>instance<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span>"</span>
+<span class="line">    xsi:schemaLocation="<span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"vglnk"</span> <span class="attr">href</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span> <span class="attr">rel</span>=<span class="string">"nofollow"</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>http<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>://<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>maven<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>apache<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>org<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>POM<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>4<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span> <span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"vglnk"</span> <span class="attr">href</span>=<span class="string">"http://maven.apache.org/xsd/maven-4.0.0.xsd"</span> <span class="attr">rel</span>=<span class="string">"nofollow"</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>http<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>://<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>maven<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>apache<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>org<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>xsd<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>maven<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>-<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>4<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>xsd<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span>"&gt;</span>
+<span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.websystique.springboot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>SpringBootStandAloneWarExample<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">packaging</span>&gt;</span>war<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>$&#123;project.artifactId&#125;<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.4.3.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span>
+<span class="line">......</span>
+</pre></td></tr></table></figure>
+<h3 id="第三步-排除内嵌的Servlet容器"><a href="#第三步-排除内嵌的Servlet容器" class="headerlink" title="第三步 排除内嵌的Servlet容器"></a>第三步 排除内嵌的Servlet容器</h3><p>eg.</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-tomcat<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<h3 id="完整的pom文件"><a href="#完整的pom文件" class="headerlink" title="完整的pom文件"></a>完整的pom文件</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+<span class="line">43</span>
+<span class="line">44</span>
+<span class="line">45</span>
+<span class="line">46</span>
+<span class="line">47</span>
+<span class="line">48</span>
+<span class="line">49</span>
+<span class="line">50</span>
+<span class="line">51</span>
+<span class="line">52</span>
+<span class="line">53</span>
+<span class="line">54</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"&lt;a class="</span><span class="attr">vglnk</span>" <span class="attr">href</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span> <span class="attr">rel</span>=<span class="string">"nofollow"</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>http<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>://<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>maven<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>apache<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>org<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>POM<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>4<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span>" xmlns:xsi="<span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"vglnk"</span> <span class="attr">href</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span> <span class="attr">rel</span>=<span class="string">"nofollow"</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>http<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>://<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>www<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>w3<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>org<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>2001<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>XMLSchema<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>-<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>instance<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span>"</span>
+<span class="line">    xsi:schemaLocation="<span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"vglnk"</span> <span class="attr">href</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span> <span class="attr">rel</span>=<span class="string">"nofollow"</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>http<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>://<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>maven<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>apache<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>org<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>POM<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>4<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span> <span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"vglnk"</span> <span class="attr">href</span>=<span class="string">"http://maven.apache.org/xsd/maven-4.0.0.xsd"</span> <span class="attr">rel</span>=<span class="string">"nofollow"</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>http<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>://<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>maven<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>apache<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>org<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>xsd<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>maven<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>-<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>4<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>xsd<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span>"&gt;</span>
+<span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.websystique.springboot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>SpringBootStandAloneWarExample<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">packaging</span>&gt;</span>war<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>$&#123;project.artifactId&#125;<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.4.3.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">java.version</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">java.version</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">startClass</span>&gt;</span>SpringBootStandAloneWarApp<span class="tag">&lt;/<span class="name">startClass</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span>
+<span class="line">        <span class="comment">&lt;!-- Add typical dependencies for a web application --&gt;</span></span>
+<span class="line">        <span class="comment">&lt;!-- Adds Tomcat and Spring MVC, along others --&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-freemarker<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-tomcat<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line"> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">build</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span>
+<span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">                <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span>
+<span class="line">                        <span class="comment">&lt;!-- this will get rid of version info from war file name --&gt;</span></span>
+<span class="line">                    <span class="tag">&lt;<span class="name">finalName</span>&gt;</span>$&#123;project.artifactId&#125;<span class="tag">&lt;/<span class="name">finalName</span>&gt;</span></span>
+<span class="line">                <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<h3 id="打包"><a href="#打包" class="headerlink" title="打包"></a>打包</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">mvn clean package</span>
+</pre></td></tr></table></figure>
+<p>然后将war包部署到已有的Servlet容器中。</p>
+<h3 id="同时支持jar和war类型"><a href="#同时支持jar和war类型" class="headerlink" title="同时支持jar和war类型"></a>同时支持jar和war类型</h3><p>上面的pom.xml配置能很好的支持war包类型的部署，但是在开发阶段我们还是希望通过Main方法的方式进行运行。此时我们可以通过Maven的profile功能实现。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+<span class="line">43</span>
+<span class="line">44</span>
+<span class="line">45</span>
+<span class="line">46</span>
+<span class="line">47</span>
+<span class="line">48</span>
+<span class="line">49</span>
+<span class="line">50</span>
+<span class="line">51</span>
+<span class="line">52</span>
+<span class="line">53</span>
+<span class="line">54</span>
+<span class="line">55</span>
+<span class="line">56</span>
+<span class="line">57</span>
+<span class="line">58</span>
+<span class="line">59</span>
+<span class="line">60</span>
+<span class="line">61</span>
+<span class="line">62</span>
+<span class="line">63</span>
+<span class="line">64</span>
+<span class="line">65</span>
+<span class="line">66</span>
+<span class="line">67</span>
+<span class="line">68</span>
+<span class="line">69</span>
+<span class="line">70</span>
+<span class="line">71</span>
+<span class="line">72</span>
+<span class="line">73</span>
+<span class="line">74</span>
+<span class="line">75</span>
+<span class="line">76</span>
+<span class="line">77</span>
+<span class="line">78</span>
+<span class="line">79</span>
+<span class="line">80</span>
+<span class="line">81</span>
+<span class="line">82</span>
+<span class="line">83</span>
+<span class="line">84</span>
+<span class="line">85</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"&lt;a class="</span><span class="attr">vglnk</span>" <span class="attr">href</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span> <span class="attr">rel</span>=<span class="string">"nofollow"</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>http<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>://<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>maven<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>apache<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>org<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>POM<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>4<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span>" xmlns:xsi="<span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"vglnk"</span> <span class="attr">href</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span> <span class="attr">rel</span>=<span class="string">"nofollow"</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>http<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>://<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>www<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>w3<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>org<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>2001<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>XMLSchema<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>-<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>instance<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span>"</span>
+<span class="line">    xsi:schemaLocation="<span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"vglnk"</span> <span class="attr">href</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span> <span class="attr">rel</span>=<span class="string">"nofollow"</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>http<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>://<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>maven<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>apache<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>org<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>POM<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>4<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span> <span class="tag">&lt;<span class="name">a</span> <span class="attr">class</span>=<span class="string">"vglnk"</span> <span class="attr">href</span>=<span class="string">"http://maven.apache.org/xsd/maven-4.0.0.xsd"</span> <span class="attr">rel</span>=<span class="string">"nofollow"</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>http<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>://<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>maven<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>apache<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>org<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>xsd<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>/<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>maven<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>-<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>4<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>0<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>.<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">span</span>&gt;</span>xsd<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span>"&gt;</span>
+<span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.websystique.springboot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>SpringBootStandAloneWarExample<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">packaging</span>&gt;</span>$&#123;artifact-packaging&#125;<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>$&#123;project.artifactId&#125;<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.4.3.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">java.version</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">java.version</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">startClass</span>&gt;</span>SpringBootStandAloneWarApp<span class="tag">&lt;/<span class="name">startClass</span>&gt;</span></span>
+<span class="line">        <span class="comment">&lt;!-- Additionally, Please make sure that your JAVA_HOME is pointing to </span>
+<span class="line">            1.8 when building on commandline --&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span>
+<span class="line">        <span class="comment">&lt;!-- Add typical dependencies for a web application --&gt;</span></span>
+<span class="line">        <span class="comment">&lt;!-- Adds Tomcat and Spring MVC, along others --&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-freemarker<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line"> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">build</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span>
+<span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span>
+<span class="line"> </span>
+<span class="line">    <span class="tag">&lt;<span class="name">profiles</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">profile</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">id</span>&gt;</span>local<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">activation</span>&gt;</span></span>
+<span class="line">                <span class="tag">&lt;<span class="name">activeByDefault</span>&gt;</span>true<span class="tag">&lt;/<span class="name">activeByDefault</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;/<span class="name">activation</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span>
+<span class="line">                <span class="tag">&lt;<span class="name">artifact-packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">artifact-packaging</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;/<span class="name">profile</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">profile</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">id</span>&gt;</span>remote<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span>
+<span class="line">                <span class="tag">&lt;<span class="name">artifact-packaging</span>&gt;</span>war<span class="tag">&lt;/<span class="name">artifact-packaging</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span>
+<span class="line">                <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">                    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">                    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-tomcat<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">                    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span>
+<span class="line">                <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">build</span>&gt;</span></span>
+<span class="line">                <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span>
+<span class="line">                    <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span>
+<span class="line">                        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">                        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">                        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.4.3.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span>
+<span class="line">                        <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span>
+<span class="line">                                   <span class="comment">&lt;!-- this will get rid of version info from war file name --&gt;</span></span>
+<span class="line">                            <span class="tag">&lt;<span class="name">finalName</span>&gt;</span>$&#123;project.artifactId&#125;<span class="tag">&lt;/<span class="name">finalName</span>&gt;</span></span>
+<span class="line">                        <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span>
+<span class="line">                    <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span>
+<span class="line">                <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;/<span class="name">profile</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">profiles</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>现在我们就可以在本地以FAT jar的方式运行。当发布到生产环境时以war的方式进行部署了。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;越来越多的人开始使用SpringBoot来实现项目的快速开发。每个团队都会面临一个同样的问题：如何部署SpringBoot应用？大部分人会想：这还需要考虑？当然是同步&lt;code&gt;Fat Jar&lt;/code&gt;的方式部署喽。现实是残酷的！可能的原因有：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;已有的发布系统不支持&lt;/li&gt;
+&lt;li&gt;团队成员习惯了war包的部署方式&lt;/li&gt;
+&lt;li&gt;外置的Servlet容器更容易配置&lt;/li&gt;
+&lt;li&gt;文件路径相关的代码调整&lt;/li&gt;
+&lt;li&gt;其它原因&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="web" scheme="https://leokongwq.github.io/categories/web/"/>
+    
+    
+      <category term="spring" scheme="https://leokongwq.github.io/tags/spring/"/>
+    
+  </entry>
   
   <entry>
     <title>基于Spring构建RESTFUL风格的controller</title>
@@ -1194,7 +1678,7 @@
     <link href="https://leokongwq.github.io/2018/03/06/spring-extension-point-autoconfig-summary.html"/>
     <id>https://leokongwq.github.io/2018/03/06/spring-extension-point-autoconfig-summary.html</id>
     <published>2018-03-06T14:57:35.000Z</published>
-    <updated>2018-03-07T16:04:30.000Z</updated>
+    <updated>2018-05-15T10:49:37.000Z</updated>
     
     <content type="html"><![CDATA[<h2 id="spring扩展点和自动配置"><a href="#spring扩展点和自动配置" class="headerlink" title="spring扩展点和自动配置"></a>spring扩展点和自动配置</h2><h3 id="BeanFactoryPostProcessor"><a href="#BeanFactoryPostProcessor" class="headerlink" title="BeanFactoryPostProcessor"></a>BeanFactoryPostProcessor</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
 <span class="line">2</span>
@@ -2755,6 +3239,8 @@
 &lt;p&gt;通过该扩展点，我们修改，新增&lt;code&gt;BeanDefinition&lt;/code&gt;。因为此时所有的&lt;code&gt;BeanDefinition&lt;/code&gt;已经加载，但是没有Bean被创建。一般用在需要覆盖或替换Bean的属性时。&lt;/p&gt;
     
     </summary>
+    
+      <category term="web" scheme="https://leokongwq.github.io/categories/web/"/>
     
     
       <category term="spring" scheme="https://leokongwq.github.io/tags/spring/"/>
@@ -5415,401 +5901,6 @@
     
       <category term="CS" scheme="https://leokongwq.github.io/categories/CS/"/>
     
-    
-  </entry>
-  
-  <entry>
-    <title>java Instrumentation 和 Agent</title>
-    <link href="https://leokongwq.github.io/2017/12/21/java-agent-instrumentation.html"/>
-    <id>https://leokongwq.github.io/2017/12/21/java-agent-instrumentation.html</id>
-    <published>2017-12-21T15:10:20.000Z</published>
-    <updated>2017-12-22T09:26:32.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="什么是Java的Instrumentation"><a href="#什么是Java的Instrumentation" class="headerlink" title="什么是Java的Instrumentation ?"></a>什么是Java的Instrumentation ?</h3><p>JDK™5.0中引入包<code>java.lang.instrument</code>。 该包提供了一个Java编程API，可以用来开发增强Java应用程序的工具，例如监视它们或收集性能信息。 使用 Instrumentation，开发者可以构建一个独立于应用程序的代理程序（Agent），用来监测和协助运行在 JVM 上的程序，甚至能够替换和修改某些类的定义。有了这样的功能，开发者就可以实现更为灵活的运行时虚拟机监控和 Java 类操作了，这样的特性实际上提供了一种虚拟机级别支持的 AOP 实现方式，使得开发者无需对 JDK 做任何升级和改动，就可以实现某些 AOP 的功能了。</p>
-<p>在 Java SE 6 里面，instrumentation 包被赋予了更强大的功能：<code>启动后的 instrument</code>、<code>本地代码（native code）instrument</code>，以及<code>动态改变 classpath</code> 等等。这些改变，意味着 Java 具有了更强的动态控制、解释能力，它使得 Java 语言变得更加灵活多变。</p>
-<a id="more"></a>
-<p>在 Java SE6 里面，最大的改变是运行时的 Instrumentation 成为可能。在 <code>Java SE 5</code> 中，Instrument 要求在运行前利用命令行参数或者系统参数来设置代理类，在实际的运行之中，虚拟机在初始化之时（在绝大多数的 Java 类库被载入之前），instrumentation 的设置已经启动，并在虚拟机中设置了回调函数，检测特定类的加载情况，并完成实际工作。但是在实践中，有很多的情况，我们没有办法在虚拟机启动之时就为其设定代理，这样实际上限制了 instrument 的应用。而 <code>Java SE 6</code> 的新特性改变了这种情况，通过 Java Tool API 中的 attach 方式，我们可以很方便地在运行过程中动态地设置加载代理类，以达到 instrumentation 的目的。</p>
-<p>另外，对 native 的 Instrumentation 也是 Java SE 6 的一个崭新的功能，这使以前无法完成的功能 —— 对 native 接口的 instrumentation 可以在 Java SE 6 中，通过一个或者一系列的 prefix 添加而得以完成。</p>
-<p>最后，Java SE 6 里的 Instrumentation 也增加了动态添加 class path 的功能。所有这些新的功能，都使得 instrument 包的功能更加丰富，从而使 Java 语言本身更加强大</p>
-<h3 id="Instrumentation-核心API"><a href="#Instrumentation-核心API" class="headerlink" title="Instrumentation 核心API"></a>Instrumentation 核心API</h3><h4 id="void-addTransformer-ClassFileTransformer-transformer-boolean-canRetransform"><a href="#void-addTransformer-ClassFileTransformer-transformer-boolean-canRetransform" class="headerlink" title="void addTransformer(ClassFileTransformer transformer, boolean canRetransform);"></a>void addTransformer(ClassFileTransformer transformer, boolean canRetransform);</h4><p>该方法从1.6开始引入。功能是注册一个 <code>ClassFileTransformer</code> 类的实例，在类加载的时候被调用。</p>
-<h4 id="addTransformer-ClassFileTransformer-transformer"><a href="#addTransformer-ClassFileTransformer-transformer" class="headerlink" title="addTransformer(ClassFileTransformer transformer);"></a>addTransformer(ClassFileTransformer transformer);</h4><p>功能同上。    </p>
-<h4 id="boolean-removeTransformer-ClassFileTransformer-transformer"><a href="#boolean-removeTransformer-ClassFileTransformer-transformer" class="headerlink" title="boolean removeTransformer(ClassFileTransformer transformer);"></a>boolean removeTransformer(ClassFileTransformer transformer);</h4><p>注销一个 已经注册的 <code>ClassFileTransformer</code></p>
-<h4 id="boolean-isRetransformClassesSupported"><a href="#boolean-isRetransformClassesSupported" class="headerlink" title="boolean isRetransformClassesSupported();"></a>boolean isRetransformClassesSupported();</h4><p>判断当前JVM的配置是否支持类的重新转换。开启该配置需要在 Agent的清单文件中添加<code>Can-Retransform-Classes:true</code> 配置。</p>
-<h4 id="retransformClasses-Class-lt-gt-…-classes-throws-UnmodifiableClassException"><a href="#retransformClasses-Class-lt-gt-…-classes-throws-UnmodifiableClassException" class="headerlink" title="retransformClasses(Class&lt;?&gt;… classes) throws UnmodifiableClassException;"></a>retransformClasses(Class&lt;?&gt;… classes) throws UnmodifiableClassException;</h4><p>retransform class 可以简单理解为回滚操作，具体回滚到哪个版本，这个需要看情况而定，下面不管那种情况都有一个前提，那就是javaagent已经要求要有retransform的能力了：</p>
-<p>如果类是在第一次加载的的时候就做了transform，那么做retransform的时候会将代码回滚到transform之后的代码<br>如果类是在第一次加载的的时候没有任何变化，那么做retransform的时候会将代码回滚到最原始的类文件里的字节码<br>如果类已经加载了，期间类可能做过多次redefine(比如被另外一个agent做过)，但是接下来加载一个新的agent要求有retransform的能力了，然后对类做redefine的动作，那么retransform的时候会将代码回滚到上一个agent最后一次做redefine后的字节码</p>
-<h4 id="boolean-isRedefineClassesSupported"><a href="#boolean-isRedefineClassesSupported" class="headerlink" title="boolean isRedefineClassesSupported();"></a>boolean isRedefineClassesSupported();</h4><p>判断当前JVM的配置是否支持类的重新定义。开启该配置需要在 Agent的清单文件中添加<code>Can-Redefine-Classes:true</code> 配置。</p>
-<h4 id="void-redefineClasses-ClassDefinition…-definitions-throws-ClassNotFoundException-UnmodifiableClassException"><a href="#void-redefineClasses-ClassDefinition…-definitions-throws-ClassNotFoundException-UnmodifiableClassException" class="headerlink" title="void redefineClasses(ClassDefinition… definitions) throws  ClassNotFoundException, UnmodifiableClassException;"></a>void redefineClasses(ClassDefinition… definitions) throws  ClassNotFoundException, UnmodifiableClassException;</h4><p>对参数代码的类进行重新定义。针对的是已经加载的类。</p>
-<h4 id="boolean-isModifiableClass-Class-lt-gt-theClass"><a href="#boolean-isModifiableClass-Class-lt-gt-theClass" class="headerlink" title="boolean isModifiableClass(Class&lt;?&gt; theClass);"></a>boolean isModifiableClass(Class&lt;?&gt; theClass);</h4><p>判断参数指定的类是否可以被修改。JDK1.6开始。</p>
-<h4 id="Class-getAllLoadedClasses"><a href="#Class-getAllLoadedClasses" class="headerlink" title="Class[] getAllLoadedClasses();"></a>Class[] getAllLoadedClasses();</h4><p>返回当前JVM已经加载的所有类。</p>
-<h4 id="Class-getInitiatedClasses-ClassLoader-loader"><a href="#Class-getInitiatedClasses-ClassLoader-loader" class="headerlink" title="Class[] getInitiatedClasses(ClassLoader loader);"></a>Class[] getInitiatedClasses(ClassLoader loader);</h4><p>返回当前JVM已经初始化的类。</p>
-<h4 id="long-getObjectSize-Object-objectToSize"><a href="#long-getObjectSize-Object-objectToSize" class="headerlink" title="long getObjectSize(Object objectToSize);"></a>long getObjectSize(Object objectToSize);</h4><p>获取参数指定对象的大小。</p>
-<h4 id="void-appendToBootstrapClassLoaderSearch-JarFile-jarfile"><a href="#void-appendToBootstrapClassLoaderSearch-JarFile-jarfile" class="headerlink" title="void appendToBootstrapClassLoaderSearch(JarFile jarfile);"></a>void appendToBootstrapClassLoaderSearch(JarFile jarfile);</h4><p>添加参数指定的jar文件到<code>根类加载器</code>的搜索路径中。JDK1.6开始。</p>
-<h4 id="void-appendToSystemClassLoaderSearch-JarFile-jarfile"><a href="#void-appendToSystemClassLoaderSearch-JarFile-jarfile" class="headerlink" title="void appendToSystemClassLoaderSearch(JarFile jarfile);"></a>void appendToSystemClassLoaderSearch(JarFile jarfile);</h4><p>添加参数指定的jar文件到<code>系统类加载器</code>的搜索路径中。JDK1.6开始。</p>
-<h4 id="boolean-isNativeMethodPrefixSupported"><a href="#boolean-isNativeMethodPrefixSupported" class="headerlink" title="boolean isNativeMethodPrefixSupported();"></a>boolean isNativeMethodPrefixSupported();</h4><p>当前JVM配置是否支持设置本地方法前缀。开启该配置需要在Agent的清单文件中添加<code>Can-Set-Native-Method-Prefix:true</code>配置。JDK1.6开始。</p>
-<h4 id="void-setNativeMethodPrefix-ClassFileTransformer-transformer-String-prefix"><a href="#void-setNativeMethodPrefix-ClassFileTransformer-transformer-String-prefix" class="headerlink" title="void setNativeMethodPrefix(ClassFileTransformer transformer, String prefix);"></a>void setNativeMethodPrefix(ClassFileTransformer transformer, String prefix);</h4><p>该方法用来处理失败的native方法解析，可以重新尝试带有指定前缀的本地方法。JDK1.6开始。</p>
-<h3 id="Instrumentation-的基本功能和用法"><a href="#Instrumentation-的基本功能和用法" class="headerlink" title="Instrumentation 的基本功能和用法"></a>Instrumentation 的基本功能和用法</h3><p><code>java.lang.instrument</code>包的具体实现，依赖于 JVMTI。JVMTI（Java Virtual Machine Tool Interface）是一套由 Java 虚拟机提供的，为 JVM 相关的工具提供的本地编程接口集合。JVMTI 是从 Java SE 5 开始引入，整合和取代了以前使用的 Java Virtual Machine Profiler Interface (JVMPI) 和 the Java Virtual Machine Debug Interface (JVMDI)，而在 Java SE 6 中，JVMPI 和 JVMDI 已经消失了。JVMTI 提供了一套”代理”程序机制，可以支持第三方工具程序以代理的方式连接和访问 JVM，并利用 JVMTI 提供的丰富的编程接口，完成很多跟 JVM 相关的功能。事实上，java.lang.instrument 包的实现，也就是基于这种机制的：在 Instrumentation 的实现当中，存在一个 JVMTI 的代理程序，通过调用 JVMTI 当中 Java 类相关的函数来完成 Java 类的动态操作。除开 Instrumentation 功能外，JVMTI 还在虚拟机内存管理，线程控制，方法和变量操作等等方面提供了大量有价值的函数。关于 JVMTI 的详细信息，请参考 Java SE 6 文档（请参见 参考资源）当中的介绍</p>
-<p>Instrumentation 的最大作用，就是类定义动态改变和操作。在 <code>Java SE 5</code> 及其后续版本当中，开发者可以在一个普通 Java 程序（带有 main 函数的 Java 类）运行时，通过 <code>–javaagent</code>参数指定一个特定的 jar 文件（包含 Instrumentation 代理）来启动 Instrumentation 的代理程序。</p>
-<p>在 Java SE 5 当中，开发者可以让 Instrumentation 代理在 main 函数运行前执行。简要说来就是如下几个步骤：</p>
-<p>1.编写 premain 函数</p>
-<p>编写一个 Java 类，包含如下两个方法当中的任何一个</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">premain</span><span class="params">(String agentArgs, Instrumentation inst)</span></span>;  [<span class="number">1</span>]</span>
-<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">premain</span><span class="params">(String agentArgs)</span></span>; [<span class="number">2</span>]</span>
-</pre></td></tr></table></figure>
-<p>其中，[1] 的优先级比 [2] 高，将会被优先执行（[1] 和 [2] 同时存在时，[2] 被忽略）。</p>
-<p>在这个<code>premain</code>函数中，开发者可以进行对类的各种操作。</p>
-<p><code>agentArgs</code> 是 <code>premain</code> 函数得到的程序参数，随同 <code>–javaagent</code> 一起传入。与 <code>main</code> 函数不同的是，这个参数是一个字符串而不是一个字符串数组，如果程序参数有多个，程序将自行解析这个字符串。</p>
-<p><code>Inst</code> 是一个 <code>java.lang.instrument.Instrumentation</code> 的实例，由 JVM 自动传入。<code>java.lang.instrument.Instrumentation</code> 是 instrument 包中定义的一个接口，也是这个包的核心部分，集中了其中几乎所有的功能方法，例如类定义的转换和操作等等。</p>
-<p>2.jar 文件打包</p>
-<p>将这个 Java 类打包成一个 jar 文件，并在其中的 manifest 属性当中加入<code>Premain-Class</code>来指定步骤 1 当中编写的那个带有 <code>premain</code> 的 Java 类。（可能还需要指定其他属性以开启更多功能）</p>
-<p>3.运行</p>
-<p>用如下方式运行带有 Instrumentation 的 Java 程序：</p>
-<p>java -javaagent:jar 文件的位置 [= 传入 premain 的参数 ]</p>
-<h3 id="Java-SE-6-的新特性：虚拟机启动后的动态-instrument"><a href="#Java-SE-6-的新特性：虚拟机启动后的动态-instrument" class="headerlink" title="Java SE 6 的新特性：虚拟机启动后的动态 instrument"></a>Java SE 6 的新特性：虚拟机启动后的动态 instrument</h3><p>在 Java SE 5 当中，开发者只能在 premain 当中施展想象力，所作的 Instrumentation 也仅限与 main 函数执行前，这样的方式存在一定的局限性。</p>
-<p>在 Java SE 5 的基础上，Java SE 6 针对这种状况做出了改进，开发者可以在 main 函数开始执行以后，再启动自己的 Instrumentation 程序。</p>
-<p>在 Java SE 6 的 Instrumentation 当中，有一个跟 premain“并驾齐驱”的“agentmain”方法，可以在 main 函数开始运行之后再运行。</p>
-<p>跟 premain 函数一样， 开发者可以编写一个含有“agentmain”函数的 Java 类：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">agentmain</span> <span class="params">(String agentArgs, Instrumentation inst)</span></span>; [<span class="number">1</span>] </span>
-<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">agentmain</span> <span class="params">(String agentArgs)</span></span>; [<span class="number">2</span>]</span>
-</pre></td></tr></table></figure>
-<p>同样，[1] 的优先级比 [2] 高，将会被优先执行。</p>
-<p>跟 <code>premain</code> 函数一样，开发者可以在 <code>agentmain</code> 中进行对类的各种操作。其中的 <code>agentArgs</code> 和 <code>Inst</code> 的用法跟 <code>premain</code> 相同。</p>
-<p>与<code>Premain-Class</code>类似，开发者必须在 <code>manifest</code> 文件里面设置<code>Agent-Class</code>来指定包含 <code>agentmain</code> 函数的类。</p>
-<p>可是，跟 <code>premain</code> 不同的是，<code>agentmain</code> 需要在 <code>main</code> 函数开始运行后才启动，这样的时机应该如何确定呢，这样的功能又如何实现呢？</p>
-<p>在 Java SE 6 文档当中，开发者也许无法在 <code>java.lang.instrument</code> 包相关的文档部分看到明确的介绍，更加无法看到具体的应用 <code>agnetmain</code> 的例子。不过，在 <code>Java SE 6</code> 的新特性里面，有一个不太起眼的地方，揭示了 <code>agentmain</code> 的用法。这就是 <code>Java SE 6</code> 当中提供的 <code>Attach API</code>。</p>
-<p><code>Attach API</code> 不是 Java 的标准 API，而是 Sun 公司提供的一套扩展 API，用来向目标 JVM ”附着”（Attach）代理工具程序的。有了它，开发者可以方便的监控一个 JVM，运行一个外加的代理程序。</p>
-<p><code>Attach API</code> 很简单，只有 2 个主要的类，都在 <code>com.sun.tools.attach</code> 包里面： <code>VirtualMachine</code> 代表一个 Java 虚拟机，也就是程序需要监控的目标虚拟机，提供了 JVM 枚举，<code>Attach</code> 动作和 <code>Detach</code> 动作（Attach 动作的相反行为，从 JVM 上面解除一个代理）等等 ; <code>VirtualMachineDescriptor</code> 则是一个描述虚拟机的容器类，配合 <code>VirtualMachine</code> 类完成各种功能。</p>
-<p>为了简单起见，我们举例简化如下：依然用类文件替换的方式，将一个返回 1 的函数替换成返回 2 的函数，<code>Attach API</code> 写在一个线程里面，用睡眠等待的方式，每隔半秒时间检查一次所有的 Java 虚拟机，当发现有新的虚拟机出现的时候，就调用 attach 函数，随后再按照 Attach API 文档里面所说的方式装载 Jar 文件。等到 5 秒钟的时候，attach 程序自动结束。而在 main 函数里面，程序每隔半秒钟输出一次返回值（显示出返回值从 1 变成 2）。</p>
-<p>TransClass 类和 Transformer 类的代码不变，参看上一节介绍。 含有 main 函数的 TestMainInJar 代码为：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestMainInJar</span> </span>&#123; </span>
-<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123; </span>
-<span class="line">        System.out.println(<span class="keyword">new</span> TransClass().getNumber()); </span>
-<span class="line">        <span class="keyword">int</span> count = <span class="number">0</span>; </span>
-<span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123; </span>
-<span class="line">            Thread.sleep(<span class="number">500</span>); </span>
-<span class="line">            count++; </span>
-<span class="line">            <span class="keyword">int</span> number = <span class="keyword">new</span> TransClass().getNumber(); </span>
-<span class="line">            System.out.println(number); </span>
-<span class="line">            <span class="keyword">if</span> (<span class="number">3</span> == number || count &gt;= <span class="number">10</span>) &#123; </span>
-<span class="line">                <span class="keyword">break</span>; </span>
-<span class="line">            &#125; </span>
-<span class="line">        &#125; </span>
-<span class="line">    &#125; </span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>含有 agentmain 的 AgentMain 类的代码为：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.instrument.ClassDefinition; </span>
-<span class="line"><span class="keyword">import</span> java.lang.instrument.Instrumentation; </span>
-<span class="line"><span class="keyword">import</span> java.lang.instrument.UnmodifiableClassException; </span>
-<span class="line"></span>
-<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AgentMain</span> </span>&#123; </span>
-<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">agentmain</span><span class="params">(String agentArgs, Instrumentation inst)</span> </span>
-<span class="line">            <span class="keyword">throws</span> ClassNotFoundException, UnmodifiableClassException, </span>
-<span class="line">            InterruptedException </span>&#123; </span>
-<span class="line">        inst.addTransformer(<span class="keyword">new</span> Transformer (), <span class="keyword">true</span>); </span>
-<span class="line">        inst.retransformClasses(TransClass.class); </span>
-<span class="line">        System.out.println(<span class="string">"Agent Main Done"</span>); </span>
-<span class="line">    &#125; </span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>其中，retransformClasses 是 Java SE 6 里面的新方法，它跟 redefineClasses 一样，可以批量转换类定义，多用于 agentmain 场合。</p>
-<p>Jar 文件跟 Premain 那个例子里面的 Jar 文件差不多，也是把 main 和 agentmain 的类，TransClass，Transformer 等类放在一起，打包为“TestInstrument1.jar”，而 Jar 文件当中的 Manifest 文件为 :</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line">Manifest-Version: <span class="number">1.0</span> </span>
-<span class="line">Agent-Class: AgentMain</span>
-</pre></td></tr></table></figure>
-<p>另外，为了运行 Attach API，我们可以再写一个控制程序来模拟监控过程：（代码片段）</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-<span class="line">22</span>
-<span class="line">23</span>
-<span class="line">24</span>
-<span class="line">25</span>
-<span class="line">26</span>
-<span class="line">27</span>
-<span class="line">28</span>
-<span class="line">29</span>
-<span class="line">30</span>
-<span class="line">31</span>
-<span class="line">32</span>
-<span class="line">33</span>
-<span class="line">34</span>
-<span class="line">35</span>
-<span class="line">36</span>
-<span class="line">37</span>
-<span class="line">38</span>
-<span class="line">39</span>
-<span class="line">40</span>
-<span class="line">41</span>
-<span class="line">42</span>
-<span class="line">43</span>
-<span class="line">44</span>
-<span class="line">45</span>
-<span class="line">46</span>
-<span class="line">47</span>
-<span class="line">48</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.sun.tools.attach.VirtualMachine; </span>
-<span class="line"><span class="keyword">import</span> com.sun.tools.attach.VirtualMachineDescriptor; </span>
-<span class="line">……</span>
-<span class="line"><span class="comment">// 一个运行 Attach API 的线程子类</span></span>
-<span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">AttachThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123; </span>
-<span class="line">   </span>
-<span class="line"><span class="keyword">private</span> <span class="keyword">final</span> List&lt;VirtualMachineDescriptor&gt; listBefore; </span>
-<span class="line"></span>
-<span class="line">   <span class="keyword">private</span> <span class="keyword">final</span> String jar; </span>
-<span class="line"></span>
-<span class="line">   AttachThread(String attachJar, List&lt;VirtualMachineDescriptor&gt; vms) &#123; </span>
-<span class="line">       listBefore = vms;  <span class="comment">// 记录程序启动时的 VM 集合</span></span>
-<span class="line">       jar = attachJar; </span>
-<span class="line">   &#125; </span>
-<span class="line"></span>
-<span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123; </span>
-<span class="line">       VirtualMachine vm = <span class="keyword">null</span>; </span>
-<span class="line">       List&lt;VirtualMachineDescriptor&gt; listAfter = <span class="keyword">null</span>; </span>
-<span class="line">       <span class="keyword">try</span> &#123; </span>
-<span class="line">           <span class="keyword">int</span> count = <span class="number">0</span>; </span>
-<span class="line">           <span class="keyword">while</span> (<span class="keyword">true</span>) &#123; </span>
-<span class="line">               listAfter = VirtualMachine.list(); </span>
-<span class="line">               <span class="keyword">for</span> (VirtualMachineDescriptor vmd : listAfter) &#123; </span>
-<span class="line">                   <span class="keyword">if</span> (!listBefore.contains(vmd)) &#123; </span>
-<span class="line"><span class="comment">// 如果 VM 有增加，我们就认为是被监控的 VM 启动了</span></span>
-<span class="line"><span class="comment">// 这时，我们开始监控这个 VM </span></span>
-<span class="line">                       vm = VirtualMachine.attach(vmd); </span>
-<span class="line">                       <span class="keyword">break</span>; </span>
-<span class="line">                   &#125; </span>
-<span class="line">               &#125; </span>
-<span class="line">               Thread.sleep(<span class="number">500</span>); </span>
-<span class="line">               count++; </span>
-<span class="line">               <span class="keyword">if</span> (<span class="keyword">null</span> != vm || count &gt;= <span class="number">10</span>) &#123; </span>
-<span class="line">                   <span class="keyword">break</span>; </span>
-<span class="line">               &#125; </span>
-<span class="line">           &#125; </span>
-<span class="line">           vm.loadAgent(jar); </span>
-<span class="line">           vm.detach(); </span>
-<span class="line">       &#125; <span class="keyword">catch</span> (Exception e) &#123; </span>
-<span class="line">            ignore </span>
-<span class="line">       &#125; </span>
-<span class="line">   &#125; </span>
-<span class="line">&#125; </span>
-<span class="line">……</span>
-<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123; 	 </span>
-<span class="line"><span class="keyword">new</span> AttachThread(<span class="string">"TestInstrument1.jar"</span>, VirtualMachine.list()).start(); </span>
-<span class="line"></span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>运行时，可以首先运行上面这个启动新线程的 main 函数，然后，在 5 秒钟内（仅仅简单模拟 JVM 的监控过程）运行如下命令启动测试 Jar 文件 :</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line">java – javaagent:TestInstrument2.jar – cp TestInstrument2.jar TestMainInJar</span>
-</pre></td></tr></table></figure>
-<p>如果时间掌握得不太差的话，程序首先会在屏幕上打出 1，这是改动前的类的输出，然后会打出一些 2，这个表示 agentmain 已经被 Attach API 成功附着到 JVM 上，代理程序生效了，当然，还可以看到“Agent Main Done”字样的输出。</p>
-<p>以上例子仅仅只是简单示例，简单说明这个特性而已。真实的例子往往比较复杂，而且可能运行在分布式环境的多个 JVM 之中。</p>
-<h3 id="Java-SE-6-新特性：本地方法的-Instrumentation"><a href="#Java-SE-6-新特性：本地方法的-Instrumentation" class="headerlink" title="Java SE 6 新特性：本地方法的 Instrumentation"></a>Java SE 6 新特性：本地方法的 Instrumentation</h3><p>在 1.5 版本的 instumentation 里，并没有对 Java 本地方法（Native Method）的处理方式，而且在 Java 标准的 JVMTI 之下，并没有办法改变 method signature， 这就使替换本地方法非常地困难。一个比较直接而简单的想法是，在启动时替换本地代码所在的动态链接库 —— 但是这样，本质上是一种静态的替换，而不是动态的 Instrumentation。而且，这样可能需要编译较大数量的动态链接库 —— 比如，我们有三个本地函数，假设每一个都需要一个替换，而在不同的应用之下，可能需要不同的组合，那么如果我们把三个函数都编译在同一个动态链接库之中，最多我们需要 8 个不同的动态链接库来满足需要。当然，我们也可以独立地编译之，那样也需要 6 个动态链接库——无论如何，这种繁琐的方式是不可接受的。</p>
-<p>在 Java SE 6 中，新的 Native Instrumentation 提出了一个新的 native code 的解析方式，作为原有的 native method 的解析方式的一个补充，来很好地解决了一些问题。这就是在新版本的 java.lang.instrument 包里，我们拥有了对 native 代码的 instrument 方式 —— 设置 prefix。</p>
-<p>假设我们有了一个 native 函数，名字叫 nativeMethod，在运行中过程中，我们需要将它指向另外一个函数（需要注意的是，在当前标准的 JVMTI 之下，除了 native 函数名，其他的 signature 需要一致）。比如我们的 Java 代码是：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> nativeTester; </span>
-<span class="line"><span class="class"><span class="keyword">class</span> <span class="title">nativePrefixTester</span></span>&#123; </span>
-<span class="line">	…</span>
-<span class="line">	 <span class="function"><span class="keyword">native</span> <span class="keyword">int</span> <span class="title">nativeMethod</span><span class="params">(<span class="keyword">int</span> input)</span></span>; </span>
-<span class="line">	…</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>那么我们已经实现的本地代码是 :</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function">jint <span class="title">Java_nativeTester_nativeMethod</span><span class="params">(jclass thiz, jobject thisObj, jint input)</span></span>;</span>
-</pre></td></tr></table></figure>
-<p>现在我们需要在调用这个函数时，使之指向另外一个函数。那么按照 J2SE 的做法，我们可以按他的命名方式，加上一个<br><code>prefix</code> 作为新的函数名。比如，我们以 “another_” 作为 prefix，那么我们新的函数是 :</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function">jint <span class="title">Java_nativeTester_another_nativePrefixTester</span><span class="params">(jclass thiz, jobject thisObj, </span>
-<span class="line">jint input)</span></span>;</span>
-</pre></td></tr></table></figure>
-<p>然后将之编入动态链接库之中。</p>
-<p>现在我们已经有了新的本地函数，接下来就是做 instrument 的设置。正如以上所说的，我们可以使用 premain 方式，在虚拟机启动之时就载入 premain 完成 instrument 代理设置。也可以使用 agentmain 方式，去 attach 虚拟机来启动代理。而设置 native 函数的也是相当简单的 :</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-</pre></td><td class="code"><pre><span class="line">premain()&#123;  <span class="comment">// 或者也可以在 agentmain 里</span></span>
-<span class="line">    …</span>
-<span class="line">    <span class="keyword">if</span> (!isNativeMethodPrefixSupported())&#123; </span>
-<span class="line">    	 <span class="keyword">return</span>; <span class="comment">// 如果无法设置，则返回</span></span>
-<span class="line">    &#125; </span>
-<span class="line">    setNativeMethodPrefix(transformer,<span class="string">"another_"</span>); <span class="comment">// 设置 native 函数的 prefix，注意这个下划线必须由用户自己规定</span></span>
-<span class="line">    …</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>在这里要注意两个问题。一是不是在任何的情况下都是可以设置 native 函数的 prefix 的。首先，我们要注意到 agent 包之中的 Manifest 所设定的特性 :</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line">Can-Set-Native-Method-Prefix</span>
-</pre></td></tr></table></figure>
-<p>要注意，这一个参数都可以影响是否可以设置 native prefix，而且，在默认的设置之中，这个参数是 false 的，我们需要将之设置成 true（顺便说一句，对 Manifest 之中的属性来说都是大小写无关的，当然，如果给一个不是“true”的值，就会被当作 false 值处理）。</p>
-<p>当然，我们还需要确认虚拟机本身是否支持 setNativePrefix。在 Java API 里，Instrumentation 类提供了一个函数 isNativePrefix，通过这个函数我们可以知道该功能是否可以实行。</p>
-<p>二是我们可以为每一个 ClassTransformer 加上它自己的 nativeprefix；同时，每一个 ClassTransformer 都可以为同一个 class 做 transform，因此对于一个 Class 来说，一个 native 函数可能有不同的 prefix，因此对这个函数来说，它可能也有好几种解析方式。</p>
-<p>在 Java SE 6 当中，Native prefix 的解释方式如下：对于某一个 package 内的一个 class 当中的一个 native method 来说，首先，假设我们对这个函数的 transformer 设置了 native 的 prefix“another”，它将这个函数接口解释成 :</p>
-<p>由 Java 的函数接口</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">native</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">()</span></span></span>
-</pre></td></tr></table></figure>
-<p>和上述 prefix”another”，去寻找本地代码中的函数</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Java_package_class_another_method</span><span class="params">(jclass theClass, jobject thiz)</span></span>;</span>
-</pre></td></tr></table></figure>
-<p> // 请注意 prefix 在函数名中出现的位置！<br>一旦可以找到，那么调用这个函数，整个解析过程就结束了；如果没有找到，那么虚拟机将会做进一步的解析工作。我们将利用 Java native 接口最基本的解析方式 , 去找本地代码中的函数 :</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Java_package_class_method</span><span class="params">(jclass theClass, jobject thiz)</span></span>;</span>
-</pre></td></tr></table></figure>
-<p>如果找到，则执行之。否则，因为没有任何一个合适的解析方式，于是宣告这个过程失败。</p>
-<p>那么如果有多个 transformer，同时每一个都有自己的 prefix，又该如何解析呢？事实上，虚拟机是按 transformer 被加入到的 Instrumentation 之中的次序去解析的（还记得我们最基本的 addTransformer 方法吗？）。</p>
-<p>假设我们有三个 transformer 要被加入进来，他们的次序和相对应的 prefix 分别为：transformer1 和“prefix1<em>”，transformer2 和 “prefix2</em>”，transformer3 和 “prefix3_”。那么，虚拟机会首先做的就是将接口解析为 :</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">native</span> <span class="keyword">void</span> <span class="title">prefix1_prefix2_prefix3_native_method</span><span class="params">()</span></span></span>
-</pre></td></tr></table></figure>
-<p>然后去找它相对应的 native 代码。</p>
-<p>但是如果第二个 transformer（transformer2）没有设定 prefix，那么很简单，我们得到的解析是：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">native</span> <span class="keyword">void</span> <span class="title">prefix1_prefix3_native_method</span><span class="params">()</span></span></span>
-</pre></td></tr></table></figure>
-<p>这个方式简单而自然。</p>
-<p>当然，对于多个 prefix 的情况，我们还要注意一些复杂的情况。比如，假设我们有一个 native 函数接口是：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">native</span> <span class="keyword">void</span> <span class="title">native_method</span><span class="params">()</span></span></span>
-</pre></td></tr></table></figure>
-<p>然后我们为它设置了两个 prefix，比如 “wrapped<em>“ 和 “wrapped2</em>“，那么，我们得到的是什么呢？是</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Java_package_class_wrapped_wrapped2_method</span><span class="params">(jclass theClass, jobject thiz)</span></span>;</span>
-</pre></td></tr></table></figure>
-<p> // 这个函数名正确吗？<br>吗？答案是否定的，因为事实上，对 Java 中 native 函数的接口到 native 中的映射，有一系列的规定，因此可能有一些特殊的字符要被代入。而实际中，这个函数的正确的函数名是：</p>
-<p> void Java_package_class_wrapped_1wrapped2_1method(jclass theClass, jobject thiz);<br> // 只有这个函数名会被找到<br>很有趣不是吗？因此如果我们要做类似的工作，一个很好的建议是首先在 Java 中写一个带 prefix 的 native 接口，用 javah 工具生成一个 c 的 header-file，看看它实际解析得到的函数名是什么，这样我们就可以避免一些不必要的麻烦。</p>
-<p>另外一个事实是，与我们的想像不同，对于两个或者两个以上的 prefix，虚拟机并不做更多的解析；它不会试图去掉某一个 prefix，再来组装函数接口。它做且仅作两次解析。</p>
-<p>总之，新的 native 的 prefix-instrumentation 的方式，改变了以前 Java 中 native 代码无法动态改变的缺点。在当前，利用 JNI 来写 native 代码也是 Java 应用中非常重要的一个环节，因此它的动态化意味着整个 Java 都可以动态改变了 —— 现在我们的代码可以利用加上 prefix 来动态改变 native 函数的指向，正如上面所说的，如果找不到，虚拟机还会去尝试做标准的解析，这让我们拥有了动态地替换 native 代码的方式，我们可以将许多带不同 prefix 的函数编译在一个动态链接库之中，而通过 instrument 包的功能，让 native 函数和 Java 函数一样动态改变、动态替换。</p>
-<p>当然，现在的 native 的 instrumentation 还有一些限制条件，比如，不同的 transformer 会有自己的 native prefix，就是说，每一个 transformer 会负责他所替换的所有类而不是特定类的 prefix —— 因此这个粒度可能不够精确。</p>
-<h3 id="Java-SE-6-新特性：BootClassPath-SystemClassPath-的动态增补"><a href="#Java-SE-6-新特性：BootClassPath-SystemClassPath-的动态增补" class="headerlink" title="Java SE 6 新特性：BootClassPath / SystemClassPath 的动态增补"></a>Java SE 6 新特性：BootClassPath / SystemClassPath 的动态增补</h3><p>我们知道，通过设置系统参数或者通过虚拟机启动参数，我们可以设置一个虚拟机运行时的 boot class 加载路径（-Xbootclasspath）和 system class（-cp）加载路径。当然，我们在运行之后无法替换它。然而，我们也许有时候要需要把某些 jar 加载到 bootclasspath 之中，而我们无法应用上述两个方法；或者我们需要在虚拟机启动之后来加载某些 jar 进入 bootclasspath。在 Java SE 6 之中，我们可以做到这一点了。</p>
-<p>实现这几点很简单，首先，我们依然需要确认虚拟机已经支持这个功能，然后在 premain/agantmain 之中加上需要的 classpath。我们可以在我们的 Transformer 里使用 appendToBootstrapClassLoaderSearch/appendToSystemClassLoaderSearch 来完成这个任务。</p>
-<p>同时我们可以注意到，在 agent 的 manifest 里加入 Boot-Class-Path 其实一样可以在动态地载入 agent 的同时加入自己的 boot class 路径，当然，在 Java code 中它可以更加动态方便和智能地完成 —— 我们可以很方便地加入判断和选择成分。</p>
-<p>在这里我们也需要注意几点。首先，我们加入到 classpath 的 jar 文件中不应当带有任何和系统的 instrumentation 有关的系统同名类，不然，一切都陷入不可预料之中 —— 这不是一个工程师想要得到的结果，不是吗？</p>
-<p>其次，我们要注意到虚拟机的 ClassLoader 的工作方式，它会记载解析结果。比如，我们曾经要求读入某个类 someclass，但是失败了，ClassLoader 会记得这一点。即使我们在后面动态地加入了某一个 jar，含有这个类，ClassLoader 依然会认为我们无法解析这个类，与上次出错的相同的错误会被报告。</p>
-<p>再次我们知道在 Java 语言中有一个系统参数“java.class.path”，这个 property 里面记录了我们当前的 classpath，但是，我们使用这两个函数，虽然真正地改变了实际的 classpath，却不会对这个 property 本身产生任何影响。</p>
-<p>在公开的 JavaDoc 中我们可以发现一个很有意思的事情，Sun 的设计师们告诉我们，这个功能事实上依赖于 ClassLoader 的 appendtoClassPathForInstrumentation 方法 —— 这是一个非公开的函数，因此我们不建议直接（使用反射等方式）使用它，事实上，instrument 包里的这两个函数已经可以很好的解决我们的问题了。</p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="http://jakarta.apache.org/bcel/index.html" target="_blank" rel="external">http://jakarta.apache.org/bcel/index.html</a><br><a href="http://www.ibm.com/developerworks/cn/java/j-lo-instrumentation/" target="_blank" rel="external">Java 5 特性 Instrumentation 实践</a></p>
-<p><a href="http://www.infoq.com/cn/articles/javaagent-illustrated" target="_blank" rel="external">JVM源码分析之javaagent原理完全解读</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h3 id=&quot;什么是Java的Instrumentation&quot;&gt;&lt;a href=&quot;#什么是Java的Instrumentation&quot; class=&quot;headerlink&quot; title=&quot;什么是Java的Instrumentation ?&quot;&gt;&lt;/a&gt;什么是Java的Instrumentation ?&lt;/h3&gt;&lt;p&gt;JDK™5.0中引入包&lt;code&gt;java.lang.instrument&lt;/code&gt;。 该包提供了一个Java编程API，可以用来开发增强Java应用程序的工具，例如监视它们或收集性能信息。 使用 Instrumentation，开发者可以构建一个独立于应用程序的代理程序（Agent），用来监测和协助运行在 JVM 上的程序，甚至能够替换和修改某些类的定义。有了这样的功能，开发者就可以实现更为灵活的运行时虚拟机监控和 Java 类操作了，这样的特性实际上提供了一种虚拟机级别支持的 AOP 实现方式，使得开发者无需对 JDK 做任何升级和改动，就可以实现某些 AOP 的功能了。&lt;/p&gt;
-&lt;p&gt;在 Java SE 6 里面，instrumentation 包被赋予了更强大的功能：&lt;code&gt;启动后的 instrument&lt;/code&gt;、&lt;code&gt;本地代码（native code）instrument&lt;/code&gt;，以及&lt;code&gt;动态改变 classpath&lt;/code&gt; 等等。这些改变，意味着 Java 具有了更强的动态控制、解释能力，它使得 Java 语言变得更加灵活多变。&lt;/p&gt;
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>activemq监控之hawtio</title>
-    <link href="https://leokongwq.github.io/2017/12/21/activemq-monitor-hawtio.html"/>
-    <id>https://leokongwq.github.io/2017/12/21/activemq-monitor-hawtio.html</id>
-    <published>2017-12-21T12:38:12.000Z</published>
-    <updated>2017-12-21T13:05:58.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>要对系统进行压测，而系统依赖的消息中间件是Apache ActiveMQ。 在压测中需要衡量队列的堆积和消费情况。ActiveMQ自己的console不够友好，直观，需要不停的F5才能看到队列的堆积情况，而且只能反映瞬时的值，不能够知道整个压测过程过ActiveMQ的状态。</p>
-<a id="more"></a>
-<p>Google后发现ActiveMQ的监控有多种方式，具体可以参考官网地址：<a href="http://activemq.apache.org/how-can-i-monitor-activemq.html" target="_blank" rel="external">How can I monitor ActiveMQ</a></p>
-<p>生产环境使用的是ActiveMQ版本是5.8，默认是集成了<a href="http://www.jolokia.org/" target="_blank" rel="external">Jolokia</a>。这样我们就可以通过<a href="http://hawt.io/" target="_blank" rel="external">hawt.io</a>这个开源的web console来对ActiveMQ进行监控。</p>
-<h3 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h3><p>第一步：下载hawtio 地址为：<a href="http://hawt.io/getstarted/index.html" target="_blank" rel="external">http://hawt.io/getstarted/index.html</a></p>
-<p>我使用的是<code>jar</code>方式。</p>
-<p>第二部：启动</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line">java -jar hawtio-app-1.5.6.jar --port 9999</span>
-</pre></td></tr></table></figure>
-<p>启动后打开地址：<a href="http://localhost:9999/hawtio" target="_blank" rel="external">http://localhost:9999/hawtio</a></p>
-<p>点击右上角的connect菜单：</p>
-<img src="/2017/12/21/activemq-monitor-hawtio/connect.jpg" alt="connect.jpg" title="">
-<p>输入下面的参数：</p>
-<ul>
-<li>项目连接名称(用于保存连接使用)</li>
-<li>ActiveMQ主机ip(或主机名)</li>
-<li>ActiveMQ端口号(即ActiveMQ的jetty.xml文件中配置的管理页面端口号)</li>
-<li>jolokia路径名(对ActiveMQ，使用/api/jolokia)</li>
-</ul>
-<p>保存后，点击<code>connect to remote server</code>。</p>
-<p>在输出的页面中输入ActiveMQ Web Console的用户名和密码即可。</p>
-<img src="/2017/12/21/activemq-monitor-hawtio/hawtio-index.png" alt="hawtio-index.png" title="">
-<h3 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h3><p>hawtio 从版本 <code>1.5.0</code>开始，在连接远程JVM时，你需要在hawtio的启动JVM参数中添加：<code>hawtio.proxyWhitelist</code>。 格式是以’,’分割的域名或IP</p>
-<p>具体参考：<a href="http://hawt.io/configuration/index.html" target="_blank" rel="external">http://hawt.io/configuration/index.html</a></p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="http://hawt.io/getstarted/index.html" target="_blank" rel="external">http://hawt.io/getstarted/index.html</a><br><a href="https://stackoverflow.com/questions/43206932/unable-to-connect-to-remote-server-from-hawtio-dashboard" target="_blank" rel="external">https://stackoverflow.com/questions/43206932/unable-to-connect-to-remote-server-from-hawtio-dashboard</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;要对系统进行压测，而系统依赖的消息中间件是Apache ActiveMQ。 在压测中需要衡量队列的堆积和消费情况。ActiveMQ自己的console不够友好，直观，需要不停的F5才能看到队列的堆积情况，而且只能反映瞬时的值，不能够知道整个压测过程过ActiveMQ的状态。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="MQ" scheme="https://leokongwq.github.io/categories/MQ/"/>
-    
-    
-      <category term="ActiveQM" scheme="https://leokongwq.github.io/tags/ActiveQM/"/>
     
   </entry>
   

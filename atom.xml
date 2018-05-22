@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://leokongwq.github.io/"/>
-  <updated>2018-05-15T13:07:34.000Z</updated>
+  <updated>2018-05-22T09:42:20.000Z</updated>
   <id>https://leokongwq.github.io/</id>
   
   <author>
@@ -14,6 +14,393 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>JWT简介</title>
+    <link href="https://leokongwq.github.io/2018/05/22/json-web-token.html"/>
+    <id>https://leokongwq.github.io/2018/05/22/json-web-token.html</id>
+    <published>2018-05-22T04:52:27.000Z</published>
+    <updated>2018-05-22T09:42:20.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="What-is-JSON-Web-Token"><a href="#What-is-JSON-Web-Token" class="headerlink" title="What is JSON Web Token?"></a>What is JSON Web Token?</h3><p>JSON Web Token（JWT）是一个开放式标准（<a href="https://tools.ietf.org/html/rfc7519" target="_blank" rel="external">RFC 7519</a>），它定义了一种紧凑且自包含的方式，用于在各方之间以JSON对象安全的传输信息。 这些信息可以通过数字签名进行验证和信任。 JWT可以使用一个秘钥（HMAC签名算法）或使用RSA的公钥/私钥对对JWT进行签名。</p>
+<p>虽然JWT可以加密以提供各方之间数据传递的保密性，但我们将重点关注已签名的令牌。 签名的令牌可以验证其中包含的信息的完整性，而加密令牌隐藏来自其他方的信息。 当令牌使用公钥/私钥对进行签名时，签名还证明只有持有私钥的方是签名方。</p>
+<p>下面深入了解下JWT中的概念</p>
+<ul>
+<li>紧凑: 因为JWT的大小比较小，因为它可以通过URL, POST参数 或者HTTP请求头来进行传递。从另一方面来说说，因为它小，所以传递速度也比较快（占用带宽小）。</li>
+<li>自包含: JWT的负载包含了该用户所需的所有信息，从而避免了对DB的多次查询。</li>
+</ul>
+<a id="more"></a>
+<h3 id="When-should-you-use-JSON-Web-Tokens"><a href="#When-should-you-use-JSON-Web-Tokens" class="headerlink" title="When should you use JSON Web Tokens?"></a>When should you use JSON Web Tokens?</h3><p>以下是JSON Web Tokens有用的一些场景：</p>
+<ul>
+<li>认证: 这是使用JWT最常见的情况。 一旦用户登录，每个后续请求都将包含JWT，允许用户访问该令牌允许的路由，服务和资源。 单点登录（SSO）是当今广泛使用JWT的一项功能，因为它的开销很小，并且能够轻松地跨不同域使用.</li>
+<li>信息交换: JWT也是一个在各方之间安全传输信息的好方法。 因为JWT可以签名 - 例如使用公钥/私钥对，所以可以确定发件人是他们自称的人。 此外，由于使用请求头和有效载荷来参加签名的计算，因此你还可以验证内容是否未被篡改。</li>
+</ul>
+<h3 id="What-is-the-JSON-Web-Token-structure"><a href="#What-is-the-JSON-Web-Token-structure" class="headerlink" title="What is the JSON Web Token structure?"></a>What is the JSON Web Token structure?</h3><p>在JWT的紧凑格式中, JWT由三部分构成，每个部分以<code>.</code>号进行分割。如下所示：</p>
+<ul>
+<li>Header</li>
+<li>Payload</li>
+<li>Signature</li>
+</ul>
+<p>因此一个典型的JWT可能看起来是下面的样子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">xxxxx.yyyyy.zzzzz</span>
+</pre></td></tr></table></figure>
+<h3 id="Header"><a href="#Header" class="headerlink" title="Header"></a>Header</h3><p>header部分通常包含两部分：令牌的类型，和其使用的哈希算法，例如：HMAC，SHA256 或 RSA.</p>
+<p>例如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+</pre></td><td class="code"><pre><span class="line">&#123;</span>
+<span class="line">  <span class="string">"alg"</span>: <span class="string">"HS256"</span>,</span>
+<span class="line">  <span class="string">"typ"</span>: <span class="string">"JWT"</span></span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>然后，这个JSON被Base64Url编码，形成JWT的第一部分。</p>
+<h3 id="Payload"><a href="#Payload" class="headerlink" title="Payload"></a>Payload</h3><p>令牌的第二部分是包含声明的有效负载。 声明是关于实体（通常是用户）和其它元数据的声明。 有三种类型的claim：注册的claim，公开的claim和私有的claim。</p>
+<ul>
+<li>已登记的claims：这些是一组预先定义的claims，这些claims不是强制性的，但建议提供一套有用的，可互操作的claims。 其中一些是：iss（发行者），exp（到期时间），sub（主题），aud（受众）等。</li>
+</ul>
+<blockquote>
+<p>Notice that the claim names are only three characters long as JWT is meant to be compact.</p>
+</blockquote>
+<ul>
+<li>公共的claims: 这些可以由使用JWT的人员随意定义。 但为避免冲突，应在<a href="https://www.iana.org/assignments/jwt/jwt.xhtml" target="_blank" rel="external">IANA JSON Web令牌注册表</a>中定义它们，或将其定义为包含防冲突命名空间的URI。</li>
+<li>私有的claims: 这些是为了同意使用它们并且既没有登记也没有公开声明的各方之间共享信息而创建的定制声明。</li>
+</ul>
+<p>一个有效的负载可以是:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line">&#123;</span>
+<span class="line">  &quot;sub&quot;: &quot;1234567890&quot;,</span>
+<span class="line">  &quot;name&quot;: &quot;John Doe&quot;,</span>
+<span class="line">  &quot;admin&quot;: true</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>然后将有效载荷Base64Url进行编码以形成JSON Web令牌的第二部分。</p>
+<blockquote>
+<p>请注意，对于已签名的令牌，此信息尽管受到篡改保护，但任何人都可以阅读。 除非加密，否则不要将关键信息放在JWT的payload或header中。</p>
+</blockquote>
+<h4 id="签名"><a href="#签名" class="headerlink" title="签名"></a>签名</h4><p>要创建签名部分，你必须拥用已经编码的header，编码的有效载荷，秘钥，header中指定的算法并签名。</p>
+<p>例如，如果你想使用HMAC SHA256算法，签名将按照以下方式创建：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">HMACSHA256(base64UrlEncode(header) + &quot;.&quot; + base64UrlEncode(payload), secret)</span>
+</pre></td></tr></table></figure>
+<p>该签名用于验证消息在一路上没有改变，并且在使用私钥签名的令牌的情况下，它还可以验证JWT的发件人是谁说的。</p>
+<h4 id="组合起来"><a href="#组合起来" class="headerlink" title="组合起来"></a>组合起来</h4><p>输出是三个由<code>.</code>号分隔的Base64-URL字符串，可以在HTML和HTTP环境中轻松传递，而与基于XML的标准（如SAML）相比，它更加紧凑。</p>
+<p>以下显示了一个JWT，它具有签名通过编码的header和有效负载，并且使用秘钥进行签名。</p>
+<img src="/2018/05/22/json-web-token/encoded-jwt3.png" alt="encoded-jwt3.png" title="">
+<p>如果你想要使用JWT并将这些概念付诸实践，则可以使用<a href="https://link.jianshu.com/?t=https://jwt.io/#debugger-io" target="_blank" rel="external">jwt.io调试器</a>来解码，验证和生成JWT。</p>
+<h3 id="JWT-如何工作"><a href="#JWT-如何工作" class="headerlink" title="JWT 如何工作"></a>JWT 如何工作</h3><p>在认证场景中，相较于传统的模式(在服务端生成会话并返回一个cookie)，当用户使用他们的凭据成功登录以后，一个JSON Web Token将会被返回，该令牌必须被保存在本地(典型的场景是保存在本地存储中，不过cookie也常常用来保存这一类信息)。</p>
+<p>无论何时，当用户想要访问一个受保护的资源，他必须将JWT发送到服务端，典型的发送方式是通过 Authorization 请求头字段，并指定 Bearer 模式。请求头的内容看起来会像下面这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">Authorization: Bearer &lt;token&gt;</span>
+</pre></td></tr></table></figure>
+<p>这是一个无状态的认证机制，用户信息永远也不会保存在服务器的内存中。服务器受保护的路由会检查通过Authorization头传递的令牌是否是一个正确的令牌，如果检查通过，用户将被允许访问受保护的资源。由于JWT是自包含的，所有必要的信息都包含在令牌中，进而减少了查询数据库所需要的时间。</p>
+<p>正因为如此，JWT允许你的服务完全依赖于无状态的数据接口。它不关心你的APIs寄宿在哪个域名之下，因此跨域访问(CORS)将不会成为一个问题(使用cookie就不行)</p>
+<p>下面的图表展示了整个处理流程</p>
+<img src="/2018/05/22/json-web-token/jwt-diagram.png" alt="jwt-diagram.png" title="">
+<h3 id="安全总结"><a href="#安全总结" class="headerlink" title="安全总结"></a>安全总结</h3><ol>
+<li>预防XSS可以通过cookie存储JWT， http-only, secure</li>
+<li>预防CSRF可以通过给请求添加CSRF token， 该token可以放在WebStorage中。如此，攻击者网站不能获取该token。</li>
+</ol>
+<p>当然了，如果攻击者第一步通过XSS获取了CSRF token，第二步通过CSRF攻击，则漏洞还是存在的。单此种情况发生的概率能小一点。只能通过缩短token的时间，尽力防止攻击。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://mozillazg.com/2015/06/hello-jwt.html" target="_blank" rel="external">hello-jwt</a><br><a href="https://stormpath.com/blog/where-to-store-your-jwts-cookies-vs-html5-web-storage/" target="_blank" rel="external">where-to-store-your-jwts-cookies-vs-html5-web-storage</a><br><a href="https://stormpath.com/blog/jwt-the-right-way/" target="_blank" rel="external">jwt-the-right-way</a><br><a href="https://auth0.com/blog/2014/01/27/ten-things-you-should-know-about-tokens-and-cookies/" target="_blank" rel="external">ten-things-you-should-know-about-tokens-and-cookies</a><br><a href="http://stackoverflow.com/questions/27067251/where-to-store-jwt-in-browser-how-to-protect-against-csrf" target="_blank" rel="external">where-to-store-jwt-in-browser-how-to-protect-against-csrf</a><br><a href="http://hippoom.github.io/blogs/stoping-using-jwt-for-sessions.html" target="_blank" rel="external">别再使用JWT</a><br><a href="https://bbs.huaweicloud.com/blogs/06607ea7b53211e7b8317ca23e93a891" target="_blank" rel="external">基于JWT的Token认证机制及安全问题</a><br><a href="https://x-team.com/blog/my-experience-with-json-web-tokens/" target="_blank" rel="external">My Experience with JSON Web Tokens</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;What-is-JSON-Web-Token&quot;&gt;&lt;a href=&quot;#What-is-JSON-Web-Token&quot; class=&quot;headerlink&quot; title=&quot;What is JSON Web Token?&quot;&gt;&lt;/a&gt;What is JSON Web Token?&lt;/h3&gt;&lt;p&gt;JSON Web Token（JWT）是一个开放式标准（&lt;a href=&quot;https://tools.ietf.org/html/rfc7519&quot;&gt;RFC 7519&lt;/a&gt;），它定义了一种紧凑且自包含的方式，用于在各方之间以JSON对象安全的传输信息。 这些信息可以通过数字签名进行验证和信任。 JWT可以使用一个秘钥（HMAC签名算法）或使用RSA的公钥/私钥对对JWT进行签名。&lt;/p&gt;
+&lt;p&gt;虽然JWT可以加密以提供各方之间数据传递的保密性，但我们将重点关注已签名的令牌。 签名的令牌可以验证其中包含的信息的完整性，而加密令牌隐藏来自其他方的信息。 当令牌使用公钥/私钥对进行签名时，签名还证明只有持有私钥的方是签名方。&lt;/p&gt;
+&lt;p&gt;下面深入了解下JWT中的概念&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;紧凑: 因为JWT的大小比较小，因为它可以通过URL, POST参数 或者HTTP请求头来进行传递。从另一方面来说说，因为它小，所以传递速度也比较快（占用带宽小）。&lt;/li&gt;
+&lt;li&gt;自包含: JWT的负载包含了该用户所需的所有信息，从而避免了对DB的多次查询。&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="web" scheme="https://leokongwq.github.io/categories/web/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>ActiveMQ 消息重发策略</title>
+    <link href="https://leokongwq.github.io/2018/05/19/activemq-redelivery-policy-config.html"/>
+    <id>https://leokongwq.github.io/2018/05/19/activemq-redelivery-policy-config.html</id>
+    <published>2018-05-19T01:24:28.000Z</published>
+    <updated>2018-05-19T02:21:05.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在使用ActiveMQ时，配置了消息重发策略。 但因为对配置项的理解不够深刻，导致虽然消息重新被投递了，单因为时间间隔太小，最终被放入DLQ中。</p>
+<blockquote>
+<p>注意： 我使用的ActiveMQ版本是5.8</p>
+</blockquote>
+<h3 id="错误配置"><a href="#错误配置" class="headerlink" title="错误配置"></a>错误配置</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+</pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span>
+<span class="line"><span class="function"><span class="keyword">public</span> RedeliveryPolicy <span class="title">redeliveryPolicy</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">   RedeliveryPolicy redeliveryPolicy = <span class="keyword">new</span> RedeliveryPolicy();</span>
+<span class="line">   <span class="comment">//是否在每次尝试重新发送失败后,增长这个等待时间</span></span>
+<span class="line">   redeliveryPolicy.setUseExponentialBackOff(<span class="keyword">true</span>);</span>
+<span class="line">   <span class="comment">//重发次数,默认为6次   这里设置为10次</span></span>
+<span class="line">   redeliveryPolicy.setMaximumRedeliveries(<span class="number">10</span>);</span>
+<span class="line">   <span class="comment">//重发时间间隔,默认为1秒</span></span>
+<span class="line">   redeliveryPolicy.setInitialRedeliveryDelay(<span class="number">1</span>);</span>
+<span class="line">   <span class="comment">//第一次失败后重新发送之前等待1秒,第二次失败再等待1 * 2秒,这里的2就是value</span></span>
+<span class="line">   redeliveryPolicy.setBackOffMultiplier(<span class="number">2</span>);</span>
+<span class="line">   <span class="comment">//是否避免消息碰撞</span></span>
+<span class="line">   redeliveryPolicy.setUseCollisionAvoidance(<span class="keyword">false</span>);</span>
+<span class="line">   <span class="comment">//设置重发最大拖延时间-1 表示没有拖延只有UseExponentialBackOff(true)为true时生效</span></span>
+<span class="line">   redeliveryPolicy.setMaximumRedeliveryDelay(-<span class="number">1</span>);</span>
+<span class="line">   <span class="keyword">return</span> redeliveryPolicy;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<p>上面配置有如下问题：</p>
+<ol>
+<li>第一次投递延时<code>(initialRedeliveryDelay)</code>为1毫秒, 而不是注释里面说的1秒。这是第一个致命错误</li>
+<li>最大重投次数<code>(maximumRedeliveries)</code> 为10。 加上第一个配置，导致短时间内消息被重新投递多次，一般来说消费者肯定不能成功消费的。因此会导致消息被放入DLQ中，业务丢失了消息。<br>这是第二个错误，重投次数有点小。对于非常重要的消息，可以适当调大该配置值。</li>
+<li>是否启用重投时延指数增长策略<code>(useExponentialBackOff) 默认是false</code>。如何理解呢？ActiveMQ 会在延迟<code>initialRedeliveryDelay</code> 指定的时间后发起<strong>第一次</strong>重新投递，之后根据是否设置了<code>useExponentialBackOff=true</code>来判断是否需要递增每次投递的时延。如果设置了<code>useExponentialBackOff=true</code>，那么每次重新投递的时间会延迟<code>redeliveryDelay * backOffMultiplier</code></li>
+</ol>
+<p>由此可以退出每次消息重新投递的延时为：</p>
+<table>
+<thead>
+<tr>
+<th>次数</th>
+<th>延时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1毫秒</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2 毫秒</td>
+</tr>
+<tr>
+<td>3</td>
+<td>4 毫秒</td>
+</tr>
+<tr>
+<td>4</td>
+<td>8 毫秒</td>
+</tr>
+<tr>
+<td>5</td>
+<td>16 毫秒</td>
+</tr>
+<tr>
+<td>6</td>
+<td>32 毫秒</td>
+</tr>
+<tr>
+<td>7</td>
+<td>64 毫秒</td>
+</tr>
+<tr>
+<td>8</td>
+<td>128 毫秒</td>
+</tr>
+<tr>
+<td>9</td>
+<td>256 毫秒</td>
+</tr>
+<tr>
+<td>10</td>
+<td>512 毫秒</td>
+</tr>
+</tbody>
+</table>
+<p>从上表可以看出，完全没有达到需要的效果。痛定思痛，翻看官方文档和源代码，将ActiveMQ消息重复策略总结如下：</p>
+<h3 id="消息重发时机"><a href="#消息重发时机" class="headerlink" title="消息重发时机"></a>消息重发时机</h3><p>1．在使用事务的Session中，调用rollback()方法；<br>2．在使用事务的Session中，调用commit()方法之前就关闭了Session;<br>3．在Session中使用CLIENT_ACKNOWLEDGE签收模式，并且调用了<code>recover()</code>方法。</p>
+<p>可以通过设置<code>ActiveMQConnectionFactory</code>和<code>ActiveMQConnection</code>来定制想要的再次传送策略。</p>
+<h3 id="消息重发配置项"><a href="#消息重发配置项" class="headerlink" title="消息重发配置项"></a>消息重发配置项</h3><h4 id="collisionAvoidanceFactor"><a href="#collisionAvoidanceFactor" class="headerlink" title="collisionAvoidanceFactor"></a>collisionAvoidanceFactor</h4><p>默认值 0.15     </p>
+<p>设置防止冲突范围的正负百分比，只有启用useCollisionAvoidance参数时才生效。</p>
+<h4 id="maximumRedeliveries"><a href="#maximumRedeliveries" class="headerlink" title="maximumRedeliveries"></a>maximumRedeliveries</h4><p>默认值：6</p>
+<p>最大重传次数。 达到最大重连次数后抛出异常。为-1时不限制次数，为0时表示不进行重传。</p>
+<h4 id="maximumRedeliveryDelay"><a href="#maximumRedeliveryDelay" class="headerlink" title="maximumRedeliveryDelay"></a>maximumRedeliveryDelay</h4><p>默认值 -1    </p>
+<p>最大传送延迟，只在useExponentialBackOff为true时有效（V5.5），假设首次重连间隔为10ms，倍数为2，那么第二次重连时间间隔为 20ms，第三次重连时间间隔为40ms，当重连时间间隔大的最大重连时间间隔时，以后每次重连时间间隔都为最大重连时间间隔。</p>
+<h4 id="initialRedeliveryDelay"><a href="#initialRedeliveryDelay" class="headerlink" title="initialRedeliveryDelay"></a>initialRedeliveryDelay</h4><p>默认值 1000L     </p>
+<p>初始重发延迟时间</p>
+<h4 id="redeliveryDelay"><a href="#redeliveryDelay" class="headerlink" title="redeliveryDelay"></a>redeliveryDelay</h4><p>默认值：1000L     </p>
+<p>重发延迟时间，当initialRedeliveryDelay=0时生效（v5.4）</p>
+<h4 id="useCollisionAvoidance"><a href="#useCollisionAvoidance" class="headerlink" title="useCollisionAvoidance"></a>useCollisionAvoidance</h4><p>默认值 false     </p>
+<p>启用防止冲突功能，因为消息接收时是可以使用多线程并发处理的，应该是为了重发的安全性，避开所有并发线程都在同一个时间点进行消息接收处理。所有线程在同一个时间点处理时会发生什么问题呢？应该没有问题，只是为了平衡broker处理性能，不会有时很忙，有时很空闲。</p>
+<h4 id="useExponentialBackOff"><a href="#useExponentialBackOff" class="headerlink" title="useExponentialBackOff"></a>useExponentialBackOff</h4><p>默认值 false          </p>
+<p>启用指数倍数递增的方式增加延迟时间。</p>
+<h4 id="backOffMultiplier"><a href="#backOffMultiplier" class="headerlink" title="backOffMultiplier"></a>backOffMultiplier</h4><p>默认值 5    </p>
+<p>重连时间间隔递增倍数，只有值大于1和启用<code>useExponentialBackOff</code>参数时才生效。</p>
+<h3 id="重发源码分析"><a href="#重发源码分析" class="headerlink" title="重发源码分析"></a>重发源码分析</h3><h4 id="重发时机"><a href="#重发时机" class="headerlink" title="重发时机"></a>重发时机</h4><figure class="highlight java"><figcaption><span>ActiveMQMessageConsumer.rollback</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="keyword">int</span> currentRedeliveryCount = lastMd.getMessage().getRedeliveryCounter();</span>
+<span class="line"> <span class="keyword">if</span> (currentRedeliveryCount &gt; <span class="number">0</span>) &#123;</span>
+<span class="line">     <span class="comment">// 获取下次被重新投递的延迟时间</span></span>
+<span class="line">     redeliveryDelay = redeliveryPolicy.getNextRedeliveryDelay(redeliveryDelay);</span>
+<span class="line"> &#125; <span class="keyword">else</span> &#123;</span>
+<span class="line">     <span class="comment">//  第一被重新投递的延迟时间 </span></span>
+<span class="line">     redeliveryDelay = redeliveryPolicy.getInitialRedeliveryDelay();</span>
+<span class="line"> &#125;</span>
+<span class="line"> <span class="comment">// 当前消息被重新投递的此时大于配置的值，此时消息会被发送到DLQ</span></span>
+<span class="line"> <span class="keyword">if</span> (redeliveryPolicy.getMaximumRedeliveries() != RedeliveryPolicy.NO_MAXIMUM_REDELIVERIES</span>
+<span class="line">                    &amp;&amp; lastMd.getMessage().getRedeliveryCounter() &gt; redeliveryPolicy.getMaximumRedeliveries()) &#123;</span>
+<span class="line"><span class="comment">// We need to NACK the messages so that they get sent to the</span></span>
+<span class="line"><span class="comment">// DLQ.</span></span>
+<span class="line"><span class="comment">// Acknowledge the last message.</span></span>
+<span class="line"></span>
+<span class="line">MessageAck ack = <span class="keyword">new</span> MessageAck(lastMd, MessageAck.POSION_ACK_TYPE, deliveredMessages.size());</span>
+<span class="line"> &#125; <span class="keyword">else</span> &#123;</span>
+<span class="line">     <span class="comment">// only redelivery_ack after first delivery</span></span>
+<span class="line">     <span class="keyword">if</span> (currentRedeliveryCount &gt; <span class="number">0</span>) &#123;</span>
+<span class="line">         MessageAck ack = <span class="keyword">new</span> MessageAck(lastMd, MessageAck.REDELIVERED_ACK_TYPE, deliveredMessages.size());</span>
+<span class="line">         ack.setFirstMessageId(firstMsgId);</span>
+<span class="line">         session.sendAck(ack,<span class="keyword">true</span>);</span>
+<span class="line">     &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h4 id="重新投递的延迟时间计算"><a href="#重新投递的延迟时间计算" class="headerlink" title="重新投递的延迟时间计算"></a>重新投递的延迟时间计算</h4><figure class="highlight java"><figcaption><span>RedeliveryPolicy.getNextRedeliveryDelay</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getNextRedeliveryDelay</span><span class="params">(<span class="keyword">long</span> previousDelay)</span> </span>&#123;</span>
+<span class="line">   <span class="keyword">long</span> nextDelay = redeliveryDelay;</span>
+<span class="line">   <span class="comment">//启用了 指数级延迟时间递增策略</span></span>
+<span class="line">   <span class="keyword">if</span> (previousDelay &gt; <span class="number">0</span> &amp;&amp; useExponentialBackOff &amp;&amp; backOffMultiplier &gt; <span class="number">1</span>) &#123;</span>
+<span class="line">       nextDelay = (<span class="keyword">long</span>) (previousDelay * backOffMultiplier);</span>
+<span class="line">       <span class="keyword">if</span>(maximumRedeliveryDelay != -<span class="number">1</span> &amp;&amp; nextDelay &gt; maximumRedeliveryDelay) &#123;</span>
+<span class="line">           <span class="comment">// in case the user made max redelivery delay less than redelivery delay for some reason.</span></span>
+<span class="line">           nextDelay = Math.max(maximumRedeliveryDelay, redeliveryDelay);</span>
+<span class="line">       &#125;</span>
+<span class="line">   &#125;</span>
+<span class="line">   <span class="comment">//  启用防止冲突功能, 计算一个随机的延迟时间</span></span>
+<span class="line">   <span class="keyword">if</span> (useCollisionAvoidance) &#123;</span>
+<span class="line">       <span class="comment">/*</span>
+<span class="line">        * First random determines +/-, second random determines how far to</span>
+<span class="line">        * go in that direction. -cgs</span>
+<span class="line">        */</span></span>
+<span class="line">       Random random = getRandomNumberGenerator();</span>
+<span class="line">       <span class="keyword">double</span> variance = (random.nextBoolean() ? collisionAvoidanceFactor : -collisionAvoidanceFactor) * random.nextDouble();</span>
+<span class="line">       nextDelay += nextDelay * variance;</span>
+<span class="line">   &#125;</span>
+<span class="line">   <span class="comment">//每次重新投递的延迟时间是固定的 </span></span>
+<span class="line">   <span class="keyword">return</span> nextDelay;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="http://activemq.apache.org/redelivery-policy.html" target="_blank" rel="external">http://activemq.apache.org/redelivery-policy.html</a></p>
+<p><a href="http://activemq.apache.org/message-redelivery-and-dlq-handling.html" target="_blank" rel="external">http://activemq.apache.org/message-redelivery-and-dlq-handling.html</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;在使用ActiveMQ时，配置了消息重发策略。 但因为对配置项的理解不够深刻，导致虽然消息重新被投递了，单因为时间间隔太小，最终被放入DLQ中。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;注意： 我使用的ActiveMQ版本是5.8&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;错误配置&quot;&gt;&lt;a href=&quot;#错误配置&quot; class=&quot;headerlink&quot; title=&quot;错误配置&quot;&gt;&lt;/a&gt;错误配置&lt;/h3&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;@Bean&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; RedeliveryPolicy &lt;span class=&quot;title&quot;&gt;redeliveryPolicy&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;   RedeliveryPolicy redeliveryPolicy = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; RedeliveryPolicy();&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;   &lt;span class=&quot;comment&quot;&gt;//是否在每次尝试重新发送失败后,增长这个等待时间&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;   redeliveryPolicy.setUseExponentialBackOff(&lt;span class=&quot;keyword&quot;&gt;true&lt;/span&gt;);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;   &lt;span class=&quot;comment&quot;&gt;//重发次数,默认为6次   这里设置为10次&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;   redeliveryPolicy.setMaximumRedeliveries(&lt;span class=&quot;number&quot;&gt;10&lt;/span&gt;);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;   &lt;span class=&quot;comment&quot;&gt;//重发时间间隔,默认为1秒&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;   redeliveryPolicy.setInitialRedeliveryDelay(&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;   &lt;span class=&quot;comment&quot;&gt;//第一次失败后重新发送之前等待1秒,第二次失败再等待1 * 2秒,这里的2就是value&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;   redeliveryPolicy.setBackOffMultiplier(&lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;   &lt;span class=&quot;comment&quot;&gt;//是否避免消息碰撞&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;   redeliveryPolicy.setUseCollisionAvoidance(&lt;span class=&quot;keyword&quot;&gt;false&lt;/span&gt;);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;   &lt;span class=&quot;comment&quot;&gt;//设置重发最大拖延时间-1 表示没有拖延只有UseExponentialBackOff(true)为true时生效&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;   redeliveryPolicy.setMaximumRedeliveryDelay(-&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;   &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; redeliveryPolicy;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+      <category term="web" scheme="https://leokongwq.github.io/categories/web/"/>
+    
+    
+      <category term="ActiveMQ" scheme="https://leokongwq.github.io/tags/ActiveMQ/"/>
+    
+  </entry>
   
   <entry>
     <title>REST API 版本化</title>
@@ -5305,602 +5692,6 @@
     
     
       <category term="consul" scheme="https://leokongwq.github.io/tags/consul/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>consul快速启动</title>
-    <link href="https://leokongwq.github.io/2017/12/31/consul-quick-start.html"/>
-    <id>https://leokongwq.github.io/2017/12/31/consul-quick-start.html</id>
-    <published>2017-12-31T01:25:12.000Z</published>
-    <updated>2017-12-31T12:50:31.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>该文章翻译自 <a href="https://www.consul.io/intro/index.html" target="_blank" rel="external">https://www.consul.io/intro/index.html</a></p>
-<p>这篇文章的目标是对Consul进行一个简单的介绍。包括Consul是什么，它解决了什么问题，它有哪些功能。通过这篇文章能让你对Consul能有一个大致的了解，和基本的使用。</p>
-<h3 id="What-is-Consul"><a href="#What-is-Consul" class="headerlink" title="What is Consul?"></a>What is Consul?</h3><hr>
-<p>Consul 有许多组件，但是作为一个整理来看，它为你的基础设施提供了服务发现和统一配置功能。它提供如下的主要的功能：</p>
-<a id="more"></a>
-<ul>
-<li>服务发现: Consul 的客户端可以在Consul上注册服务，如 API 或 mysql。并且其它的客户端可以通过Consul来发现这些服务。通过 DNS 或 HTTP接口，应用程序可以很容易的发现它们依赖的服务。</li>
-<li>健康检查: Consul客户端可以提供任何数量的健康检查，或者与给定的服务相关联（“Web服务器返回200 OK”），或者与本地节点（“内存利用率低于90％”）相关联。 操作员可以使用此信息来监视群集运行状况，服务发现组件使用此信息将流量从不健康的主机中引导出去。</li>
-<li>KV 存储: 应用可以通过使用Consul提供的具有继承结构的 <code>Key/Value</code> 存储来实现任何需要的功能，包括动态配置， 特征标记，协调，领导选举等等。 Consul提供了简单的HTTP API是该功能非常容易使用。</li>
-<li>多数据中心: Consul支持多个数据中心。 这意味着Consul的用户不必担心构建额外的抽象层以扩展到多个区域。</li>
-</ul>
-<p>Consul设计的目标是对DevOps社区和应用程序开发人员友好，使其成为现代化，弹性基础架构的完美选择。</p>
-<h3 id="Basic-Architecture-of-Consul"><a href="#Basic-Architecture-of-Consul" class="headerlink" title="Basic Architecture of Consul"></a>Basic Architecture of Consul</h3><hr>
-<p>Consul是一个分布式，高可用的系统。本节将介绍基础知识，故意省略一些不必要的细节，以便你快速了解Consul的工作原理。有关更多详细信息，请参阅<a href="https://www.consul.io/docs/internals/architecture.html" target="_blank" rel="external">深入了解Consul架构细节</a>。</p>
-<p>向Consul提供服务的每个节点都运行一个Consul Agent。运行一个Consul代理不是用来发现其他服务或操作键值对数据。不需要运行代理。该代理的目的是负责对该结点提供的服务和其本身进行健康检查。</p>
-<p>该Consul Agent与一个或多个Consul Server进行通信。Consul Server是数据存储和复制的地方。服务器自己选出一位Leader。虽然Consul可以在一台服务器上运行，但建议部署3个或5个结点，以避免数据丢失故障的发生。每个数据中心都建议使用一组Consul服务器。</p>
-<p>需要发现其它服务或节点的基础架构组件可以查询任何Consul服务器或任何Consul代理。代理自动将查询转发到服务器。</p>
-<p>每个数据中心都运行Consul服务器集群。当发生跨数据中心服务发现或配置请求时，本地Consul服务器将请求转发到远程数据中心并返回结果。</p>
-<h3 id="Installing-Consul"><a href="#Installing-Consul" class="headerlink" title="Installing Consul"></a>Installing Consul</h3><hr>
-<p>安装Consul非常简单。<a href="https://www.consul.io/downloads.html" target="_blank" rel="external">下载</a>目标平台的安装文件，解压或安装到指定目录，并添加到系统PATH中就可以了。</p>
-<h4 id="Verifying-the-Installation"><a href="#Verifying-the-Installation" class="headerlink" title="Verifying the Installation"></a>Verifying the Installation</h4><p>安装完Consul收，在命令行执行<code>consul</code>，如果有如下的输出，则表示consul安装成功了。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-</pre></td><td class="code"><pre><span class="line">$ consul</span>
-<span class="line">usage: consul [--version] [--help] &lt;command&gt; [&lt;args&gt;]</span>
-<span class="line"></span>
-<span class="line">Available commands are:</span>
-<span class="line">    agent          Runs a Consul agent</span>
-<span class="line">    event          Fire a new event</span>
-<span class="line"></span>
-<span class="line"># ...</span>
-</pre></td></tr></table></figure>
-<h3 id="Run-the-Consul-Agent"><a href="#Run-the-Consul-Agent" class="headerlink" title="Run the Consul Agent"></a>Run the Consul Agent</h3><p>For more detail on bootstrapping a datacenter, see this guide.</p>
-<p>Consul安装完成后，必须启动Consul Agent。该agent可以允许在<code>Server</code>模式和<code>Client</code>模式。 每一个数据中心至少需要一个Server，但是推荐一个Consul集群至少包含3个或5个Consul Server结点。只有一个Consul Server结点是不推荐的，因为很可能丢失数据，在开发环境可以这么做。</p>
-<p>所有其它的agent运行在client模式。 一个client模式的agent是一个非常轻量级的进程，它会注册服务，执行监控检测，并将请求转发到Server。组成集群的每个结点都必须运行一个agent。</p>
-<p>在一个数据中心搭建Consul集群可以参考<a href="https://www.consul.io/docs/guides/bootstrapping.html" target="_blank" rel="external">https://www.consul.io/docs/guides/bootstrapping.html</a></p>
-<h4 id="Starting-the-Agent"><a href="#Starting-the-Agent" class="headerlink" title="Starting the Agent"></a>Starting the Agent</h4><hr>
-<p>为了简单起见，我们现在将以开发模式启动Consul agent。 这种模式对于快速简单地启动单节点Consul环境非常有用。 它并不打算在生产中使用，因为它不会持续任何状态。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-<span class="line">22</span>
-<span class="line">23</span>
-<span class="line">24</span>
-<span class="line">25</span>
-<span class="line">26</span>
-<span class="line">27</span>
-<span class="line">28</span>
-<span class="line">29</span>
-<span class="line">30</span>
-<span class="line">31</span>
-<span class="line">32</span>
-<span class="line">33</span>
-<span class="line">34</span>
-<span class="line">35</span>
-<span class="line">36</span>
-<span class="line">37</span>
-<span class="line">38</span>
-<span class="line">39</span>
-<span class="line">40</span>
-<span class="line">41</span>
-<span class="line">42</span>
-<span class="line">43</span>
-<span class="line">44</span>
-<span class="line">45</span>
-<span class="line">46</span>
-<span class="line">47</span>
-<span class="line">48</span>
-</pre></td><td class="code"><pre><span class="line">-$ consul agent -dev</span>
-<span class="line">==&gt; Starting Consul agent...</span>
-<span class="line">==&gt; Starting Consul agent RPC...</span>
-<span class="line">==&gt; Consul agent running!</span>
-<span class="line">           Version: &apos;v0.7.0&apos;</span>
-<span class="line">         Node name: &apos;Armons-MacBook-Air&apos;</span>
-<span class="line">        Datacenter: &apos;dc1&apos;</span>
-<span class="line">            Server: true (bootstrap: false)</span>
-<span class="line">       Client Addr: 127.0.0.1 (HTTP: 8500, HTTPS: -1, DNS: 8600, RPC: 8400)</span>
-<span class="line">      Cluster Addr: 127.0.0.1 (LAN: 8301, WAN: 8302)</span>
-<span class="line">    Gossip encrypt: false, RPC-TLS: false, TLS-Incoming: false</span>
-<span class="line">             Atlas: &lt;disabled&gt;</span>
-<span class="line"></span>
-<span class="line">==&gt; Log data will now stream in as it occurs:</span>
-<span class="line"></span>
-<span class="line">2016/09/15 10:21:10 [INFO] raft: Initial configuration (index=1): [&#123;Suffrage:Voter ID:127.0.0.1:8300 Address:127.0.0.1:8300&#125;]</span>
-<span class="line">2016/09/15 10:21:10 [INFO] raft: Node at 127.0.0.1:8300 [Follower] entering Follower state (Leader: &quot;&quot;)</span>
-<span class="line">2016/09/15 10:21:10 [INFO] serf: EventMemberJoin: Armons-MacBook-Air 127.0.0.1</span>
-<span class="line">2016/09/15 10:21:10 [INFO] serf: EventMemberJoin: Armons-MacBook-Air.dc1 127.0.0.1</span>
-<span class="line">2016/09/15 10:21:10 [INFO] consul: Adding LAN server Armons-MacBook-Air (Addr: tcp/127.0.0.1:8300) (DC: dc1)</span>
-<span class="line">2016/09/15 10:21:10 [INFO] consul: Adding WAN server Armons-MacBook-Air.dc1 (Addr: tcp/127.0.0.1:8300) (DC: dc1)</span>
-<span class="line">2016/09/15 10:21:13 [DEBUG] http: Request GET /v1/agent/services (180.708µs) from=127.0.0.1:52369</span>
-<span class="line">2016/09/15 10:21:13 [DEBUG] http: Request GET /v1/agent/services (15.548µs) from=127.0.0.1:52369</span>
-<span class="line">2016/09/15 10:21:17 [WARN] raft: Heartbeat timeout from &quot;&quot; reached, starting election</span>
-<span class="line">2016/09/15 10:21:17 [INFO] raft: Node at 127.0.0.1:8300 [Candidate] entering Candidate state in term 2</span>
-<span class="line">2016/09/15 10:21:17 [DEBUG] raft: Votes needed: 1</span>
-<span class="line">2016/09/15 10:21:17 [DEBUG] raft: Vote granted from 127.0.0.1:8300 in term 2. Tally: 1</span>
-<span class="line">2016/09/15 10:21:17 [INFO] raft: Election won. Tally: 1</span>
-<span class="line">2016/09/15 10:21:17 [INFO] raft: Node at 127.0.0.1:8300 [Leader] entering Leader state</span>
-<span class="line">2016/09/15 10:21:17 [INFO] consul: cluster leadership acquired</span>
-<span class="line">2016/09/15 10:21:17 [DEBUG] consul: reset tombstone GC to index 3</span>
-<span class="line">2016/09/15 10:21:17 [INFO] consul: New leader elected: Armons-MacBook-Air</span>
-<span class="line">2016/09/15 10:21:17 [INFO] consul: member &apos;Armons-MacBook-Air&apos; joined, marking health alive</span>
-<span class="line">2016/09/15 10:21:17 [INFO] agent: Synced service &apos;consul&apos;</span>
-<span class="line">```    </span>
-<span class="line"></span>
-<span class="line">如你所见， Consul agent已经启动了并输出一些日志数据。从日志数据可以知道该agent运行在`Server`模式并且是整个集群的Leader。此外，本地成员被标记为集群中的监控结点。</span>
-<span class="line"></span>
-<span class="line">&gt; Note for OS X Users: Consul uses your hostname as the default node name. If your hostname contains periods, DNS queries to that node will not work with Consul. To avoid this, explicitly set the name of your node with the -node flag.</span>
-<span class="line"></span>
-<span class="line">### Cluster Members</span>
-<span class="line"></span>
-<span class="line">在一个终端窗口执行命令：`consul members`，你可以知道Consul集群的所有成员信息。在后面的章节中我们会介绍如何加入集群，但是现在，你只能看到一个结点，那就是你自己。</span>
-<span class="line"></span>
-<span class="line">```shell</span>
-<span class="line">$ consul members</span>
-<span class="line">Node                Address            Status  Type    Build     Protocol  DC</span>
-<span class="line">Armons-MacBook-Air  172.20.20.11:8301  alive   server  0.6.1dev  2         dc1</span>
-</pre></td></tr></table></figure>
-<p>命令<code>consul members</code>的输出显示了我们自己的节点，它正在运行的地址，运行状况，在集群中的角色以及一些版本信息。 额外的元数据可以通过提供<code>-detailed</code>标志来查看。</p>
-<p><code>consul members</code>命令的输出基于<a href="https://www.consul.io/docs/internals/gossip.html" target="_blank" rel="external">gossip协议</a>，并且是最终一致的。 也就是说，在任何时候，本地agent所看到的数据可能与服务器上的状态不完全一致。 要获得一致的数据，可以通过HTTP API 查询 Consul Server结点。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line">$ curl localhost:8500/v1/catalog/nodes</span>
-<span class="line">[&#123;&quot;Node&quot;:&quot;Armons-MacBook-Air&quot;,&quot;Address&quot;:&quot;127.0.0.1&quot;,&quot;TaggedAddresses&quot;:&#123;&quot;lan&quot;:&quot;127.0.0.1&quot;,&quot;wan&quot;:&quot;127.0.0.1&quot;&#125;,&quot;CreateIndex&quot;:4,&quot;ModifyIndex&quot;:110&#125;]</span>
-</pre></td></tr></table></figure>
-<p>除了HTTP API， 也可以通过DNS接口来查询结点的信息。但需要注意的是你的查询需要指定Consul的DNS服务器信息（默认端口是8600）。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-</pre></td><td class="code"><pre><span class="line">$ dig @127.0.0.1 -p 8600 Armons-MacBook-Air.node.consul</span>
-<span class="line">...</span>
-<span class="line"></span>
-<span class="line">;; QUESTION SECTION:</span>
-<span class="line">;Armons-MacBook-Air.node.consul.    IN  A</span>
-<span class="line"></span>
-<span class="line">;; ANSWER SECTION:</span>
-<span class="line">Armons-MacBook-Air.node.consul. 0 IN    A   127.0.0.1</span>
-<span class="line">»</span>
-</pre></td></tr></table></figure>
-<h3 id="Stopping-the-Agent"><a href="#Stopping-the-Agent" class="headerlink" title="Stopping the Agent"></a>Stopping the Agent</h3><p>你可以使用<code>Ctrl-C</code>(中断信号)来优雅的关闭agent。在中断agent后，你可以看到该agent已经离开了集群并且处于关闭状态。</p>
-<p>通过优雅地离开，Consul通知其它集群成员该节点离开。 如果你强行杀死了代理进程，则群集的其它成员将检测到该节点失败。 成员离开时，它的服务和检查信息将从<code>catalog</code>中删除。 当一个成员失败时，其健康被简单地标记为关键，但不会从目录中删除。 Consul将自动尝试重新连接到失败的节点，使其能够从特定的网络条件恢复，直到该结点再也联系不到。</p>
-<p>此外，如果一个agent是作为<code>server</code>模式运行，那么优雅的离开是非常重要的，因为这会导致<a href="https://www.consul.io/docs/internals/consensus.html" target="_blank" rel="external">共识协议</a>潜在的不可用。 有关如何安全地添加和删除服务器的详细信息，请参阅<a href="https://www.consul.io/docs/guides/index.html" target="_blank" rel="external">指南</a>部分。</p>
-<h3 id="Registering-Services"><a href="#Registering-Services" class="headerlink" title="Registering Services"></a>Registering Services</h3><h4 id="Defining-a-Service"><a href="#Defining-a-Service" class="headerlink" title="Defining a Service"></a>Defining a Service</h4><hr>
-<p>服务的注册既可以通过提供服务定义，也可以通过调用Consul提供的服务注册HTTP API。</p>
-<p>服务定义是注册服务最常用的方式，因此我们将在这一步中使用该方法。</p>
-<p>首先，为Consul配置创建一个目录。 Consul将所有配置文件加载到配置目录中，因此Unix系统上的一个通用约定是将目录命名为<code>/etc/consul.d</code>（.d后缀意味着“该目录包含一组配置文件”）。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line">$ sudo mkdir /etc/consul.d</span>
-</pre></td></tr></table></figure>
-<p>下面我们创建一个服务定义文件。我们假设一个名为<code>web</code>的服务运行在<code>80</code>端口。此外我们还给该服务指定了一个标签： </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line">$ echo &apos;&#123;&quot;service&quot;: &#123;&quot;name&quot;: &quot;web&quot;, &quot;tags&quot;: [&quot;rails&quot;], &quot;port&quot;: 80&#125;&#125;&apos; | sudo tee /etc/consul.d/web.json</span>
-</pre></td></tr></table></figure>
-<p>现在，我们重启agent，并指定Consul的配置文件目录</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-</pre></td><td class="code"><pre><span class="line">$ consul agent -dev -config-dir=/etc/consul.d</span>
-<span class="line">==&gt; Starting Consul agent...</span>
-<span class="line">...</span>
-<span class="line">    [INFO] agent: Synced service &apos;web&apos;</span>
-<span class="line">...</span>
-</pre></td></tr></table></figure>
-<p>在启动的日志输出中你会看到<code>synced the web service</code>字样。这就意味着该agent从服务定义配置文件中加载了服务定义，并且成功注册到服务的<code>catalog</code>中。</p>
-<p>如果你想要注册多个服务，你可以创建多个服务定义文件在Consul的配置目录中。</p>
-<h3 id="Querying-Services"><a href="#Querying-Services" class="headerlink" title="Querying Services"></a>Querying Services</h3><hr>
-<p>一旦Agent启动并且服务注册成功，我们就可以通过DNS和HTTP API来查询服务信息。</p>
-<h4 id="DNS-API"><a href="#DNS-API" class="headerlink" title="DNS API"></a>DNS API</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-</pre></td><td class="code"><pre><span class="line">$ dig @127.0.0.1 -p 8600 web.service.consul</span>
-<span class="line">...</span>
-<span class="line"></span>
-<span class="line">;; QUESTION SECTION:</span>
-<span class="line">;web.service.consul.        IN  A</span>
-<span class="line"></span>
-<span class="line">;; ANSWER SECTION:</span>
-<span class="line">web.service.consul. 0   IN  A   172.20.20.11</span>
-</pre></td></tr></table></figure>
-<p>如你所见，返回了一个可以用的，带有结点IP地址的记录。 一条记录只能有一个IP地址。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-</pre></td><td class="code"><pre><span class="line">$ dig @127.0.0.1 -p 8600 web.service.consul SRV</span>
-<span class="line">...</span>
-<span class="line"></span>
-<span class="line">;; QUESTION SECTION:</span>
-<span class="line">;web.service.consul.        IN  SRV</span>
-<span class="line"></span>
-<span class="line">;; ANSWER SECTION:</span>
-<span class="line">web.service.consul. 0   IN  SRV 1 1 80 Armons-MacBook-Air.node.dc1.consul.</span>
-<span class="line"></span>
-<span class="line">;; ADDITIONAL SECTION:</span>
-<span class="line">Armons-MacBook-Air.node.dc1.consul. 0 IN A  172.20.20.11</span>
-</pre></td></tr></table></figure>
-<p>也可以通过DNS查询指定标签的服务：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-</pre></td><td class="code"><pre><span class="line">$ dig @127.0.0.1 -p 8600 rails.web.service.consul</span>
-<span class="line">...</span>
-<span class="line"></span>
-<span class="line">;; QUESTION SECTION:</span>
-<span class="line">;rails.web.service.consul.      IN  A</span>
-<span class="line"></span>
-<span class="line">;; ANSWER SECTION:</span>
-<span class="line">rails.web.service.consul.   0   IN  A   172.20.20.11</span>
-</pre></td></tr></table></figure>
-<p><code>rails</code>就是服务<code>web</code>的标签。</p>
-<h4 id="HTTP-API"><a href="#HTTP-API" class="headerlink" title="HTTP API"></a>HTTP API</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-</pre></td><td class="code"><pre><span class="line">$ curl http://localhost:8500/v1/catalog/service/web</span>
-<span class="line">[&#123;&quot;Node&quot;:&quot;Armons-MacBook-Air&quot;,&quot;Address&quot;:&quot;172.20.20.11&quot;,&quot;ServiceID&quot;:&quot;web&quot;, \</span>
-<span class="line">    &quot;ServiceName&quot;:&quot;web&quot;,&quot;ServiceTags&quot;:[&quot;rails&quot;],&quot;ServicePort&quot;:80&#125;]</span>
-</pre></td></tr></table></figure>
-<p>catalog API 给出了指定服务的所有结点信息。就像我们随后看到的健康检查一样，你通常只想查询健康的服务实例。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-</pre></td><td class="code"><pre><span class="line">$ curl &apos;http://localhost:8500/v1/health/service/web?passing&apos;</span>
-<span class="line">[&#123;&quot;Node&quot;:&quot;Armons-MacBook-Air&quot;,&quot;Address&quot;:&quot;172.20.20.11&quot;,&quot;Service&quot;:&#123; \</span>
-<span class="line">    &quot;ID&quot;:&quot;web&quot;, &quot;Service&quot;:&quot;web&quot;, &quot;Tags&quot;:[&quot;rails&quot;],&quot;Port&quot;:80&#125;, &quot;Checks&quot;: ...&#125;]</span>
-</pre></td></tr></table></figure>
-<h3 id="Updating-Services"><a href="#Updating-Services" class="headerlink" title="Updating Services"></a>Updating Services</h3><hr>
-<p>服务定义的修改可以通过修改服务定义文件，并给agent发送<code>SIGHUP</code>信号即可。这样你可以不停机，同时不影响服务查询的情况下修改服务定义。此外，也可以通过HTTP API 来动态添加，删除，修改服务。</p>
-<h3 id="Consul-Cluster"><a href="#Consul-Cluster" class="headerlink" title="Consul Cluster"></a>Consul Cluster</h3><p>我们已经启动了我们第一个agent，并在该agent上进行了服务注册和查询。这表明了Consul的使用是多么的简单，但是没有展示如何基于该agent进行扩展为生产环境级别的服务发现基础设施。该该小节，我们将搭建一个真正的集群。</p>
-<p>当一个agent启动后，它是不知道其它agent的存在的：它自己处于一个隔离的只有一个结点的集群。如果要了解其它节点的信息，则该agent必须加入已有的集群。为了加入已有的集群，它只需要知道已有集群中一个结点的信息即可。加入集群后，它会通过<code>gossip</code>协议快速发现集群中的其它结点。一个 Consul agent 可以加入任何其它的agent，而不仅仅运行在server模式。</p>
-<h4 id="Starting-the-Agents"><a href="#Starting-the-Agents" class="headerlink" title="Starting the Agents"></a>Starting the Agents</h4><p>分别在两台机器上执行下面的命令</p>
-<p>10.13.40.95</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line">agent -server -bootstrap-expect=1 -data-dir=/tmp/consul -node=agent-one -bind=10.13.40.95 -enable-script-checks=true -config-dir=/usr/local/consul/conf</span>
-</pre></td></tr></table></figure>
-<p>10.110.82.169 </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line">agent -server -bootstrap-expect=1 -data-dir=/tmp/consul -node=agent-two -bind=10.110.82.169 -enable-script-checks=true -config-dir=/usr/local/consul/conf</span>
-</pre></td></tr></table></figure>
-<p>到目前为止我们拥有了2个集群，每个集群都只有一个结点。相互之间并不知道彼此的存在。</p>
-<h4 id="Joining-a-Cluster"><a href="#Joining-a-Cluster" class="headerlink" title="Joining a Cluster"></a>Joining a Cluster</h4><hr>
-<p>通过下面的命令来组件集群：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line">/usr/local/consul/bin/consul join 10.110.82.169</span>
-<span class="line">Successfully joined cluster by contacting 1 nodes.</span>
-</pre></td></tr></table></figure>
-<p>通过命令<code>members</code>来检测集群是否搭建成功：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-</pre></td><td class="code"><pre><span class="line">/usr/local/consul/bin/consul members</span>
-<span class="line">Node       Address             Status  Type    Build  Protocol  DC   Segment</span>
-<span class="line">agent-one  10.13.40.95:8301    alive   server  1.0.2  2         dc1  &lt;all&gt;</span>
-<span class="line">agent-two  10.110.82.169:8301  alive   server  1.0.2  2         dc1  &lt;all&gt;</span>
-</pre></td></tr></table></figure>
-<h4 id="Auto-joining-a-Cluster-on-Start"><a href="#Auto-joining-a-Cluster-on-Start" class="headerlink" title="Auto-joining a Cluster on Start"></a>Auto-joining a Cluster on Start</h4><hr>
-<p>Consul facilitates auto-join by enabling the auto-discovery of instances in AWS, Google Cloud or Azure with a given tag key/value. To use the integration, add the retry_join_ec2, retry_join_gce or the retry_join_azure nested object to your Consul configuration file. This will allow a new node to join the cluster without any hardcoded configuration. Alternatively, you can join a cluster at startup using the -join flag or start_join setting with hardcoded addresses of other known Consul agents.</p>
-<p>实践中，当在数据中心启动一个新的Consul结点，它应该自动加入Consul集群而不应该通过人工的方式来加入。</p>
-<h4 id="Querying-Nodes"><a href="#Querying-Nodes" class="headerlink" title="Querying Nodes"></a>Querying Nodes</h4><hr>
-<p>和查询服务一样，Consul提供了API来查询结点的信息，你可以通过DNS和HTTP API来进行查询。</p>
-<p>针对DNS API, 结点的查询命令结构为:<code>NAME.node.consul</code> 或 <code>NAME.node.DATACENTER.consul</code>。如果不知道数据中心信息，那么该查询只会查询本数据中心内的结点。</p>
-<p>例如，在结点<code>agent-one</code>，我们可以查询结点<code>agent-two</code>的信息:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-</pre></td><td class="code"><pre><span class="line">dig @127.0.0.1 -p 8600 agent-two.node.consul</span>
-<span class="line">...</span>
-<span class="line"></span>
-<span class="line">;; QUESTION SECTION:</span>
-<span class="line">;agent-two.node.consul. IN  A</span>
-<span class="line"></span>
-<span class="line">;; ANSWER SECTION:</span>
-<span class="line">agent-two.node.consul.  0 IN    A   172.20.20.11</span>
-</pre></td></tr></table></figure>
-<h4 id="Leaving-a-Cluster"><a href="#Leaving-a-Cluster" class="headerlink" title="Leaving a Cluster"></a>Leaving a Cluster</h4><hr>
-<p>otherwise, other nodes will detect it as having failed. The difference is covered in more detail here.</p>
-<p>退出Consul集群，你可以优雅的退出（<code>Ctrl-C</code>）agent 进程 或 kill agent进程。优雅的退出集群会允许结点慢慢进入离开状态，其它结点也会收到通知信息。虽然其它结点也会检查到离开的结点，但是两者还是有不同的。具体可以参考<a href="https://www.consul.io/intro/getting-started/agent.html#stopping" target="_blank" rel="external">https://www.consul.io/intro/getting-started/agent.html#stopping</a></p>
-<h3 id="Health-Checks"><a href="#Health-Checks" class="headerlink" title="Health Checks"></a>Health Checks</h3><p>我们已经看到了使用Consul时多么的简单，添加集群结点，添加服务，查询结点和服务的信息都很容易。在该小节，我们将继续添加结点和服务的健康检查机制。健康检查是服务发现的关键组件，可以防止使用不健康的服务。</p>
-<h4 id="Defining-Checks"><a href="#Defining-Checks" class="headerlink" title="Defining Checks"></a>Defining Checks</h4><p>Similar to a service, a check can be registered either by providing a check definition or by making the appropriate calls to the HTTP API.</p>
-<p>We will use the check definition approach because, just like with services, definitions are the most common way to set up checks.</p>
-<p>与服务定义类似，可以通过提供<code>检查定义</code>或通过调用对应的HTTP API来注册<code>检查</code>。</p>
-<p>我们将使用<code>检查定义</code>方法，因为就像服务一样，定义是设置检查最常用的方法。</p>
-<p>在Consul的配置文件目录创建2定义文件：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-</pre></td><td class="code"><pre><span class="line">~$ echo &apos;&#123;&quot;check&quot;: &#123;&quot;name&quot;: &quot;ping&quot;,</span>
-<span class="line">  &quot;script&quot;: &quot;ping -c1 google.com &gt;/dev/null&quot;, &quot;interval&quot;: &quot;30s&quot;&#125;&#125;&apos; \</span>
-<span class="line">  &gt;/etc/consul.d/ping.json</span>
-<span class="line"></span>
-<span class="line">~$ echo &apos;&#123;&quot;service&quot;: &#123;&quot;name&quot;: &quot;web&quot;, &quot;tags&quot;: [&quot;rails&quot;], &quot;port&quot;: 80,</span>
-<span class="line">  &quot;check&quot;: &#123;&quot;script&quot;: &quot;curl localhost &gt;/dev/null 2&gt;&amp;1&quot;, &quot;interval&quot;: &quot;10s&quot;&#125;&#125;&#125;&apos; \</span>
-<span class="line">  &gt;/etc/consul.d/web.json</span>
-</pre></td></tr></table></figure>
-<p>第一个定义添加了一个名为<code>ping</code>的主机级别的检查。 此检查运行间隔为30秒，调用<code>ping -c1 google.com</code>。 在基于脚本的运行状况检查上，检查以与启动Consul进程相同的用户身份运行。 如果该命令以非零退出码退出，则该节点将被标记为不健康。 这是任何基于脚本的健康检查的共同约定。</p>
-<p>第二个命令修改名为web的服务，添加一个检查，每隔10秒通过curl发送一个请求，以验证Web服务器是否可访问。 与主机级运行状况检查一样，如果脚本以非零退出代码退出，服务将被标记为不健康。</p>
-<p>现在重启第二个agent， 可以通过<code>consule reload</code> 或 通过给agent发送<code>SIGHUP</code>信号。你应该看到下面的日志信息： </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-</pre></td><td class="code"><pre><span class="line">==&gt; Starting Consul agent...</span>
-<span class="line">...</span>
-<span class="line">    [INFO] agent: Synced service &apos;web&apos;</span>
-<span class="line">    [INFO] agent: Synced check &apos;service:web&apos;</span>
-<span class="line">    [INFO] agent: Synced check &apos;ping&apos;</span>
-<span class="line">    [WARN] Check &apos;service:web&apos; is now critical</span>
-</pre></td></tr></table></figure>
-<p>前几行表示代理已经同步了新的定义。 最后一行表明我们为Web服务添加的检查是至关重要的。 这是因为我们实际上没有运行Web服务器，所以<code>curl</code>测试失败了！</p>
-<h4 id="Checking-Health-Status"><a href="#Checking-Health-Status" class="headerlink" title="Checking Health Status"></a>Checking Health Status</h4><p>现在我们已经添加了一些简单的检查，我们可以使用HTTP API来检查它们。 首先，我们可以使用这个命令查找任何失败的检查（注意，这可以在任一节点上运行）：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line">~$ curl http://localhost:8500/v1/health/state/critical</span>
-<span class="line">[&#123;&quot;Node&quot;:&quot;agent-two&quot;,&quot;CheckID&quot;:&quot;service:web&quot;,&quot;Name&quot;:&quot;Service &apos;web&apos; check&quot;,&quot;Status&quot;:&quot;critical&quot;,&quot;Notes&quot;:&quot;&quot;,&quot;ServiceID&quot;:&quot;web&quot;,&quot;ServiceName&quot;:&quot;web&quot;,&quot;ServiceTags&quot;:[&quot;rails&quot;]&#125;]</span>
-</pre></td></tr></table></figure>
-<p>我们可以看到，只有一个检查，我们的Web服务检查，在临界状态。</p>
-<p>另外，我们可以尝试使用DNS查询Web服务。 由于服务不健康，Consul 不会返回任何结果：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-</pre></td><td class="code"><pre><span class="line">dig @127.0.0.1 -p 8600 web.service.consul</span>
-<span class="line">...</span>
-<span class="line"></span>
-<span class="line">;; QUESTION SECTION:</span>
-<span class="line">;web.service.consul.        IN  A</span>
-</pre></td></tr></table></figure>
-<h3 id="KV-Data"><a href="#KV-Data" class="headerlink" title="KV Data"></a>KV Data</h3><p>Consul除了提供服务发现和综合健康检查之外，还提供一个易于使用的KV存储。 这可以用来保存动态配置，协助服务协调，建立领导者选举，并使开发人员可以考虑构建的任何东西。</p>
-<p>这一步假定您至少有一个Consul代理已经在运行。</p>
-<h4 id="Simple-Usage"><a href="#Simple-Usage" class="headerlink" title="Simple Usage"></a>Simple Usage</h4><p>为了演示开始有多简单，我们将操作K / V存储中的几个键。 有两种方式与Consul KV存储进行交互：通过HTTP API和Consul KV CLI。 以下示例显示使用Consul KV CLI，因为它是最容易入门的。 对于更高级的集成，您可能需要使用Consul KV HTTP API</p>
-<p>首先让我们探索KV存储。 我们可以向Consul询问名为redis / config / minconns的路径上的密钥的值：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line">$ consul kv get redis/config/minconns</span>
-<span class="line">Error! No key exists at: redis/config/minconns</span>
-</pre></td></tr></table></figure>
-<p>As you can see, we get no result, which makes sense because there is no data in the KV store. Next we can insert or “put” values into the KV store.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-</pre></td><td class="code"><pre><span class="line">$ consul kv put redis/config/minconns 1</span>
-<span class="line">Success! Data written to: redis/config/minconns</span>
-<span class="line"></span>
-<span class="line">$ consul kv put redis/config/maxconns 25</span>
-<span class="line">Success! Data written to: redis/config/maxconns</span>
-<span class="line"></span>
-<span class="line">$ consul kv put -flags=42 redis/config/users/admin abcd1234</span>
-<span class="line">Success! Data written to: redis/config/users/admin</span>
-</pre></td></tr></table></figure>
-<p>Now that we have keys in the store, we can query for the value of individual keys:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line">$ consul kv get redis/config/minconns</span>
-<span class="line">1</span>
-</pre></td></tr></table></figure>
-<p>Consul retains additional metadata about the field, which is retrieved using the -detailed flag:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-</pre></td><td class="code"><pre><span class="line">$ consul kv get -detailed redis/config/minconns</span>
-<span class="line">CreateIndex      207</span>
-<span class="line">Flags            0</span>
-<span class="line">Key              redis/config/minconns</span>
-<span class="line">LockIndex        0</span>
-<span class="line">ModifyIndex      207</span>
-<span class="line">Session          -</span>
-<span class="line">Value            1</span>
-</pre></td></tr></table></figure>
-<p>For the key “redis/config/users/admin”, we set a flag value of 42. All keys support setting a 64-bit integer flag value. This is not used internally by Consul, but it can be used by clients to add meaningful metadata to any KV.</p>
-<p>It is possible to list all the keys in the store using the recurse options. Results will be returned in lexicographical order:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-</pre></td><td class="code"><pre><span class="line">$ consul kv get -recurse</span>
-<span class="line">redis/config/maxconns:25</span>
-<span class="line">redis/config/minconns:1</span>
-<span class="line">redis/config/users/admin:abcd1234</span>
-</pre></td></tr></table></figure>
-<p>To delete a key from the Consul KV store, issue a “delete” call:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line">$ consul kv delete redis/config/minconns</span>
-<span class="line">Success! Deleted key: redis/config/minconns</span>
-</pre></td></tr></table></figure>
-<p>It is also possible to delete an entire prefix using the recurse option:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line">$ consul kv delete -recurse redis</span>
-<span class="line">Success! Deleted keys with prefix: redis</span>
-</pre></td></tr></table></figure>
-<p>To update the value of an existing key, “put” a value at the same path:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-</pre></td><td class="code"><pre><span class="line">$ consul kv put foo bar</span>
-<span class="line"></span>
-<span class="line">$ consul kv get foo</span>
-<span class="line">bar</span>
-<span class="line"></span>
-<span class="line">$ consul kv put foo zip</span>
-<span class="line"></span>
-<span class="line">$ consul kv get foo</span>
-<span class="line">zip</span>
-</pre></td></tr></table></figure>
-<p>Consul can provide atomic key updates using a Check-And-Set operation. To perform a CAS operation, specify the -cas flag:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-</pre></td><td class="code"><pre><span class="line">$ consul kv put -cas -modify-index=123 foo bar</span>
-<span class="line">Success! Data written to: foo</span>
-<span class="line"></span>
-<span class="line">$ consul kv put -cas -modify-index=123 foo bar</span>
-<span class="line">Error! Did not write to foo: CAS failed</span>
-</pre></td></tr></table></figure>
-<p>In this case, the first CAS update succeeds because the index is 123. The second operation fails because the index is no longer 123.</p>
-<h3 id="Consul-Web-UI"><a href="#Consul-Web-UI" class="headerlink" title="Consul Web UI"></a>Consul Web UI</h3><p>Consul comes with support for beautiful, functional web UIs out of the box. UIs can be used for viewing all services and nodes, for viewing all health checks and their current status, and for reading and setting key/value data. The UIs automatically support multi-datacenter.</p>
-<img src="/2017/12/31/consul-quick-start/consul_web_ui-3a1e7bf9.png" alt="consul_web_ui-3a1e7bf9.png" title="">
-<p>To set up the self-hosted UI, start the Consul agent with the -ui parameter:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line">$ consul agent -ui</span>
-<span class="line">...</span>
-</pre></td></tr></table></figure>
-<p>The UI is available at the /ui path on the same port as the HTTP API. By default this is <a href="http://localhost:8500/ui" target="_blank" rel="external">http://localhost:8500/ui</a>.</p>
-<p>You can view a live demo of the Consul Web UI here.</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;p&gt;该文章翻译自 &lt;a href=&quot;https://www.consul.io/intro/index.html&quot;&gt;https://www.consul.io/intro/index.html&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;这篇文章的目标是对Consul进行一个简单的介绍。包括Consul是什么，它解决了什么问题，它有哪些功能。通过这篇文章能让你对Consul能有一个大致的了解，和基本的使用。&lt;/p&gt;
-&lt;h3 id=&quot;What-is-Consul&quot;&gt;&lt;a href=&quot;#What-is-Consul&quot; class=&quot;headerlink&quot; title=&quot;What is Consul?&quot;&gt;&lt;/a&gt;What is Consul?&lt;/h3&gt;&lt;hr&gt;
-&lt;p&gt;Consul 有许多组件，但是作为一个整理来看，它为你的基础设施提供了服务发现和统一配置功能。它提供如下的主要的功能：&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="consul" scheme="https://leokongwq.github.io/tags/consul/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>CPU总线仲裁</title>
-    <link href="https://leokongwq.github.io/2017/12/22/computer-science-bus-arbitration.html"/>
-    <id>https://leokongwq.github.io/2017/12/22/computer-science-bus-arbitration.html</id>
-    <published>2017-12-22T10:08:12.000Z</published>
-    <updated>2017-12-22T10:16:08.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在Java中查询底层CAS实现时，了解到CPU总线仲裁的概念。Google后找到如下的文章。</p>
-<p><a href="http://www.ques10.com/p/8794/what-is-bus-arbitration-explain-any-two-techniques/" target="_blank" rel="external">what-is-bus-arbitration-explain-any-two-techniques</a></p>
-<a id="more"></a>
-<h3 id="CPU总线仲裁实现"><a href="#CPU总线仲裁实现" class="headerlink" title="CPU总线仲裁实现"></a>CPU总线仲裁实现</h3><ul>
-<li>The device that is allowed to initiate data transfers on the bus at any given time is called the bus master. In a computer system there may be more than one bus master such as processor, DMA controller etc.</li>
-<li>They share the system bus. When current master relinquishes control of the bus, another bus master can acquire the control of the bus.</li>
-<li>Bus arbitration is the process by which the next device to become the bus master is selected and bus mastership is transferred to it. The selection of bus master is usually done on the priority basis.</li>
-</ul>
-<p>There are two approaches to bus arbitration: Centralized and distributed.</p>
-<h3 id="Centralized-Arbitration"><a href="#Centralized-Arbitration" class="headerlink" title="Centralized Arbitration"></a>Centralized Arbitration</h3><ul>
-<li>In centralized bus arbitration, a single bus arbiter performs the required arbitration. The bus arbiter may be the processor or a separate controller connected to the bus.</li>
-<li><p>There are three different arbitration schemes that use the centralized bus arbitration approach. There schemes are:</p>
-<p>  a. Daisy chaining<br>  b. Polling method<br>  c. Independent request</p>
-</li>
-</ul>
-<h4 id="Daisy-chaining"><a href="#Daisy-chaining" class="headerlink" title="Daisy chaining"></a>Daisy chaining</h4><p>The system connections for Daisy chaining method are shown in fig below.</p>
-<img src="/2017/12/22/computer-science-bus-arbitration/wiYLSHg.png" alt="wiYLSHg.png" title="">
-<ul>
-<li>It is simple and cheaper method. All masters make use of the same line for bus request.</li>
-<li>In response to the bus request the controller sends a bus grant if the bus is free.</li>
-<li>The bus grant signal serially propagates through each master until it encounters the first one that is requesting access to the bus. This master blocks the propagation of the bus grant signal, activities the busy line and gains control of the bus.</li>
-<li>Therefore any other requesting module will not receive the grant signal and hence cannot get the bus access.</li>
-</ul>
-<h4 id="Polling-method"><a href="#Polling-method" class="headerlink" title="Polling method"></a>Polling method</h4><img src="/2017/12/22/computer-science-bus-arbitration/q7rcpOB.png" alt="q7rcpOB.png" title="">
-<ul>
-<li>The system connections for polling method are shown in figure above.</li>
-<li>In this the controller is used to generate the addresses for the master. Number of address line required depends on the number of master connected in the system.</li>
-<li>For example, if there are 8 masters connected in the system, at least three address lines are required.</li>
-<li>In response to the bus request controller generates a sequence of master address. When the requesting master recognizes its address, it activated the busy line ad begins to use the bus.</li>
-</ul>
-<h4 id="Independent-request"><a href="#Independent-request" class="headerlink" title="Independent request"></a>Independent request</h4><img src="/2017/12/22/computer-science-bus-arbitration/MS8iRFG.png" alt="MS8iRFG.png" title="">  
-<ul>
-<li>The figure below shows the system connections for the independent request scheme.</li>
-<li>In this scheme each master has a separate pair of bus request and bus grant lines and each pair has a priority assigned to it.</li>
-<li>The built in priority decoder within the controller selects the highest priority request and asserts the corresponding bus grant signal.</li>
-</ul>
-<h3 id="Distributed-Arbitration"><a href="#Distributed-Arbitration" class="headerlink" title="Distributed Arbitration"></a>Distributed Arbitration</h3><ul>
-<li>In distributed arbitration, all devices participate in the selection of the next bus master.</li>
-<li>In this scheme each device on the bus is assigned a4-bit identification number.</li>
-<li>The number of devices connected on the bus when one or more devices request for the control of bus, they assert the start-arbitration signal and place their 4-bit ID numbers on arbitration lines, ARB0 through ARB3.</li>
-<li>These four arbitration lines are all open-collector. Therefore, more than one device can place their 4-bit ID number to indicate that they need to control of bus. If one device puts 1 on the bus line and another device puts 0 on the same bus line, the bus line status will be 0. Device reads the status of all lines through inverters buffers so device reads bus status 0as logic 1. Scheme the device having highest ID number has highest priority.</li>
-<li>When two or more devices place their ID number on bus lines then it is necessary to identify the highest ID number on bus lines then it is necessary to identify the highest ID number from the status of bus line. Consider that two devices A and B, having ID number 1 and 6, respectively are requesting the use of the bus.</li>
-<li>Device A puts the bit pattern 0001, and device B puts the bit pattern 0110. With this combination the status of bus-line will be 1000; however because of inverter buffers code seen by both devices is 0111.</li>
-<li>Each device compares the code formed on the arbitration line to its own ID, starting from the most significant bit. If it finds the difference at any bit position, it disables its drives at that bit position and for all lower-order bits.</li>
-<li>It does so by placing a 0 at the input of their drive. In our example, device detects a different on line ARB2 and hence it disables its drives on line ARB2, ARB1 and ARB0. This causes the code on the arbitration lines to change to 0110. This means that device B has won the race.</li>
-<li>The decentralized arbitration offers high reliability because operation of the bus is not dependent on any single device.</li>
-</ul>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;在Java中查询底层CAS实现时，了解到CPU总线仲裁的概念。Google后找到如下的文章。&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://www.ques10.com/p/8794/what-is-bus-arbitration-explain-any-two-techniques/&quot;&gt;what-is-bus-arbitration-explain-any-two-techniques&lt;/a&gt;&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="CS" scheme="https://leokongwq.github.io/categories/CS/"/>
-    
     
   </entry>
   

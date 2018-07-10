@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://leokongwq.github.io/"/>
-  <updated>2018-05-22T09:42:20.000Z</updated>
+  <updated>2018-07-09T02:59:36.000Z</updated>
   <id>https://leokongwq.github.io/</id>
   
   <author>
@@ -16,11 +16,1804 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>springcloud服务注册之consul</title>
+    <link href="https://leokongwq.github.io/2018/07/08/spring-cloud-consul.html"/>
+    <id>https://leokongwq.github.io/2018/07/08/spring-cloud-consul.html</id>
+    <published>2018-07-08T05:28:16.000Z</published>
+    <updated>2018-07-09T02:59:36.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>使用springcloud构建微服务，除了可以使用eureka来实现服务注册和发现外，springcloud对consul也提供了良好的支持。本文就简单介绍下使用springcloud和consul实现服务注册和发现。</p>
+<h3 id="consul安装"><a href="#consul安装" class="headerlink" title="consul安装"></a>consul安装</h3><p>consul的安装非常简单，只需要在官网<a href="https://www.consul.io/downloads.html" target="_blank" rel="external">下载</a>对应平台的安装文件即可。</p>
+<p>具体安装步骤参考<a href="https://www.consul.io/intro/getting-started/install.html" target="_blank" rel="external">install</a></p>
+<a id="more"></a>
+<h3 id="服务注册"><a href="#服务注册" class="headerlink" title="服务注册"></a>服务注册</h3><h4 id="maven-配置"><a href="#maven-配置" class="headerlink" title="maven 配置"></a>maven 配置</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span>
+<span class="line">       <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">           <span class="tag">&lt;<span class="name">version</span>&gt;</span>Camden.SR6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span>
+<span class="line">           <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span>
+<span class="line">           <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span>
+<span class="line">       <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+<span class="line">   <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></span>
+<span class="line"></span>
+<span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+<span class="line"></span>
+<span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-consul-discovery<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<h4 id="相关注解配置"><a href="#相关注解配置" class="headerlink" title="相关注解配置"></a>相关注解配置</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+</pre></td><td class="code"><pre><span class="line"></span>
+<span class="line"><span class="meta">@EnableDiscoveryClient</span></span>
+<span class="line"><span class="meta">@SpringBootApplication</span></span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span>
+<span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span>
+<span class="line">		SpringApplication.run(Application.class, args);</span>
+<span class="line">	&#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h4 id="application-properties配置"><a href="#application-properties配置" class="headerlink" title="application.properties配置"></a>application.properties配置</h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+</pre></td><td class="code"><pre><span class="line">#默认就是true</span>
+<span class="line">spring.cloud.consul.enabled=true</span>
+<span class="line">spring.cloud.consul.host=127.0.0.1</span>
+<span class="line">spring.cloud.consul.port=8500</span>
+<span class="line">#默认就是true</span>
+<span class="line">spring.cloud.consul.discovery.enabled=true</span>
+<span class="line">#服务名</span>
+<span class="line">spring.cloud.consul.discovery.serviceName=$&#123;spring.application.name&#125;</span>
+<span class="line">#服务注册实例名</span>
+<span class="line">spring.cloud.consul.discovery.instanceId=$&#123;spring.application.name&#125;-$&#123;spring.cloud.client.ipAddress&#125;-$&#123;server.port&#125;</span>
+<span class="line">#服务所在的主机名</span>
+<span class="line">spring.cloud.consul.discovery.hostname=$&#123;spring.cloud.client.ipAddress&#125;</span>
+<span class="line">#服务所在的端口</span>
+<span class="line">spring.cloud.consul.discovery.port=$&#123;server.port&#125;</span>
+<span class="line">#服务的健康检查url</span>
+<span class="line">spring.cloud.consul.discovery.healthCheckUrl=http://localhost:$&#123;server.port&#125;/</span>
+<span class="line">spring.cloud.consul.discovery.healthCheckInterval=10s</span>
+<span class="line">spring.cloud.consul.discovery.healthCheckTimeout=10s</span>
+<span class="line">spring.cloud.consul.discovery.healthCheckPath=/</span>
+<span class="line">spring.cloud.consul.discovery.tags=dev,dev1</span>
+</pre></td></tr></table></figure>
+<blockquote>
+<p>healthCheckUrl 是consul检查应用健康状态的地址，可以选择一个自定义地址， 也可以使用<code>actuator</code>提供的<code>/health</code>地址。需要注意的是：如果你使用<code>actuator</code>提供的<code>/health</code>地址，则需要确保返回的json注解中的<code>status</code>字段为<code>UP</code>。也就是说<code>actuator</code>实施健康检查的所有组件的健康状态都必须是<code>UP</code>状态，有一个不是，则整个返回界都就是<code>DOWN</code>状态。</p>
+</blockquote>
+<h3 id="服务调用"><a href="#服务调用" class="headerlink" title="服务调用"></a>服务调用</h3><p>properties文件配置和服务注册端都是一致的。Spring的java Bean配置也基本相同。</p>
+<h4 id="maven-配置-1"><a href="#maven-配置-1" class="headerlink" title="maven 配置"></a>maven 配置</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-ribbon<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-hystrix<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<h4 id="java-Bean-配置"><a href="#java-Bean-配置" class="headerlink" title="java Bean 配置"></a>java Bean 配置</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+</pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableDiscoveryClient</span></span>
+<span class="line"><span class="meta">@EnableCircuitBreaker</span></span>
+<span class="line"><span class="meta">@SpringBootApplication</span></span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span>
+<span class="line">    </span>
+<span class="line">    <span class="comment">//启动负载均衡功能</span></span>
+<span class="line">    <span class="meta">@Bean</span></span>
+<span class="line">    <span class="meta">@LoadBalanced</span></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> RestTemplate <span class="title">restTemplate</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RestTemplate();</span>
+<span class="line">    &#125;</span>
+<span class="line"></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span>
+<span class="line">        SpringApplication.run(Application.class, args);</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>服务调用示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+</pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BookService</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">    <span class="meta">@Resource</span></span>
+<span class="line">    <span class="keyword">private</span> RestTemplate restTemplate;</span>
+<span class="line"></span>
+<span class="line">    <span class="meta">@HystrixCommand</span>(fallbackMethod = <span class="string">"addServiceFallback"</span>)</span>
+<span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">add</span><span class="params">()</span></span>&#123;</span>
+<span class="line">        <span class="comment">//url格式为服务名 + 请求的URI</span></span>
+<span class="line">        <span class="keyword">return</span> restTemplate.getForEntity(<span class="string">"http://bookservice/add?a=10&amp;b=20"</span>, String.class).getBody();</span>
+<span class="line">    &#125;</span>
+<span class="line"></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">addServiceFallback</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">        <span class="keyword">return</span> <span class="string">"error"</span>;</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;p&gt;使用springcloud构建微服务，除了可以使用eureka来实现服务注册和发现外，springcloud对consul也提供了良好的支持。本文就简单介绍下使用springcloud和consul实现服务注册和发现。&lt;/p&gt;
+&lt;h3 id=&quot;consul安装&quot;&gt;&lt;a href=&quot;#consul安装&quot; class=&quot;headerlink&quot; title=&quot;consul安装&quot;&gt;&lt;/a&gt;consul安装&lt;/h3&gt;&lt;p&gt;consul的安装非常简单，只需要在官网&lt;a href=&quot;https://www.consul.io/downloads.html&quot;&gt;下载&lt;/a&gt;对应平台的安装文件即可。&lt;/p&gt;
+&lt;p&gt;具体安装步骤参考&lt;a href=&quot;https://www.consul.io/intro/getting-started/install.html&quot;&gt;install&lt;/a&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="web" scheme="https://leokongwq.github.io/categories/web/"/>
+    
+    
+      <category term="spring" scheme="https://leokongwq.github.io/tags/spring/"/>
+    
+      <category term="springcloud" scheme="https://leokongwq.github.io/tags/springcloud/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>zookeeper使用之curator</title>
+    <link href="https://leokongwq.github.io/2018/06/17/zookeeper-curator.html"/>
+    <id>https://leokongwq.github.io/2018/06/17/zookeeper-curator.html</id>
+    <published>2018-06-17T10:26:10.000Z</published>
+    <updated>2018-06-24T13:48:19.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Apache <a href="http://curator.apache.org/" target="_blank" rel="external">Curator</a>是Netflix开源的操作Zookeeper的，功能非常强大的客户端。提供了很多非常好用的功能来帮助我们构建分布式应用。</p>
+<h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><p>Curator 提供的分布式锁分为以下三类：</p>
+<ul>
+<li>可重入公平锁 InterProcessMutex</li>
+<li>不可重入的非公平锁 InterProcessSemaphoreMutex</li>
+<li>可重入的读写锁 InterProcessReadWriteLock</li>
+<li>锁集合 InterProcessMultiLock</li>
+</ul>
+<a id="more"></a>
+<h3 id="InterProcessMutex"><a href="#InterProcessMutex" class="headerlink" title="InterProcessMutex"></a>InterProcessMutex</h3><p>Curator提供了<code>InterProcessMutex</code>来实现该功能。样例代码如下：</p>
+<figure class="highlight java"><figcaption><span>InterProcessMutex</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+</pre></td><td class="code"><pre><span class="line"><span class="comment">//创建锁</span></span>
+<span class="line">InterProcessLock lock = <span class="keyword">new</span> InterProcessMutex(client, lockPath);</span>
+<span class="line"><span class="comment">//获取</span></span>
+<span class="line">lock.acquire(<span class="number">1</span>，TimeUnit.SECONDS)</span>
+<span class="line"><span class="keyword">try</span> &#123;</span>
+<span class="line"><span class="comment">//业务代码</span></span>
+<span class="line">&#125; <span class="keyword">finally</span> &#123;</span>
+<span class="line">    lock.release();</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>实现原理分析：</p>
+<p><code>InterProcessMutex</code>通过创建一个 Zookeeper 临时，顺序结点来实现锁的公平获取，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+</pre></td><td class="code"><pre><span class="line"> <span class="meta">@Override</span></span>
+<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">acquire</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">   <span class="keyword">if</span> ( !internalLock(-<span class="number">1</span>, <span class="keyword">null</span>) ) &#123;</span>
+<span class="line">       <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Lost connection while trying to acquire lock: "</span> + basePath);</span>
+<span class="line">   &#125;</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">internalLock</span><span class="params">(<span class="keyword">long</span> time, TimeUnit unit)</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">   <span class="comment">/*</span>
+<span class="line">      Note on concurrency: a given lockData instance</span>
+<span class="line">      can be only acted on by a single thread so locking isn't necessary</span>
+<span class="line">   */</span></span>
+<span class="line">   </span>
+<span class="line">   <span class="comment">//下面的代码实现：可重入性。</span></span>
+<span class="line">   Thread currentThread = Thread.currentThread();</span>
+<span class="line">   LockData lockData = threadData.get(currentThread);</span>
+<span class="line">   <span class="keyword">if</span> ( lockData != <span class="keyword">null</span> )</span>
+<span class="line">   &#123;</span>
+<span class="line">       <span class="comment">// re-entering </span></span>
+<span class="line">       lockData.lockCount.incrementAndGet();</span>
+<span class="line">       <span class="keyword">return</span> <span class="keyword">true</span>;</span>
+<span class="line">   &#125;</span>
+<span class="line">   <span class="comment">//创建：临时，顺序结点 </span></span>
+<span class="line">   String lockPath = internals.attemptLock(time, unit, getLockNodeBytes());</span>
+<span class="line">   <span class="keyword">if</span> ( lockPath != <span class="keyword">null</span> )</span>
+<span class="line">   &#123;</span>
+<span class="line">       LockData newLockData = <span class="keyword">new</span> LockData(currentThread, lockPath);</span>
+<span class="line">       threadData.put(currentThread, newLockData);</span>
+<span class="line">       <span class="keyword">return</span> <span class="keyword">true</span>;</span>
+<span class="line">   &#125;</span>
+<span class="line"></span>
+<span class="line">   <span class="keyword">return</span> <span class="keyword">false</span>;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>创建：临时，顺序结点 </p>
+<figure class="highlight java"><figcaption><span>LockInternals.attemptLock</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+</pre></td><td class="code"><pre><span class="line"><span class="function">String <span class="title">attemptLock</span><span class="params">(<span class="keyword">long</span> time, TimeUnit unit, <span class="keyword">byte</span>[] lockNodeBytes)</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line"><span class="keyword">while</span> ( !isDone )</span>
+<span class="line">   &#123;</span>
+<span class="line">       isDone = <span class="keyword">true</span>;</span>
+<span class="line"></span>
+<span class="line">       <span class="keyword">try</span></span>
+<span class="line">       &#123;   </span>
+<span class="line">           <span class="comment">// 通过LockInternalsDriver创建Zookeeper结点</span></span>
+<span class="line">           ourPath = driver.createsTheLock(client, path, localLockNodeBytes);</span>
+<span class="line">           <span class="comment">// 判断是否获取了锁， 其实就是判定该线程创建的临时结点的顺序是否最小</span></span>
+<span class="line">           hasTheLock = internalLockLoop(startMillis, millisToWait, ourPath);</span>
+<span class="line">       &#125;</span>
+<span class="line">       <span class="keyword">catch</span> ( KeeperException.NoNodeException e )</span>
+<span class="line">       &#123;</span>
+<span class="line">           <span class="comment">// gets thrown by StandardLockInternalsDriver when it can't find the lock node</span></span>
+<span class="line">           <span class="comment">// this can happen when the session expires, etc. So, if the retry allows, just try it all again</span></span>
+<span class="line">           <span class="keyword">if</span> ( client.getZookeeperClient().getRetryPolicy().allowRetry(retryCount++, System.currentTimeMillis() - startMillis, RetryLoop.getDefaultRetrySleeper()) )</span>
+<span class="line">           &#123;</span>
+<span class="line">               isDone = <span class="keyword">false</span>;</span>
+<span class="line">           &#125;</span>
+<span class="line">           <span class="keyword">else</span></span>
+<span class="line">           &#123;</span>
+<span class="line">               <span class="keyword">throw</span> e;</span>
+<span class="line">           &#125;</span>
+<span class="line">       &#125;</span>
+<span class="line">   &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+<span class="line">43</span>
+<span class="line">44</span>
+<span class="line">45</span>
+<span class="line">46</span>
+<span class="line">47</span>
+<span class="line">48</span>
+<span class="line">49</span>
+<span class="line">50</span>
+<span class="line">51</span>
+<span class="line">52</span>
+<span class="line">53</span>
+<span class="line">54</span>
+<span class="line">55</span>
+<span class="line">56</span>
+<span class="line">57</span>
+<span class="line">58</span>
+<span class="line">59</span>
+<span class="line">60</span>
+<span class="line">61</span>
+<span class="line">62</span>
+<span class="line">63</span>
+<span class="line">64</span>
+<span class="line">65</span>
+<span class="line">66</span>
+<span class="line">67</span>
+<span class="line">68</span>
+<span class="line">69</span>
+<span class="line">70</span>
+<span class="line">71</span>
+<span class="line">72</span>
+<span class="line">73</span>
+<span class="line">74</span>
+<span class="line">75</span>
+<span class="line">76</span>
+<span class="line">77</span>
+</pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">internalLockLoop</span><span class="params">(<span class="keyword">long</span> startMillis, Long millisToWait, String ourPath)</span> <span class="keyword">throws</span> Exception</span>
+<span class="line"></span>&#123;</span>
+<span class="line">   <span class="keyword">boolean</span>     haveTheLock = <span class="keyword">false</span>;</span>
+<span class="line">   <span class="keyword">boolean</span>     doDelete = <span class="keyword">false</span>;</span>
+<span class="line">   <span class="keyword">try</span></span>
+<span class="line">   &#123;</span>
+<span class="line">       <span class="keyword">if</span> ( revocable.get() != <span class="keyword">null</span> )</span>
+<span class="line">       &#123;</span>
+<span class="line">           client.getData().usingWatcher(revocableWatcher).forPath(ourPath);</span>
+<span class="line">       &#125;</span>
+<span class="line">       <span class="comment">// 循环来获取锁</span></span>
+<span class="line">       <span class="keyword">while</span> ( (client.getState() == CuratorFrameworkState.STARTED) &amp;&amp; !haveTheLock )</span>
+<span class="line">       &#123;</span>
+<span class="line">           <span class="comment">//获取所有的排序后的子节点列表（升序排列） </span></span>
+<span class="line">           List&lt;String&gt;        children = getSortedChildren();</span>
+<span class="line">           String              sequenceNodeName = ourPath.substring(basePath.length() + <span class="number">1</span>); <span class="comment">// +1 to include the slash</span></span>
+<span class="line">           <span class="comment">// 判断该进程或线程创建的子节点：sequenceNodeName 是否是第一个</span></span>
+<span class="line">           PredicateResults    predicateResults = driver.getsTheLock(client, children, sequenceNodeName, maxLeases);</span>
+<span class="line">           <span class="keyword">if</span> ( predicateResults.getsTheLock() )</span>
+<span class="line">           &#123;</span>
+<span class="line">               haveTheLock = <span class="keyword">true</span>;</span>
+<span class="line">           &#125;</span>
+<span class="line">           <span class="keyword">else</span></span>
+<span class="line">           &#123;</span>
+<span class="line">               String  previousSequencePath = basePath + <span class="string">"/"</span> + predicateResults.getPathToWatch();</span>
+<span class="line">                <span class="comment">// JVM 进程能同步，</span></span>
+<span class="line">               <span class="keyword">synchronized</span>(<span class="keyword">this</span>)</span>
+<span class="line">               &#123;</span>
+<span class="line">                   <span class="keyword">try</span> </span>
+<span class="line">                   &#123;</span>
+<span class="line">                       <span class="comment">// use getData() instead of exists() to avoid leaving unneeded watchers which is a type of resource leak</span></span>
+<span class="line">                       client.getData().usingWatcher(watcher).forPath(previousSequencePath);</span>
+<span class="line">                       <span class="keyword">if</span> ( millisToWait != <span class="keyword">null</span> )</span>
+<span class="line">                       &#123;</span>
+<span class="line">                           millisToWait -= (System.currentTimeMillis() - startMillis);</span>
+<span class="line">                           startMillis = System.currentTimeMillis();</span>
+<span class="line">                           <span class="keyword">if</span> ( millisToWait &lt;= <span class="number">0</span> )</span>
+<span class="line">                           &#123;</span>
+<span class="line">                               doDelete = <span class="keyword">true</span>;    <span class="comment">// timed out - delete our node</span></span>
+<span class="line">                               <span class="keyword">break</span>;</span>
+<span class="line">                           &#125;</span>
+<span class="line">                            <span class="comment">// 线程超时等待</span></span>
+<span class="line">                           wait(millisToWait);</span>
+<span class="line">                       &#125;</span>
+<span class="line">                       <span class="keyword">else</span></span>
+<span class="line">                       &#123;</span>
+<span class="line">                          <span class="comment">// 线程等待(需要其它线程唤醒，其它线程在释放锁时会进行唤醒)</span></span>
+<span class="line">                           wait();</span>
+<span class="line">                       &#125;</span>
+<span class="line">                       </span>
+<span class="line">                        <span class="comment">//  watcher 的执行在另一个线程中，会唤醒等待锁的线程</span></span>
+<span class="line">                   &#125;</span>
+<span class="line">                   <span class="keyword">catch</span> ( KeeperException.NoNodeException e ) </span>
+<span class="line">                   &#123;</span>
+<span class="line">                       <span class="comment">// it has been deleted (i.e. lock released). Try to acquire again</span></span>
+<span class="line">                   &#125;</span>
+<span class="line">               &#125;</span>
+<span class="line">           &#125;</span>
+<span class="line">       &#125;</span>
+<span class="line">   &#125;</span>
+<span class="line">   <span class="keyword">catch</span> ( Exception e )</span>
+<span class="line">   &#123;   </span>
+<span class="line">        <span class="comment">// 处理线程中断  </span></span>
+<span class="line">       ThreadUtils.checkInterrupted(e);</span>
+<span class="line">       doDelete = <span class="keyword">true</span>;</span>
+<span class="line">       <span class="keyword">throw</span> e;</span>
+<span class="line">   &#125;</span>
+<span class="line">   <span class="keyword">finally</span></span>
+<span class="line">   &#123;</span>
+<span class="line">        <span class="comment">//被中断后，删除结点，释放锁（一点会删除成功，具体实现查询源代码）</span></span>
+<span class="line">       <span class="keyword">if</span> ( doDelete )</span>
+<span class="line">       &#123;</span>
+<span class="line">           deleteOurPath(ourPath);</span>
+<span class="line">       &#125;</span>
+<span class="line">   &#125;</span>
+<span class="line">   <span class="keyword">return</span> haveTheLock;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="InterProcessSemaphoreMutex"><a href="#InterProcessSemaphoreMutex" class="headerlink" title="InterProcessSemaphoreMutex"></a>InterProcessSemaphoreMutex</h3><p>该功能的锁是由：<code>InterProcessSemaphoreMutex</code>实现的，具体原理就不分析代码。</p>
+<p>提一句：该锁的功能是通过：<code>InterProcessMutex</code>和<code>InterProcessSemaphoreV2</code>实现的。</p>
+<p><code>InterProcessSemaphoreV2</code>：从名称上来说，该类是一个信号量，也就是说它可以提供N个可用的许可，可以用来管理同时访问共享资源的并发数。</p>
+<blockquote>
+<p>许可数量为:1的信号量可以当做锁来用。</p>
+</blockquote>
+<h3 id="InterProcessReadWriteLock"><a href="#InterProcessReadWriteLock" class="headerlink" title="InterProcessReadWriteLock"></a>InterProcessReadWriteLock</h3><p>读写锁和JDK提供的：<code>ReadWriteLock</code>功能是类似的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+</pre></td><td class="code"><pre><span class="line"> <span class="meta">@Test</span></span>
+<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testReadWriteLock</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">   String lockPath = <span class="string">"/config/lock/123"</span>;</span>
+<span class="line">   InterProcessReadWriteLock readWriteLock = <span class="keyword">new</span> InterProcessReadWriteLock(client, lockPath);</span>
+<span class="line"></span>
+<span class="line">   InterProcessMutex readLock = readWriteLock.readLock();</span>
+<span class="line">   InterProcessMutex writeLock = readWriteLock.writeLock();</span>
+<span class="line"></span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>特点总结：</p>
+<ol>
+<li>可重入，读锁和写锁都是可重入的。</li>
+<li>读锁非互斥，写锁是互斥的，只能有一个客户端获取</li>
+<li>读写是互斥的</li>
+<li>支持锁降级。支持写锁降级为读锁，读锁不能升级为写锁。</li>
+</ol>
+<h3 id="InterProcessMultiLock"><a href="#InterProcessMultiLock" class="headerlink" title="InterProcessMultiLock"></a>InterProcessMultiLock</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+</pre></td><td class="code"><pre><span class="line">InterProcessMultiLock lock = <span class="keyword">new</span> InterProcessMultiLock(List&lt;InterProcessLock&gt; locks);</span>
+<span class="line"></span>
+<span class="line">或</span>
+<span class="line"></span>
+<span class="line">InterProcessMultiLock lock = <span class="keyword">new</span> InterProcessMultiLock(CuratorFramework client,</span>
+<span class="line">                             List&lt;String&gt; paths);</span>
+</pre></td></tr></table></figure>
+<p><code>InterProcessMultiLock</code>维护一组锁。在获取锁时，只有获取所有的锁时才返回，释放时会释放所有的锁。</p>
+<h2 id="Leader选举"><a href="#Leader选举" class="headerlink" title="Leader选举"></a>Leader选举</h2><p>在分布式系统中，Leader选举是一个非常基础和重要的能力。通过Zookeeper和Curator能非常容易的实现Leader选举。</p>
+<p>Curator提供了两种机制来实现Leader选举：</p>
+<h3 id="方法一：LeaderSelector"><a href="#方法一：LeaderSelector" class="headerlink" title="方法一：LeaderSelector"></a>方法一：LeaderSelector</h3><p>直接上代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+<span class="line">43</span>
+<span class="line">44</span>
+<span class="line">45</span>
+<span class="line">46</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> String leaderSelectionPath = <span class="string">"/config/vip/db/master"</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="meta">@Test</span></span>
+<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testLeaderElection</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">   ExecutorService threadPool = Executors.newFixedThreadPool(<span class="number">5</span>);</span>
+<span class="line"></span>
+<span class="line">   <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span>
+<span class="line">       threadPool.execute(<span class="keyword">new</span> Contender(buildLeaderSelectorListener()));</span>
+<span class="line">   &#125;</span>
+<span class="line"></span>
+<span class="line">   Thread.sleep(<span class="number">1000</span> * <span class="number">1000</span>);</span>
+<span class="line"></span>
+<span class="line">   threadPool.shutdown();</span>
+<span class="line">&#125;</span>
+<span class="line"><span class="comment">/**</span>
+<span class="line">* 公平的选举（顺序性）</span>
+<span class="line">*/</span></span>
+<span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Contender</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span>
+<span class="line">   <span class="keyword">private</span> LeaderSelectorListener listener;</span>
+<span class="line"></span>
+<span class="line">   Contender(LeaderSelectorListener listener) &#123;</span>
+<span class="line">       <span class="keyword">this</span>.listener = listener;</span>
+<span class="line">   &#125;</span>
+<span class="line"></span>
+<span class="line">   <span class="meta">@Override</span></span>
+<span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">       LeaderSelector selector = <span class="keyword">new</span> LeaderSelector(client, leaderSelectionPath, listener);</span>
+<span class="line">       <span class="comment">// 自动加入Leader选举</span></span>
+<span class="line">       selector.autoRequeue();</span>
+<span class="line">       <span class="comment">//开始进行选举，不过该方法会立即返回。选举的结果是通过异步回调实现的</span></span>
+<span class="line">       selector.start();</span>
+<span class="line">   &#125;</span>
+<span class="line">&#125;</span>
+<span class="line"><span class="function"><span class="keyword">private</span> LeaderSelectorListener <span class="title">buildLeaderSelectorListener</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">   LeaderSelectorListener listener = <span class="keyword">new</span> LeaderSelectorListenerAdapter() &#123;</span>
+<span class="line">        <span class="comment">//该方法只有在该客户端被选为Leader才会被调用。</span></span>
+<span class="line">        <span class="comment">//方法返回就表示客户端放弃Leader角色。</span></span>
+<span class="line">       <span class="meta">@Override</span></span>
+<span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">takeLeadership</span><span class="params">(CuratorFramework client)</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">          <span class="comment">// 模式业务操作</span></span>
+<span class="line">            System.out.println(<span class="string">"Current Leader is : "</span> + Thread.currentThread().getName());</span>
+<span class="line">           Thread.sleep(<span class="number">5000</span>)</span>
+<span class="line">       &#125;</span>
+<span class="line">   &#125;;</span>
+<span class="line">   <span class="keyword">return</span> listener;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="方法二：LeaderLatch"><a href="#方法二：LeaderLatch" class="headerlink" title="方法二：LeaderLatch"></a>方法二：LeaderLatch</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+<span class="line">43</span>
+<span class="line">44</span>
+<span class="line">45</span>
+<span class="line">46</span>
+<span class="line">47</span>
+<span class="line">48</span>
+<span class="line">49</span>
+<span class="line">50</span>
+<span class="line">51</span>
+<span class="line">52</span>
+<span class="line">53</span>
+<span class="line">54</span>
+<span class="line">55</span>
+<span class="line">56</span>
+<span class="line">57</span>
+</pre></td><td class="code"><pre><span class="line"> <span class="meta">@Test</span></span>
+<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testLeaderRandomElection</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">   ExecutorService threadPool = Executors.newFixedThreadPool(<span class="number">5</span>);</span>
+<span class="line"></span>
+<span class="line">   <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span>
+<span class="line">       LeaderLatch leaderLatch = <span class="keyword">new</span> LeaderLatch(client, leaderSelectionPath, String.valueOf(i));</span>
+<span class="line">       threadPool.execute(<span class="keyword">new</span> RandomSelectLeader(leaderLatch));</span>
+<span class="line">   &#125;</span>
+<span class="line"></span>
+<span class="line">   Thread.sleep(<span class="number">1000</span> * <span class="number">1000</span>);</span>
+<span class="line"></span>
+<span class="line">   threadPool.shutdown();</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RandomSelectLeader</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">   <span class="keyword">private</span> LeaderLatch leaderLatch;</span>
+<span class="line"></span>
+<span class="line">   RandomSelectLeader(LeaderLatch leaderLatch) &#123;</span>
+<span class="line">       <span class="keyword">this</span>.leaderLatch = leaderLatch;</span>
+<span class="line">   &#125;</span>
+<span class="line"></span>
+<span class="line">   <span class="meta">@Override</span></span>
+<span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">       <span class="keyword">try</span> &#123;</span>
+<span class="line">           <span class="comment">//强烈建议添加Listener来监听链接变化，　处理Leader丢失问题</span></span>
+<span class="line">           leaderLatch.addListener(<span class="keyword">new</span> LeaderLatchListener() &#123;</span>
+<span class="line">               <span class="meta">@Override</span></span>
+<span class="line">               <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">isLeader</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">                   System.out.println(<span class="string">"I'am Selected to be a Leader"</span> + Thread.currentThread().getName());</span>
+<span class="line">               &#125;</span>
+<span class="line"></span>
+<span class="line">               <span class="meta">@Override</span></span>
+<span class="line">               <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">notLeader</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">                   System.out.println(<span class="string">"I'am Not Leader"</span> + Thread.currentThread().getName());</span>
+<span class="line">               &#125;</span>
+<span class="line">           &#125;);</span>
+<span class="line">           <span class="comment">//调用该方法后才能开始参与选举（随机的）</span></span>
+<span class="line">           leaderLatch.start();</span>
+<span class="line">           <span class="comment">//死等，　直到被选为Leader</span></span>
+<span class="line">           leaderLatch.await();</span>
+<span class="line"></span>
+<span class="line">           System.out.println(<span class="string">"Current Leader is : "</span> + Thread.currentThread().getName());</span>
+<span class="line"></span>
+<span class="line">           Thread.sleep(<span class="number">2000</span>);</span>
+<span class="line">       &#125; <span class="keyword">catch</span> (Exception e) &#123;</span>
+<span class="line">           e.printStackTrace();</span>
+<span class="line">       &#125; <span class="keyword">finally</span> &#123;</span>
+<span class="line">           <span class="keyword">try</span> &#123;</span>
+<span class="line">               <span class="comment">// 退出选举，如果自己是Leader，则放弃Leader位置，其它的成员就可以再次选举</span></span>
+<span class="line">               leaderLatch.close();</span>
+<span class="line">           &#125; <span class="keyword">catch</span> (Exception e) &#123;</span>
+<span class="line">               e.printStackTrace();</span>
+<span class="line">           &#125;</span>
+<span class="line">       &#125;</span>
+<span class="line">   &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>推荐使用<code>LeaderSelector</code>来实现Leader选举，因为参加选举的结点代码编写简单，能自动完成丢失Leader角色后从新参加选举的功能，而且能灵活的控制释放Leader角色的时机。</p>
+<h2 id="分布式栅栏"><a href="#分布式栅栏" class="headerlink" title="分布式栅栏"></a>分布式栅栏</h2><h3 id="DistributedBarrier"><a href="#DistributedBarrier" class="headerlink" title="DistributedBarrier"></a>DistributedBarrier</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+</pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span>
+<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testDistributedBarrier</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">   String barrierPath = <span class="string">"/config/barriers"</span>;</span>
+<span class="line">   DistributedBarrier barrier = <span class="keyword">new</span> DistributedBarrier(client, barrierPath);</span>
+<span class="line"></span>
+<span class="line">   ExecutorService executorService = Executors.newCachedThreadPool();</span>
+<span class="line"></span>
+<span class="line">   <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span>
+<span class="line">       executorService.execute(<span class="keyword">new</span> Worker(barrier));</span>
+<span class="line">   &#125;</span>
+<span class="line"></span>
+<span class="line">   Thread.sleep(<span class="number">1000</span> * <span class="number">5</span>);</span>
+<span class="line"></span>
+<span class="line">   <span class="comment">//主线程设置结点，worker线程等待</span></span>
+<span class="line">   barrier.setBarrier();</span>
+<span class="line"></span>
+<span class="line">   Thread.sleep(<span class="number">1000</span> * <span class="number">10</span>);</span>
+<span class="line">   System.out.println(<span class="string">"ALL Done!"</span>);</span>
+<span class="line"></span>
+<span class="line">   barrier.removeBarrier();</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Worker</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">   <span class="keyword">private</span> DistributedBarrier barrier;</span>
+<span class="line"></span>
+<span class="line">   Worker(DistributedBarrier barrier) &#123;</span>
+<span class="line">       <span class="keyword">this</span>.barrier = barrier;</span>
+<span class="line">   &#125;</span>
+<span class="line"></span>
+<span class="line">   <span class="meta">@Override</span></span>
+<span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">       <span class="keyword">try</span> &#123;</span>
+<span class="line">           barrier.waitOnBarrier();</span>
+<span class="line">           System.out.println(Thread.currentThread().getName() + <span class="string">" &gt;&gt;&gt;&gt; Finished"</span>);</span>
+<span class="line">       &#125; <span class="keyword">catch</span> (Exception e) &#123;</span>
+<span class="line">           e.printStackTrace();</span>
+<span class="line">       &#125;</span>
+<span class="line">   &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="DistributedDoubleBarrier"><a href="#DistributedDoubleBarrier" class="headerlink" title="DistributedDoubleBarrier"></a>DistributedDoubleBarrier</h3><p>双栅栏允许客户端在计算的开始和结束时同步。当足够的进程加入到双栅栏时，进程开始计算， 当计算完成时，离开栅栏。</p>
+<p>构造函数为：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">DistributedDoubleBarrier</span><span class="params">(CuratorFramework client,</span>
+<span class="line">                                String barrierPath,</span>
+<span class="line">                                <span class="keyword">int</span> memberQty)</span></span>
+<span class="line">Creates the barrier abstraction. memberQty is the number of members in the barrier. When <span class="title">enter</span><span class="params">()</span> is called, it blocks until</span>
+<span class="line">all members have entered. When <span class="title">leave</span><span class="params">()</span> is called, it blocks until all members have left.</span>
+<span class="line">Parameters:</span>
+<span class="line">client - the client</span>
+<span class="line">barrierPath - path to use</span>
+<span class="line">memberQty - the number of members in the barrier</span></span>
+</pre></td></tr></table></figure>
+<p><code>memberQty</code>是成员数量，当<code>enter</code>方法被调用时，成员被阻塞，直到所有的成员都调用了<code>enter</code>。 当<code>leave</code>方法被调用时，它也阻塞调用线程， 直到所有的成员都调用了<code>leave</code>。</p>
+<p><code>DistributedDoubleBarrier</code>会监控连接状态，当连接断掉时<code>enter</code>和<code>leave</code>方法会抛出异常。</p>
+<p>下面是一个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> QTY = <span class="number">5</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="meta">@Test</span></span>
+<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testDistributedDoubleBarrier</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">   String barrierPath = <span class="string">"/config/barriers"</span>;</span>
+<span class="line"></span>
+<span class="line">   ExecutorService executorService = Executors.newFixedThreadPool(QTY);</span>
+<span class="line">   <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; QTY; i++) &#123;</span>
+<span class="line">       <span class="keyword">final</span> DistributedDoubleBarrier barrier = <span class="keyword">new</span> DistributedDoubleBarrier(client, barrierPath, QTY);</span>
+<span class="line">       executorService.execute(<span class="keyword">new</span> Worker(barrier));</span>
+<span class="line">   &#125;</span>
+<span class="line"></span>
+<span class="line">   Thread.sleep(<span class="number">1000</span> * <span class="number">5</span>);</span>
+<span class="line">   System.out.println(<span class="string">"ALL Done!"</span>);</span>
+<span class="line"></span>
+<span class="line">   executorService.shutdown();</span>
+<span class="line">   executorService.awaitTermination(<span class="number">10</span>, TimeUnit.MINUTES);</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Worker</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">   DistributedDoubleBarrier doubleBarrier;</span>
+<span class="line"></span>
+<span class="line">   Worker(DistributedDoubleBarrier doubleBarrier) &#123;</span>
+<span class="line">       <span class="keyword">this</span>.doubleBarrier = doubleBarrier;</span>
+<span class="line">   &#125;</span>
+<span class="line"></span>
+<span class="line">   <span class="meta">@Override</span></span>
+<span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">       <span class="keyword">try</span> &#123;</span>
+<span class="line">           <span class="comment">//等待所有客户端都到达</span></span>
+<span class="line">           doubleBarrier.enter();</span>
+<span class="line">           System.out.println(<span class="string">"I'am arrival"</span>);</span>
+<span class="line">           System.out.println(Thread.currentThread().getName() + <span class="string">" &gt;&gt;&gt;&gt; Finished"</span>);</span>
+<span class="line">           <span class="comment">//等待所有客户端都到达</span></span>
+<span class="line">           doubleBarrier.leave();</span>
+<span class="line">           System.out.println(<span class="string">"I'am leave"</span>);</span>
+<span class="line">       &#125; <span class="keyword">catch</span> (Exception e) &#123;</span>
+<span class="line">           e.printStackTrace();</span>
+<span class="line">       &#125;</span>
+<span class="line">   &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h2 id="分布式计数器"><a href="#分布式计数器" class="headerlink" title="分布式计数器"></a>分布式计数器</h2><h3 id="SharedCount"><a href="#SharedCount" class="headerlink" title="SharedCount"></a>SharedCount</h3><p><code>SharedCount</code> 管理一个共享的整型数字。所有监听该同一个Zookeeper Path的客户端都能获取到该整型数字的最新值。</p>
+<p>例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+<span class="line">43</span>
+<span class="line">44</span>
+<span class="line">45</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SharedCountTest</span> <span class="keyword">extends</span> <span class="title">BaseTest</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String COUNTER_PATH = <span class="string">"/config/conunter/total"</span>;</span>
+<span class="line"></span>
+<span class="line">    <span class="meta">@Test</span></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testSharedCount</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">        SharedCount sharedCount = <span class="keyword">new</span> SharedCount(client, COUNTER_PATH, <span class="number">0</span>);</span>
+<span class="line">        sharedCount.start();</span>
+<span class="line"></span>
+<span class="line">        ExecutorService executorService = Executors.newFixedThreadPool(<span class="number">3</span>);</span>
+<span class="line"></span>
+<span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) &#123;</span>
+<span class="line">            <span class="keyword">final</span> SharedCount count = <span class="keyword">new</span> SharedCount(client, COUNTER_PATH, <span class="number">0</span>);</span>
+<span class="line">            count.start();</span>
+<span class="line">            executorService.execute(<span class="keyword">new</span> Runnable() &#123;</span>
+<span class="line">                <span class="meta">@Override</span></span>
+<span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">                    count.addListener(<span class="keyword">new</span> SharedCountListener() &#123;</span>
+<span class="line">                        <span class="meta">@Override</span></span>
+<span class="line">                        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">countHasChanged</span><span class="params">(SharedCountReader sharedCount, <span class="keyword">int</span> newCount)</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">                            System.out.println(Thread.currentThread().getName() + <span class="string">"===="</span> + newCount);</span>
+<span class="line">                        &#125;</span>
+<span class="line"></span>
+<span class="line">                        <span class="meta">@Override</span></span>
+<span class="line">                        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">stateChanged</span><span class="params">(CuratorFramework client, ConnectionState newState)</span> </span>&#123;</span>
+<span class="line">                            System.out.println(newState);</span>
+<span class="line">                        &#125;</span>
+<span class="line">                    &#125;);</span>
+<span class="line"></span>
+<span class="line">                    <span class="keyword">try</span> &#123;</span>
+<span class="line">                        Thread.sleep(<span class="number">1000</span> * <span class="number">5</span>);</span>
+<span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span>
+<span class="line">                        e.printStackTrace();</span>
+<span class="line">                    &#125;</span>
+<span class="line">                &#125;</span>
+<span class="line">            &#125;);</span>
+<span class="line">        &#125;</span>
+<span class="line">        Thread.sleep(<span class="number">1000</span> * <span class="number">3</span>);</span>
+<span class="line">        sharedCount.setCount(<span class="number">123</span>);</span>
+<span class="line">        Thread.sleep(<span class="number">1000</span> * <span class="number">3</span>);</span>
+<span class="line">        sharedCount.setCount(<span class="number">456</span>);</span>
+<span class="line">        Thread.sleep(<span class="number">1000</span> * <span class="number">20</span>);</span>
+<span class="line">        sharedCount.close();</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<blockquote>
+<p>注意： 如果连续两次调用<code>setCount</code>方法，在客户端只能观察到最后一次的结果。<code>trySetCount</code> 只有当该客户端的缓存的值和服务端保存的值一致才能设置成功，否则该客户端的值会自动更新（<code>trySetCount</code>返回false）。</p>
+</blockquote>
+<h3 id="DistributedAtomicLong"><a href="#DistributedAtomicLong" class="headerlink" title="DistributedAtomicLong"></a>DistributedAtomicLong</h3><p><code>DistributedAtomicLong</code> 是一个原子更新的计数器。它在更新值时，第一次尝试采用乐观锁机制，如果更新失败，则使用<code>InterProcessMutex</code>来实现更新。 不管采用哪种机制，它都会采用重试机制，直到更新成功。</p>
+<p>一个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestDistributedAtomicLong</span> <span class="keyword">extends</span> <span class="title">BaseTest</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String COUNTER_PATH = <span class="string">"/config/conunter/123"</span>;</span>
+<span class="line"></span>
+<span class="line">    <span class="meta">@Test</span></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testDistributedAtomicLong</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">        RetryPolicy retryPolicy = <span class="keyword">new</span> RetryForever(<span class="number">10</span>);</span>
+<span class="line">        DistributedAtomicLong atomicLong = <span class="keyword">new</span> DistributedAtomicLong(client, COUNTER_PATH, retryPolicy);</span>
+<span class="line"></span>
+<span class="line">        ExecutorService executorService = Executors.newFixedThreadPool(<span class="number">10</span>);</span>
+<span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span>
+<span class="line">            <span class="keyword">final</span> RetryPolicy retryPolicyTmp = <span class="keyword">new</span> RetryForever(<span class="number">10</span>);</span>
+<span class="line">            <span class="keyword">final</span> DistributedAtomicLong distCounter = <span class="keyword">new</span> DistributedAtomicLong(client, COUNTER_PATH, retryPolicyTmp);</span>
+<span class="line"></span>
+<span class="line">            executorService.execute(<span class="keyword">new</span> Runnable() &#123;</span>
+<span class="line">                <span class="meta">@Override</span></span>
+<span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">                    System.out.println(distCounter);</span>
+<span class="line"></span>
+<span class="line">                    AtomicValue&lt;Long&gt; result = <span class="keyword">null</span>;</span>
+<span class="line">                    <span class="keyword">try</span> &#123;</span>
+<span class="line">                        result = distCounter.increment();</span>
+<span class="line">                        <span class="keyword">if</span> (result.succeeded()) &#123;</span>
+<span class="line">                            System.out.println(Thread.currentThread().getName() + <span class="string">"===&gt; current value = "</span> + result.preValue());</span>
+<span class="line">                        &#125;</span>
+<span class="line">                    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span>
+<span class="line">                        e.printStackTrace();</span>
+<span class="line">                    &#125;</span>
+<span class="line">                &#125;</span>
+<span class="line">            &#125;);</span>
+<span class="line">        &#125;</span>
+<span class="line"></span>
+<span class="line">        Thread.sleep(<span class="number">1000</span> * <span class="number">5</span>);</span>
+<span class="line"></span>
+<span class="line">        System.out.println(<span class="string">"After all current value is = "</span> + atomicLong.get().postValue());</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<blockquote>
+<p>注意：在使用<code>DistributedAtomicLong</code>时，你必须首先检查<code>AtomicValue.succeeded()</code>的返回值。如果操作成功则该方法的返回<code>true</code>，否则返回<code>false</code>，表示原子更新失败。如果更新成功，则可以通过<code>preValue</code>和<code>postValue</code>获取更新前后的值。</p>
+</blockquote>
+<h2 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h2><h3 id="PathChildrenCache"><a href="#PathChildrenCache" class="headerlink" title="PathChildrenCache"></a>PathChildrenCache</h3><p><code>PathChildrenCache</code> 用来观察一个<code>ZNode</code>。无论该结点下新增子节点，删除子节点还是子节点更新，路径缓存都会更新它的状态来包含当前的结点集合（包括状态和数据）。</p>
+<p>一个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PathChildrenCacheTest</span> <span class="keyword">extends</span> <span class="title">BaseTest</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String CACHE_PATH = <span class="string">"/config/cache"</span>;</span>
+<span class="line">    </span>
+<span class="line">    <span class="meta">@Test</span></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testPathChildrenCache</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">        PathChildrenCache pathChildrenCache = <span class="keyword">new</span> PathChildrenCache(client, CACHE_PATH, <span class="keyword">true</span>);</span>
+<span class="line">        pathChildrenCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);</span>
+<span class="line"></span>
+<span class="line">        pathChildrenCache.getListenable().addListener(<span class="keyword">new</span> PathChildrenCacheListener() &#123;</span>
+<span class="line">            <span class="meta">@Override</span></span>
+<span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">childEvent</span><span class="params">(CuratorFramework client, PathChildrenCacheEvent event)</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">                System.out.println(event);</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125;);</span>
+<span class="line">        Thread.sleep(<span class="number">1000</span> * <span class="number">50</span>);</span>
+<span class="line"></span>
+<span class="line">        List&lt;ChildData&gt; childDataList = pathChildrenCache.getCurrentData();</span>
+<span class="line">        <span class="keyword">for</span> (ChildData childData : childDataList) &#123;</span>
+<span class="line">            System.out.println(childData);</span>
+<span class="line">        &#125;</span>
+<span class="line"></span>
+<span class="line">        pathChildrenCache.close();</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="NodeCache"><a href="#NodeCache" class="headerlink" title="NodeCache"></a>NodeCache</h3><p><code>NodeCache</code>用来观察一个<code>ZNode</code>。当该结点的数据被更新，或被删除，<code>NodeCache</code>会同步到结点当前最新的数据，如果结点被删除，则<code>NodeCache</code>包含的数据为null。</p>
+<p>一个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NodeCacheTest</span> <span class="keyword">extends</span> <span class="title">BaseTest</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String CACHE_NODE_PATH = <span class="string">"/config/cache/123"</span>;</span>
+<span class="line"></span>
+<span class="line">    <span class="meta">@Test</span></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testNodeCache</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">        <span class="keyword">final</span> NodeCache nodeCache = <span class="keyword">new</span> NodeCache(client, CACHE_NODE_PATH);</span>
+<span class="line">        nodeCache.start(<span class="keyword">true</span>);</span>
+<span class="line">        nodeCache.getListenable().addListener(<span class="keyword">new</span> NodeCacheListener() &#123;</span>
+<span class="line">            <span class="meta">@Override</span></span>
+<span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">nodeChanged</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">                System.out.println(<span class="keyword">new</span> String(nodeCache.getCurrentData().getData()));</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125;);</span>
+<span class="line"></span>
+<span class="line">        Thread.sleep(<span class="number">1000</span> * <span class="number">50</span>);</span>
+<span class="line">        nodeCache.close();</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="TreeCache"><a href="#TreeCache" class="headerlink" title="TreeCache"></a>TreeCache</h3><p><code>TreeCache</code>是一个工具类，它试图将服务端某个<code>Path</code>下所有所有的结点数据缓存到本地。该类会监听指定的ZK路径，处理<code>update</code>,<code>create</code>,<code>delete</code>事件并拉取服务端的数据。你可以通过注册一个Listener来获取数据的变化通知。</p>
+<p>一个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TreeCacheTest</span> <span class="keyword">extends</span> <span class="title">BaseTest</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String CACHE_PATH = <span class="string">"/config/cache"</span>;</span>
+<span class="line"></span>
+<span class="line">    <span class="meta">@Test</span></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testTreeCache</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">        TreeCache treeCache = <span class="keyword">new</span> TreeCache(client, CACHE_PATH);</span>
+<span class="line">        treeCache.getListenable().addListener(<span class="keyword">new</span> TreeCacheListener() &#123;</span>
+<span class="line">            <span class="meta">@Override</span></span>
+<span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">childEvent</span><span class="params">(CuratorFramework client, TreeCacheEvent event)</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">                System.out.println(event);</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125;);</span>
+<span class="line">        treeCache.start();</span>
+<span class="line"></span>
+<span class="line">        Thread.sleep(<span class="number">1000</span> * <span class="number">50</span>);</span>
+<span class="line"></span>
+<span class="line">        Map&lt;String, ChildData&gt; dataMap = treeCache.getCurrentChildren(CACHE_PATH);</span>
+<span class="line">        <span class="keyword">for</span> (Map.Entry&lt;String, ChildData&gt; entry : dataMap.entrySet()) &#123;</span>
+<span class="line">            System.out.println(entry.getKey() + <span class="string">" =====》"</span> +  <span class="keyword">new</span> String(entry.getValue().getData()));</span>
+<span class="line">        &#125;</span>
+<span class="line">        treeCache.close();</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h2 id="Nodes"><a href="#Nodes" class="headerlink" title="Nodes"></a>Nodes</h2><h3 id="Persistent-Node"><a href="#Persistent-Node" class="headerlink" title="Persistent Node"></a>Persistent Node</h3><p>持久化结点是数据保存在Zookeeper服务端，并且在连接断开，session过期任然存在的结点。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersistentNodeTest</span> <span class="keyword">extends</span> <span class="title">BaseTest</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String NODE_PATH = <span class="string">"/persons/sky"</span>;</span>
+<span class="line"></span>
+<span class="line">    <span class="meta">@Test</span></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testPersistentNode</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">        PersistentNode persistentNode = <span class="keyword">new</span> PersistentNode(</span>
+<span class="line">            client,</span>
+<span class="line">            CreateMode.PERSISTENT,</span>
+<span class="line">            <span class="keyword">true</span>,</span>
+<span class="line">            NODE_PATH,</span>
+<span class="line">            <span class="string">"123"</span>.getBytes()</span>
+<span class="line">        );</span>
+<span class="line">        <span class="comment">//必须先调用该方法(该方法会创建结点)</span></span>
+<span class="line">        persistentNode.start();</span>
+<span class="line"></span>
+<span class="line">        System.out.println(persistentNode.getActualPath());</span>
+<span class="line">        System.out.println(<span class="keyword">new</span> String(persistentNode.getData()));</span>
+<span class="line">        <span class="comment">//会删除该结点</span></span>
+<span class="line"><span class="comment">//        persistentNode.close();</span></span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="Persistent-TTL-Node"><a href="#Persistent-TTL-Node" class="headerlink" title="Persistent TTL Node"></a>Persistent TTL Node</h3><p><code>`在你需要创建</code>TTL<code>节点，但不想通过定期设置数据手动保持它的活动状态时非常有用。</code>PersistentTtlNode<code>可以为你完成此操作。 此外，保持活动的方式不会在父节点上生成监视触发器。 它还提供了类似</code>PersistentNode`的保证，即使通过连接和会话中断，节点也会尝试保持在ZooKeeper中。</p>
+<h3 id="Group-Member"><a href="#Group-Member" class="headerlink" title="Group Member"></a>Group Member</h3><h2 id="分布式队列"><a href="#分布式队列" class="headerlink" title="分布式队列"></a>分布式队列</h2><p>、、、、</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;Apache &lt;a href=&quot;http://curator.apache.org/&quot;&gt;Curator&lt;/a&gt;是Netflix开源的操作Zookeeper的，功能非常强大的客户端。提供了很多非常好用的功能来帮助我们构建分布式应用。&lt;/p&gt;
+&lt;h2 id=&quot;分布式锁&quot;&gt;&lt;a href=&quot;#分布式锁&quot; class=&quot;headerlink&quot; title=&quot;分布式锁&quot;&gt;&lt;/a&gt;分布式锁&lt;/h2&gt;&lt;p&gt;Curator 提供的分布式锁分为以下三类：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;可重入公平锁 InterProcessMutex&lt;/li&gt;
+&lt;li&gt;不可重入的非公平锁 InterProcessSemaphoreMutex&lt;/li&gt;
+&lt;li&gt;可重入的读写锁 InterProcessReadWriteLock&lt;/li&gt;
+&lt;li&gt;锁集合 InterProcessMultiLock&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="架构" scheme="https://leokongwq.github.io/categories/%E6%9E%B6%E6%9E%84/"/>
+    
+    
+      <category term="zookeeper" scheme="https://leokongwq.github.io/tags/zookeeper/"/>
+    
+      <category term="curator" scheme="https://leokongwq.github.io/tags/curator/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>分布式系统一致性总结</title>
+    <link href="https://leokongwq.github.io/2018/06/01/distributed-system-consitency.html"/>
+    <id>https://leokongwq.github.io/2018/06/01/distributed-system-consitency.html</id>
+    <published>2018-06-01T06:16:32.000Z</published>
+    <updated>2018-06-01T06:19:46.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在学习过程中，阅读了好多关于分布式系统一致性的文章和资料，总是被分布式事务一致性和分布式数据一致性</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;在学习过程中，阅读了好多关于分布式系统一致性的文章和资料，总是被分布式事务一致性和分布式数据一致性&lt;/p&gt;
+
+    
+    </summary>
+    
+      <category term="架构" scheme="https://leokongwq.github.io/categories/%E6%9E%B6%E6%9E%84/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>spring中RestTemplate简介</title>
+    <link href="https://leokongwq.github.io/2018/05/30/spring-RestTemplate.html"/>
+    <id>https://leokongwq.github.io/2018/05/30/spring-RestTemplate.html</id>
+    <published>2018-05-30T08:44:51.000Z</published>
+    <updated>2018-05-30T09:29:42.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="RestTemplate-是什么？"><a href="#RestTemplate-是什么？" class="headerlink" title="RestTemplate 是什么？"></a>RestTemplate 是什么？</h3><p>RestTemplate是Spring提供的一个访问Http服务的客户端类，非常类似JdbcTemplate, JmsTemplate。它是线程安全的（一旦创建完成）。从名称上来看，该类更多是针对RESTFUL风格API设计的。当然如果你想通过它调用普通的Http接口也是可以的。</p>
+<h3 id="RestTemplate-的方法"><a href="#RestTemplate-的方法" class="headerlink" title="RestTemplate 的方法"></a>RestTemplate 的方法</h3><p>RestTemplate提供的方法都是以Http协议中的6个动词开头的：</p>
+<img src="/2018/05/30/spring-RestTemplate/spring-template.png" alt="spring-template.png" title="">
+<p>这些方法的名称清楚地表明它们调用的是哪个HTTP方法，而名称的第二部分表示返回的内容。 例如，<code>getForObject（）</code>将执行GET，将HTTP响应转换为你选择的对象类型，并返回该对象。<code>postForLocation</code>将执行POST，将给定对象转换为HTTP请求，并返回可以找到新创建对象的响应<code>HTTP Location</code>标头。 如你所见，这些方法试图强制执行REST最佳实践。</p>
+<a id="more"></a>
+<h3 id="URI-模板"><a href="#URI-模板" class="headerlink" title="URI 模板"></a>URI 模板</h3><p>这些方法中的每一个都将URI作为第一个参数。 该URI可以是URI模板，可以使用变量将模板扩展为正常的URI。 模板变量可以以两种形式传递：<code>作为String可变参数数组</code>，或作为<code>Map &lt;String，String&gt;</code>。 字符串可变数组按顺序展开复制给模板变量，例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">String result = restTemplate.getForObject(<span class="string">"http://example.com/hotels/&#123;hotel&#125;/bookings/&#123;booking&#125;"</span>, String.class, <span class="string">"42"</span>, <span class="string">"21"</span>);</span>
+</pre></td></tr></table></figure>
+<p>上面的代码最终会请求：<a href="http://example.com/hotels/42/bookings/21" target="_blank" rel="external">http://example.com/hotels/42/bookings/21</a>。Map类型的模板数据，则会以模板变量的名称为key, 查询对应的值来做替换。例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+</pre></td><td class="code"><pre><span class="line">Map&lt;String, String&gt; vars = <span class="keyword">new</span> HashMap&lt;String, String&gt;();</span>
+<span class="line">vars.put(<span class="string">"hotel"</span>, <span class="string">"42"</span>);</span>
+<span class="line">vars.put(<span class="string">"booking"</span>, <span class="string">"21"</span>);</span>
+<span class="line">String result = restTemplate.getForObject(<span class="string">"http://example.com/hotels/&#123;hotel&#125;/bookings/&#123;booking&#125;"</span>, String.class, vars);</span>
+</pre></td></tr></table></figure>
+<p>最终同样会发送请求：<a href="http://example.com/hotels/42/rooms/42" target="_blank" rel="external">http://example.com/hotels/42/rooms/42</a>。</p>
+<h3 id="HttpMessageConverters"><a href="#HttpMessageConverters" class="headerlink" title="HttpMessageConverters"></a>HttpMessageConverters</h3><p>传递给方法<code>getForObject()</code>,<code>postForLocation()</code>,<code>put()</code>的数据对象，或是这些方法的返回数据对象都是通过<code>HttpMessageConverter</code>进行转换的。在发送请求时，将数据对象转为Http请求数据， 接收响应时，将Http响应数据转为对应的数据对象。具体参考下面的例子</p>
+<h4 id="搜索图片"><a href="#搜索图片" class="headerlink" title="搜索图片"></a>搜索图片</h4><p>Flickr公开了各种API来操纵庞大的照片库。<code>flickr.photos.search</code>方法允许你通过使用<code>GET</code>方法请求地址：<a href="http://www.flickr.com/services/rest?method=flickr.photos.search&amp;api+key=xxx&amp;tags=penguins" target="_blank" rel="external">http://www.flickr.com/services/rest?method=flickr.photos.search&amp;api+key=xxx&amp;tags=penguins</a>来搜索照片，结果会以xml的形式展示:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">photos</span> <span class="attr">page</span>=<span class="string">"2"</span> <span class="attr">pages</span>=<span class="string">"89"</span> <span class="attr">perpage</span>=<span class="string">"10"</span> <span class="attr">total</span>=<span class="string">"881"</span>&gt;</span></span>
+<span class="line">	<span class="tag">&lt;<span class="name">photo</span> <span class="attr">id</span>=<span class="string">"2636"</span> <span class="attr">owner</span>=<span class="string">"47058503995@N01"</span> </span>
+<span class="line">		<span class="attr">secret</span>=<span class="string">"a123456"</span> <span class="attr">server</span>=<span class="string">"2"</span> <span class="attr">title</span>=<span class="string">"test_04"</span></span>
+<span class="line">		<span class="attr">ispublic</span>=<span class="string">"1"</span> <span class="attr">isfriend</span>=<span class="string">"0"</span> <span class="attr">isfamily</span>=<span class="string">"0"</span> /&gt;</span></span>
+<span class="line">	<span class="tag">&lt;<span class="name">photo</span> <span class="attr">id</span>=<span class="string">"2635"</span> <span class="attr">owner</span>=<span class="string">"47058503995@N01"</span></span>
+<span class="line">		<span class="attr">secret</span>=<span class="string">"b123456"</span> <span class="attr">server</span>=<span class="string">"2"</span> <span class="attr">title</span>=<span class="string">"test_03"</span></span>
+<span class="line">		<span class="attr">ispublic</span>=<span class="string">"0"</span> <span class="attr">isfriend</span>=<span class="string">"1"</span> <span class="attr">isfamily</span>=<span class="string">"1"</span> /&gt;</span></span>
+<span class="line">	<span class="tag">&lt;<span class="name">photo</span> <span class="attr">id</span>=<span class="string">"2633"</span> <span class="attr">owner</span>=<span class="string">"47058503995@N01"</span></span>
+<span class="line">		<span class="attr">secret</span>=<span class="string">"c123456"</span> <span class="attr">server</span>=<span class="string">"2"</span> <span class="attr">title</span>=<span class="string">"test_01"</span></span>
+<span class="line">		<span class="attr">ispublic</span>=<span class="string">"1"</span> <span class="attr">isfriend</span>=<span class="string">"0"</span> <span class="attr">isfamily</span>=<span class="string">"0"</span> /&gt;</span></span>
+<span class="line">	<span class="tag">&lt;<span class="name">photo</span> <span class="attr">id</span>=<span class="string">"2610"</span> <span class="attr">owner</span>=<span class="string">"12037949754@N01"</span></span>
+<span class="line">		<span class="attr">secret</span>=<span class="string">"d123456"</span> <span class="attr">server</span>=<span class="string">"2"</span> <span class="attr">title</span>=<span class="string">"00_tall"</span></span>
+<span class="line">		<span class="attr">ispublic</span>=<span class="string">"1"</span> <span class="attr">isfriend</span>=<span class="string">"0"</span> <span class="attr">isfamily</span>=<span class="string">"0"</span> /&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">photos</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>Java代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> String photoSearchUrl =</span>
+<span class="line">   <span class="string">"http://www.flickr.com/services/rest?method=flickr.photos.search&amp;api+key=&#123;api-key&#125;&amp;tags=&#123;tag&#125;&amp;per_page=10"</span>;</span>
+<span class="line">Source photos = restTemplate.getForObject(photoSearchUrl, Source.class, apiKey, searchTerm);</span>
+</pre></td></tr></table></figure>
+<h3 id="代码实例"><a href="#代码实例" class="headerlink" title="代码实例"></a>代码实例</h3><h4 id="getXXX"><a href="#getXXX" class="headerlink" title="getXXX"></a>getXXX</h4><p>GET请求的方法如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line">public &lt;T&gt; T getForObject(String url, Class&lt;T&gt; responseType, Object... urlVariables) throws RestClientException </span>
+<span class="line"></span>
+<span class="line">public &lt;T&gt; T getForObject(String url, Class&lt;T&gt; responseType, Map&lt;String, ?&gt; urlVariables) throws RestClientException</span>
+<span class="line"></span>
+<span class="line">public &lt;T&gt; T getForObject(URI url, Class&lt;T&gt; responseType) throws RestClientException</span>
+</pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+</pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/hello"</span>)</span>
+<span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">helloGet</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">    ResponseEntity&lt;String&gt; responseEntity = restTemplate.getForEntity(<span class="string">"http://abc.com"</span>, String.class);</span>
+<span class="line">    String body = responseEntity.getBody();</span>
+<span class="line">    HttpStatus statusCode = responseEntity.getStatusCode();</span>
+<span class="line">    <span class="keyword">int</span> statusCodeValue = responseEntity.getStatusCodeValue();</span>
+<span class="line">    HttpHeaders headers = responseEntity.getHeaders();</span>
+<span class="line">    <span class="keyword">return</span> body;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="postXXX"><a href="#postXXX" class="headerlink" title="postXXX"></a>postXXX</h3><p>POST 请求的方法如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">T <span class="title">postForObject</span><span class="params">(String url, Object request, Class&lt;T&gt; responseType, Object... uriVariables)</span> <span class="keyword">throws</span> RestClientException</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">public</span> &lt;T&gt; T <span class="title">postForObject</span><span class="params">(String url, Object request, Class&lt;T&gt; responseType, Map&lt;String, ?&gt; uriVariables)</span> <span class="keyword">throws</span> RestClientException</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">public</span> &lt;T&gt; T <span class="title">postForObject</span><span class="params">(URI url, Object request, Class&lt;T&gt; responseType)</span> <span class="keyword">throws</span> RestClientException</span></span>
+</pre></td></tr></table></figure>
+<p>例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+</pre></td><td class="code"><pre><span class="line">HttpHeaders headers = <span class="keyword">new</span> HttpHeaders();</span>
+<span class="line">headers.add(<span class="string">"X-Auth-Token"</span>, <span class="string">"e348bc22-5efa-4299-9142-529f07a18ac9"</span>);</span>
+<span class="line"></span>
+<span class="line">MultiValueMap&lt;String, String&gt; postParameters = <span class="keyword">new</span> LinkedMultiValueMap&lt;String, String&gt;();</span>
+<span class="line">postParameters.add(<span class="string">"owner"</span>, <span class="string">"11"</span>);</span>
+<span class="line">postParameters.add(<span class="string">"subdomain"</span>, <span class="string">"aoa"</span>);</span>
+<span class="line">postParameters.add(<span class="string">"comment"</span>, <span class="string">""</span>);</span>
+<span class="line"></span>
+<span class="line">HttpEntity&lt;MultiValueMap&lt;String, String&gt;&gt; requestEntity  = <span class="keyword">new</span> HttpEntity&lt;MultiValueMap&lt;String, String&gt;&gt;(postParameters, headers);</span>
+<span class="line"></span>
+<span class="line">WebResult&lt;Person&gt; result = <span class="keyword">null</span>;</span>
+<span class="line"><span class="keyword">try</span> &#123;</span>
+<span class="line">  result = restTemplate.postForObject(<span class="string">"请求地址"</span>,  requestEntity, WebResult.class);</span>
+<span class="line">  logger.info(result);</span>
+<span class="line">&#125; <span class="keyword">catch</span> (RestClientException e) &#123;</span>
+<span class="line">  logger.info(<span class="string">"error"</span>, e);</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="RestTemplate配置"><a href="#RestTemplate配置" class="headerlink" title="RestTemplate配置"></a>RestTemplate配置</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+</pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RestTemplateConfig</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">    <span class="meta">@Bean</span></span>
+<span class="line">    <span class="meta">@ConditionalOnMissingBean</span>(&#123; RestOperations.class, RestTemplate.class &#125;)</span>
+<span class="line">    <span class="function"><span class="keyword">public</span> RestTemplate <span class="title">restTemplate</span><span class="params">(ClientHttpRequestFactory factory)</span> </span>&#123;</span>
+<span class="line">        RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate(factory);</span>
+<span class="line"></span>
+<span class="line">        List&lt;HttpMessageConverter&lt;?&gt;&gt; messageConverters = restTemplate.getMessageConverters();</span>
+<span class="line">        Iterator&lt;HttpMessageConverter&lt;?&gt;&gt; iterator = messageConverters.iterator();</span>
+<span class="line">        <span class="keyword">while</span> (iterator.hasNext()) &#123;</span>
+<span class="line">            HttpMessageConverter&lt;?&gt; converter = iterator.next();</span>
+<span class="line">            <span class="keyword">if</span> (converter <span class="keyword">instanceof</span> StringHttpMessageConverter) &#123;</span>
+<span class="line">                iterator.remove();</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125;</span>
+<span class="line">        messageConverters.add(<span class="keyword">new</span> StringHttpMessageConverter(Charset.forName(<span class="string">"UTF-8"</span>)));</span>
+<span class="line">        restTemplate.getMessageConverters().add(<span class="keyword">new</span> MappingJackson2HttpMessageConverter());</span>
+<span class="line">        <span class="keyword">return</span> restTemplate;</span>
+<span class="line">    &#125;</span>
+<span class="line"></span>
+<span class="line">    <span class="meta">@Bean</span></span>
+<span class="line">    <span class="meta">@ConditionalOnMissingBean</span>(&#123;ClientHttpRequestFactory.class&#125;)</span>
+<span class="line">    <span class="function"><span class="keyword">public</span> ClientHttpRequestFactory <span class="title">simpleClientHttpRequestFactory</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">        SimpleClientHttpRequestFactory factory = <span class="keyword">new</span> SimpleClientHttpRequestFactory();</span>
+<span class="line">        factory.setReadTimeout(<span class="number">15000</span>);<span class="comment">// ms</span></span>
+<span class="line">        <span class="keyword">return</span> factory;</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://spring.io/blog/2009/03/27/rest-in-spring-3-resttemplate" target="_blank" rel="external">https://spring.io/blog/2009/03/27/rest-in-spring-3-resttemplate</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;RestTemplate-是什么？&quot;&gt;&lt;a href=&quot;#RestTemplate-是什么？&quot; class=&quot;headerlink&quot; title=&quot;RestTemplate 是什么？&quot;&gt;&lt;/a&gt;RestTemplate 是什么？&lt;/h3&gt;&lt;p&gt;RestTemplate是Spring提供的一个访问Http服务的客户端类，非常类似JdbcTemplate, JmsTemplate。它是线程安全的（一旦创建完成）。从名称上来看，该类更多是针对RESTFUL风格API设计的。当然如果你想通过它调用普通的Http接口也是可以的。&lt;/p&gt;
+&lt;h3 id=&quot;RestTemplate-的方法&quot;&gt;&lt;a href=&quot;#RestTemplate-的方法&quot; class=&quot;headerlink&quot; title=&quot;RestTemplate 的方法&quot;&gt;&lt;/a&gt;RestTemplate 的方法&lt;/h3&gt;&lt;p&gt;RestTemplate提供的方法都是以Http协议中的6个动词开头的：&lt;/p&gt;
+&lt;img src=&quot;/2018/05/30/spring-RestTemplate/spring-template.png&quot; alt=&quot;spring-template.png&quot; title=&quot;&quot;&gt;
+&lt;p&gt;这些方法的名称清楚地表明它们调用的是哪个HTTP方法，而名称的第二部分表示返回的内容。 例如，&lt;code&gt;getForObject（）&lt;/code&gt;将执行GET，将HTTP响应转换为你选择的对象类型，并返回该对象。&lt;code&gt;postForLocation&lt;/code&gt;将执行POST，将给定对象转换为HTTP请求，并返回可以找到新创建对象的响应&lt;code&gt;HTTP Location&lt;/code&gt;标头。 如你所见，这些方法试图强制执行REST最佳实践。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="web" scheme="https://leokongwq.github.io/categories/web/"/>
+    
+    
+      <category term="spring" scheme="https://leokongwq.github.io/tags/spring/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java 虚拟机的关机方式</title>
+    <link href="https://leokongwq.github.io/2018/05/28/java-JVM-shutdown.html"/>
+    <id>https://leokongwq.github.io/2018/05/28/java-JVM-shutdown.html</id>
+    <published>2018-05-28T07:53:53.000Z</published>
+    <updated>2018-05-28T07:57:31.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>文章转自: <a href="https://zhuanlan.zhihu.com/p/37287644" target="_blank" rel="external">Java 虚拟机的关机方式</a></p>
+<p>JVM 是一个虚拟机，既然是虚拟的机器，就必然涉及到关机操作。JVM 关闭时，首先调用关闭钩子，所有钩子执行完毕后，如果需要进行垃圾回收就调用 finalize 方法，否则直接关闭虚拟机。JVM 关闭过程中，不会中断或停止任何线程，在最终关闭虚拟机时强制关闭所有线程。</p>
+<a id="more"></a>
+<h3 id="关闭钩子"><a href="#关闭钩子" class="headerlink" title="关闭钩子"></a>关闭钩子</h3><p>关闭钩子是一个可以在 JVM 关闭时执行的回调，可以通过 Runtime.addShutdownHook 进行注册。JVM 关闭时首先会调用这些关闭钩子，但不会保证关闭钩子执行的顺序。关闭钩子的执行时间要尽可能短，不应该再做耗时的操作，因为这会影响 JVM 的关闭时间。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">Runtime.getRuntime().addShutdownHook(<span class="keyword">new</span> Thread()&#123;    <span class="comment">//TODO&#125;);</span></span>
+</pre></td></tr></table></figure>
+<p>如果调用关闭钩子时还有线程在运行，那么关闭钩子将和这些线程同时运行。因此，关闭钩子的操作必须保证是线程安全的，访问数据需要使用同步机制，要避免死锁。同时，关闭钩子需要考虑 JVM 关闭的所有可能性，不能假设关闭的原因，也不应该尝试去分析 JVM 关闭的原因。关闭钩子通常用于服务的清理工作，如 dubbo 使用关闭钩子来关闭连接并通知注册中心注销服务。但关闭钩子是并发执行的，需要考虑多个钩子之间的相互影响，如提前关闭日志服务可能导致其他钩子或线程无法再使用日志。建议只使用一个关闭钩子来处理所有的事情，这样可以确保任务串行执行，从而避免多个钩子之间的竞争和死锁。</p>
+<h3 id="守护线程"><a href="#守护线程" class="headerlink" title="守护线程"></a>守护线程</h3><p>Java 中的线程分为普通线程和守护线程。一个线程被创建时会继承创建它的那个线程的守护状态。JVM 启动时创建的线程除了主线程是普通线程，其他线程（如 GC 等）都是守护线程。当线程退出时，JVM 会检查剩余线程的状态，如果剩余的线程都是守护线程已经没有普通线程，那么 JVM 会进行关闭操作。JVM 最终关闭时，守护线程会被直接抛弃，既不会执行 finally 也不会执行回卷栈。因此应该尽量不要使用守护线程，使用时也应该进行简单的操作。</p>
+<h3 id="垃圾回收JVM"><a href="#垃圾回收JVM" class="headerlink" title="垃圾回收JVM"></a>垃圾回收JVM</h3><p>关闭的最后一步是进行垃圾回收，主要是文件或套接字资源。这一步主要是调用 finalize 方法进行最后的资源释放。finalize 方法访问的数据可能会被其他线程并发访问，必须对访问进行同步控制。JVM 不保证何时调用 finalize 方法，甚至无法保证是否调用 finalize 方法。因此尽量不要使用 finalize 来释放资源，而应该在 finally 中显式调用 close 方法来关闭资源。</p>
+<h3 id="强行关闭"><a href="#强行关闭" class="headerlink" title="强行关闭"></a>强行关闭</h3><p>如果 JVM 遇到问题或者无法关闭，我们可以使用 kill 命令或其他虚拟机自己实现的方法进行强行关闭。强行关闭仅仅是关闭 JVM，不会运行关闭钩子。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;文章转自: &lt;a href=&quot;https://zhuanlan.zhihu.com/p/37287644&quot;&gt;Java 虚拟机的关机方式&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;JVM 是一个虚拟机，既然是虚拟的机器，就必然涉及到关机操作。JVM 关闭时，首先调用关闭钩子，所有钩子执行完毕后，如果需要进行垃圾回收就调用 finalize 方法，否则直接关闭虚拟机。JVM 关闭过程中，不会中断或停止任何线程，在最终关闭虚拟机时强制关闭所有线程。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="java" scheme="https://leokongwq.github.io/categories/java/"/>
+    
+    
+      <category term="jvm" scheme="https://leokongwq.github.io/tags/jvm/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Zookeeper简介</title>
+    <link href="https://leokongwq.github.io/2018/05/24/zookeeper-learning-summary.html"/>
+    <id>https://leokongwq.github.io/2018/05/24/zookeeper-learning-summary.html</id>
+    <published>2018-05-24T12:46:53.000Z</published>
+    <updated>2018-05-30T08:43:53.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="zookeeper-是什么？"><a href="#zookeeper-是什么？" class="headerlink" title="zookeeper 是什么？"></a>zookeeper 是什么？</h3><p>官方解释如下</p>
+<blockquote>
+<p>ZooKeeper是一个开源的，专门服务于分布式应用的分布式协调服务。 它提供了一组简单的<code>原语</code>，分布式应用程序可以利用这些<code>原语</code>来实现更高级别的服务，以实现同步，配置维护以及组和命名。 它被设计为易于编程，并使用类似大家所熟悉的文件系统目录树结构的数据模型。</p>
+</blockquote>
+<p>众所周知，协调服务很难正确实现。 它们特别容易出现诸如竞态条件和死锁等错误。 ZooKeeper背后的动机是减轻分布式应用程序从头开始实施协调服务的责任。</p>
+<a id="more"></a>
+<h3 id="设计目标"><a href="#设计目标" class="headerlink" title="设计目标"></a>设计目标</h3><h4 id="简单"><a href="#简单" class="headerlink" title="简单"></a>简单</h4><p>ZooKeeper允许分布式进程通过与标准文件系统组织相似的共享分层命名空间相互协调。 命名空间由称为znode的数据节点组成，按ZooKeeper的说法 - 这些节点类似于文件和目录。 与典型的专为存储功能而设计的文件系统不同，ZooKeeper中的数据保存在内存中，这意味着ZooKeeper可以实现高吞吐量和低延迟。</p>
+<p>ZooKeeper的实现关注与高性能，高可用性，和严格有序的访问。 ZooKeeper的高性能意味着它可以用于大型分布式系统。 可靠性使它不会造成单点故障。 严格的顺序意味着可以在客户端实现复杂的同步原语。</p>
+<h4 id="多副本"><a href="#多副本" class="headerlink" title="多副本"></a>多副本</h4><p>像ZooKeeper所协调的分布式进程一样，ZooKeeper本身也倾向于部署多个实例，组成一个整体。</p>
+<img src="/2018/05/24/zookeeper-learning-summary/zkservice.jpg" alt="zkservice.jpg" title="">
+<p>组成ZooKeeper服务的服务器必须全都彼此了解。它们保持状态的内存映像，以及持久存储中的事务日志和快照。 只要大部分服务器都可用，ZooKeeper服务将可用。</p>
+<p>客户端只会连接到整个集群中的一台ZooKeeper服务器。 客户端会维护一个TCP连接，通过该连接发送请求，获取响应，获取监视事件并发送心跳。 如果到服务器的TCP连接中断，则客户端将连接到不同的服务器。</p>
+<h4 id="顺序性"><a href="#顺序性" class="headerlink" title="顺序性"></a>顺序性</h4><p>ZooKeeper使用一个反映所有ZooKeeper事务顺序的数字来标记每个更新。 后续操作可以使用该顺序来实现更高级别的抽象，例如同步原语。</p>
+<h4 id="高性能"><a href="#高性能" class="headerlink" title="高性能"></a>高性能</h4><p>zookeeper在读多写少的场景下速度非常快。ZooKeeper 服务可以运行在数千台机器上，在读取操作远多于写操作的场景下性能表现很好。读的性能可能10倍于写性能</p>
+<h4 id="数据模型和继承结构的命名空间"><a href="#数据模型和继承结构的命名空间" class="headerlink" title="数据模型和继承结构的命名空间"></a>数据模型和继承结构的命名空间</h4><p>ZooKeeper提供的名称空间非常类似于标准文件系统。 名称是由斜线<code>/</code>分隔的一系列路径元素。 ZooKeeper名称空间中的每个节点都由一个路径标识。</p>
+<img src="/2018/05/24/zookeeper-learning-summary/zknamespace.jpg" alt="zknamespace.jpg" title="">
+<h4 id="节点和临时节点"><a href="#节点和临时节点" class="headerlink" title="节点和临时节点"></a>节点和临时节点</h4><p>与标准文件系统不同，ZooKeeper命名空间中的每个节点都可以拥有与其相关的数据。 这就像有一个文件系统，允许一个节点既是文件也是目录。 （ZooKeeper被设计用于存储协调数据：状态信息，配置，位置信息等，因此存储在每个节点的数据通常很小，在字节到千字节范围内。）我们使用术语znode来说明我们正在谈论ZooKeeper数据节点。</p>
+<p>Znodes维护一个统计结构，包括数据更改的版本号，ACL更改和时间戳，以允许缓存验证和协调更新。 每次znode的数据更改时，版本号都会增加。 例如，每当客户端检索数据时，客户端也会收到数据的版本。</p>
+<p>存储在名称空间中每个节点上的数据都是以原子方式读取和写入的。 读取获取与znode关联的所有数据字节，写入将替换所有数据。 每个节点都有一个访问控制列表（ACL），限制谁可以做什么。</p>
+<p>ZooKeeper也有临时节点的概念。 只要创建znode的会话处于活动状态，这些znode就会存在。 当会话结束时，znode被删除。 当你想实现[tbd]时，临时节点很有用。</p>
+<h4 id="条件更新和观察者"><a href="#条件更新和观察者" class="headerlink" title="条件更新和观察者"></a>条件更新和观察者</h4><p>ZooKeeper支持观察者的概念。 客户可以在znode上设置观察者。 当znode改变时，观察者将被<code>触发并移除</code>。 当观察者被触发时，客户端会收到一个数据包，说明znode已经改变。 如果客户端和其中一个ZooKeeper服务器之间的连接中断，客户端将收到本地通知。 这些可用于[tbd]。</p>
+<h4 id="保证"><a href="#保证" class="headerlink" title="保证"></a>保证</h4><p>ZooKeeper非常快速且非常简单。 由于其目标是构建更复杂的服务（如同步）的基础，因此它提供了一组保证。 这些是：</p>
+<ul>
+<li>顺序一致性  来自客户端的更新将按照它们发送的顺序被执行。</li>
+<li>原子性  更新或者成功或失败，不存在中间状态</li>
+<li>单系统映像  无论客户端连接到哪个服务器，客户端都会看到相同的服务视图。</li>
+<li>可靠性 一旦更新被成功执行，则该更新结果会从该时刻被持久化，直到客户端下一次更新它为止。</li>
+<li>及时性 - 系统的客户视图保证在一定的时间范围内保持最新状态。</li>
+</ul>
+<h4 id="简单的-API"><a href="#简单的-API" class="headerlink" title="简单的 API"></a>简单的 API</h4><p>Zookeeper的一个设计目标就是提供非常简单的编程接口。因此，它只提供了下面的操作：</p>
+<h5 id="create"><a href="#create" class="headerlink" title="create"></a>create</h5><p>创建一个节点</p>
+<h5 id="delete"><a href="#delete" class="headerlink" title="delete"></a>delete</h5><p>删除一个节点</p>
+<h5 id="exists"><a href="#exists" class="headerlink" title="exists"></a>exists</h5><p>判断一个节点是否存在</p>
+<h5 id="get-data"><a href="#get-data" class="headerlink" title="get data"></a>get data</h5><p>获取节点的数据</p>
+<h5 id="set-data"><a href="#set-data" class="headerlink" title="set data"></a>set data</h5><p>设置节点的数据</p>
+<h5 id="get-children"><a href="#get-children" class="headerlink" title="get children"></a>get children</h5><p>获取节点的子节点列表</p>
+<h5 id="sync"><a href="#sync" class="headerlink" title="sync"></a>sync</h5><p>等待数据传播</p>
+<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h4><p>ZooKeeper组件显示了ZooKeeper服务的高级组件。 除请求处理器外，构成ZooKeeper服务的每个服务器都复制其各个组件的副本。</p>
+<img src="/2018/05/24/zookeeper-learning-summary/zkcomponents.jpg" alt="zkcomponents.jpg" title="">
+<p>副本集数据库是一个包含整个数据树的内存数据库。更新操作会被写入磁盘以实现故障恢复，写操作会先序列化到磁盘，然后在内存数据库中执行。</p>
+<p>每个ZooKeeper服务器都为客户提供服务。客户端连接至一台服务器以提交irequest。读请求的数据是从每个服务器数据库的本地副本获取。需改服务状态的请求，也就是写请求是通过一致性协议进行处理的。</p>
+<p>作为一致性协议的一部分，所有来自客户端的写入请求都被转发到一台称为<code>Leader</code>的服务器。 ZooKeeper服务的其余节点服务器（称为follower）接收Leader发出的消息提议，并就消息传递达成一致。消息传递层负责在Leader宕机后选择新的Leader，并与Leader数据保存同步。</p>
+<p>ZooKeeper使用自定义的原子消息传递协议<code>(ZAB)</code>。由于消息传递层是原子的，因此ZooKeeper可以保证本地数据副本永不过期。当Leader接收到一个写请求时，它会计算在写操作被执行时系统所处的状态，并将其转换成一个捕获这个新状态的事务</p>
+<h3 id="zookeeper的一致性如何保证"><a href="#zookeeper的一致性如何保证" class="headerlink" title="zookeeper的一致性如何保证"></a>zookeeper的一致性如何保证</h3><h3 id="zookeeper如何选主"><a href="#zookeeper如何选主" class="headerlink" title="zookeeper如何选主"></a>zookeeper如何选主</h3><h3 id="zookeeper写数据的过程"><a href="#zookeeper写数据的过程" class="headerlink" title="zookeeper写数据的过程"></a>zookeeper写数据的过程</h3><h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="http://zookeeper.apache.org/doc/r3.5.4-beta/zookeeperOver.html" target="_blank" rel="external">zookeeperOver.html</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;zookeeper-是什么？&quot;&gt;&lt;a href=&quot;#zookeeper-是什么？&quot; class=&quot;headerlink&quot; title=&quot;zookeeper 是什么？&quot;&gt;&lt;/a&gt;zookeeper 是什么？&lt;/h3&gt;&lt;p&gt;官方解释如下&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;ZooKeeper是一个开源的，专门服务于分布式应用的分布式协调服务。 它提供了一组简单的&lt;code&gt;原语&lt;/code&gt;，分布式应用程序可以利用这些&lt;code&gt;原语&lt;/code&gt;来实现更高级别的服务，以实现同步，配置维护以及组和命名。 它被设计为易于编程，并使用类似大家所熟悉的文件系统目录树结构的数据模型。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;众所周知，协调服务很难正确实现。 它们特别容易出现诸如竞态条件和死锁等错误。 ZooKeeper背后的动机是减轻分布式应用程序从头开始实施协调服务的责任。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="架构" scheme="https://leokongwq.github.io/categories/%E6%9E%B6%E6%9E%84/"/>
+    
+    
+      <category term="zookeeper" scheme="https://leokongwq.github.io/tags/zookeeper/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>常见DNS记录解释</title>
+    <link href="https://leokongwq.github.io/2018/05/24/common-dns-records.html"/>
+    <id>https://leokongwq.github.io/2018/05/24/common-dns-records.html</id>
+    <published>2018-05-24T06:18:58.000Z</published>
+    <updated>2018-05-24T07:53:43.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="A记录"><a href="#A记录" class="headerlink" title="A记录"></a>A记录</h3><p>A记录，又称IP指向，用户可以设置域名到目标主机IP地址的映射，从而实现通过域名找到服务器。</p>
+<h4 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h4><p>可以配置多条A记录，通过域名解析来实现<code>轮询</code>负载均衡。</p>
+<h4 id="泛域名解析"><a href="#泛域名解析" class="headerlink" title="泛域名解析"></a>泛域名解析</h4><p>泛域名解析指的是将一个域名所有未指定的子域名统一解析到一个地址。</p>
+<p>在<code>主机名</code>中填入<code>*</code>，类型为<code>A</code>，<code>IP地址/主机名</code>中填入web服务器的IP地址，点击“新增”按钮即可。</p>
+<a id="more"></a>
+<h3 id="NS-记录"><a href="#NS-记录" class="headerlink" title="NS 记录"></a>NS 记录</h3><p>域名服务器 (NS) 记录用于确定由哪些服务器来解析域名。</p>
+<p>例如用户希望由12.34.56.78这台服务器解析news.mydomain.com，则需要设置<code>news.mydomain.com</code>的NS记录。</p>
+<p>说明：<code>优先级</code>中的数字越小表示级别越高；<code>IP地址/主机名</code>中既可以填写IP地址，也可以填写像<code>ns.mydomain.com</code>这样的主机地址，但必须保证该主机地址有效。</p>
+<p>如将<code>news.mydomain.com</code>的NS记录指向到<code>ns.mydomain.com</code>，在设置NS记录的同时还需要设置<code>ns.mydomain.com</code>的指向（因为<code>ns.mydomain.com</code>也是一个域名，需要解析）。</p>
+<p>否则NS记录将无法正常解析；NS记录优先于A记录。即，如果一个主机地址同时存在NS记录和A记录，则A记录不生效。这里的NS记录只对子域名生效。 </p>
+<h3 id="MX记录"><a href="#MX记录" class="headerlink" title="MX记录"></a>MX记录</h3><p>MX记录: 邮件交换记录。用于将以该域名为结尾的电子邮件指向对应的邮件服务器以进行处理。如：用户所用的邮件是以域名<code>mydomain.com</code>为结尾的，则需要在管理界面中添加该域名的MX记录来处理所有以<code>@mydomain.com</code>结尾的邮件。 </p>
+<p>说明：MX记录可以使用主机名或IP地址；MX记录可以通过设置优先级实现主辅服务器设置，“优先级”中的数字越小表示级别越高。也可以使用相同优先级达到负载均衡的目的；如果在<code>主机名</code>中填入子域名则此MX记录只对该子域名生效。</p>
+<h3 id="CNAME-记录"><a href="#CNAME-记录" class="headerlink" title="CNAME 记录"></a>CNAME 记录</h3><p><code>CNAME</code>(Canonical Name)通常称别名指向。你可以为一个主机设置别名。比如设置test.mydomain.com，用来指向一个主机www.rddns.com那么以后就可以用test.mydomain.com来代替访问www.rddns.com了。</p>
+<p>说明：CNAME的目标主机地址只能使用主机名，不能使用IP地址；主机名前不能有任何其他前缀，如：<code>http://</code>等是不被允许的；A记录优先于CNAME记录。即如果一个主机地址同时存在A记录和CNAME记录，则CNAME记录不生效。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+</pre></td><td class="code"><pre><span class="line">nslookup  www.baidu.com</span>
+<span class="line">Server:		10.1.30.51</span>
+<span class="line">Address:	10.1.30.51#53</span>
+<span class="line"></span>
+<span class="line">Non-authoritative answer:</span>
+<span class="line">www.baidu.com	canonical name = www.a.shifen.com.</span>
+<span class="line">Name:	www.a.shifen.com</span>
+<span class="line">Address: 61.135.169.121</span>
+<span class="line">Name:	www.a.shifen.com</span>
+<span class="line">Address: 61.135.169.125</span>
+</pre></td></tr></table></figure>
+<p>从上面的命令输出可以知道：<code>www.baidu.com</code>的别名是<code>www.a.shifen.com.</code></p>
+<p>使用 CNAME 的好处就是解耦了域名和 IP 的直接联系, 这样假如服务器 IP 发生变更, 只需要改变CNAME记录中别名的A记录中的IP。</p>
+<h3 id="TXT记录"><a href="#TXT记录" class="headerlink" title="TXT记录"></a>TXT记录</h3><p>TXT记录一般是为某条记录设置说明，比如你新建了一条<code>a.ezloo.com</code>的TXT记录，TXT记录内容”this is a test TXT record.”，然后你用 <code>nslookup -qt txt a.ezloo.com</code> ，你就能看到”this is a test TXT record”的字样。</p>
+<p>除外，TXT还可以用来验证域名的所有，比如你的域名使用了Google的某项服务，Google会要求你建一个TXT记录，然后Google验证你对此域名是否具备管理权限。</p>
+<p>在命令行下可以使用<code>nslookup -qt=txt a.ezloo.com</code>来查看TXT记录。</p>
+<h3 id="AAAA记录"><a href="#AAAA记录" class="headerlink" title="AAAA记录"></a>AAAA记录</h3><p>AAAA记录是一个指向IPv6地址的记录。</p>
+<p>可以使用nslookup -qt=aaaa a.ezloo.com来查看AAAA记录。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://support.google.com/a/answer/48090?hl=zh-Hans" target="_blank" rel="external">DNS 基础知识</a></p>
+<p><a href="https://support.dnsimple.com/categories/dns/" target="_blank" rel="external">DNS articles</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;A记录&quot;&gt;&lt;a href=&quot;#A记录&quot; class=&quot;headerlink&quot; title=&quot;A记录&quot;&gt;&lt;/a&gt;A记录&lt;/h3&gt;&lt;p&gt;A记录，又称IP指向，用户可以设置域名到目标主机IP地址的映射，从而实现通过域名找到服务器。&lt;/p&gt;
+&lt;h4 id=&quot;负载均衡&quot;&gt;&lt;a href=&quot;#负载均衡&quot; class=&quot;headerlink&quot; title=&quot;负载均衡&quot;&gt;&lt;/a&gt;负载均衡&lt;/h4&gt;&lt;p&gt;可以配置多条A记录，通过域名解析来实现&lt;code&gt;轮询&lt;/code&gt;负载均衡。&lt;/p&gt;
+&lt;h4 id=&quot;泛域名解析&quot;&gt;&lt;a href=&quot;#泛域名解析&quot; class=&quot;headerlink&quot; title=&quot;泛域名解析&quot;&gt;&lt;/a&gt;泛域名解析&lt;/h4&gt;&lt;p&gt;泛域名解析指的是将一个域名所有未指定的子域名统一解析到一个地址。&lt;/p&gt;
+&lt;p&gt;在&lt;code&gt;主机名&lt;/code&gt;中填入&lt;code&gt;*&lt;/code&gt;，类型为&lt;code&gt;A&lt;/code&gt;，&lt;code&gt;IP地址/主机名&lt;/code&gt;中填入web服务器的IP地址，点击“新增”按钮即可。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="web" scheme="https://leokongwq.github.io/categories/web/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>JWT简介</title>
     <link href="https://leokongwq.github.io/2018/05/22/json-web-token.html"/>
     <id>https://leokongwq.github.io/2018/05/22/json-web-token.html</id>
     <published>2018-05-22T04:52:27.000Z</published>
-    <updated>2018-05-22T09:42:20.000Z</updated>
+    <updated>2018-06-24T13:48:31.000Z</updated>
     
     <content type="html"><![CDATA[<h3 id="What-is-JSON-Web-Token"><a href="#What-is-JSON-Web-Token" class="headerlink" title="What is JSON Web Token?"></a>What is JSON Web Token?</h3><p>JSON Web Token（JWT）是一个开放式标准（<a href="https://tools.ietf.org/html/rfc7519" target="_blank" rel="external">RFC 7519</a>），它定义了一种紧凑且自包含的方式，用于在各方之间以JSON对象安全的传输信息。 这些信息可以通过数字签名进行验证和信任。 JWT可以使用一个秘钥（HMAC签名算法）或使用RSA的公钥/私钥对对JWT进行签名。</p>
 <p>虽然JWT可以加密以提供各方之间数据传递的保密性，但我们将重点关注已签名的令牌。 签名的令牌可以验证其中包含的信息的完整性，而加密令牌隐藏来自其他方的信息。 当令牌使用公钥/私钥对进行签名时，签名还证明只有持有私钥的方是签名方。</p>
@@ -107,7 +1900,7 @@
 <li>预防XSS可以通过cookie存储JWT， http-only, secure</li>
 <li>预防CSRF可以通过给请求添加CSRF token， 该token可以放在WebStorage中。如此，攻击者网站不能获取该token。</li>
 </ol>
-<p>当然了，如果攻击者第一步通过XSS获取了CSRF token，第二步通过CSRF攻击，则漏洞还是存在的。单此种情况发生的概率能小一点。只能通过缩短token的时间，尽力防止攻击。</p>
+<p>当然了，如果攻击者第一步通过XSS获取了CSRF token，第二步通过CSRF攻击，则漏洞还是存在的。单此种情况发生的概率能小一点。只能通过缩短token的时间</p>
 <h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://mozillazg.com/2015/06/hello-jwt.html" target="_blank" rel="external">hello-jwt</a><br><a href="https://stormpath.com/blog/where-to-store-your-jwts-cookies-vs-html5-web-storage/" target="_blank" rel="external">where-to-store-your-jwts-cookies-vs-html5-web-storage</a><br><a href="https://stormpath.com/blog/jwt-the-right-way/" target="_blank" rel="external">jwt-the-right-way</a><br><a href="https://auth0.com/blog/2014/01/27/ten-things-you-should-know-about-tokens-and-cookies/" target="_blank" rel="external">ten-things-you-should-know-about-tokens-and-cookies</a><br><a href="http://stackoverflow.com/questions/27067251/where-to-store-jwt-in-browser-how-to-protect-against-csrf" target="_blank" rel="external">where-to-store-jwt-in-browser-how-to-protect-against-csrf</a><br><a href="http://hippoom.github.io/blogs/stoping-using-jwt-for-sessions.html" target="_blank" rel="external">别再使用JWT</a><br><a href="https://bbs.huaweicloud.com/blogs/06607ea7b53211e7b8317ca23e93a891" target="_blank" rel="external">基于JWT的Token认证机制及安全问题</a><br><a href="https://x-team.com/blog/my-experience-with-json-web-tokens/" target="_blank" rel="external">My Experience with JSON Web Tokens</a></p>
 ]]></content>
     
@@ -891,7 +2684,7 @@
     <link href="https://leokongwq.github.io/2018/05/12/spring-rest-controller.html"/>
     <id>https://leokongwq.github.io/2018/05/12/spring-rest-controller.html</id>
     <published>2018-05-12T15:23:46.000Z</published>
-    <updated>2018-05-13T15:23:40.000Z</updated>
+    <updated>2018-05-30T08:42:42.000Z</updated>
     
     <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Spring为开发REST服务提供一流的支持。在本文中，我们将使用Spring 4 <code>@RestController</code>注解开发基于Spring 4 MVC的RESTful JSON服务和RESTful XML服务。</p>
 <p>Spring在内部使用<code>HttpMessageConverters</code>将响应转换为所需的格式[JSON / XML / etc ..]，这些格式基于类路径中可用的某些库，并可以选择使用请求中的<code>Accept Headers</code>。</p>
@@ -4850,848 +6643,6 @@
     
     
       <category term="TCP" scheme="https://leokongwq.github.io/tags/TCP/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>openresty动态upstream实现</title>
-    <link href="https://leokongwq.github.io/2018/01/27/openresty-dynamic-upstream.html"/>
-    <id>https://leokongwq.github.io/2018/01/27/openresty-dynamic-upstream.html</id>
-    <published>2018-01-27T12:38:12.000Z</published>
-    <updated>2018-01-27T13:24:15.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>公司现有应用的部署方式是所有的请求通过一个外网域名进行访问，在<code>openresty</code>内部通过<code>location</code>匹配来分离请求到不同的<code>upstream</code>。这样的配置方式带来的最大问题至少有两个：</p>
-<ol>
-<li>配置膨胀。随着子应用接口的增加，<code>location</code>的配置会很复杂，不易阅读和新增配置。</li>
-<li>每次新增和删除接口都需要修改所有<code>openresty</code>配置。这会带来额外的运维负担，而且会影响部分接口的稳定性。</li>
-</ol>
-<p>那有没有一种方式可以动态的新增和删除需要跳转的<code>uri</code>呢？ 这个就是下面我要提供的解决方案。</p>
-<a id="more"></a>
-<p>先来看一个示例配置，如下所示：</p>
-<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-<span class="line">22</span>
-<span class="line">23</span>
-<span class="line">24</span>
-<span class="line">25</span>
-<span class="line">26</span>
-<span class="line">27</span>
-<span class="line">28</span>
-<span class="line">29</span>
-<span class="line">30</span>
-<span class="line">31</span>
-<span class="line">32</span>
-<span class="line">33</span>
-<span class="line">34</span>
-<span class="line">35</span>
-<span class="line">36</span>
-<span class="line">37</span>
-<span class="line">38</span>
-<span class="line">39</span>
-<span class="line">40</span>
-<span class="line">41</span>
-<span class="line">42</span>
-<span class="line">43</span>
-<span class="line">44</span>
-<span class="line">45</span>
-<span class="line">46</span>
-<span class="line">47</span>
-<span class="line">48</span>
-<span class="line">49</span>
-<span class="line">50</span>
-</pre></td><td class="code"><pre><span class="line"><span class="attribute">upstream</span> www.a.com &#123;</span>
-<span class="line">   <span class="attribute">server</span> <span class="number">127.0.0.1:7001</span>;</span>
-<span class="line">&#125;</span>
-<span class="line"></span>
-<span class="line"><span class="attribute">upstream</span> www.b.com &#123;</span>
-<span class="line">    <span class="attribute">server</span> <span class="number">127.0.0.1:7002</span>;</span>
-<span class="line">&#125;</span>
-<span class="line"></span>
-<span class="line"><span class="attribute">upstream</span> www.abc.com &#123;</span>
-<span class="line">    <span class="attribute">server</span> <span class="number">127.0.0.1:7003</span>;</span>
-<span class="line">&#125;</span>
-<span class="line"></span>
-<span class="line"><span class="section">server</span> &#123;</span>
-<span class="line">    <span class="attribute">listen</span> <span class="number">80</span>;</span>
-<span class="line">    <span class="attribute">server_name</span> www.abc.com;</span>
-<span class="line"></span>
-<span class="line">    <span class="attribute">charset</span> utf-<span class="number">8</span>;</span>
-<span class="line"></span>
-<span class="line">    <span class="attribute">access_log</span>  /data/logs/nginx/abc.access.log  main;</span>
-<span class="line">    </span>
-<span class="line">    <span class="attribute">location</span> <span class="regexp">~ (/a/hello.html)|(/a/world.html)</span> &#123;</span>
-<span class="line">        <span class="attribute">proxy_http_version</span> <span class="number">1</span>.<span class="number">1</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> Connection <span class="string">""</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> Host <span class="variable">$host</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> X-Real-IP <span class="variable">$remote_addr</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> REMOTE-HOST <span class="variable">$remote_addr</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;</span>
-<span class="line">        <span class="attribute">proxy_pass</span>   http://www.a.com;</span>
-<span class="line">    &#125;</span>
-<span class="line">    </span>
-<span class="line">    <span class="attribute">location</span> <span class="regexp">~ (/b/hello.html)|(/b/world.html)</span> &#123;</span>
-<span class="line">        <span class="attribute">proxy_http_version</span> <span class="number">1</span>.<span class="number">1</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> Connection <span class="string">""</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> Host <span class="variable">$host</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> X-Real-IP <span class="variable">$remote_addr</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> REMOTE-HOST <span class="variable">$remote_addr</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;</span>
-<span class="line">        <span class="attribute">proxy_pass</span>   http://www.b.com;</span>
-<span class="line">    &#125;</span>
-<span class="line">    </span>
-<span class="line">    <span class="attribute">location</span> / &#123;</span>
-<span class="line">        <span class="attribute">proxy_http_version</span> <span class="number">1</span>.<span class="number">1</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> Connection <span class="string">""</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> Host <span class="variable">$host</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> X-Real-IP <span class="variable">$remote_addr</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> REMOTE-HOST <span class="variable">$remote_addr</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;</span>
-<span class="line">        <span class="attribute">proxy_pass</span> http://www.abc.com;</span>
-<span class="line">    &#125;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<h3 id="set-by-lua-file"><a href="#set-by-lua-file" class="headerlink" title="set_by_lua_file"></a>set_by_lua_file</h3><p>该解决方案的原理是通过<code>set_by_lua_file</code>指令计算需要动态upstream的名称，然后在<code>proxy_pass</code>中引用该变量。具体请看如下的配置和lua代码：</p>
-<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-</pre></td><td class="code"><pre><span class="line"><span class="comment">### 生产环境需要开启：on.</span></span>
-<span class="line"><span class="attribute">lua_code_cache</span> <span class="literal">off</span>;</span>
-<span class="line"><span class="attribute">lua_package_path</span> <span class="string">'/path/to/lua/module/search/path'</span>;</span>
-<span class="line"><span class="attribute">lua_shared_dict</span> rewrite_conf <span class="number">10m</span>;</span>
-<span class="line"><span class="attribute">init_by_lua_file</span> init.lua;</span>
-</pre></td></tr></table></figure>
-<p>init.lua 用来初始化全局配置。在这里我们用来读取动态配置的<code>uri</code></p>
-<figure class="highlight lua"><figcaption><span>init.lua</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> cjson = <span class="built_in">require</span> <span class="string">"cjson"</span></span>
-<span class="line"><span class="keyword">local</span> rewrite_conf = ngx.shared.rewrite_conf;</span>
-<span class="line"></span>
-<span class="line">file = <span class="built_in">io</span>.input(<span class="string">"rewrite.json"</span>)    <span class="comment">-- 使用 io.input() 函数打开文件</span></span>
-<span class="line"></span>
-<span class="line"><span class="keyword">local</span> jsonCfg = <span class="string">""</span></span>
-<span class="line"><span class="keyword">repeat</span></span>
-<span class="line">	line = <span class="built_in">io</span>.read()            <span class="comment">-- 逐行读取内容，文件结束时返回nil</span></span>
-<span class="line">	<span class="keyword">if</span> <span class="keyword">nil</span> == line <span class="keyword">then</span></span>
-<span class="line">		<span class="keyword">break</span></span>
-<span class="line">	<span class="keyword">end</span></span>
-<span class="line">	jsonCfg = jsonCfg..line</span>
-<span class="line"><span class="keyword">until</span> (<span class="keyword">false</span>)</span>
-<span class="line"></span>
-<span class="line"><span class="built_in">io</span>.close(file)                  <span class="comment">-- 关闭文件</span></span>
-<span class="line"></span>
-<span class="line">rewrite_json = cjson.decode(jsonCfg)</span>
-<span class="line"></span>
-<span class="line"><span class="keyword">for</span> k,v <span class="keyword">in</span> <span class="built_in">pairs</span>(rewrite_json) <span class="keyword">do</span> </span>
-<span class="line">	rewrite_conf[k] = v </span>
-<span class="line"><span class="keyword">end</span></span>
-</pre></td></tr></table></figure>
-<p>rewrite.json文件的内容如下所示：</p>
-<figure class="highlight json"><figcaption><span>rewrite.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-</pre></td><td class="code"><pre><span class="line">&#123;</span>
-<span class="line">	<span class="attr">"www.abc.com"</span> : &#123;</span>
-<span class="line">		<span class="attr">"rewrite_urls"</span> : [</span>
-<span class="line">			&#123;</span>
-<span class="line">				<span class="attr">"uri"</span> : <span class="string">"/a/hello.html"</span>,</span>
-<span class="line">				<span class="attr">"rewrite_upstream"</span> : <span class="string">"www.a.com"</span></span>
-<span class="line">			&#125;,</span>
-<span class="line">			&#123;</span>
-<span class="line">				<span class="attr">"uri"</span> : <span class="string">"/b/hello.html"</span>,</span>
-<span class="line">				<span class="attr">"rewrite_upstream"</span> : <span class="string">"www.b.com"</span></span>
-<span class="line">			&#125;</span>
-<span class="line">		]	</span>
-<span class="line">	&#125;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>下面就是我们简化后的location配置</p>
-<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-</pre></td><td class="code"><pre><span class="line"><span class="section">server</span> &#123;</span>
-<span class="line">    <span class="attribute">listen</span> <span class="number">80</span>;</span>
-<span class="line">    <span class="attribute">server_name</span> www.abc.com;</span>
-<span class="line"></span>
-<span class="line">    <span class="attribute">charset</span> utf-<span class="number">8</span>;</span>
-<span class="line"></span>
-<span class="line">    <span class="attribute">access_log</span>  /data/logs/nginx/abc.access.log  main;</span>
-<span class="line">    </span>
-<span class="line">    <span class="attribute">location</span> / &#123;</span>
-<span class="line">        <span class="comment">## 动态计算upsteam的名字</span></span>
-<span class="line">        <span class="attribute">set_by_lua_file</span> <span class="variable">$my_upstream</span> set.lua;</span>
-<span class="line">    </span>
-<span class="line">        <span class="attribute">proxy_http_version</span> <span class="number">1</span>.<span class="number">1</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> Connection <span class="string">""</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> Host <span class="variable">$host</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> X-Real-IP <span class="variable">$remote_addr</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> REMOTE-HOST <span class="variable">$remote_addr</span>;</span>
-<span class="line">        <span class="attribute">proxy_set_header</span> X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;</span>
-<span class="line">        <span class="attribute">proxy_pass</span> http://<span class="variable">$my_upstream</span>;</span>
-<span class="line">    &#125;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<figure class="highlight lua"><figcaption><span>set.lua</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-</pre></td><td class="code"><pre><span class="line"><span class="comment">-- 动态设置				</span></span>
-<span class="line"><span class="keyword">local</span> cjson = <span class="built_in">require</span> <span class="string">"cjson"</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- 执行 rewrite 判断</span></span>
-<span class="line"><span class="keyword">local</span> rewrite_conf = ngx.shared.rewrite_conf</span>
-<span class="line"><span class="keyword">local</span> host = ngx.var.http_host</span>
-<span class="line"><span class="keyword">local</span> uri = ngx.var.uri</span>
-<span class="line"></span>
-<span class="line"><span class="keyword">local</span> default_upstream = host</span>
-<span class="line"></span>
-<span class="line"><span class="keyword">if</span> rewrite_conf[host] ~= <span class="keyword">nil</span> <span class="keyword">then</span></span>
-<span class="line">	<span class="keyword">for</span> i, elem <span class="keyword">in</span> <span class="built_in">ipairs</span>(rewrite_conf[host][<span class="string">'rewrite_urls'</span>]) <span class="keyword">do</span></span>
-<span class="line">		<span class="keyword">if</span> uri == elem[<span class="string">'uri'</span>] <span class="keyword">then</span></span>
-<span class="line">			default_upstream = elem[<span class="string">'rewrite_upstream'</span>]</span>
-<span class="line">			<span class="keyword">break</span></span>
-<span class="line">		<span class="keyword">end</span></span>
-<span class="line">	<span class="keyword">end</span></span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line">ngx.log(ngx.INFO, <span class="string">"default_upstream="</span>..default_upstream)</span>
-<span class="line"><span class="keyword">return</span> default_upstream</span>
-</pre></td></tr></table></figure>
-<p>到此，整个方案就算完成了。但是还不够完美。因为没有实现动态的效果。</p>
-<p>要实现动态的效果其实很简单，我这里有个建议：</p>
-<ol>
-<li>通过将动态配置的<code>uri</code>信息，也就是<code>rewrite.json</code>的内容放置的Redis中。</li>
-<li>提供一个管理API接口，用来读取Redis中的最新配置并更新<code>ngx.shared.rewrite_conf</code>的值。</li>
-</ol>
-<p>当然了，如果配置更新了，但你不想主动调用该管理API接口。你也可以通过<code>ngx.timer.at</code>来设置定时任务来主动获取Redis的配置。</p>
-<h3 id="方案二-ngx-location-capture"><a href="#方案二-ngx-location-capture" class="headerlink" title="方案二 ngx.location.capture"></a>方案二 ngx.location.capture</h3><p>先介绍一下指令<code>ngx.location.capture</code>的作用：</p>
-<blockquote>
-<p>语法: res = ngx.location.capture(uri, options?)<br>上下文: rewrite_by_lua<em>, access_by_lua</em>, content_by_lua*<br>向 uri 发起一个同步非阻塞 Nginx 子请求。</p>
-</blockquote>
-<p>Nginx 子请求是一种非常强有力的方式，它可以发起非阻塞的内部请求来访问目标<code>location</code>。目标 <code>location</code> 可以是配置文件中其它文件目录，或任何其它 <code>nginx C</code> 模块，包括 <code>ngx_proxy</code>、<code>ngx_fastcgi</code>、<code>ngx_memc</code>、<code>ngx_postgres</code>、<code>ngx_drizzle</code>，甚至 <code>ngx_lua</code> 自身等等 。</p>
-<p>需要注意的是，子请求只是模拟 HTTP 接口的形式，没有额外的 <code>HTTP/TCP</code> 流量，也没有 <code>IPC</code> (进程间通信) 调用。所有工作在内部高效地在 C 语言级别完成。</p>
-<p>子请求与 <code>HTTP 301/302</code> 重定向指令 (通过 <code>ngx.redirect</code>) 完全不同，也与内部重定向 ((通过 <code>ngx.exec</code>) 完全不同。</p>
-<p>在发起子请求前，用户程序应总是读取完整的 HTTP 请求体 (通过调用 <code>ngx.req.read_body</code> 或设置 <code>lua_need_request_body</code> 指令为 on).</p>
-<p>该 API 方法（<code>ngx.location.capture_multi</code> 也一样）总是缓冲整个请求体到内存中。因此，当需要处理一个大的子请求响应，用户程序应使用 <code>cosockets</code> 进行流式处理，</p>
-<h4 id="实现方案"><a href="#实现方案" class="headerlink" title="实现方案"></a>实现方案</h4><p>参考 <a href="http://blog.csdn.net/daiyudong2020/article/details/53027934" target="_blank" rel="external">用openresty实现动态upstream</a></p>
-<p>该方法的实现可以做的灵活，功能也可以更强大。当然缺点是你需要做非常多的工作。例如：获取元素请求的参数，请求的HTTP方法类型，然后设置请求的URI请求参数，请求体（可以通过<code>always_forward_body</code>避免）等。</p>
-<h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><p><a href="https://github.com/openresty/lua-nginx-module" target="_blank" rel="external">lua-nginx-module</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;公司现有应用的部署方式是所有的请求通过一个外网域名进行访问，在&lt;code&gt;openresty&lt;/code&gt;内部通过&lt;code&gt;location&lt;/code&gt;匹配来分离请求到不同的&lt;code&gt;upstream&lt;/code&gt;。这样的配置方式带来的最大问题至少有两个：&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;配置膨胀。随着子应用接口的增加，&lt;code&gt;location&lt;/code&gt;的配置会很复杂，不易阅读和新增配置。&lt;/li&gt;
-&lt;li&gt;每次新增和删除接口都需要修改所有&lt;code&gt;openresty&lt;/code&gt;配置。这会带来额外的运维负担，而且会影响部分接口的稳定性。&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;那有没有一种方式可以动态的新增和删除需要跳转的&lt;code&gt;uri&lt;/code&gt;呢？ 这个就是下面我要提供的解决方案。&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="openresty" scheme="https://leokongwq.github.io/tags/openresty/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>分布式锁的几种实现方式</title>
-    <link href="https://leokongwq.github.io/2018/01/19/distribute-lock-some-way.html"/>
-    <id>https://leokongwq.github.io/2018/01/19/distribute-lock-some-way.html</id>
-    <published>2018-01-19T06:02:59.000Z</published>
-    <updated>2018-01-19T12:31:32.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>进程内的对共享资源的互斥访问可以通过各个语言提供的Lock来实现。在分布式环境下对共享资源的访问就需要分布式锁的支持。分布式是锁的本质是都是找一个共同可以访问的资源，可以是分布式文件系统中的文件，某个固定结点的一块内存，等等。共享资源所在机器的进程来协调分布式的加锁和解锁请求。分布式的锁比进程内的锁需要考虑的问题还要多。下面就总结一下常用的分布式锁解决方案。</p>
-<p>但是：能不用分布式锁就不要用了。性能，可扩展性，容错都很难处理。</p>
-<a id="more"></a>
-<h3 id="分布式锁需要实现的功能"><a href="#分布式锁需要实现的功能" class="headerlink" title="分布式锁需要实现的功能"></a>分布式锁需要实现的功能</h3><ul>
-<li><p>互斥性 统一时刻只能被集群中某个应用的单个线程访问</p>
-</li>
-<li><p>可重入</p>
-</li>
-<li><p>阻塞式</p>
-</li>
-<li><p>高可用</p>
-</li>
-<li><p>高性能</p>
-</li>
-</ul>
-<h3 id="数据库实现"><a href="#数据库实现" class="headerlink" title="数据库实现"></a>数据库实现</h3><h4 id="基于table的实现"><a href="#基于table的实现" class="headerlink" title="基于table的实现"></a>基于table的实现</h4><p>要实现分布式锁，最简单的方式可能就是直接创建一张锁记录表，然后通过操作该表中的数据来实现了。</p>
-<p>当我们要锁住某个方法或资源时，我们就在该表中增加一条带有唯一索引的记录，想要释放锁的时候就删除这条记录。</p>
-<p>创建这样一张数据库表：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`distLock`</span> (</span>
-<span class="line">  <span class="string">`id`</span> <span class="built_in">int</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'主键'</span>,</span>
-<span class="line">  <span class="string">`lock_name`</span> <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">''</span> <span class="keyword">COMMENT</span> <span class="string">'锁名称'</span>,</span>
-<span class="line">  <span class="string">`desc`</span> <span class="built_in">varchar</span>(<span class="number">1024</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'备注信息'</span>,</span>
-<span class="line">  <span class="string">`update_time`</span> <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'保存数据时间，自动生成'</span>,</span>
-<span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>),</span>
-<span class="line">  <span class="keyword">UNIQUE</span> <span class="keyword">KEY</span> <span class="string">`uniq_lock_name`</span> (<span class="string">`lock_name`</span>) <span class="keyword">USING</span> BTREE</span>
-<span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 <span class="keyword">COMMENT</span>=<span class="string">'分布式锁'</span>;</span>
-</pre></td></tr></table></figure>
-<p>加锁：insert一条记录<br>解锁：删除该记录</p>
-<p>存在的问题：</p>
-<ol>
-<li>严重依赖数据库的可用性，存在单点风险</li>
-<li>没有失效时间，一旦解锁操作失败，就会导致锁记录一直在数据库中，其他线程无法再获得到锁。</li>
-<li>需要客户端实现自旋，阻塞，超时控制等。</li>
-<li>锁是非重入的，同一个线程在没有释放锁之前无法再次获得该锁。因为数据中锁</li>
-<li>性能依赖数据的写入性能力，扩展性差。记录已经存在了。</li>
-</ol>
-<p>优化方式：</p>
-<ol>
-<li>数据库双写。消除单点</li>
-<li>记录锁获取时间和失效时间。定时任务删除释放失败的锁。</li>
-<li>客户端封装自旋逻辑，锁超时和进程内的线程互斥逻辑。</li>
-<li>记录获取锁的客户端唯一标志。insert前进行查询判断。</li>
-<li>搭建多个高可用集群，锁的名称进行哈希处理</li>
-</ol>
-<h4 id="基于数据库排他锁"><a href="#基于数据库排他锁" class="headerlink" title="基于数据库排他锁"></a>基于数据库排他锁</h4><p>除了可以通过增删操作数据表中的记录以外，其实还可以借助数据中自带的锁来实现分布式的锁。</p>
-<p>我们还用刚刚创建的那张数据库表。可以通过数据库的排他锁来实现分布式锁。 基于MySql的InnoDB引擎，可以使用以下方法来实现加锁操作：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">lock</span><span class="params">()</span></span>&#123;</span>
-<span class="line">    connection.setAutoCommit(<span class="keyword">false</span>)</span>
-<span class="line">    <span class="keyword">while</span>(<span class="keyword">true</span>)&#123;</span>
-<span class="line">        <span class="keyword">try</span>&#123;</span>
-<span class="line">            result = select * from methodLock where method_name=xxx <span class="keyword">for</span> update;</span>
-<span class="line">            <span class="keyword">if</span>(result==<span class="keyword">null</span>)&#123;</span>
-<span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span>
-<span class="line">            &#125;</span>
-<span class="line">        &#125;<span class="keyword">catch</span>(Exception e)&#123;</span>
-<span class="line"></span>
-<span class="line">        &#125;</span>
-<span class="line">        sleep(<span class="number">100</span>);</span>
-<span class="line">    &#125;</span>
-<span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>在查询语句后面增加for update，数据库会在查询过程中给数据库表增加排他锁（这里再多提一句，InnoDB引擎在加锁的时候，只有通过索引进行检索的时候才会使用行级锁，否则会使用表级锁。这里我们希望使用行级锁，就要给<code>lock_name</code>添加索引，值得注意的是，这个索引一定要创建成<code>唯一索引</code>。</p>
-<p>我们可以认为获得排它锁的线程即可获得分布式锁，当获取到锁之后，可以执行方法的业务逻辑，执行完方法之后，再通过以下方法解锁：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unlock</span><span class="params">()</span></span>&#123;</span>
-<span class="line">    connection.commit();</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>这种方法可以有效的解决上面提到的无法释放锁(事务有自己的超时时间)和阻塞锁（MySQL帮你阻塞）的问题。</p>
-<p>阻塞锁？ <code>for update</code>语句会在执行成功后立即返回，在执行失败时一直处于阻塞状态，直到成功。<br>锁定之后服务宕机，无法释放？使用这种方式，服务宕机之后数据库会自己把锁释放掉。<br>但是还是无法直接解决数据库单点和可重入问题。</p>
-<p>这里还可能存在另外一个问题，虽然我们对<code>lock_name</code>使用了唯一索引，并且显示使用<code>for update</code>来使用行级锁。但是，MySql会对查询进行优化，即便在条件中使用了索引字段，但是否使用索引来检索数据是由 MySQL 通过判断不同执行计划的代价来决定的，如果 MySQL 认为全表扫效率更高，比如对一些很小的表，它就不会使用索引，这种情况下 InnoDB 将使用表锁，而不是行锁。如果发生这种情况就悲剧了。。。</p>
-<p>还有一个问题，就是我们要使用排他锁来进行分布式锁的lock，那么一个排他锁长时间不提交，就会占用数据库连接。一旦类似的连接变得多了，就可能把数据库连接池撑爆。</p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>总结一下使用数据库来实现分布式锁的方式，这两种方式都是依赖数据库的一张表，一种是通过表中的记录的存在情况确定当前是否有锁存在，另外一种是通过数据库的排他锁来实现分布式锁。</p>
-<p>数据库实现分布式锁的优点：</p>
-<p>直接借助数据库，容易理解。</p>
-<p>数据库实现分布式锁的缺点</p>
-<p>会有各种各样的问题，在解决问题的过程中会使整个方案变得越来越复杂。</p>
-<p>操作数据库需要一定的开销，性能问题需要考虑。</p>
-<p>使用数据库的行级锁并不一定靠谱，尤其是当我们的锁表并不大的时候。</p>
-<h3 id="基于缓存实现分布式锁"><a href="#基于缓存实现分布式锁" class="headerlink" title="基于缓存实现分布式锁"></a>基于缓存实现分布式锁</h3><p>redis 的实现可以参考下面的文章:</p>
-<p><a href="http://blog.csdn.net/u010359884/article/details/50310387" target="_blank" rel="external">基于redis分布式锁实现“秒杀”</a><br><a href="https://www.cnblogs.com/0201zcr/p/5942748.html" target="_blank" rel="external">jedisLock—redis分布式锁实现</a><br><a href="http://ifeve.com/redis-lock/" target="_blank" rel="external">《Redis官方文档》用Redis构建分布式锁</a></p>
-<h3 id="基于zooKeeper实现分布式锁"><a href="#基于zooKeeper实现分布式锁" class="headerlink" title="基于zooKeeper实现分布式锁"></a>基于zooKeeper实现分布式锁</h3><p><a href="http://ifeve.com/zookeeper-lock/" target="_blank" rel="external">ZooKeeper的用法： 分布式锁</a><br><a href="http://blog.csdn.net/sqh201030412/article/details/51456143" target="_blank" rel="external">zookeeper入门之curator框架–几种锁的操作</a></p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="http://www.hollischuang.com/archives/1716" target="_blank" rel="external">分布式锁实现</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;进程内的对共享资源的互斥访问可以通过各个语言提供的Lock来实现。在分布式环境下对共享资源的访问就需要分布式锁的支持。分布式是锁的本质是都是找一个共同可以访问的资源，可以是分布式文件系统中的文件，某个固定结点的一块内存，等等。共享资源所在机器的进程来协调分布式的加锁和解锁请求。分布式的锁比进程内的锁需要考虑的问题还要多。下面就总结一下常用的分布式锁解决方案。&lt;/p&gt;
-&lt;p&gt;但是：能不用分布式锁就不要用了。性能，可扩展性，容错都很难处理。&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="分布式" scheme="https://leokongwq.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>分布式系统一致性</title>
-    <link href="https://leokongwq.github.io/2018/01/19/distribute-system-consistent.html"/>
-    <id>https://leokongwq.github.io/2018/01/19/distribute-system-consistent.html</id>
-    <published>2018-01-19T02:08:35.000Z</published>
-    <updated>2018-01-27T12:16:45.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="CAP定理"><a href="#CAP定理" class="headerlink" title="CAP定理"></a>CAP定理</h3><p>在理论计算机科学中，<code>CAP定理</code>（CAP theorem），又被称作<code>布鲁尔定理</code>（Brewer’s theorem），它指出对于一个<code>分布式存储系统</code>来说，不可能同时满足以下三点:</p>
-<ul>
-<li>一致性（Consistence） 每次读取都能获取最新的写入或一个<code>ERROR</code></li>
-<li>可用性（Availability）（每次请求都能获取到非<code>ERROR</code>的响应 – 但是不保证获取的数据为最新数据）</li>
-<li>分区容错性（Network partitioning）（以实际效果而言，分区相当于对通信的时限要求。系统如果不能在时限内达成数据一致性，就意味着发生了分区的情况，必须就当前操作在C和A之间做出选择。）</li>
-</ul>
-<p>根据定理，分布式系统只能满足三项中的两项而不可能满足全部三项。理解CAP理论的最简单方式是想象两个节点分处分区两侧。允许至少一个节点更新状态会导致数据不一致(<code>全部不更新能保证一致性</code>)，即丧失了C性质。如果为了保证数据一致性，将分区一侧的节点设置为不可用，那么又丧失了A性质。除非两个节点可以互相通信，才能既保证C又保证A，这又会导致丧失P性质。</p>
-<a id="more"></a>
-<h4 id="自我理解"><a href="#自我理解" class="headerlink" title="自我理解"></a>自我理解</h4><ul>
-<li>一致性: 指一旦数据写入成功，随后所有的读取请求都能获取写入结果。单节点系统，如：一个节点的DBMS能保证一致性，因为没有副本。<code>这里的一致性指的是强一致性</code>。</li>
-<li>可用性: 每次请求都能获取到的响应（合理的时间内，超时不可以），但是不保证获取的数据为最新数据。</li>
-<li>分区容错性（Network partitioning）（以实际效果而言，分区相当于对通信的时限要求。系统如果不能在时限内达成数据一致性，就意味着发生了分区的情况，必须就当前操作在C和A之间做出选择[3]。）</li>
-</ul>
-<p>一个节点的存储系统一致性能保证，但是可用性不能保证。为什么？ 原因是：网络不总是可靠的，在发生网络分区或大量丢包，大量延迟的情况下，请求不能在合理的时间内结束，如此可用性是不能保证的（单点故障）。要消灭单点故障，就需要对数据做备份。数据多副本的情况下就有不一致的风险。 因此在设计系统时，首先要考虑的就是：在网络故障的前提下如何对可用性和一致性做取舍。通常情况下我们都会选择可用性，舍弃强一致性。</p>
-<p>CAP是针对分布式系统的，对集中式系统不起作用。例如：应用和数据存储（DBMS）在一台机器上，没有副本就没有一致性的问题，没有网络就没有网络分区的问题。只要DBMS进程存在就是可用的。</p>
-<p>CAP 同时是针对分布式存储状态或数据的系统的，如果分布式系统的每个节点都是纯粹的计算节点，那么根本就存在上述的各种问题。</p>
-<h3 id="BASE理论"><a href="#BASE理论" class="headerlink" title="BASE理论"></a>BASE理论</h3><p><code>BASE</code>是<code>Basically Available</code>（基本可用）、<code>Soft state</code>（软状态）和<code>Eventually consistent</code>（最终一致性）三个短语的简写，是由来自eBay的架构师<code>Dan Pritchett</code>在其文章<a href="https://queue.acm.org/detail.cfm?id=1394128" target="_blank" rel="external">BASE: An Acid Alternative</a> 中第一次明确提出的。BASE是对CAP中一致性和可用性权衡的结果，其来源于对大规模互联网系统分布式实践的总结，是基于CAP定理逐步演化而来的，其核心思想是即使无法做到强一致性(Strong consistency)，但每个应用都可以根据自身的业务特点，采用适当的方式来使系统达到最终一致性(Eventual consistency)。</p>
-<h3 id="基本可用"><a href="#基本可用" class="headerlink" title="基本可用"></a>基本可用</h3><p>基本可用是指分布式系统在出现不可预知故障的时候，允许损失部分可用性——但请注意，这绝不等价于系统不可用。以下两个就是“基本可用”的典型例子。</p>
-<p>响应时间上的损失：正常情况下，一个在线搜索引擎需要在0.5秒之内返回给用户相应的查询结果，但由于出现故障（比如系统部分机房发生断电或断网故障），查询结果的响应时间增加到了1～2秒。</p>
-<p>功能上的损失：正常情况下，在一个电子商务网站上进行购物，消费者几乎能够顺利地完成每一笔订单，但是在一些节日大促购物高峰的时候，由于消费者的购物行为激增，为了保护购物系统的稳定性，部分消费者可能会被引导到一个降级页面。</p>
-<h4 id="弱状态"><a href="#弱状态" class="headerlink" title="弱状态"></a>弱状态</h4><p>弱状态也称为软状态，和硬状态相对，是指允许系统中的数据存在中间状态，并认为该中间状态的存在不会影响系统的整体可用性，即允许系统在不同节点的数据副本之间进行数据同步的过程存在延时。</p>
-<h4 id="最终一致性"><a href="#最终一致性" class="headerlink" title="最终一致性"></a>最终一致性</h4><p>最终一致性强调的是系统中所有的数据副本，在经过一段时间的同步后，最终能够达到一个一致的状态。因此，最终一致性的本质是需要系统保证最终数据能够达到一致，而不需要实时保证系统数据的强一致性。</p>
-<h3 id="一致性模型"><a href="#一致性模型" class="headerlink" title="一致性模型"></a>一致性模型</h3><ul>
-<li>强一致性  ：系统任何的数据写入成功后，随后在所有结点所有读取操作都能获取到该写入结果。</li>
-<li>弱一致性  ：系统在数据写入成功后，不能保证随后立即可以读取到该写入结果，但是会保证一段时间窗口后肯定能读取到该结果。</li>
-<li>最终一致性 ：最终一致性是一种特殊的弱一致性，它是指在上线数据写入成功后，如果没有再对该数据有写入操作，那么在一段时间窗口后所有客户端端都能读取到一致的数据。</li>
-</ul>
-<h3 id="最终一致性分类"><a href="#最终一致性分类" class="headerlink" title="最终一致性分类"></a>最终一致性分类</h3><p>亚马逊首席技术官Werner Vogels在于2008年发表的一篇经典文章 <a href="https://www.allthingsdistributed.com/2008/12/eventually_consistent.html" target="_blank" rel="external">Eventually Consistent-Revisited</a>中，对最终一致性进行了非常详细的介绍。他认为最终一致性是一种特殊的弱一致性：系统能够保证在没有其它新的更新操作的情况下，数据最终一定能够达到一致的状态，因此所有客户端对系统的数据访问都能够获取到最新的值。同时，在没有发生故障的前提下，数据达到一致状态的时间延迟，取决于网络延迟、系统负载和数据复制方案设计等因素。</p>
-<p>在实际工程实践中，最终一致性存在以下五类主要变种。 </p>
-<h4 id="因果一致性（Causal-consistency）"><a href="#因果一致性（Causal-consistency）" class="headerlink" title="因果一致性（Causal consistency）"></a>因果一致性（Causal consistency）</h4><p>因果一致性是指，如果进程A在更新完某个数据项后通知了进程B，那么进程B之后对该数据项的访问都应该能够获取到进程A更新后的最新值，并且如果进程B要对该数据项进行更新操作的话，务必基于进程A更新后的最新值，即不能发生丢失更新情况。与此同时，与进程A无因果关系的进程C的数据访问则没有这样的限制。</p>
-<h4 id="读己之所写（Read-your-writes）"><a href="#读己之所写（Read-your-writes）" class="headerlink" title="读己之所写（Read your writes）"></a>读己之所写（Read your writes）</h4><p>读己之所写是指，进程A更新一个数据项之后，它自己总是能够访问到更新过的最新值，而不会看到旧值。也就是说，对于单个数据获取者来说，其读取到的数据，一定不会比自己上次写入的值旧。因此，读己之所写也可以看作是一种特殊的因果一致性。</p>
-<h4 id="会话一致性（Session-consistency）"><a href="#会话一致性（Session-consistency）" class="headerlink" title="会话一致性（Session consistency）"></a>会话一致性（Session consistency）</h4><p>会话一致性将对系统数据的访问过程框定在了一个会话当中：系统能保证在同一个有效的会话中实现“读己之所写”的一致性，也就是说，执行更新操作之后，客户端能够在同一个会话中始终读取到该数据项的最新值。</p>
-<h4 id="单调读一致性（Monotonic-read-consistency）"><a href="#单调读一致性（Monotonic-read-consistency）" class="headerlink" title="单调读一致性（Monotonic read consistency）"></a>单调读一致性（Monotonic read consistency）</h4><p>单调读一致性是指如果一个进程从系统中读取出一个数据项的某个值后，那么系统对于该进程后续的任何数据访问都不应该返回更旧的值。</p>
-<h4 id="单调写一致性（Monotonic-write-consistency）"><a href="#单调写一致性（Monotonic-write-consistency）" class="headerlink" title="单调写一致性（Monotonic write consistency）"></a>单调写一致性（Monotonic write consistency）</h4><p>单调写一致性是指，一个系统需要能够保证来自同一个进程的写操作被顺序地执行。</p>
-<h3 id="一致性实现方式"><a href="#一致性实现方式" class="headerlink" title="一致性实现方式"></a>一致性实现方式</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://zh.wikipedia.org/wiki/CAP%E5%AE%9A%E7%90%86" target="_blank" rel="external">CAP定理</a><br><a href="https://dzone.com/articles/better-explaining-cap-theorem" target="_blank" rel="external">better-explaining-cap-theorem</a><br><a href="https://dzone.com/articles/understanding-the-cap-theorem" target="_blank" rel="external">understanding-the-cap-theorem</a><br><a href="https://www.allthingsdistributed.com/2008/12/eventually_consistent.html" target="_blank" rel="external">eventually_consistent</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h3 id=&quot;CAP定理&quot;&gt;&lt;a href=&quot;#CAP定理&quot; class=&quot;headerlink&quot; title=&quot;CAP定理&quot;&gt;&lt;/a&gt;CAP定理&lt;/h3&gt;&lt;p&gt;在理论计算机科学中，&lt;code&gt;CAP定理&lt;/code&gt;（CAP theorem），又被称作&lt;code&gt;布鲁尔定理&lt;/code&gt;（Brewer’s theorem），它指出对于一个&lt;code&gt;分布式存储系统&lt;/code&gt;来说，不可能同时满足以下三点:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;一致性（Consistence） 每次读取都能获取最新的写入或一个&lt;code&gt;ERROR&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;可用性（Availability）（每次请求都能获取到非&lt;code&gt;ERROR&lt;/code&gt;的响应 – 但是不保证获取的数据为最新数据）&lt;/li&gt;
-&lt;li&gt;分区容错性（Network partitioning）（以实际效果而言，分区相当于对通信的时限要求。系统如果不能在时限内达成数据一致性，就意味着发生了分区的情况，必须就当前操作在C和A之间做出选择。）&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;根据定理，分布式系统只能满足三项中的两项而不可能满足全部三项。理解CAP理论的最简单方式是想象两个节点分处分区两侧。允许至少一个节点更新状态会导致数据不一致(&lt;code&gt;全部不更新能保证一致性&lt;/code&gt;)，即丧失了C性质。如果为了保证数据一致性，将分区一侧的节点设置为不可用，那么又丧失了A性质。除非两个节点可以互相通信，才能既保证C又保证A，这又会导致丧失P性质。&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="架构" scheme="https://leokongwq.github.io/tags/%E6%9E%B6%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>kotlin之coroutine学习笔记</title>
-    <link href="https://leokongwq.github.io/2018/01/10/kotlin-coroutine-learn.html"/>
-    <id>https://leokongwq.github.io/2018/01/10/kotlin-coroutine-learn.html</id>
-    <published>2018-01-10T11:17:15.000Z</published>
-    <updated>2018-01-27T12:17:02.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="runBlocking"><a href="#runBlocking" class="headerlink" title="runBlocking"></a>runBlocking</h3><h4 id="声明"><a href="#声明" class="headerlink" title="声明"></a>声明</h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-</pre></td><td class="code"><pre><span class="line">@Throws(InterruptedException::class)</span>
-<span class="line">public fun &lt;T&gt; runBlocking(context: CoroutineContext = EmptyCoroutineContext, block: suspend CoroutineScope.() -&gt; T): T &#123;</span>
-<span class="line">    val currentThread = Thread.currentThread()</span>
-<span class="line">    val eventLoop = if (context[ContinuationInterceptor] == null) BlockingEventLoop(currentThread) else null</span>
-<span class="line">    val newContext = newCoroutineContext(context + (eventLoop ?: EmptyCoroutineContext))</span>
-<span class="line">    val coroutine = BlockingCoroutine&lt;T&gt;(newContext, currentThread, privateEventLoop = eventLoop != null)</span>
-<span class="line">    coroutine.initParentJob(context[Job])</span>
-<span class="line">    block.startCoroutine(coroutine, coroutine)</span>
-<span class="line">    return coroutine.joinBlocking()</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<a id="more"></a>
-<h4 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h4><p>创建一个<code>coroutine</code>并且阻塞当前线程直到区块执行完毕，这个一般是用于桥接一般的阻塞式编程方式到<code>coroutine</code>编程方式的，不应该在已经是<code>coroutine</code>的地方使用。</p>
-<h3 id="run"><a href="#run" class="headerlink" title="run"></a>run</h3><h4 id="声明-1"><a href="#声明-1" class="headerlink" title="声明"></a>声明</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-<span class="line">22</span>
-<span class="line">23</span>
-<span class="line">24</span>
-<span class="line">25</span>
-<span class="line">26</span>
-<span class="line">27</span>
-<span class="line">28</span>
-<span class="line">29</span>
-<span class="line">30</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> suspend fun &lt;T&gt; run(</span>
-<span class="line">    context: CoroutineContext,</span>
-<span class="line">    start: CoroutineStart = CoroutineStart.DEFAULT,</span>
-<span class="line">    block: suspend () -&gt; T</span>
-<span class="line">): T = suspendCoroutineOrReturn sc@ &#123; cont -&gt;</span>
-<span class="line">    val oldContext = cont.context</span>
-<span class="line">    <span class="comment">// fast path #1 if there is no change in the actual context:</span></span>
-<span class="line">    <span class="keyword">if</span> (context === oldContext || context is CoroutineContext.Element &amp;&amp; oldContext[context.key] === context)</span>
-<span class="line">        <span class="keyword">return</span><span class="meta">@sc</span> block.startCoroutineUninterceptedOrReturn(cont)</span>
-<span class="line">    <span class="comment">// compute new context</span></span>
-<span class="line">    val newContext = oldContext + context</span>
-<span class="line">    <span class="comment">// fast path #2 if the result is actually the same</span></span>
-<span class="line">    <span class="keyword">if</span> (newContext === oldContext)</span>
-<span class="line">        <span class="keyword">return</span><span class="meta">@sc</span> block.startCoroutineUninterceptedOrReturn(cont)</span>
-<span class="line">    <span class="comment">// fast path #3 if the new dispatcher is the same as the old one.</span></span>
-<span class="line">    <span class="comment">// `equals` is used by design (see equals implementation is wrapper context like ExecutorCoroutineDispatcher)</span></span>
-<span class="line">    <span class="keyword">if</span> (newContext[ContinuationInterceptor] == oldContext[ContinuationInterceptor]) &#123;</span>
-<span class="line">        val newContinuation = RunContinuationDirect(newContext, cont)</span>
-<span class="line">        <span class="keyword">return</span><span class="meta">@sc</span> block.startCoroutineUninterceptedOrReturn(newContinuation)</span>
-<span class="line">    &#125;</span>
-<span class="line">    <span class="comment">// slowest path otherwise -- use new interceptor, sync to its result via a full-blown instance of RunCompletion</span></span>
-<span class="line">    require(!start.isLazy) &#123; <span class="string">"$start start is not supported"</span> &#125;</span>
-<span class="line">    val completion = RunCompletion(</span>
-<span class="line">        context = newContext,</span>
-<span class="line">        delegate = cont,</span>
-<span class="line">        resumeMode = <span class="keyword">if</span> (start == CoroutineStart.ATOMIC) MODE_ATOMIC_DEFAULT <span class="keyword">else</span> MODE_CANCELLABLE)</span>
-<span class="line">    completion.initParentJob(newContext[Job]) <span class="comment">// attach to job</span></span>
-<span class="line">    start(block, completion)</span>
-<span class="line">    completion.getResult()</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<h4 id="功能-1"><a href="#功能-1" class="headerlink" title="功能"></a>功能</h4><p>在指定的<code>CoroutineContext</code>中调用指定的<code>suspend</code>区块。 该方法会导致当前<code>CoroutineContext</code>中的<code>coroutine</code>挂起并等待该代码块执行完毕。</p>
-<h3 id="launch"><a href="#launch" class="headerlink" title="launch"></a>launch</h3><h4 id="声明-2"><a href="#声明-2" class="headerlink" title="声明"></a>声明</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> fun <span class="title">launch</span><span class="params">(</span>
-<span class="line">    context: CoroutineContext = DefaultDispatcher,</span>
-<span class="line">    start: CoroutineStart = CoroutineStart.DEFAULT,</span>
-<span class="line">    block: suspend CoroutineScope.()</span> -&gt; Unit</span>
-<span class="line">): Job </span>&#123;</span>
-<span class="line">    val newContext = newCoroutineContext(context)</span>
-<span class="line">    val coroutine = <span class="keyword">if</span> (start.isLazy)</span>
-<span class="line">        LazyStandaloneCoroutine(newContext, block) <span class="keyword">else</span></span>
-<span class="line">        StandaloneCoroutine(newContext, active = <span class="keyword">true</span>)</span>
-<span class="line">    coroutine.initParentJob(context[Job])</span>
-<span class="line">    start(block, coroutine, coroutine)</span>
-<span class="line">    <span class="keyword">return</span> coroutine</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<h4 id="功能-2"><a href="#功能-2" class="headerlink" title="功能"></a>功能</h4><p>创建运行在<code>CoroutineContext</code>中的<code>coroutine</code>，返回的<code>Job</code>支持取消、启动等操作，不会挂起父<code>coroutine</code>上下文；可以在非<code>coroutine</code>中调用。</p>
-<p>参数<code>context</code>可以显示指定。默认为<code>DefaultDispatcher</code>。<br>参数<code>start</code>表示<code>coroutine</code>的启动选项。默认为<code>CoroutineStart.DEFAULT</code><br>参数<code>block</code>表示<code>coroutine</code>里面执行的代码。</p>
-<p>默认请情况下，coroutine是会被立即调度执行的。如果参数<code>start</code>的值为<code>CoroutineStart.LAZY</code>，那么会返回一个新建状态的<code>coroutine</code>。 可以通过显示调用<code>Job.start()</code>方法来启动该<code>coroutine</code>。</p>
-<p>如果在该<code>coroutine</code>里面有未捕获的异常，那么会导致该<code>coroutine</code>的父<code>coroutine</code>取消。</p>
-<h3 id="async"><a href="#async" class="headerlink" title="async"></a>async</h3><h4 id="声明-3"><a href="#声明-3" class="headerlink" title="声明"></a>声明</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> fun &lt;T&gt; async(</span>
-<span class="line">    context: CoroutineContext = DefaultDispatcher,</span>
-<span class="line">    start: CoroutineStart = CoroutineStart.DEFAULT,</span>
-<span class="line">    block: suspend CoroutineScope.() -&gt; T</span>
-<span class="line">): Deferred&lt;T&gt; &#123;</span>
-<span class="line">    val newContext = newCoroutineContext(context)</span>
-<span class="line">    val coroutine = <span class="keyword">if</span> (start.isLazy)</span>
-<span class="line">        LazyDeferredCoroutine(newContext, block) <span class="keyword">else</span></span>
-<span class="line">        DeferredCoroutine&lt;T&gt;(newContext, active = <span class="keyword">true</span>)</span>
-<span class="line">    coroutine.initParentJob(context[Job])</span>
-<span class="line">    start(block, coroutine, coroutine)</span>
-<span class="line">    <span class="keyword">return</span> coroutine</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<h4 id="功能-3"><a href="#功能-3" class="headerlink" title="功能"></a>功能</h4><p>创建运行在CoroutineContext中的coroutine，并且带回返回值(返回的是Deferred，我们可以通过await等方式获得返回值)</p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://blog.dreamtobe.cn/kotlin-coroutines/" target="_blank" rel="external">Kotlin Coroutines(协程)</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h3 id=&quot;runBlocking&quot;&gt;&lt;a href=&quot;#runBlocking&quot; class=&quot;headerlink&quot; title=&quot;runBlocking&quot;&gt;&lt;/a&gt;runBlocking&lt;/h3&gt;&lt;h4 id=&quot;声明&quot;&gt;&lt;a href=&quot;#声明&quot; class=&quot;headerlink&quot; title=&quot;声明&quot;&gt;&lt;/a&gt;声明&lt;/h4&gt;&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;@Throws(InterruptedException::class)&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;public fun &amp;lt;T&amp;gt; runBlocking(context: CoroutineContext = EmptyCoroutineContext, block: suspend CoroutineScope.() -&amp;gt; T): T &amp;#123;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;    val currentThread = Thread.currentThread()&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;    val eventLoop = if (context[ContinuationInterceptor] == null) BlockingEventLoop(currentThread) else null&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;    val newContext = newCoroutineContext(context + (eventLoop ?: EmptyCoroutineContext))&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;    val coroutine = BlockingCoroutine&amp;lt;T&amp;gt;(newContext, currentThread, privateEventLoop = eventLoop != null)&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;    coroutine.initParentJob(context[Job])&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;    block.startCoroutine(coroutine, coroutine)&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;    return coroutine.joinBlocking()&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-    
-    </summary>
-    
-      <category term="kotlin" scheme="https://leokongwq.github.io/categories/kotlin/"/>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>mac上禁止jenkins自启动</title>
-    <link href="https://leokongwq.github.io/2018/01/10/mac-autostart.html"/>
-    <id>https://leokongwq.github.io/2018/01/10/mac-autostart.html</id>
-    <published>2018-01-10T07:43:30.000Z</published>
-    <updated>2018-01-15T07:19:25.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>本机安装了Jenkins后，每次开机都会自启动。浪费资源不说，主要是占用了<code>8080</code>这个人见人爱的端口。 通过下面的办法可以禁止它的自启动。</p>
-<h3 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line">launchctl unload -w /Library/LaunchDaemons/org.jenkins-ci.plist</span>
-</pre></td></tr></table></figure>
-<p>通过这个例子指定，OSX上启动的的脚本都是放在目录<code>/Library/LaunchDaemons</code>下。该目录下的每个文件都是有特殊格式的。</p>
-<p>如果想要制作自启动脚本，可以参考这个目录下的脚本。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;本机安装了Jenkins后，每次开机都会自启动。浪费资源不说，主要是占用了&lt;code&gt;8080&lt;/code&gt;这个人见人爱的端口。 通过下面的
-    
-    </summary>
-    
-    
-      <category term="osx" scheme="https://leokongwq.github.io/tags/osx/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Gossip算法介绍</title>
-    <link href="https://leokongwq.github.io/2018/01/01/gossip-intro.html"/>
-    <id>https://leokongwq.github.io/2018/01/01/gossip-intro.html</id>
-    <published>2018-01-01T06:31:59.000Z</published>
-    <updated>2018-01-01T06:53:45.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>本文转自：<a href="http://blog.csdn.net/chen77716/article/details/6275762" target="_blank" rel="external">Gossip算法</a></p>
-<p>Gossip算法因为Cassandra而名声大噪，Gossip看似简单，但要真正弄清楚其本质远没看起来那么容易。为了寻求Gossip的本质，下面的内容主要参考Gossip的原始论文：&lt;<efficient reconciliation="" and="" flow="" control="" for="" anti-entropy="" protocols="">&gt;。</efficient></p>
-<h3 id="Gossip背景"><a href="#Gossip背景" class="headerlink" title="Gossip背景"></a>Gossip背景</h3><p>Gossip算法如其名，灵感来自办公室八卦，只要一个人八卦一下，在有限的时间内所有的人都会知道该八卦的信息，这种方式也与病毒传播类似，因此Gossip有众多的别名“闲话算法”、“疫情传播算法”、“病毒感染算法”、“谣言传播算法”。</p>
-<p>但Gossip并不是一个新东西，之前的泛洪查找、路由算法都归属于这个范畴，不同的是Gossip给这类算法提供了明确的语义、具体实施方法及收敛性证明。</p>
-<a id="more"></a>
-<h3 id="Gossip特点"><a href="#Gossip特点" class="headerlink" title="Gossip特点"></a>Gossip特点</h3><p>Gossip算法又被称为反熵（Anti-Entropy），熵是物理学上的一个概念，代表杂乱无章，而反熵就是在杂乱无章中寻求一致，这充分说明了Gossip的特点：在一个有界网络中，每个节点都随机地与其他节点通信，经过一番杂乱无章的通信，最终所有节点的状态都会达成一致。每个节点可能知道所有其他节点，也可能仅知道几个邻居节点，只要这些节可以通过网络连通，最终他们的状态都是一致的，当然这也是疫情传播的特点。</p>
-<p>要注意到的一点是，即使有的节点因宕机而重启，有新节点加入，但经过一段时间后，这些节点的状态也会与其他节点达成一致，也就是说，Gossip天然具有分布式容错的优点。</p>
-<h3 id="Gossip本质"><a href="#Gossip本质" class="headerlink" title="Gossip本质"></a>Gossip本质</h3><p>Gossip是一个带冗余的容错算法，更进一步，Gossip是一个最终一致性算法。虽然无法保证在某个时刻所有节点状态一致，但可以保证在”最终“所有节点一致，”最终“是一个现实中存在，但理论上无法证明的时间点。</p>
-<p>因为Gossip不要求节点知道所有其他节点，因此又具有去中心化的特点，节点之间完全对等，不需要任何的中心节点。实际上Gossip可以用于众多能接受“最终一致性”的领域：失败检测、路由同步、Pub/Sub、动态负载均衡。</p>
-<p>但Gossip的缺点也很明显，冗余通信会对网路带宽、CUP资源造成很大的负载，而这些负载又受限于通信频率，该频率又影响着算法收敛的速度，后面我们会讲在各种场合下的优化方法。</p>
-<h3 id="Gossip节点的通信方式及收敛性"><a href="#Gossip节点的通信方式及收敛性" class="headerlink" title="Gossip节点的通信方式及收敛性"></a>Gossip节点的通信方式及收敛性</h3><p>根据原论文，两个节点（A、B）之间存在三种通信方式:</p>
-<ul>
-<li>push: A节点将数据(key,value,version)及对应的版本号推送给B节点，B节点更新A中比自己新的数据</li>
-<li>pull：A仅将数据key,version推送给B，B将本地比A新的数据（Key,value,version）推送给A，A更新本地</li>
-<li>push/pull：与pull类似，只是多了一步，A再将本地比B新的数据推送给B，B更新本地<br>如果把两个节点数据同步一次定义为一个周期，则在一个周期内，push需通信1次，pull需2次，push/pull则需3次，从效果上来讲，push/pull最好，理论上一个周期内可以使两个节点完全一致。直观上也感觉，push/pull的收敛速度是最快的。</li>
-</ul>
-<p>假设每个节点通信周期都能选择（感染）一个新节点，则Gossip算法退化为一个二分查找过程，每个周期构成一个平衡二叉树，收敛速度为$O(n^2)$，对应的时间开销则为$O(logN)$。这也是Gossip理论上最优的收敛速度。但在实际情况中最优收敛速度是很难达到的，假设某个节点在第<code>i</code>个周期被感染的概率为$p_i$ ,第<code>i+1</code>个周期被感染的概率为$p_i+1$ ，则pull的方式:</p>
-<p>$p_i+1=p_i^2$</p>
-<p>而push为：</p>
-<p>$p_i+1=p_i(1-\frac{1}{n})^{n(1-p_i)}$</p>
-<p>显然pull的收敛速度大于push，而每个节点在每个周期被感染的概率都是固定的p(0&lt;p&lt;1)，因此Gossip算法是基于p的平方收敛，也成为概率收敛，这在众多的一致性算法中是非常独特的。</p>
-<p>每个Gossip的节点的工作方式又分两种：</p>
-<ul>
-<li>Anti-Entropy（反熵）：以固定的概率传播所有的数据</li>
-<li>Rumor-Mongering（谣言传播）：仅传播新到达的数据</li>
-</ul>
-<p>Anti-Entropy模式有完全的容错性，但有较大的网络、CPU负载；Rumor-Mongering模式有较小的网络、CPU负载，但必须为数据定义”最新“的边界，并且难以保证完全容错，对失败重启且超过”最新“期限的节点，无法保证最终一致性，或需要引入额外的机制处理不一致性。我们后续着重讨论Anti-Entropy模式的优化。</p>
-<h3 id="Anti-Entropy的协调机制"><a href="#Anti-Entropy的协调机制" class="headerlink" title="Anti-Entropy的协调机制"></a>Anti-Entropy的协调机制</h3><p>协调机制是讨论在每次2个节点通信时，如何交换数据能达到最快的一致性，也即消除两个节点的不一致性。上面所讲的push、pull等是通信方式，协调是在通信方式下的数据交换机制。协调所面临的最大问题是，因为受限于网络负载，不可能每次都把一个节点上的数据发送给另外一个节点，也即每个Gossip的消息大小都有上限。在有限的空间上有效率地交换所有的消息是协调要解决的主要问题。</p>
-<p>在讨论之前先声明几个概念：</p>
-<ul>
-<li>令N = {p,q,s,…}为需要gossip通信的server集合，有界大小</li>
-<li>令(p1,p2,…)是宿主在节点p上的数据，其中数据有(key,value,version)构成，q的规则与p类似。</li>
-</ul>
-<p>为了保证一致性，规定数据的value及version只有宿主节点才能修改，其他节点只能间接通过Gossip协议来请求数据对应的宿主节点修改。</p>
-<h4 id="精确协调（Precise-Reconciliation）"><a href="#精确协调（Precise-Reconciliation）" class="headerlink" title="精确协调（Precise Reconciliation）"></a>精确协调（Precise Reconciliation）</h4><p>精确协调希望在每次通信周期内都非常准确地消除双方的不一致性，具体表现为相互发送对方需要更新的数据，因为每个节点都在并发与多个节点通信，理论上精确协调很难做到。精确协调需要给每个数据项独立地维护自己的version，在每次交互是把所有的(key,value,version)发送到目标进行比对，从而找出双方不同之处从而更新。但因为Gossip消息存在大小限制，因此每次选择发送哪些数据就成了问题。当然可以随机选择一部分数据，也可确定性的选择数据。对确定性的选择而言，可以有最老优先（根据版本）和最新优先两种，最老优先会优先更新版本最新的数据，而最新更新正好相反，这样会造成老数据始终得不到机会更新，也即饥饿。</p>
-<p>当然，开发这也可根据业务场景构造自己的选择算法，但始终都无法避免消息量过多的问题。</p>
-<h4 id="整体协调（Scuttlebutt-Reconciliation）"><a href="#整体协调（Scuttlebutt-Reconciliation）" class="headerlink" title="整体协调（Scuttlebutt Reconciliation）"></a>整体协调（Scuttlebutt Reconciliation）</h4><p>整体协调与精确协调不同之处是，整体协调不是为每个数据都维护单独的版本号，而是为每个节点上的宿主数据维护统一的version。比如节点P会为(p1,p2,…)维护一个一致的全局version，相当于把所有的宿主数据看作一个整体，当与其他节点进行比较时，只需必须这些宿主数据的最高version，如果最高version相同说明这部分数据全部一致，否则再进行精确协调。</p>
-<p>整体协调对数据的选择也有两种方法：</p>
-<ul>
-<li>广度优先：根据整体version大小排序，也称为公平选择</li>
-<li>深度优先：根据包含数据多少的排序，也称为非公平选择。因为后者更有实用价值，所以原论文更鼓励后者</li>
-</ul>
-<h3 id="Cassandra中的实现"><a href="#Cassandra中的实现" class="headerlink" title="Cassandra中的实现"></a>Cassandra中的实现</h3><p>经过验证，Cassandra实现了基于整体协调的push/push模式，有几个组件：</p>
-<p>三条消息分别对应push/pull的三个阶段：</p>
-<ul>
-<li>GossipDigitsMessage</li>
-<li>GossipDigitsAckMessage</li>
-<li>GossipDigitsAck2Message</li>
-</ul>
-<p>还有三种状态：</p>
-<ul>
-<li>EndpointState：维护宿主数据的全局version，并封装了HeartBeat和ApplicationState</li>
-<li>HeartBeat：心跳信息</li>
-<li>ApplicationState：系统负载信息（磁盘使用率）</li>
-</ul>
-<p>Cassandra主要是使用Gossip完成三方面的功能：</p>
-<ul>
-<li>失败检测</li>
-<li>动态负载均衡</li>
-<li>去中心化的弹性扩展</li>
-</ul>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>Gossip是一种去中心化、容错而又最终一致性的绝妙算法，其收敛性不但得到证明还具有指数级的收敛速度。使用Gossip的系统可以很容易的把Server扩展到更多的节点，满足弹性扩展轻而易举。</p>
-<p>唯一的缺点是收敛是最终一致性，不使用那些强一致性的场景，比如2pc。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本文转自：&lt;a href=&quot;http://blog.csdn.net/chen77716/article/details/6275762&quot;&gt;Gossip算法&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Gossip算法因为Cassandra而名声大噪，Gossip看似简单，但要真正弄清楚其本质远没看起来那么容易。为了寻求Gossip的本质，下面的内容主要参考Gossip的原始论文：&amp;lt;&lt;Efficient Reconciliation and Flow Control for Anti-Entropy Protocols&gt;&amp;gt;。&lt;/p&gt;
-&lt;h3 id=&quot;Gossip背景&quot;&gt;&lt;a href=&quot;#Gossip背景&quot; class=&quot;headerlink&quot; title=&quot;Gossip背景&quot;&gt;&lt;/a&gt;Gossip背景&lt;/h3&gt;&lt;p&gt;Gossip算法如其名，灵感来自办公室八卦，只要一个人八卦一下，在有限的时间内所有的人都会知道该八卦的信息，这种方式也与病毒传播类似，因此Gossip有众多的别名“闲话算法”、“疫情传播算法”、“病毒感染算法”、“谣言传播算法”。&lt;/p&gt;
-&lt;p&gt;但Gossip并不是一个新东西，之前的泛洪查找、路由算法都归属于这个范畴，不同的是Gossip给这类算法提供了明确的语义、具体实施方法及收敛性证明。&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="gossip" scheme="https://leokongwq.github.io/tags/gossip/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>consul和其它软件的比较</title>
-    <link href="https://leokongwq.github.io/2018/01/01/consul-vs-other-software.html"/>
-    <id>https://leokongwq.github.io/2018/01/01/consul-vs-other-software.html</id>
-    <published>2018-01-01T00:10:17.000Z</published>
-    <updated>2018-01-01T00:54:00.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="Consul-vs-ZooKeeper-doozerd-etcd"><a href="#Consul-vs-ZooKeeper-doozerd-etcd" class="headerlink" title="Consul vs. ZooKeeper, doozerd, etcd"></a>Consul vs. ZooKeeper, doozerd, etcd</h3><p>ZooKeeper、Doozerd、Etcd在架构上都非常相似，它们都有服务节点（server node），而这些服务节点的操作都要求达到节点的仲裁数（通常，节点的仲裁数遵循的是简单多数原则）。此外，它们都是强一致性的，并且提供各种原语。通过应用程序内部的客户端lib库，这些原语可以用来构建复杂的分布式系统。</p>
-<p>在一个单一的数据中心内部，Consul同样使用多个服务节点。在每个数据中心中，为了Consule能够运行，并且保持强一致性，Consul服务端需要仲裁。然而，Consul原生支持多数据中心，就像一个丰富gossip系统连接服务器节点和客户端一样。</p>
-<p>当提供K/V存储的时候，这些系统具有大致相同的语义，读操作是强一致性的，并且在面对网络分区的时候，为了保证读操作的强一致性，牺牲了可用性。然而，当系统应用于复杂情况时，这种差异会变得更加明显。</p>
-<p>这些系统提供的语义对构建服务发现系统的开发人员很有吸引力，但更重要的是，它们强制开发人员自己构建这些特性。ZooKeeper只提供一个原始的K/V存储，并要求开发人员构建他们自己的系统来提供服务发现功能。相反的是，Consul提供了一个坚固的框架，这不仅仅是为了提供服务发现功能，也是为了减少推测工作和开发工作量。客户端只需简单地完成服务注册工作，然后使用一个DNS接口或者HTTP接口就可以执行工作了，而其他系统则需要你定制自己的解决方案。</p>
-<p>一个令人信服的服务发现框架必须包含健康检测功能，并且考虑失败的可能性。要是节点失败或者服务故障了，即使开发人员知道节点A提供Foo服务也是没用的。Navie系统利用心跳检测，周期性的更新服务或结点的TTL值。这种模式会导致检测工作随着结点的数目的增加而线性增加，并且限制了服务器的数量。此外，故障检测窗口的存活时间至少要和TTL一样长。</p>
-<p>ZooKeeper提供了临时节点，这些临时节点就是K/V条目，当客户端断开连接时，这些条目会被删除。虽然这些临时节点比一个心跳系统更高级，但仍存在固有的扩展性问题，并且会增加客户端的复杂性。与ZooKeeper服务器端连接时，客户端必须保持活跃，并且去做持续性连接。此外，ZooKeeper还需要胖客户端，而胖客户端是很难编写，并且胖客户端会经常导致调试质询。</p>
-<p>Consul使用一个完全不同的架构进行结点的健康检测。这个架构中不仅仅只有Consul服务结点，集群中的每一个节点上都会运行一个Consul客户端。这些Consul客户端属于一个gossip pool，gossip pool提供了一些功能，包括分布式健康检测。gossip协议提供了一个高效的故障检测工具，这个故障检测工具可以应用到任意规模的集群，而不仅仅是作用于特定的服务器组。同时，这个故障检测工具也支持在本地进行多种健康检测。与此相反，ZooKeeper的临时节点只是一个非常原始的活跃度检测。因为有了Consul，客户端可以检测web服务器是否正在返回200状态码，内存利用率是否达到临界点，是否有足够的数据存储盘等。此外，ZooKeeper会暴露系统的复杂性给客户端，为了避免ZooKeeper出现的这种情况，Consul只提供一个简单HTTP接口。</p>
-<p>Consul为服务发现、健康检测、K/V存储和多数据中心提供了一流的支持。为了支持任意存储，而不仅仅是简单的K/V存储，其它系统都要求工具和lib库要率先建立。然而，通过使用客户端节点，Consul提供了一个简单的API，这个API的开发只需要瘦客户端就可以了， 而且通过使用配置文件和DNS接口，开发人员可以建立完整的服务发现解决方案，最终，达到避免开发API的目的。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h3 id=&quot;Consul-vs-ZooKeeper-doozerd-etcd&quot;&gt;&lt;a href=&quot;#Consul-vs-ZooKeeper-doozerd-etcd&quot; class=&quot;headerlink&quot; title=&quot;Consul vs. ZooKeeper, doozer
-    
-    </summary>
-    
-    
-      <category term="consul" scheme="https://leokongwq.github.io/tags/consul/"/>
     
   </entry>
   

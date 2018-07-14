@@ -33,7 +33,7 @@
 接口响应数据友好
 
 下面就是我在工作中对使用tomcat部署springmvc应用时各种处理异常的总结">
-<meta property="og:updated_time" content="2017-03-26T07:30:18.000Z">
+<meta property="og:updated_time" content="2018-07-14T03:48:49.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java web 开发异常处理总结">
 <meta name="twitter:description" content="背景在Java web开发中异常处理是非常重要的事。主要有这几方面的考虑：
@@ -329,7 +329,7 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在Java web开发中异常处理是非常重要的事。主要有这几方面的考虑：</p>
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在Java web开发中异常处理是非常重要的事。主要有这几方面的考虑：</p>
 <ol>
 <li>用户友好</li>
 <li>影藏敏感信息</li>
@@ -337,7 +337,7 @@
 </ol>
 <p>下面就是我在工作中对使用tomcat部署springmvc应用时各种处理异常的总结</p>
 <a id="more"></a>
-<h3 id="web-xml-异常处理"><a href="#web-xml-异常处理" class="headerlink" title="web.xml 异常处理"></a>web.xml 异常处理</h3><p>web.xml文件是Java web应用的部署描述符，在serlet 3.0规范之前是必须的。关于web.xml文件的详细描述可以参考<a href="https://docs.oracle.com/cd/E24329_01/web.1211/e21049/web_xml.htm" target="_blank" rel="external">https://docs.oracle.com/cd/E24329_01/web.1211/e21049/web_xml.htm</a></p>
+<h2 id="web-xml-异常处理"><a href="#web-xml-异常处理" class="headerlink" title="web.xml 异常处理"></a>web.xml 异常处理</h2><p>web.xml文件是Java web应用的部署描述符，在serlet 3.0规范之前是必须的。关于web.xml文件的详细描述可以参考<a href="https://docs.oracle.com/cd/E24329_01/web.1211/e21049/web_xml.htm" target="_blank" rel="external">https://docs.oracle.com/cd/E24329_01/web.1211/e21049/web_xml.htm</a></p>
 <p>在web.xml配置文件中我们可以通过如下的配置来实现异常的处理</p>
 <p>java代码</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
@@ -373,7 +373,7 @@
 <span class="line">    &#125;</span>
 <span class="line">&#125;</span>
 </pre></td></tr></table></figure>
-<h4 id="web-xml-配置"><a href="#web-xml-配置" class="headerlink" title="web.xml 配置"></a>web.xml 配置</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<h3 id="web-xml-配置"><a href="#web-xml-配置" class="headerlink" title="web.xml 配置"></a>web.xml 配置</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
 <span class="line">2</span>
 <span class="line">3</span>
 <span class="line">4</span>
@@ -401,7 +401,7 @@
 <p>当我们访问<code>http://localhost:7001/notfound</code>时，tomcat就会返回<code>404.html</code>文件的内容。</p>
 <p>当我们访问地址：<code>http://localhost:7001/exception</code>时，tomcat就会返回<code>500.html</code>文件的内容。</p>
 <p>当我们访问地址：<code>http://localhost:7001/myException</code>时，tomcat就会返回<code>myException.html</code>文件的内容。</p>
-<h4 id="原理分析"><a href="#原理分析" class="headerlink" title="原理分析"></a>原理分析</h4><p>tomcat或者说servlet引擎在收到客户端的请求后，会根据请求的URL来查找对应的HOST和HOST下对应的Context进行处理，具体的入口就是</p>
+<h3 id="原理分析"><a href="#原理分析" class="headerlink" title="原理分析"></a>原理分析</h3><p>tomcat或者说servlet引擎在收到客户端的请求后，会根据请求的URL来查找对应的HOST和HOST下对应的Context进行处理，具体的入口就是</p>
 <p>servlet配置中的<code>url-pattern</code>查找对应的servlet进行请求处理，<code>CoyoteAdapter</code>类的<code>postParseRequest</code>中，其中的核心语句如下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
 <span class="line">2</span>
@@ -464,6 +464,42 @@
 <span class="line"><span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span>
 </pre></td></tr></table></figure>
 <p>所以我们可以看到请求如果没有匹配的Servlet进行处理，最终会由DefaultServlet来处理。其中的核心代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+</pre></td><td class="code"><pre><span class="line">WebResource resource = resources.getResource(path);</span>
+<span class="line"><span class="keyword">if</span> (!resource.exists()) &#123;</span>
+<span class="line">  <span class="comment">// Check if we're included so we can return the appropriate</span></span>
+<span class="line">  <span class="comment">// missing resource name in the error</span></span>
+<span class="line">  String requestUri = (String) request.getAttribute(</span>
+<span class="line">          RequestDispatcher.INCLUDE_REQUEST_URI);</span>
+<span class="line">  <span class="keyword">if</span> (requestUri == <span class="keyword">null</span>) &#123;</span>
+<span class="line">      requestUri = request.getRequestURI();</span>
+<span class="line">  &#125; <span class="keyword">else</span> &#123;</span>
+<span class="line">      <span class="comment">// We're included</span></span>
+<span class="line">      <span class="comment">// SRV.9.3 says we must throw a FNFE</span></span>
+<span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> FileNotFoundException(sm.getString(</span>
+<span class="line">              <span class="string">"defaultServlet.missingResource"</span>, requestUri));</span>
+<span class="line">  &#125;</span>
+<span class="line">  response.sendError(HttpServletResponse.SC_NOT_FOUND, requestUri);</span>
+<span class="line">  <span class="keyword">return</span>;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>可以看到如果查找不到请求URL指定的资源，则它会设置响应对象<code>org.apache.catalina.connector.ResponseFacade</code>的错误标志位。然后处理流程就流转到<code>StandardHostValve</code>，具体处理逻辑如下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
 <span class="line">2</span>
 <span class="line">3</span>
@@ -592,29 +628,15 @@
 <span class="line">126</span>
 <span class="line">127</span>
 <span class="line">128</span>
-</pre></td><td class="code"><pre><span class="line">WebResource resource = resources.getResource(path);</span>
-<span class="line"><span class="keyword">if</span> (!resource.exists()) &#123;</span>
-<span class="line">  <span class="comment">// Check if we're included so we can return the appropriate</span></span>
-<span class="line">  <span class="comment">// missing resource name in the error</span></span>
-<span class="line">  String requestUri = (String) request.getAttribute(</span>
-<span class="line">          RequestDispatcher.INCLUDE_REQUEST_URI);</span>
-<span class="line">  <span class="keyword">if</span> (requestUri == <span class="keyword">null</span>) &#123;</span>
-<span class="line">      requestUri = request.getRequestURI();</span>
-<span class="line">  &#125; <span class="keyword">else</span> &#123;</span>
-<span class="line">      <span class="comment">// We're included</span></span>
-<span class="line">      <span class="comment">// SRV.9.3 says we must throw a FNFE</span></span>
-<span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> FileNotFoundException(sm.getString(</span>
-<span class="line">              <span class="string">"defaultServlet.missingResource"</span>, requestUri));</span>
-<span class="line">  &#125;</span>
-<span class="line">  response.sendError(HttpServletResponse.SC_NOT_FOUND, requestUri);</span>
-<span class="line">  <span class="keyword">return</span>;</span>
-<span class="line">&#125;</span>
-<span class="line">```  </span>
-<span class="line"></span>
-<span class="line">可以看到如果查找不到请求URL指定的资源，则它会设置响应对象`org.apache.catalina.connector.ResponseFacade`的错误标志位。然后处理流程就流转到`StandardHostValve`，具体处理逻辑如下：</span>
-<span class="line"></span>
-<span class="line">```java</span>
-<span class="line"><span class="meta">@Override</span></span>
+<span class="line">129</span>
+<span class="line">130</span>
+<span class="line">131</span>
+<span class="line">132</span>
+<span class="line">133</span>
+<span class="line">134</span>
+<span class="line">135</span>
+<span class="line">136</span>
+</pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span>
 <span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">invoke</span><span class="params">(Request request, Response response)</span></span>
 <span class="line">   <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span>
 <span class="line">    Context context = request.getContext();</span>
@@ -666,6 +688,323 @@
 <span class="line">        context.unbind(Globals.IS_SECURITY_ENABLED, MY_CLASSLOADER);</span>
 <span class="line">    &#125;</span>
 <span class="line">&#125;</span>
+<span class="line"><span class="comment">/**</span>
+<span class="line">     * Handle the specified Throwable encountered while processing</span>
+<span class="line">     * the specified Request to produce the specified Response.  Any</span>
+<span class="line">     * exceptions that occur during generation of the exception report are</span>
+<span class="line">     * logged and swallowed.</span>
+<span class="line">     *</span>
+<span class="line">     * <span class="doctag">@param</span> request The request being processed</span>
+<span class="line">     * <span class="doctag">@param</span> response The response being generated</span>
+<span class="line">     * <span class="doctag">@param</span> throwable The exception that occurred (which possibly wraps</span>
+<span class="line">     *  a root cause exception</span>
+<span class="line">     */</span></span>
+<span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">throwable</span><span class="params">(Request request, Response response,</span>
+<span class="line">                             Throwable throwable)</span> </span>&#123;</span>
+<span class="line">        Context context = request.getContext();</span>
+<span class="line">        <span class="keyword">if</span> (context == <span class="keyword">null</span>) &#123;</span>
+<span class="line">            <span class="keyword">return</span>;</span>
+<span class="line">        &#125;</span>
+<span class="line"></span>
+<span class="line">        Throwable realError = throwable;</span>
+<span class="line"></span>
+<span class="line">        <span class="keyword">if</span> (realError <span class="keyword">instanceof</span> ServletException) &#123;</span>
+<span class="line">            realError = ((ServletException) realError).getRootCause();</span>
+<span class="line">            <span class="keyword">if</span> (realError == <span class="keyword">null</span>) &#123;</span>
+<span class="line">                realError = throwable;</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125;</span>
+<span class="line"></span>
+<span class="line">        <span class="comment">// If this is an aborted request from a client just log it and return</span></span>
+<span class="line">        <span class="keyword">if</span> (realError <span class="keyword">instanceof</span> ClientAbortException ) &#123;</span>
+<span class="line">            <span class="keyword">if</span> (log.isDebugEnabled()) &#123;</span>
+<span class="line">                log.debug</span>
+<span class="line">                    (sm.getString(<span class="string">"standardHost.clientAbort"</span>,</span>
+<span class="line">                        realError.getCause().getMessage()));</span>
+<span class="line">            &#125;</span>
+<span class="line">            <span class="keyword">return</span>;</span>
+<span class="line">        &#125;</span>
+<span class="line"></span>
+<span class="line">        ErrorPage errorPage = findErrorPage(context, throwable);</span>
+<span class="line">        <span class="keyword">if</span> ((errorPage == <span class="keyword">null</span>) &amp;&amp; (realError != throwable)) &#123;</span>
+<span class="line">            errorPage = findErrorPage(context, realError);</span>
+<span class="line">        &#125;</span>
+<span class="line"></span>
+<span class="line">        <span class="keyword">if</span> (errorPage != <span class="keyword">null</span>) &#123;</span>
+<span class="line">            <span class="keyword">if</span> (response.setErrorReported()) &#123;</span>
+<span class="line">                response.setAppCommitted(<span class="keyword">false</span>);</span>
+<span class="line">                request.setAttribute(Globals.DISPATCHER_REQUEST_PATH_ATTR,</span>
+<span class="line">                        errorPage.getLocation());</span>
+<span class="line">                request.setAttribute(Globals.DISPATCHER_TYPE_ATTR,</span>
+<span class="line">                        DispatcherType.ERROR);</span>
+<span class="line">                request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE,</span>
+<span class="line">                        Integer.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));</span>
+<span class="line">                request.setAttribute(RequestDispatcher.ERROR_MESSAGE,</span>
+<span class="line">                                  throwable.getMessage());</span>
+<span class="line">                request.setAttribute(RequestDispatcher.ERROR_EXCEPTION,</span>
+<span class="line">                                  realError);</span>
+<span class="line">                Wrapper wrapper = request.getWrapper();</span>
+<span class="line">                <span class="keyword">if</span> (wrapper != <span class="keyword">null</span>) &#123;</span>
+<span class="line">                    request.setAttribute(RequestDispatcher.ERROR_SERVLET_NAME,</span>
+<span class="line">                                      wrapper.getName());</span>
+<span class="line">                &#125;</span>
+<span class="line">                request.setAttribute(RequestDispatcher.ERROR_REQUEST_URI,</span>
+<span class="line">                                     request.getRequestURI());</span>
+<span class="line">                request.setAttribute(RequestDispatcher.ERROR_EXCEPTION_TYPE,</span>
+<span class="line">                                  realError.getClass());</span>
+<span class="line">                <span class="keyword">if</span> (custom(request, response, errorPage)) &#123;</span>
+<span class="line">                    <span class="keyword">try</span> &#123;</span>
+<span class="line">                        response.finishResponse();</span>
+<span class="line">                    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span>
+<span class="line">                        container.getLogger().warn(<span class="string">"Exception Processing "</span> + errorPage, e);</span>
+<span class="line">                    &#125;</span>
+<span class="line">                &#125;</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125; <span class="keyword">else</span> &#123;</span>
+<span class="line">            <span class="comment">// A custom error-page has not been defined for the exception</span></span>
+<span class="line">            <span class="comment">// that was thrown during request processing. Check if an</span></span>
+<span class="line">            <span class="comment">// error-page for error code 500 was specified and if so,</span></span>
+<span class="line">            <span class="comment">// send that page back as the response.</span></span>
+<span class="line">            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);</span>
+<span class="line">            <span class="comment">// The response is an error</span></span>
+<span class="line">            response.setError();</span>
+<span class="line"></span>
+<span class="line">            status(request, response);</span>
+<span class="line">        &#125;</span>
+<span class="line">    &#125;</span>
+</pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+<span class="line">43</span>
+<span class="line">44</span>
+<span class="line">45</span>
+<span class="line">46</span>
+<span class="line">47</span>
+<span class="line">48</span>
+<span class="line">49</span>
+<span class="line">50</span>
+<span class="line">51</span>
+<span class="line">52</span>
+<span class="line">53</span>
+<span class="line">54</span>
+<span class="line">55</span>
+<span class="line">56</span>
+<span class="line">57</span>
+<span class="line">58</span>
+<span class="line">59</span>
+<span class="line">60</span>
+<span class="line">61</span>
+<span class="line">62</span>
+<span class="line">63</span>
+<span class="line">64</span>
+<span class="line">65</span>
+<span class="line">66</span>
+<span class="line">67</span>
+<span class="line">68</span>
+<span class="line">69</span>
+<span class="line">70</span>
+<span class="line">71</span>
+<span class="line">72</span>
+<span class="line">73</span>
+<span class="line">74</span>
+<span class="line">75</span>
+<span class="line">76</span>
+<span class="line">77</span>
+<span class="line">78</span>
+<span class="line">79</span>
+<span class="line">80</span>
+<span class="line">81</span>
+<span class="line">82</span>
+<span class="line">83</span>
+<span class="line">84</span>
+<span class="line">85</span>
+<span class="line">86</span>
+<span class="line">87</span>
+<span class="line">88</span>
+<span class="line">89</span>
+<span class="line">90</span>
+<span class="line">91</span>
+<span class="line">92</span>
+<span class="line">93</span>
+<span class="line">94</span>
+<span class="line">95</span>
+<span class="line">96</span>
+<span class="line">97</span>
+<span class="line">98</span>
+<span class="line">99</span>
+<span class="line">100</span>
+<span class="line">101</span>
+<span class="line">102</span>
+<span class="line">103</span>
+<span class="line">104</span>
+<span class="line">105</span>
+<span class="line">106</span>
+<span class="line">107</span>
+<span class="line">108</span>
+<span class="line">109</span>
+<span class="line">110</span>
+<span class="line">111</span>
+<span class="line">112</span>
+<span class="line">113</span>
+<span class="line">114</span>
+<span class="line">115</span>
+<span class="line">116</span>
+<span class="line">117</span>
+<span class="line">118</span>
+<span class="line">119</span>
+<span class="line">120</span>
+<span class="line">121</span>
+<span class="line">122</span>
+<span class="line">123</span>
+<span class="line">124</span>
+<span class="line">125</span>
+<span class="line">126</span>
+<span class="line">127</span>
+<span class="line">128</span>
+<span class="line">129</span>
+<span class="line">130</span>
+<span class="line">131</span>
+<span class="line">132</span>
+<span class="line">133</span>
+<span class="line">134</span>
+<span class="line">135</span>
+<span class="line">136</span>
+<span class="line">137</span>
+<span class="line">138</span>
+<span class="line">139</span>
+<span class="line">140</span>
+<span class="line">141</span>
+<span class="line">142</span>
+<span class="line">143</span>
+<span class="line">144</span>
+</pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span>
+<span class="line">* Handle the specified Throwable encountered while processing</span>
+<span class="line">* the specified Request to produce the specified Response.  Any</span>
+<span class="line">* exceptions that occur during generation of the exception report are</span>
+<span class="line">* logged and swallowed.</span>
+<span class="line">*</span>
+<span class="line">* <span class="doctag">@param</span> request The request being processed</span>
+<span class="line">* <span class="doctag">@param</span> response The response being generated</span>
+<span class="line">* <span class="doctag">@param</span> throwable The exception that occurred (which possibly wraps</span>
+<span class="line">*  a root cause exception</span>
+<span class="line">*/</span></span>
+<span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">throwable</span><span class="params">(Request request, Response response,</span>
+<span class="line">                        Throwable throwable)</span> </span>&#123;</span>
+<span class="line">   Context context = request.getContext();</span>
+<span class="line">   <span class="keyword">if</span> (context == <span class="keyword">null</span>) &#123;</span>
+<span class="line">       <span class="keyword">return</span>;</span>
+<span class="line">   &#125;</span>
+<span class="line"></span>
+<span class="line">   Throwable realError = throwable;</span>
+<span class="line"></span>
+<span class="line">   <span class="keyword">if</span> (realError <span class="keyword">instanceof</span> ServletException) &#123;</span>
+<span class="line">       realError = ((ServletException) realError).getRootCause();</span>
+<span class="line">       <span class="keyword">if</span> (realError == <span class="keyword">null</span>) &#123;</span>
+<span class="line">           realError = throwable;</span>
+<span class="line">       &#125;</span>
+<span class="line">   &#125;</span>
+<span class="line"></span>
+<span class="line">   <span class="comment">// If this is an aborted request from a client just log it and return</span></span>
+<span class="line">   <span class="keyword">if</span> (realError <span class="keyword">instanceof</span> ClientAbortException ) &#123;</span>
+<span class="line">       <span class="keyword">if</span> (log.isDebugEnabled()) &#123;</span>
+<span class="line">           log.debug</span>
+<span class="line">               (sm.getString(<span class="string">"standardHost.clientAbort"</span>,</span>
+<span class="line">                   realError.getCause().getMessage()));</span>
+<span class="line">       &#125;</span>
+<span class="line">       <span class="keyword">return</span>;</span>
+<span class="line">   &#125;</span>
+<span class="line">   <span class="comment">// 查询异常页面 404, 500 web.xml 中配置的</span></span>
+<span class="line">   ErrorPage errorPage = findErrorPage(context, throwable);</span>
+<span class="line">   <span class="keyword">if</span> ((errorPage == <span class="keyword">null</span>) &amp;&amp; (realError != throwable)) &#123;</span>
+<span class="line">       errorPage = findErrorPage(context, realError);</span>
+<span class="line">   &#125;</span>
+<span class="line"></span>
+<span class="line">   <span class="keyword">if</span> (errorPage != <span class="keyword">null</span>) &#123;</span>
+<span class="line">       <span class="keyword">if</span> (response.setErrorReported()) &#123;</span>
+<span class="line">           response.setAppCommitted(<span class="keyword">false</span>);</span>
+<span class="line">           request.setAttribute(Globals.DISPATCHER_REQUEST_PATH_ATTR,</span>
+<span class="line">                   errorPage.getLocation());</span>
+<span class="line">           request.setAttribute(Globals.DISPATCHER_TYPE_ATTR,</span>
+<span class="line">                   DispatcherType.ERROR);</span>
+<span class="line">           request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE,</span>
+<span class="line">                   Integer.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR));</span>
+<span class="line">           request.setAttribute(RequestDispatcher.ERROR_MESSAGE,</span>
+<span class="line">                             throwable.getMessage());</span>
+<span class="line">           request.setAttribute(RequestDispatcher.ERROR_EXCEPTION,</span>
+<span class="line">                             realError);</span>
+<span class="line">           Wrapper wrapper = request.getWrapper();</span>
+<span class="line">           <span class="keyword">if</span> (wrapper != <span class="keyword">null</span>) &#123;</span>
+<span class="line">               request.setAttribute(RequestDispatcher.ERROR_SERVLET_NAME,</span>
+<span class="line">                                 wrapper.getName());</span>
+<span class="line">           &#125;</span>
+<span class="line">           request.setAttribute(RequestDispatcher.ERROR_REQUEST_URI,</span>
+<span class="line">                                request.getRequestURI());</span>
+<span class="line">           request.setAttribute(RequestDispatcher.ERROR_EXCEPTION_TYPE,</span>
+<span class="line">                             realError.getClass());</span>
+<span class="line">           <span class="keyword">if</span> (custom(request, response, errorPage)) &#123;</span>
+<span class="line">               <span class="keyword">try</span> &#123;</span>
+<span class="line">                   response.finishResponse();</span>
+<span class="line">               &#125; <span class="keyword">catch</span> (IOException e) &#123;</span>
+<span class="line">                   container.getLogger().warn(<span class="string">"Exception Processing "</span> + errorPage, e);</span>
+<span class="line">               &#125;</span>
+<span class="line">           &#125;</span>
+<span class="line">       &#125;</span>
+<span class="line">   &#125; <span class="keyword">else</span> &#123;</span>
+<span class="line">       <span class="comment">// 么有找到自定义配置的错误页面，由tomcat自己处理</span></span>
+<span class="line">       <span class="comment">// A custom error-page has not been defined for the exception</span></span>
+<span class="line">       <span class="comment">// that was thrown during request processing. Check if an</span></span>
+<span class="line">       <span class="comment">// error-page for error code 500 was specified and if so,</span></span>
+<span class="line">       <span class="comment">// send that page back as the response.</span></span>
+<span class="line">       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);</span>
+<span class="line">       <span class="comment">// The response is an error</span></span>
+<span class="line">       response.setError();</span>
+<span class="line">    </span>
+<span class="line">       status(request, response);</span>
+<span class="line">   &#125;</span>
+<span class="line">&#125;</span>
+<span class="line">```    </span>
+<span class="line"></span>
+<span class="line">```java</span>
 <span class="line"><span class="comment">//处理 http 状态码</span></span>
 <span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">status</span><span class="params">(Request request, Response response)</span> </span>&#123;</span>
 <span class="line">    <span class="keyword">int</span> statusCode = response.getStatus();</span>
@@ -680,9 +1019,10 @@
 <span class="line">    <span class="comment">//这个就是我们分析的最终点：根据http状态码查找web.xml配置的error-page信息</span></span>
 <span class="line">    ErrorPage errorPage = context.findErrorPage(statusCode);</span>
 <span class="line">    <span class="keyword">if</span> (errorPage == <span class="keyword">null</span>) &#123;</span>
-<span class="line">        <span class="comment">// Look for a default error page</span></span>
+<span class="line">        <span class="comment">// 查找默认的错误页</span></span>
 <span class="line">        errorPage = context.findErrorPage(<span class="number">0</span>);</span>
 <span class="line">    &#125;</span>
+<span class="line">    <span class="comment">// 这里的错误页就是tomcat提供的： org.apache.tomcat.util.descriptor.web.ErrorPage</span></span>
 <span class="line">    <span class="keyword">if</span> (errorPage != <span class="keyword">null</span> &amp;&amp; response.isErrorReportRequired()) &#123;</span>
 <span class="line">        response.setAppCommitted(<span class="keyword">false</span>);</span>
 <span class="line">        request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, Integer.valueOf(statusCode));</span>
@@ -711,6 +1051,7 @@
 <span class="line">            <span class="comment">//设置标志位，表示异常已经处理过了。</span></span>
 <span class="line">            response.setErrorReported();</span>
 <span class="line">            <span class="keyword">try</span> &#123;</span>
+<span class="line">                <span class="comment">// 完成响应， 输出结果到浏览器。</span></span>
 <span class="line">                response.finishResponse();</span>
 <span class="line">            &#125; <span class="keyword">catch</span> (ClientAbortException e) &#123;</span>
 <span class="line">                <span class="comment">// Ignore</span></span>
@@ -721,7 +1062,253 @@
 <span class="line">    &#125;</span>
 <span class="line">&#125;</span>
 </pre></td></tr></table></figure>
-<p>ErrorReportValve 的 report 方法逻辑如下：</p>
+<h4 id="StandardWrapperValve"><a href="#StandardWrapperValve" class="headerlink" title="StandardWrapperValve"></a>StandardWrapperValve</h4><p><code>StandardWrapperValve</code>是pipeline的最后一个Valve</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+<span class="line">43</span>
+<span class="line">44</span>
+<span class="line">45</span>
+<span class="line">46</span>
+<span class="line">47</span>
+<span class="line">48</span>
+<span class="line">49</span>
+<span class="line">50</span>
+<span class="line">51</span>
+<span class="line">52</span>
+<span class="line">53</span>
+<span class="line">54</span>
+<span class="line">55</span>
+<span class="line">56</span>
+<span class="line">57</span>
+<span class="line">58</span>
+<span class="line">59</span>
+<span class="line">60</span>
+<span class="line">61</span>
+<span class="line">62</span>
+<span class="line">63</span>
+<span class="line">64</span>
+<span class="line">65</span>
+<span class="line">66</span>
+<span class="line">67</span>
+<span class="line">68</span>
+<span class="line">69</span>
+<span class="line">70</span>
+<span class="line">71</span>
+<span class="line">72</span>
+<span class="line">73</span>
+<span class="line">74</span>
+<span class="line">75</span>
+<span class="line">76</span>
+<span class="line">77</span>
+<span class="line">78</span>
+<span class="line">79</span>
+<span class="line">80</span>
+<span class="line">81</span>
+<span class="line">82</span>
+<span class="line">83</span>
+<span class="line">84</span>
+<span class="line">85</span>
+<span class="line">86</span>
+<span class="line">87</span>
+<span class="line">88</span>
+<span class="line">89</span>
+<span class="line">90</span>
+<span class="line">91</span>
+<span class="line">92</span>
+<span class="line">93</span>
+<span class="line">94</span>
+<span class="line">95</span>
+<span class="line">96</span>
+<span class="line">97</span>
+<span class="line">98</span>
+<span class="line">99</span>
+<span class="line">100</span>
+<span class="line">101</span>
+<span class="line">102</span>
+<span class="line">103</span>
+<span class="line">104</span>
+<span class="line">105</span>
+<span class="line">106</span>
+<span class="line">107</span>
+<span class="line">108</span>
+<span class="line">109</span>
+<span class="line">110</span>
+<span class="line">111</span>
+<span class="line">112</span>
+<span class="line">113</span>
+<span class="line">114</span>
+<span class="line">115</span>
+<span class="line">116</span>
+<span class="line">117</span>
+<span class="line">118</span>
+<span class="line">119</span>
+<span class="line">120</span>
+<span class="line">121</span>
+<span class="line">122</span>
+</pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span>
+<span class="line">* Invoke the servlet we are managing, respecting the rules regarding</span>
+<span class="line">* servlet lifecycle and SingleThreadModel support.</span>
+<span class="line">*</span>
+<span class="line">* <span class="doctag">@param</span> request Request to be processed</span>
+<span class="line">* <span class="doctag">@param</span> response Response to be produced</span>
+<span class="line">*</span>
+<span class="line">* <span class="doctag">@exception</span> IOException if an input/output error occurred</span>
+<span class="line">* <span class="doctag">@exception</span> ServletException if a servlet error occurred</span>
+<span class="line">*/</span></span>
+<span class="line"><span class="meta">@Override</span></span>
+<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">invoke</span><span class="params">(Request request, Response response)</span></span>
+<span class="line">   <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span>
+<span class="line"></span>
+<span class="line">   <span class="comment">//省略代码    </span></span>
+<span class="line"></span>
+<span class="line">   <span class="comment">// Allocate a servlet instance to process this request</span></span>
+<span class="line">   <span class="keyword">try</span> &#123;</span>
+<span class="line">       <span class="keyword">if</span> (!unavailable) &#123;</span>
+<span class="line">           servlet = wrapper.allocate();</span>
+<span class="line">       &#125;</span>
+<span class="line">   &#125; <span class="keyword">catch</span> (UnavailableException e) &#123;</span>
+<span class="line">      </span>
+<span class="line">   &#125; <span class="keyword">catch</span> (ServletException e) &#123;</span>
+<span class="line"></span>
+<span class="line">   &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span>
+<span class="line">   </span>
+<span class="line">   &#125; </span>
+<span class="line">    <span class="keyword">try</span> &#123;</span>
+<span class="line">    <span class="keyword">if</span> ((servlet != <span class="keyword">null</span>) &amp;&amp; (filterChain != <span class="keyword">null</span>)) &#123;</span>
+<span class="line">        <span class="comment">// Swallow output if needed</span></span>
+<span class="line">        <span class="keyword">if</span> (context.getSwallowOutput()) &#123;</span>
+<span class="line">            <span class="keyword">try</span> &#123;</span>
+<span class="line">                SystemLogHandler.startCapture();</span>
+<span class="line">                <span class="keyword">if</span> (request.isAsyncDispatching()) &#123;</span>
+<span class="line">                    request.getAsyncContextInternal().doInternalDispatch();</span>
+<span class="line">                &#125; <span class="keyword">else</span> &#123;</span>
+<span class="line">                    filterChain.doFilter(request.getRequest(),</span>
+<span class="line">                            response.getResponse());</span>
+<span class="line">                &#125;</span>
+<span class="line">            &#125; <span class="keyword">finally</span> &#123;</span>
+<span class="line">                String log = SystemLogHandler.stopCapture();</span>
+<span class="line">                <span class="keyword">if</span> (log != <span class="keyword">null</span> &amp;&amp; log.length() &gt; <span class="number">0</span>) &#123;</span>
+<span class="line">                    context.getLogger().info(log);</span>
+<span class="line">                &#125;</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125; <span class="keyword">else</span> &#123;</span>
+<span class="line">            <span class="keyword">if</span> (request.isAsyncDispatching()) &#123;</span>
+<span class="line">                request.getAsyncContextInternal().doInternalDispatch();</span>
+<span class="line">            &#125; <span class="keyword">else</span> &#123;</span>
+<span class="line">                filterChain.doFilter</span>
+<span class="line">                    (request.getRequest(), response.getResponse());</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125;</span>
+<span class="line"></span>
+<span class="line">    &#125;</span>
+<span class="line">&#125; <span class="keyword">catch</span> (ClientAbortException e) &#123;</span>
+<span class="line">    throwable = e;</span>
+<span class="line">    exception(request, response, e);</span>
+<span class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</span>
+<span class="line">    container.getLogger().error(sm.getString(<span class="string">"standardWrapper.serviceException"</span>, wrapper.getName(),context.getName()), e);</span>
+<span class="line">    throwable = e;</span>
+<span class="line">    exception(request, response, e);</span>
+<span class="line">&#125; <span class="keyword">catch</span> (UnavailableException e) &#123;</span>
+<span class="line">    container.getLogger().error(sm.getString(</span>
+<span class="line">            <span class="string">"standardWrapper.serviceException"</span>, wrapper.getName(),</span>
+<span class="line">            context.getName()), e);</span>
+<span class="line">    <span class="comment">//            throwable = e;</span></span>
+<span class="line">    <span class="comment">//            exception(request, response, e);</span></span>
+<span class="line">    wrapper.unavailable(e);</span>
+<span class="line">    <span class="keyword">long</span> available = wrapper.getAvailable();</span>
+<span class="line">    <span class="keyword">if</span> ((available &gt; <span class="number">0L</span>) &amp;&amp; (available &lt; Long.MAX_VALUE)) &#123;</span>
+<span class="line">        response.setDateHeader(<span class="string">"Retry-After"</span>, available);</span>
+<span class="line">        response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,</span>
+<span class="line">                   sm.getString(<span class="string">"standardWrapper.isUnavailable"</span>,</span>
+<span class="line">                                wrapper.getName()));</span>
+<span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (available == Long.MAX_VALUE) &#123;</span>
+<span class="line">        response.sendError(HttpServletResponse.SC_NOT_FOUND,</span>
+<span class="line">                    sm.getString(<span class="string">"standardWrapper.notFound"</span>,</span>
+<span class="line">                                wrapper.getName()));</span>
+<span class="line">    &#125;</span>
+<span class="line">    <span class="comment">// Do not save exception in 'throwable', because we</span></span>
+<span class="line">    <span class="comment">// do not want to do exception(request, response, e) processing</span></span>
+<span class="line">    <span class="comment">// 异常处理</span></span>
+<span class="line">&#125; <span class="keyword">catch</span> (ServletException e) &#123;</span>
+<span class="line">    Throwable rootCause = StandardWrapper.getRootCause(e);</span>
+<span class="line">    <span class="keyword">if</span> (!(rootCause <span class="keyword">instanceof</span> ClientAbortException)) &#123;</span>
+<span class="line">        container.getLogger().error(sm.getString(</span>
+<span class="line">                <span class="string">"standardWrapper.serviceExceptionRoot"</span>,</span>
+<span class="line">                wrapper.getName(), context.getName(), e.getMessage()),</span>
+<span class="line">                rootCause);</span>
+<span class="line">    &#125;</span>
+<span class="line">    throwable = e;</span>
+<span class="line">    exception(request, response, e);</span>
+<span class="line">&#125; <span class="keyword">catch</span> (Throwable e) &#123;</span>
+<span class="line">    ExceptionUtils.handleThrowable(e);</span>
+<span class="line">    container.getLogger().error(sm.getString(</span>
+<span class="line">            <span class="string">"standardWrapper.serviceException"</span>, wrapper.getName(),</span>
+<span class="line">            context.getName()), e);</span>
+<span class="line">    throwable = e;</span>
+<span class="line">    exception(request, response, e);</span>
+<span class="line">&#125;</span>
+<span class="line"><span class="comment">/**</span>
+<span class="line">* Handle the specified ServletException encountered while processing</span>
+<span class="line">* the specified Request to produce the specified Response.  Any</span>
+<span class="line">* exceptions that occur during generation of the exception report are</span>
+<span class="line">* logged and swallowed.</span>
+<span class="line">*</span>
+<span class="line">* <span class="doctag">@param</span> request The request being processed</span>
+<span class="line">* <span class="doctag">@param</span> response The response being generated</span>
+<span class="line">* <span class="doctag">@param</span> exception The exception that occurred (which possibly wraps</span>
+<span class="line">*  a root cause exception</span>
+<span class="line">*/</span></span>
+<span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">exception</span><span class="params">(Request request, Response response,</span>
+<span class="line">                      Throwable exception)</span> </span>&#123;</span>
+<span class="line">   <span class="comment">// 设置异常熟悉，后续流程会检查                       </span></span>
+<span class="line">   request.setAttribute(RequestDispatcher.ERROR_EXCEPTION, exception);</span>
+<span class="line">   <span class="comment">// 如果是302跳转后，有抛出异常，此时 状态码由 302 变为500</span></span>
+<span class="line">   <span class="comment">// 后续的异常处理交由 StandardHostValve处理</span></span>
+<span class="line">   response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);</span>
+<span class="line">   response.setError();</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h4 id="ErrorReportValve"><a href="#ErrorReportValve" class="headerlink" title="ErrorReportValve"></a>ErrorReportValve</h4><p>ErrorReportValve 的 report 方法逻辑如下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
 <span class="line">2</span>
 <span class="line">3</span>
@@ -839,7 +1426,7 @@
 </pre></td></tr></table></figure>
 <p>至此关于web.xml中error-page的配置，和tomcat如何处理的过程就算分析完毕了。结论就是：</p>
 <p><em>tomcat可以帮你处理错误，前提是error-page配置的location地址指向的请求应用层不拦截处理并且存在指定的资源，否则tomcat默认的处理机制就被启用，对用户是不友好的；如果引用层拦截了错误处理location指定的URI，则应用层必须处理，否则客户端只能收到404或500的响应头信息，同样对用户是不友好的。</em></p>
-<h3 id="springMVC-配置式异常处理"><a href="#springMVC-配置式异常处理" class="headerlink" title="springMVC 配置式异常处理"></a>springMVC 配置式异常处理</h3><p>在分析springMVC异常处理流程时，我们先分析一下springMVC的请求处理过程。</p>
+<h2 id="springMVC-配置式异常处理"><a href="#springMVC-配置式异常处理" class="headerlink" title="springMVC 配置式异常处理"></a>springMVC 配置式异常处理</h2><p>在分析springMVC异常处理流程时，我们先分析一下springMVC的请求处理过程。</p>
 <p>springMVC的一个请求处理的大致流程</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
 <span class="line">2</span>
@@ -904,7 +1491,7 @@
 <span class="line"><span class="comment">//Handler 调用结果处理</span></span>
 <span class="line">processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);</span>
 </pre></td></tr></table></figure>
-<h4 id="404-异常处理"><a href="#404-异常处理" class="headerlink" title="404 异常处理"></a>404 异常处理</h4><p>在请求处理的过程中如果没有查找到对应的Hanlder，则由DispatchServlet的<code>noHandlerFound</code>来处理。</p>
+<h3 id="404-异常处理"><a href="#404-异常处理" class="headerlink" title="404 异常处理"></a>404 异常处理</h3><p>在请求处理的过程中如果没有查找到对应的Hanlder，则由DispatchServlet的<code>noHandlerFound</code>来处理。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
 <span class="line">2</span>
 <span class="line">3</span>
@@ -979,7 +1566,7 @@
 <span class="line">   <span class="tag">&lt;<span class="name">location</span>&gt;</span>/exception.html<span class="tag">&lt;/<span class="name">location</span>&gt;</span></span>
 <span class="line"><span class="tag">&lt;/<span class="name">error-page</span>&gt;</span></span>
 </pre></td></tr></table></figure>
-<h4 id="500-异常处理"><a href="#500-异常处理" class="headerlink" title="500 异常处理"></a>500 异常处理</h4><p>上面分析了404异常处理，下面就分析500异常如何处理。</p>
+<h3 id="500-异常处理"><a href="#500-异常处理" class="headerlink" title="500 异常处理"></a>500 异常处理</h3><p>上面分析了404异常处理，下面就分析500异常如何处理。</p>
 <p>在springMVC的请求处理流程中有一行代码比较关键：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
 </pre></td><td class="code"><pre><span class="line">processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);</span>
@@ -1047,16 +1634,6 @@
 <span class="line">25</span>
 <span class="line">26</span>
 <span class="line">27</span>
-<span class="line">28</span>
-<span class="line">29</span>
-<span class="line">30</span>
-<span class="line">31</span>
-<span class="line">32</span>
-<span class="line">33</span>
-<span class="line">34</span>
-<span class="line">35</span>
-<span class="line">36</span>
-<span class="line">37</span>
 </pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> ModelAndView <span class="title">processHandlerException</span><span class="params">(HttpServletRequest request, HttpServletResponse response,</span>
 <span class="line">			Object handler, Exception ex)</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
 <span class="line">	<span class="comment">// 遍历所有的异常解析器来处理Handler抛出的异常</span></span>
@@ -1084,12 +1661,14 @@
 <span class="line">	<span class="comment">// 如果没有合适的异常处理器，则将异常许往上抛, 由servlet容器进行处理</span></span>
 <span class="line">	<span class="keyword">throw</span> ex;</span>
 <span class="line">&#125;</span>
-<span class="line">```	</span>
-<span class="line"></span>
-<span class="line">当我们启用了springMVC注解驱动后， 默认有下面三个异常解析器</span>
-<span class="line"></span>
-<span class="line">```java</span>
-<span class="line">org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver</span>
+</pre></td></tr></table></figure>
+<p>当我们启用了springMVC注解驱动后， 默认有下面三个异常解析器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line">org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver</span>
 <span class="line"></span>
 <span class="line">org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver</span>
 <span class="line"></span>
@@ -1172,7 +1751,7 @@
 <span class="line">		&#125;</span>
 <span class="line">&#125;</span>
 </pre></td></tr></table></figure>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
 <li>在不使用类似springMVC这样的框架时，可以通过web.xml配置error-page元素来实现异常的处理，404， 500等，如果需要处理json等格式接口错误，可以通过Filter来实现。</li>
 <li>在使用springMVC时，也可以在web.xml中配置error-page元素来处理异常，前题是springMVC没有拦击error-page中的location指定的请求。如果拦截了，则springMVC需要提供相应的Handler来处理异常。</li>
 <li>在使用高版本的springMVC时，可以通过自定义异常处理器，实现404， 500， http接口异常友好响应等这种复杂的异常处理。</li>
@@ -1188,7 +1767,7 @@
         <p><span>本文标题:</span><a href="/2017/03/25/java-web-exception.html">java web 开发异常处理总结</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">kongwenqiang</a></p>
         <p><span>发布时间:</span>2017-03-25, 08:05:19</p>
-        <p><span>最后更新:</span>2017-03-26, 15:30:18</p>
+        <p><span>最后更新:</span>2018-07-14, 11:48:49</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2017/03/25/java-web-exception.html" title="java web 开发异常处理总结">https://leokongwq.github.io/2017/03/25/java-web-exception.html</a>
             <span class="copy-path" data-clipboard-text="原文: https://leokongwq.github.io/2017/03/25/java-web-exception.html　　作者: kongwenqiang" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -1224,7 +1803,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#web-xml-异常处理"><span class="toc-number">2.</span> <span class="toc-text">web.xml 异常处理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#web-xml-配置"><span class="toc-number">2.1.</span> <span class="toc-text">web.xml 配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#原理分析"><span class="toc-number">2.2.</span> <span class="toc-text">原理分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#springMVC-配置式异常处理"><span class="toc-number">3.</span> <span class="toc-text">springMVC 配置式异常处理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#404-异常处理"><span class="toc-number">3.1.</span> <span class="toc-text">404 异常处理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#500-异常处理"><span class="toc-number">3.2.</span> <span class="toc-text">500 异常处理</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#web-xml-异常处理"><span class="toc-number">2.</span> <span class="toc-text">web.xml 异常处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#web-xml-配置"><span class="toc-number">2.1.</span> <span class="toc-text">web.xml 配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#原理分析"><span class="toc-number">2.2.</span> <span class="toc-text">原理分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#StandardWrapperValve"><span class="toc-number">2.2.1.</span> <span class="toc-text">StandardWrapperValve</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ErrorReportValve"><span class="toc-number">2.2.2.</span> <span class="toc-text">ErrorReportValve</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#springMVC-配置式异常处理"><span class="toc-number">3.</span> <span class="toc-text">springMVC 配置式异常处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#404-异常处理"><span class="toc-number">3.1.</span> <span class="toc-text">404 异常处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#500-异常处理"><span class="toc-number">3.2.</span> <span class="toc-text">500 异常处理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
         
     </div>
     <style>

@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://leokongwq.github.io/2017/03/25/java-web-exception.html</loc>
+    
+    <lastmod>2018-07-14T03:48:49.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://leokongwq.github.io/2018/07/08/spring-cloud-consul.html</loc>
     
     <lastmod>2018-07-09T02:59:36.000Z</lastmod>
@@ -880,13 +887,6 @@
     <loc>https://leokongwq.github.io/2017/03/29/maven-dependency-scope.html</loc>
     
     <lastmod>2017-03-29T12:26:16.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://leokongwq.github.io/2017/03/25/java-web-exception.html</loc>
-    
-    <lastmod>2017-03-26T07:30:18.000Z</lastmod>
     
   </url>
   

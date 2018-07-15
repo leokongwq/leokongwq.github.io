@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://leokongwq.github.io/"/>
-  <updated>2018-07-09T02:59:36.000Z</updated>
+  <updated>2018-07-15T13:20:06.000Z</updated>
   <id>https://leokongwq.github.io/</id>
   
   <author>
@@ -14,6 +14,789 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>servlet如何正确处理302跳转</title>
+    <link href="https://leokongwq.github.io/2018/07/15/how-to-process-302-in-j2ee-correctly.html"/>
+    <id>https://leokongwq.github.io/2018/07/15/how-to-process-302-in-j2ee-correctly.html</id>
+    <published>2018-07-15T02:08:31.000Z</published>
+    <updated>2018-07-15T13:20:06.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>某天，将线上的resin容器替换为tomcat．　过了一段时间发现有个接口处理失败，提示异常．查看应用日志发现如下的日志：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+</pre></td><td class="code"><pre><span class="line">Caused by: javax.servlet.ServletException: java.lang.IllegalStateException: Cannot create a session after the response has been committed</span>
+<span class="line">        at org.apache.jsp.WEB_002dINF.content.order.page.error_jsp._jspService(error_jsp.java:<span class="number">293</span>) ~[na:na]</span>
+<span class="line">        at org.apache.jasper.runtime.HttpJspBase.service(HttpJspBase.java:<span class="number">70</span>) ~[jasper.jar:<span class="number">8.5</span>.12]</span>
+<span class="line">        at javax.servlet.http.HttpServlet.service(HttpServlet.java:<span class="number">742</span>) ~[servlet-api.jar:na]</span>
+<span class="line">        at org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:<span class="number">443</span>) ~[jasper.jar:<span class="number">8.5</span>.12]</span>
+<span class="line">        ... <span class="number">38</span> common frames omitted</span>
+</pre></td></tr></table></figure>
+<p>查询相关接口的代码发现，代码对<code>302</code>跳转的逻辑处理有问题，具体如下：</p>
+<a id="more"></a>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+</pre></td><td class="code"><pre><span class="line"><span class="meta">@Actions</span>(value = &#123;</span>
+<span class="line">            <span class="meta">@Action</span>(value = <span class="string">"dopay"</span>, results = &#123;<span class="meta">@Result</span>(name = ERROR, location = <span class="string">"/WEB-INF/content/order/page/error.jsp"</span>)&#125;),</span>
+<span class="line">    &#125;)</span>
+<span class="line">    <span class="meta">@ActionMonitor</span>(value = <span class="string">"pay.doPay"</span>)</span>
+<span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">doPay</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">        <span class="comment">// 省略代码</span></span>
+<span class="line">        String _result = dealWapClient(params);</span>
+<span class="line">        <span class="comment">// 问题之所在，　当dealWapClient处理成功时，返回值就是null</span></span>
+<span class="line">        <span class="comment">// 此时，返回ERROR， Struts2会继续执行，渲染错误页面(客户端就能看到错误页面了)</span></span>
+<span class="line">        <span class="comment">// tomcat 能看到，　resin下看不到，原因下面分析</span></span>
+<span class="line">        <span class="keyword">if</span> (_result == <span class="keyword">null</span>) &#123;</span>
+<span class="line">            <span class="keyword">return</span> ERROR;</span>
+<span class="line">        &#125;</span>
+<span class="line">        <span class="comment">// 省略代码</span></span>
+<span class="line">    &#125;</span>
+<span class="line"></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">dealWapClient</span><span class="params">(Map&lt;String, String&gt; params)</span> </span>&#123;</span>
+<span class="line">        <span class="comment">// 省略代码</span></span>
+<span class="line">        redirect(returnParams, returnUrl);</span>
+<span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span>
+<span class="line">        <span class="comment">// 省略代码</span></span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="302跳转解释"><a href="#302跳转解释" class="headerlink" title="302跳转解释"></a>302跳转解释</h3><p>关于302临时跳转的详细解释可以参考<a href="https://zh.wikipedia.org/wiki/HTTP_302" target="_blank" rel="external">HTTP_302</a>.<br>也可以参考RFC规范<a href="http://www.ietf.org/rfc/rfc3986.txt" target="_blank" rel="external">http://www.ietf.org/rfc/rfc3986.txt</a><br>再次就不再赘述．</p>
+<h3 id="servlet-api对302处理的规定"><a href="#servlet-api对302处理的规定" class="headerlink" title="servlet　api对302处理的规定"></a>servlet　api对302处理的规定</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+</pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span>
+<span class="line">* Sends a temporary redirect response to the client using the</span>
+<span class="line">* specified redirect location URL and clears the buffer. The buffer will</span>
+<span class="line">* be replaced with the data set by this method. Calling this method sets the</span>
+<span class="line">* status code to &#123;<span class="doctag">@link</span> #SC_FOUND&#125; 302 (Found).</span>
+<span class="line">* This method can accept relative URLs;the servlet container must convert</span>
+<span class="line">* the relative URL to an absolute URL</span>
+<span class="line">* before sending the response to the client. If the location is relative </span>
+<span class="line">* without a leading '/' the container interprets it as relative to</span>
+<span class="line">* the current request URI. If the location is relative with a leading</span>
+<span class="line">* '/' the container interprets it as relative to the servlet container root.</span>
+<span class="line">* If the location is relative with two leading '/' the container interprets</span>
+<span class="line">* it as a network-path reference (see</span>
+<span class="line">* &lt;a href="http://www.ietf.org/rfc/rfc3986.txt"&gt;</span>
+<span class="line">* RFC 3986: Uniform Resource Identifier (URI): Generic Syntax&lt;/a&gt;, section 4.2</span>
+<span class="line">* &amp;quot;Relative Reference&amp;quot;).</span>
+<span class="line">*</span>
+<span class="line">* &lt;p&gt;If the response has already been committed, this method throws </span>
+<span class="line">* an IllegalStateException.</span>
+<span class="line">* After using this method, the response should be considered</span>
+<span class="line">* to be committed and should not be written to.</span>
+<span class="line">*</span>
+<span class="line">* <span class="doctag">@param</span>		location	the redirect location URL</span>
+<span class="line">* <span class="doctag">@exception</span>	IOException	If an input or output exception occurs</span>
+<span class="line">* <span class="doctag">@exception</span>	IllegalStateException	If the response was committed or</span>
+<span class="line">*              if a partial URL is given and cannot be converted into a valid URL</span>
+<span class="line">*/</span></span>
+<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendRedirect</span><span class="params">(String location)</span> <span class="keyword">throws</span> IOException</span>;</span>
+</pre></td></tr></table></figure>
+<blockquote>
+<p>翻译过来意思就是： 通过该方法告诉客户端临时重定向到一个指定的URL，并且清空缓存区，之前还没有发送到客户端的数据．<br>并使用该方法设置的数据填充缓存区．<br>该方法设置http响应的状态码为302.<br>如果重定向的地址为相对地址，该方法内部会将相对地址转为绝对地址．　<br>如果response已经committed，再次调用该方法会抛出<code>IllegalStateException</code>异常.<br>调用该方法后，　response对象的状态应该是<code>committed</code>，并且不应该再写入数据．</p>
+</blockquote>
+<p>servlet-api已经详细说明了该方法的用法和需要注意的事项．但是不同的servlet容器在实现机制上可能不尽相同．<br>项目中发现的问题主要有两个原因：</p>
+<ol>
+<li>代码有bug．这个是主要原因．</li>
+<li>servlet容器实现不同．</li>
+</ol>
+<p>下面就分析下该方法在resin和tomcat中实现的细节：</p>
+<h3 id="resin对302的处理"><a href="#resin对302的处理" class="headerlink" title="resin对302的处理"></a>resin对302的处理</h3><p>在resin中，<code>HttpServletResponse</code>接口的实现类是<code>HttpServletResponseImpl</code>．代码如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+<span class="line">43</span>
+<span class="line">44</span>
+<span class="line">45</span>
+<span class="line">46</span>
+<span class="line">47</span>
+<span class="line">48</span>
+<span class="line">49</span>
+<span class="line">50</span>
+<span class="line">51</span>
+<span class="line">52</span>
+<span class="line">53</span>
+<span class="line">54</span>
+<span class="line">55</span>
+<span class="line">56</span>
+<span class="line">57</span>
+<span class="line">58</span>
+<span class="line">59</span>
+<span class="line">60</span>
+<span class="line">61</span>
+<span class="line">62</span>
+<span class="line">63</span>
+<span class="line">64</span>
+<span class="line">65</span>
+<span class="line">66</span>
+<span class="line">67</span>
+<span class="line">68</span>
+<span class="line">69</span>
+<span class="line">70</span>
+<span class="line">71</span>
+<span class="line">72</span>
+<span class="line">73</span>
+<span class="line">74</span>
+<span class="line">75</span>
+<span class="line">76</span>
+<span class="line">77</span>
+<span class="line">78</span>
+<span class="line">79</span>
+<span class="line">80</span>
+<span class="line">81</span>
+<span class="line">82</span>
+<span class="line">83</span>
+<span class="line">84</span>
+<span class="line">85</span>
+<span class="line">86</span>
+<span class="line">87</span>
+<span class="line">88</span>
+<span class="line">89</span>
+<span class="line">90</span>
+<span class="line">91</span>
+<span class="line">92</span>
+<span class="line">93</span>
+<span class="line">94</span>
+<span class="line">95</span>
+<span class="line">96</span>
+<span class="line">97</span>
+<span class="line">98</span>
+<span class="line">99</span>
+<span class="line">100</span>
+<span class="line">101</span>
+<span class="line">102</span>
+<span class="line">103</span>
+<span class="line">104</span>
+<span class="line">105</span>
+<span class="line">106</span>
+<span class="line">107</span>
+<span class="line">108</span>
+<span class="line">109</span>
+<span class="line">110</span>
+<span class="line">111</span>
+</pre></td><td class="code"><pre><span class="line">abstract public class AbstractCauchoResponse implements CauchoResponse &#123;</span>
+<span class="line"></span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line">public interface CauchoResponse extends HttpServletResponse &#123;</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line">public final class HttpServletResponseImpl extends AbstractCauchoResponse</span>
+<span class="line">  implements CauchoResponse</span>
+<span class="line">&#123;</span>
+<span class="line">    /**</span>
+<span class="line">   * Sends a redirect to the browser.  If the URL is relative, it gets</span>
+<span class="line">   * combined with the current url.</span>
+<span class="line">   *</span>
+<span class="line">   * @param url the possibly relative url to send to the browser</span>
+<span class="line">   */</span>
+<span class="line">  @Override</span>
+<span class="line">  public void sendRedirect(String url)</span>
+<span class="line">    throws IOException</span>
+<span class="line">  &#123;</span>
+<span class="line">    if (url == null)</span>
+<span class="line">      throw new NullPointerException();</span>
+<span class="line"></span>
+<span class="line">    if (isCommitted())</span>
+<span class="line">      throw new IllegalStateException(L.l("Can't sendRedirect() after data has committed to the client."));</span>
+<span class="line"></span>
+<span class="line">    _responseStream.clearBuffer();</span>
+<span class="line"></span>
+<span class="line">    // server/10c4</span>
+<span class="line">    // reset();</span>
+<span class="line">    resetBuffer();</span>
+<span class="line"></span>
+<span class="line">    setStatus(SC_MOVED_TEMPORARILY);</span>
+<span class="line"></span>
+<span class="line">    String encoding = getCharacterEncoding();</span>
+<span class="line">    boolean isLatin1 = "iso-8859-1".equals(encoding);</span>
+<span class="line">    </span>
+<span class="line">    String path = encodeAbsoluteRedirect(url);</span>
+<span class="line"></span>
+<span class="line">    setHeader("Location", path);</span>
+<span class="line">    </span>
+<span class="line">    if (isLatin1)</span>
+<span class="line">      setHeader("Content-Type", "text/html; charset=iso-8859-1");</span>
+<span class="line">    else</span>
+<span class="line">      setHeader("Content-Type", "text/html; charset=utf-8");</span>
+<span class="line"></span>
+<span class="line">    String msg = "The URL has moved &lt;a href=\"" + path + "\"&gt;here&lt;/a&gt;";</span>
+<span class="line"></span>
+<span class="line">    // The data is required for some WAP devices that can't handle an</span>
+<span class="line">    // empty response.</span>
+<span class="line">    if (_writer != null) &#123;</span>
+<span class="line">      _writer.println(msg);</span>
+<span class="line">    &#125;</span>
+<span class="line">    else &#123;</span>
+<span class="line">      ServletOutputStream out = getOutputStream();</span>
+<span class="line">      out.println(msg);</span>
+<span class="line">    &#125;</span>
+<span class="line">    // closeConnection();</span>
+<span class="line"></span>
+<span class="line">    _request.saveSession(); // #503</span>
+<span class="line">    // 非常重要，这个就是resion和tomcat的不同之处．</span>
+<span class="line">    // 已经关闭了，肯定不能再写入数据．</span>
+<span class="line">    close();</span>
+<span class="line">  &#125;</span>
+<span class="line">   @Override</span>
+<span class="line">  public void close()</span>
+<span class="line">    throws IOException</span>
+<span class="line">  &#123;</span>
+<span class="line">    // tck - jsp include</span>
+<span class="line">    AbstractHttpResponse response = _response;</span>
+<span class="line">    </span>
+<span class="line">    if (response != null) &#123;</span>
+<span class="line">      response.close();</span>
+<span class="line">    &#125;</span>
+<span class="line">  &#125;</span>
+<span class="line"></span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line">resin处理`302`方式其实非常简单，步骤如下：</span>
+<span class="line"></span>
+<span class="line">1. 清空缓存区内容并进行重置</span>
+<span class="line">2. 设置302状态码</span>
+<span class="line">3. 设置`Location`　和　`Content-Type` 响应头</span>
+<span class="line">4. 写响应体数据</span>
+<span class="line">5. 保存session</span>
+<span class="line">6. 关闭连接</span>
+<span class="line"></span>
+<span class="line">整个处理流程非常简单明了．</span>
+<span class="line"></span>
+<span class="line">### tomcat对302的处理</span>
+<span class="line"></span>
+<span class="line">在tomcat中，`HttpServletResponse`接口的实现类是`ResponseFacade`．该类指示一个Facade,</span>
+<span class="line">代码如下：</span>
+<span class="line"></span>
+<span class="line">```java ResponseFacade</span>
+<span class="line">public class ResponseFacade implements HttpServletResponse &#123;</span>
+<span class="line">    @Override</span>
+<span class="line">    public void sendRedirect(String location)</span>
+<span class="line">        throws IOException &#123;</span>
+<span class="line"></span>
+<span class="line">        if (isCommitted()) &#123;</span>
+<span class="line">            throw new IllegalStateException</span>
+<span class="line">                (sm.getString("coyoteResponse.sendRedirect.ise"));</span>
+<span class="line">        &#125;</span>
+<span class="line"></span>
+<span class="line">        response.setAppCommitted(true);</span>
+<span class="line"></span>
+<span class="line">        response.sendRedirect(location);</span>
+<span class="line"></span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>真正的处理由<code>Response</code>来进行</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+<span class="line">43</span>
+<span class="line">44</span>
+<span class="line">45</span>
+<span class="line">46</span>
+<span class="line">47</span>
+<span class="line">48</span>
+<span class="line">49</span>
+<span class="line">50</span>
+<span class="line">51</span>
+<span class="line">52</span>
+<span class="line">53</span>
+<span class="line">54</span>
+<span class="line">55</span>
+<span class="line">56</span>
+<span class="line">57</span>
+<span class="line">58</span>
+<span class="line">59</span>
+<span class="line">60</span>
+<span class="line">61</span>
+<span class="line">62</span>
+<span class="line">63</span>
+<span class="line">64</span>
+<span class="line">65</span>
+<span class="line">66</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Response</span> <span class="keyword">implements</span> <span class="title">HttpServletResponse</span> </span>&#123;</span>
+<span class="line">    <span class="comment">/**</span>
+<span class="line">    * Send a temporary redirect to the specified redirect location URL.</span>
+<span class="line">    *</span>
+<span class="line">    * <span class="doctag">@param</span> location Location URL to redirect to</span>
+<span class="line">    *</span>
+<span class="line">    * <span class="doctag">@exception</span> IllegalStateException if this response has</span>
+<span class="line">    *  already been committed</span>
+<span class="line">    * <span class="doctag">@exception</span> IOException if an input/output error occurs</span>
+<span class="line">    */</span></span>
+<span class="line">    <span class="meta">@Override</span></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendRedirect</span><span class="params">(String location)</span> <span class="keyword">throws</span> IOException </span>&#123;</span>
+<span class="line">        sendRedirect(location, SC_FOUND);</span>
+<span class="line">    &#125;</span>
+<span class="line"></span>
+<span class="line">    <span class="comment">/**</span>
+<span class="line">     * Internal method that allows a redirect to be sent with a status other</span>
+<span class="line">     * than &#123;<span class="doctag">@link</span> HttpServletResponse#SC_FOUND&#125; (302). No attempt is made to</span>
+<span class="line">     * validate the status code.</span>
+<span class="line">     *</span>
+<span class="line">     * <span class="doctag">@param</span> location Location URL to redirect to</span>
+<span class="line">     * <span class="doctag">@param</span> status HTTP status code that will be sent</span>
+<span class="line">     * <span class="doctag">@throws</span> IOException an IO exception occurred</span>
+<span class="line">     */</span></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendRedirect</span><span class="params">(String location, <span class="keyword">int</span> status)</span> <span class="keyword">throws</span> IOException </span>&#123;</span>
+<span class="line">        <span class="keyword">if</span> (isCommitted()) &#123;</span>
+<span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(sm.getString(<span class="string">"coyoteResponse.sendRedirect.ise"</span>));</span>
+<span class="line">        &#125;</span>
+<span class="line"></span>
+<span class="line">        <span class="comment">// Ignore any call from an included servlet</span></span>
+<span class="line">        <span class="keyword">if</span> (included) &#123;</span>
+<span class="line">            <span class="keyword">return</span>;</span>
+<span class="line">        &#125;</span>
+<span class="line"></span>
+<span class="line">        <span class="comment">// 清空缓存区内容并进行重置</span></span>
+<span class="line">        resetBuffer(<span class="keyword">true</span>);</span>
+<span class="line"></span>
+<span class="line">        <span class="comment">// Generate a temporary redirect to the specified location</span></span>
+<span class="line">        <span class="keyword">try</span> &#123;</span>
+<span class="line">            String locationUri;</span>
+<span class="line">            <span class="comment">// Relative redirects require HTTP/1.1</span></span>
+<span class="line">            <span class="keyword">if</span> (getRequest().getCoyoteRequest().getSupportsRelativeRedirects() &amp;&amp;</span>
+<span class="line">                    getContext().getUseRelativeRedirects()) &#123;</span>
+<span class="line">                locationUri = location;</span>
+<span class="line">            &#125; <span class="keyword">else</span> &#123;</span>
+<span class="line">                locationUri = toAbsolute(location);</span>
+<span class="line">            &#125;</span>
+<span class="line">            setStatus(status);</span>
+<span class="line">            setHeader(<span class="string">"Location"</span>, locationUri);</span>
+<span class="line">            <span class="comment">//　这里有个小魔法</span></span>
+<span class="line">            <span class="keyword">if</span> (getContext().getSendRedirectBody()) &#123;</span>
+<span class="line">                PrintWriter writer = getWriter();</span>
+<span class="line">                writer.print(sm.getString(<span class="string">"coyoteResponse.sendRedirect.note"</span>,</span>
+<span class="line">                        Escape.htmlElementContent(locationUri)));</span>
+<span class="line">                flushBuffer();</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125; <span class="keyword">catch</span> (IllegalArgumentException e) &#123;</span>
+<span class="line">            log.warn(sm.getString(<span class="string">"response.sendRedirectFail"</span>, location), e);</span>
+<span class="line">            setStatus(SC_NOT_FOUND);</span>
+<span class="line">        &#125;</span>
+<span class="line"></span>
+<span class="line">        <span class="comment">// 设置缓存区的suspended标志位　</span></span>
+<span class="line">        <span class="comment">// 从应用视图的角度看，该响应已经结束了． 但其实连接并没有关闭.</span></span>
+<span class="line">        setSuspended(<span class="keyword">true</span>);</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>tomcat处理<code>302</code>步骤如下：</p>
+<ol>
+<li>清空缓存区内容并进行重置</li>
+<li>设置302状态码</li>
+<li>设置<code>Location</code> 响应头</li>
+<li>写响应体数据</li>
+<li>保存session</li>
+<li>关闭连接</li>
+</ol>
+<h4 id="tomcat-context配置"><a href="#tomcat-context配置" class="headerlink" title="tomcat context配置"></a>tomcat context配置</h4><p>详细配置项参考:<a href="https://tomcat.apache.org/tomcat-7.0-doc/config/context.html" target="_blank" rel="external">https://tomcat.apache.org/tomcat-7.0-doc/config/context.html</a></p>
+<p>其中和302处理相关的一个配置项为:<code>sendRedirectBody</code>,文档解释如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">If <span class="keyword">true</span>, redirect responses will include a <span class="keyword">short</span> response body that includes details of the redirect as recommended by RFC <span class="number">2616</span>. This is disabled by <span class="keyword">default</span> since including a response body may cause problems <span class="keyword">for</span> some application component such as compression filters.</span>
+</pre></td></tr></table></figure>
+<p>根据<a href="https://tools.ietf.org/html/rfc2616" target="_blank" rel="external">RFC 2616</a>规范，302跳转是可以带有响应体数据的(resin就按规范进行了实现).　tomcat默认处理是不带的，原因是可能与其它组件冲突，例如压缩组件.</p>
+<p>如果将<code>sendRedirectBody</code>的值设为true,则tomcat在处理302时，在写完响应体数据后，会执行缓存区的刷新，客户端能收到对应的响应头数据，完成跳转，且不会应为后续继续写数据导致客户端不能正常跳转.</p>
+<p>因为默认是false,导致302响应头数据没有及时发送给客户端，在<code>sendRedirect</code>后如果应用发生了异常，则已经设置了的302响应码会被500所替代，客户端不能正常跳转．</p>
+<p>###　tomcat　<code>sendRedirect</code>后不能跳转的逻辑分析</p>
+<p>tomcat　处理请求的流程一部分流程如下：</p>
+<p><code>StandardHostValve</code> -&gt; <code>StandardContextValve</code> -&gt; <code>StandardWrapperValve</code></p>
+<p>请求入口由<code>StandardWrapperValve</code>处理，　结束还是需要<code>StandardHostValve</code>来处理．</p>
+<figure class="highlight java"><figcaption><span>StandardWrapperValve</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+</pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span>
+<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">invoke</span><span class="params">(Request request, Response response)</span></span>
+<span class="line">    <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span>
+<span class="line"></span>
+<span class="line">    <span class="comment">// Allocate a servlet instance to process this request</span></span>
+<span class="line">    <span class="keyword">try</span> &#123;</span>
+<span class="line">        <span class="keyword">if</span> (!unavailable) &#123;</span>
+<span class="line">            servlet = wrapper.allocate();</span>
+<span class="line">        &#125;</span>
+<span class="line">    &#125; <span class="keyword">catch</span> (UnavailableException e) &#123;</span>
+<span class="line">       </span>
+<span class="line">    &#125; <span class="keyword">catch</span> (ServletException e) &#123;</span>
+<span class="line">        </span>
+<span class="line">        exception(request, response, e);</span>
+<span class="line">    &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span>
+<span class="line">        exception(request, response, e);</span>
+<span class="line">        servlet = <span class="keyword">null</span>;</span>
+<span class="line">    &#125;</span>
+<span class="line"></span>
+<span class="line">    <span class="comment">//　当请求发送异常时, 已经设置的302状态码此时变为500</span></span>
+<span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">exception</span><span class="params">(Request request, Response response,</span>
+<span class="line">                           Throwable exception)</span> </span>&#123;</span>
+<span class="line">        request.setAttribute(RequestDispatcher.ERROR_EXCEPTION, exception);</span>
+<span class="line">        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);</span>
+<span class="line">        response.setError();</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>StandardHostValve　处理逻辑</p>
+<figure class="highlight java"><figcaption><span>StandardHostValve</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+<span class="line">43</span>
+<span class="line">44</span>
+<span class="line">45</span>
+<span class="line">46</span>
+<span class="line">47</span>
+<span class="line">48</span>
+<span class="line">49</span>
+<span class="line">50</span>
+<span class="line">51</span>
+<span class="line">52</span>
+<span class="line">53</span>
+<span class="line">54</span>
+<span class="line">55</span>
+<span class="line">56</span>
+<span class="line">57</span>
+<span class="line">58</span>
+<span class="line">59</span>
+<span class="line">60</span>
+<span class="line">61</span>
+<span class="line">62</span>
+<span class="line">63</span>
+</pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span>
+<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">invoke</span><span class="params">(Request request, Response response)</span></span>
+<span class="line">    <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span>
+<span class="line"></span>
+<span class="line">    <span class="keyword">try</span> &#123;</span>
+<span class="line">        <span class="comment">// 省略代码</span></span>
+<span class="line">        <span class="keyword">try</span> &#123;</span>
+<span class="line">            <span class="keyword">if</span> (!asyncAtStart || asyncDispatching) &#123;</span>
+<span class="line">                context.getPipeline().getFirst().invoke(request, response);</span>
+<span class="line">            &#125; <span class="keyword">else</span> &#123;</span>
+<span class="line">                <span class="comment">// Make sure this request/response is here because an error</span></span>
+<span class="line">                <span class="comment">// report is required.</span></span>
+<span class="line">                <span class="keyword">if</span> (!response.isErrorReportRequired()) &#123;</span>
+<span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(sm.getString(<span class="string">"standardHost.asyncStateError"</span>));</span>
+<span class="line">                &#125;</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span>
+<span class="line">            ExceptionUtils.handleThrowable(t);</span>
+<span class="line">            container.getLogger().error(<span class="string">"Exception Processing "</span> + request.getRequestURI(), t);</span>
+<span class="line">            <span class="comment">// If a new error occurred while trying to report a previous</span></span>
+<span class="line">            <span class="comment">// error allow the original error to be reported.</span></span>
+<span class="line">            <span class="keyword">if</span> (!response.isErrorReportRequired()) &#123;</span>
+<span class="line">                request.setAttribute(RequestDispatcher.ERROR_EXCEPTION, t);</span>
+<span class="line">                throwable(request, response, t);</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125;</span>
+<span class="line">        <span class="comment">// 在sendRedirect方法设置的suspended标志位此时又被置为false</span></span>
+<span class="line">        <span class="comment">// 也就是说　response由可以使用了．这就是resin和tomcat设计实现的不同        </span></span>
+<span class="line">        <span class="comment">// Now that the request/response pair is back under container</span></span>
+<span class="line">        <span class="comment">// control lift the suspension so that the error handling can</span></span>
+<span class="line">        <span class="comment">// complete and/or the container can flush any remaining data</span></span>
+<span class="line">        response.setSuspended(<span class="keyword">false</span>);</span>
+<span class="line"></span>
+<span class="line">        Throwable t = (Throwable) request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);</span>
+<span class="line"></span>
+<span class="line">        <span class="comment">// Protect against NPEs if the context was destroyed during a</span></span>
+<span class="line">        <span class="comment">// long running request.</span></span>
+<span class="line">        <span class="keyword">if</span> (!context.getState().isAvailable()) &#123;</span>
+<span class="line">            <span class="keyword">return</span>;</span>
+<span class="line">        &#125;</span>
+<span class="line"></span>
+<span class="line">        <span class="comment">// Look for (and render if found) an application level error page</span></span>
+<span class="line">        <span class="keyword">if</span> (response.isErrorReportRequired()) &#123;</span>
+<span class="line">            <span class="keyword">if</span> (t != <span class="keyword">null</span>) &#123;</span>
+<span class="line">                throwable(request, response, t);</span>
+<span class="line">            &#125; <span class="keyword">else</span> &#123;</span>
+<span class="line">                status(request, response);</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125;</span>
+<span class="line"></span>
+<span class="line">        <span class="keyword">if</span> (!request.isAsync() &amp;&amp; !asyncAtStart) &#123;</span>
+<span class="line">            context.fireRequestDestroyEvent(request.getRequest());</span>
+<span class="line">        &#125;</span>
+<span class="line">    &#125; <span class="keyword">finally</span> &#123;</span>
+<span class="line">        <span class="comment">// Access a session (if present) to update last accessed time, based</span></span>
+<span class="line">        <span class="comment">// on a strict interpretation of the specification</span></span>
+<span class="line">        <span class="keyword">if</span> (ACCESS_SESSION) &#123;</span>
+<span class="line">            request.getSession(<span class="keyword">false</span>);</span>
+<span class="line">        &#125;</span>
+<span class="line"></span>
+<span class="line">        context.unbind(Globals.IS_SECURITY_ENABLED, MY_CLASSLOADER);</span>
+<span class="line">    &#125;        </span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li>线上替换应用组件，尤其是底层的应用软件需要非常注意．不可全量替换．一定要逐步替换．虽然已经在测试环境，线上灰度替换了一台机器，<br>但是因为访问量小，导致问题发现的比较晚，直至大批量替换才发现问题．　还有就是：同一个规范，但不同的实现细节还是有差异．</li>
+<li>应用开发一定需要遵守API规范，否则会导致奇怪问题的发生．好多人总是说遇到的问题多，踩坑多，那是因为你从来不仔细阅读相关api规范文档或官方文档．不遵守规范导致的问题能叫坑吗？</li>
+<li>在使用任何一项技术时，优先查询官方文档．不要随手google或baidu．　实话说，网上的文章质量参差不齐，难免找到理解错误的文档．</li>
+<li>养成阅读源代码的习惯，好处不言而喻．如果３年前没有读过tomcat6的源代码，今天排查起来问题就非常困难了.</li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://zh.wikipedia.org/wiki/HTTP_302" target="_blank" rel="external">https://zh.wikipedia.org/wiki/HTTP_302</a><br><a href="https://tools.ietf.org/html/rfc2616#section-10.3.3" target="_blank" rel="external">https://tools.ietf.org/html/rfc2616#section-10.3.3</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h2&gt;&lt;p&gt;某天，将线上的resin容器替换为tomcat．　过了一段时间发现有个接口处理失败，提示异常．查看应用日志发现如下的日志：&lt;/p&gt;
+&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;Caused by: javax.servlet.ServletException: java.lang.IllegalStateException: Cannot create a session after the response has been committed&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;        at org.apache.jsp.WEB_002dINF.content.order.page.error_jsp._jspService(error_jsp.java:&lt;span class=&quot;number&quot;&gt;293&lt;/span&gt;) ~[na:na]&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;        at org.apache.jasper.runtime.HttpJspBase.service(HttpJspBase.java:&lt;span class=&quot;number&quot;&gt;70&lt;/span&gt;) ~[jasper.jar:&lt;span class=&quot;number&quot;&gt;8.5&lt;/span&gt;.12]&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;        at javax.servlet.http.HttpServlet.service(HttpServlet.java:&lt;span class=&quot;number&quot;&gt;742&lt;/span&gt;) ~[servlet-api.jar:na]&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;        at org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:&lt;span class=&quot;number&quot;&gt;443&lt;/span&gt;) ~[jasper.jar:&lt;span class=&quot;number&quot;&gt;8.5&lt;/span&gt;.12]&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;        ... &lt;span class=&quot;number&quot;&gt;38&lt;/span&gt; common frames omitted&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;查询相关接口的代码发现，代码对&lt;code&gt;302&lt;/code&gt;跳转的逻辑处理有问题，具体如下：&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="web" scheme="https://leokongwq.github.io/tags/web/"/>
+    
+      <category term="tomcat" scheme="https://leokongwq.github.io/tags/tomcat/"/>
+    
+      <category term="resin" scheme="https://leokongwq.github.io/tags/resin/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>consul之acl配置</title>
+    <link href="https://leokongwq.github.io/2018/07/08/consul-acl.html"/>
+    <id>https://leokongwq.github.io/2018/07/08/consul-acl.html</id>
+    <published>2018-07-08T15:08:31.000Z</published>
+    <updated>2018-07-15T13:20:06.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h2 id="配置项"><a href="#配置项" class="headerlink" title="配置项"></a>配置项</h2><h3 id="acl-datacenter"><a href="#acl-datacenter" class="headerlink" title="acl_datacenter"></a>acl_datacenter</h3><p>该配置项指定了对ACL信息具有权威性的数据中心。 必须提供它才能启用ACL。 所有Server实例和数据中心必须就ACL数据中心达成一致。<br>必须在整个集群的Server节点上设置该配置项。但是针对API来说，如果要使客户端的请求能被正确转发，那么也需要在客户端节点设置。<br>在Consul 0.8及更高版本中，还可以启用代理级别的ACL。 有关详细信息，请参阅<a href="https://www.consul.io/docs/guides/acl.html" target="_blank" rel="external">ACL指南</a>。</p>
+<h3 id="acl-default-policy"><a href="#acl-default-policy" class="headerlink" title="acl_default_policy"></a>acl_default_policy</h3><p>该配置项可选的值为<code>allow</code>和<code>deny</code>。默认值为’allow’。默认的策略控制token在没有匹配的规则时的行为。<br>在<code>allow</code>模式下，ACL规则是一个黑名单：任何没有被禁止的操作都是可以执行的。<br>在<code>deny</code>模式下，ACL规则是一个白名单，任何没有明确指定的操作都是被禁止的。</p>
+<blockquote>
+<p>注意：该配置项只有在配置了<code>acl_datacenter</code>后才起作用</p>
+</blockquote>
+<a id="more"></a>
+<h3 id="acl-down-policy"><a href="#acl-down-policy" class="headerlink" title="acl_down_policy"></a>acl_down_policy</h3><p>该配置项可选的值为<code>allow</code>，<code>deny</code>或<code>extend-cache</code>，　默认值是<code>extend-cache</code>。假如不能从<code>acl_datacenter</code>或<code>Leader</code>节点获取一个token的acl信息，则该配置项指定的策略被使用。</p>
+<ul>
+<li><code>allow</code>模式下，所有的操作都允许。 </li>
+<li><code>deny</code>模式下，所有的操作都被禁止。 </li>
+<li><code>extend-cache</code>模式下,使用缓存的 ACL规则并忽略这些规则的过期时间。如果一个不可缓存的ＡＣＬ的规则被使用，则当作<code>deny</code>策略来处理。</li>
+</ul>
+<h3 id="acl-master-token"><a href="#acl-master-token" class="headerlink" title="acl_master_token"></a>acl_master_token</h3><p>该配置项只能用在<code>acl_datacenter</code>中的Server节点上。 如果该令牌不存在，则将使用管理级权限创建该令牌。 它允许操作员使用众所周知的令牌ID来引导ACL系统。</p>
+<p>仅当服务器获得集群领导时才安装acl_master_token。 如果要安装或更改acl_master_token，请在所有服务器的配置中为acl_master_token设置新值。 完成此操作后，重新启动当前领导者以强制进行领导者选举。 如果未提供acl_master_token，则服务器不会创建主令牌。 提供值时，它可以是任何字符串值。 使用UUID可以确保它看起来与其他令牌相同，但并不是绝对必要的。</p>
+<h3 id="acl-agent-master-token"><a href="#acl-agent-master-token" class="headerlink" title="acl_agent_master_token"></a>acl_agent_master_token</h3><p>用作特殊访问 token，在配置它的每个 agent 上具有 agent ACL 策略 write 特权。 只有当 Consul server 不可用于解析 ACL token 时， 此 tokone 才应由运维人员在服务中断期间使用。 应用程序应在正常操作期间使用常规 ACL token。该配置项从版本<code>0.7.2</code>开始使用，并且只有当配置项<code>acl_enforce_version_8</code>设置为true时才起作用。更多信息参考<a href="https://www.consul.io/docs/guides/acl.html#acl-agent-master-token" target="_blank" rel="external"> ACL Agent Master Token </a></p>
+<h3 id="acl-agent-token"><a href="#acl-agent-token" class="headerlink" title="acl_agent_token"></a>acl_agent_token</h3><p>由客户端和<code>Server</code>节点执行内部操作使用。如果没有设置该配置项的值，则<code>acl_token</code>配置项的被使用。该配置项从版本<code>0.7.2</code>开始使用。</p>
+<p>此令牌必须至少具有对其将注册的节点名称的写访问权，以便设置目录中的任何节点级信息，例如元数据或节点的标记地址。 使用此令牌还有其他地方，请参阅<a href="https://www.consul.io/docs/guides/acl.html#acl-agent-token" target="_blank" rel="external">ACL代理令牌</a>以获取更多详细信息。</p>
+<h3 id="acl-enforce-version-8"><a href="#acl-enforce-version-8" class="headerlink" title="acl_enforce_version_8"></a>acl_enforce_version_8</h3><p>用于客户端和服务器，以确定是否应在Consul 0.8之前预览新的ACL策略。 在Consul 0.7.2中添加，在0.8之前的Consul版本中默认为false，在Consul 0.8及更高版本中默认为true。 通过在实施开始之前允许策略到位，这有助于简化向新ACL功能的过渡。 有关详细信息，请参阅ACL指南。</p>
+<h3 id="acl-replication-token"><a href="#acl-replication-token" class="headerlink" title="acl_replication_token"></a>acl_replication_token</h3><p>仅用于运行Consul 0.7或更高版本的<code>acl_datacenter</code>之外的服务器。 提供时，这将启用使用此令牌进行ACL复制，以检索ACL并将其复制到非权威的本地数据中心。 在Consul 0.9.1和更高版本中，您可以使用<code>enable_acl_replication</code>启用ACL复制，然后稍后使用每个服务器上的代理令牌API设置令牌。 如果在配置文件中设置了<code>acl_replication_token</code> ，它将自动将<code>enable_acl_replication</code>设置为true以实现向后兼容性。</p>
+<p>如果存在影响权威数据中心的分区或其他中断，并且<code>acl_down_policy</code>设置为<code>extend-cache</code>，则可以在中断期间使用复制的ACL集解析不在缓存中的令牌。 有关更多详细信息，请参阅<a href="https://www.consul.io/docs/guides/acl.html#replication" target="_blank" rel="external">ACL指南复制部分</a>。</p>
+<h3 id="acl-token"><a href="#acl-token" class="headerlink" title="acl_token"></a>acl_token</h3><p>如果设置了该配置项，代理将在向Consul服务器发出请求时使用此令牌。 客户端可以通过提供<code>？token</code>查询参数，基于每个请求覆盖此令牌。 如果未提供，则使用映射到“匿名”ACL策略的空标记。</p>
+<h3 id="acl-ttl"><a href="#acl-ttl" class="headerlink" title="acl_ttl"></a>acl_ttl</h3><p>用于控制ACL缓存的过期时间。 默认是30秒。 此设置会对性能产生重大影响：减少它会导致更频繁的刷新，增加它会减少刷新次数。 但是，由于缓存未被主动失效，因此ACL策略可能会过时到TTL值。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;h2 id=&quot;配置项&quot;&gt;&lt;a href=&quot;#配置项&quot; class=&quot;headerlink&quot; title=&quot;配置项&quot;&gt;&lt;/a&gt;配置项&lt;/h2&gt;&lt;h3 id=&quot;acl-datacenter&quot;&gt;&lt;a href=&quot;#acl-datacenter&quot; class=&quot;headerlink&quot; title=&quot;acl_datacenter&quot;&gt;&lt;/a&gt;acl_datacenter&lt;/h3&gt;&lt;p&gt;该配置项指定了对ACL信息具有权威性的数据中心。 必须提供它才能启用ACL。 所有Server实例和数据中心必须就ACL数据中心达成一致。&lt;br&gt;必须在整个集群的Server节点上设置该配置项。但是针对API来说，如果要使客户端的请求能被正确转发，那么也需要在客户端节点设置。&lt;br&gt;在Consul 0.8及更高版本中，还可以启用代理级别的ACL。 有关详细信息，请参阅&lt;a href=&quot;https://www.consul.io/docs/guides/acl.html&quot;&gt;ACL指南&lt;/a&gt;。&lt;/p&gt;
+&lt;h3 id=&quot;acl-default-policy&quot;&gt;&lt;a href=&quot;#acl-default-policy&quot; class=&quot;headerlink&quot; title=&quot;acl_default_policy&quot;&gt;&lt;/a&gt;acl_default_policy&lt;/h3&gt;&lt;p&gt;该配置项可选的值为&lt;code&gt;allow&lt;/code&gt;和&lt;code&gt;deny&lt;/code&gt;。默认值为’allow’。默认的策略控制token在没有匹配的规则时的行为。&lt;br&gt;在&lt;code&gt;allow&lt;/code&gt;模式下，ACL规则是一个黑名单：任何没有被禁止的操作都是可以执行的。&lt;br&gt;在&lt;code&gt;deny&lt;/code&gt;模式下，ACL规则是一个白名单，任何没有明确指定的操作都是被禁止的。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;注意：该配置项只有在配置了&lt;code&gt;acl_datacenter&lt;/code&gt;后才起作用&lt;/p&gt;
+&lt;/blockquote&gt;
+    
+    </summary>
+    
+    
+      <category term="consul" scheme="https://leokongwq.github.io/tags/consul/"/>
+    
+  </entry>
   
   <entry>
     <title>springcloud服务注册之consul</title>
@@ -231,6 +1014,105 @@
       <category term="spring" scheme="https://leokongwq.github.io/tags/spring/"/>
     
       <category term="springcloud" scheme="https://leokongwq.github.io/tags/springcloud/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ActiveMQ 延迟消息</title>
+    <link href="https://leokongwq.github.io/2018/06/27/activemq-deleyQueue.html"/>
+    <id>https://leokongwq.github.io/2018/06/27/activemq-deleyQueue.html</id>
+    <published>2018-06-27T15:08:31.000Z</published>
+    <updated>2018-07-15T13:20:06.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>有非常多的业务场景需要用到延迟消息功能。例如：订单待支付提醒，订单超时取消等。但并不是所有的消息中间件都支持延迟消息的功能，为了实现延迟消息，各路大神也是创造了很多的方案。<br>我们的系统使用的是ActiveMQ，ActiveMQ从版本<code>5.4</code>开始提供了持久化的延迟消息功能。下文就ActiveMQ提供的延迟消息功能进行介绍。</p>
+<h3 id="启用ActiveMQ定时消息功能"><a href="#启用ActiveMQ定时消息功能" class="headerlink" title="启用ActiveMQ定时消息功能"></a>启用ActiveMQ定时消息功能</h3><p>为了使用ActiveMQ的延迟消息功能，我们需要修改ActiveMQ的配置文件<code>activemq.xml</code>，<br>在broker节点上添加<code>schedulerSupport=&quot;true&quot;</code>，如下所示:</p>
+<a id="more"></a>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">broker</span> <span class="attr">xmlns</span>=<span class="string">"http://activemq.apache.org/schema/core"</span> <span class="attr">schedulerSupport</span>=<span class="string">"true"</span> &gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">broker</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<h3 id="创建延迟消息并发送"><a href="#创建延迟消息并发送" class="headerlink" title="创建延迟消息并发送"></a>创建延迟消息并发送</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+</pre></td><td class="code"><pre><span class="line">jmsTemplate.send(orderCreatedTopic, session -&gt; &#123;</span>
+<span class="line">	MapMessage orderCreatedMsg = session.createMapMessage();</span>
+<span class="line">	orderCreatedMsg.setString(<span class="string">"orderCode"</span>, orderCode);</span>
+<span class="line">	<span class="comment">//延迟10分钟进行投递</span></span>
+<span class="line">	<span class="keyword">long</span> time = <span class="number">10</span> * <span class="number">60</span> * <span class="number">1000</span>;</span>
+<span class="line">	orderCreatedMsg.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, time);</span>
+<span class="line">	<span class="keyword">return</span> orderCreatedMsg;</span>
+<span class="line">&#125;);</span>
+</pre></td></tr></table></figure>
+<h3 id="延时消息属性总结"><a href="#延时消息属性总结" class="headerlink" title="延时消息属性总结"></a>延时消息属性总结</h3><p>ActiveM提供了很多高级的延时消息配置属性，解释如下：</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>　AMQ_SCHEDULED_DELAY</td>
+<td>long</td>
+<td>broker在投递该消息前等待的毫秒数</td>
+</tr>
+<tr>
+<td>　AMQ_SCHEDULED_PERIOD</td>
+<td>long</td>
+<td>每次重新投递该消息的时间间隔</td>
+</tr>
+<tr>
+<td>　AMQ_SCHEDULED_REPEAT</td>
+<td>int</td>
+<td>重复投递该消息的次数</td>
+</tr>
+<tr>
+<td>　AMQ_SCHEDULED_CRON　</td>
+<td>String</td>
+<td>使用一个cron表达式来表示消息投递的策略</td>
+</tr>
+</tbody>
+</table>
+<p>例子:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+</pre></td><td class="code"><pre><span class="line">MessageProducer producer = session.createProducer(destination);</span>
+<span class="line">TextMessage message = session.createTextMessage(<span class="string">"test msg"</span>);</span>
+<span class="line">message.setStringProperty(ScheduledMessage.AMQ_SCHEDULED_CRON, <span class="string">"0 * * * *"</span>);</span>
+<span class="line">message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY, <span class="number">1000</span>);</span>
+<span class="line">message.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_PERIOD, <span class="number">1000</span>);</span>
+<span class="line">message.setIntProperty(ScheduledMessage.AMQ_SCHEDULED_REPEAT, <span class="number">9</span>);</span>
+<span class="line">producer.send(message);</span>
+</pre></td></tr></table></figure>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="http://activemq.apache.org/delay-and-schedule-message-delivery.html" target="_blank" rel="external">http://activemq.apache.org/delay-and-schedule-message-delivery.html</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;p&gt;有非常多的业务场景需要用到延迟消息功能。例如：订单待支付提醒，订单超时取消等。但并不是所有的消息中间件都支持延迟消息的功能，为了实现延迟消息，各路大神也是创造了很多的方案。&lt;br&gt;我们的系统使用的是ActiveMQ，ActiveMQ从版本&lt;code&gt;5.4&lt;/code&gt;开始提供了持久化的延迟消息功能。下文就ActiveMQ提供的延迟消息功能进行介绍。&lt;/p&gt;
+&lt;h3 id=&quot;启用ActiveMQ定时消息功能&quot;&gt;&lt;a href=&quot;#启用ActiveMQ定时消息功能&quot; class=&quot;headerlink&quot; title=&quot;启用ActiveMQ定时消息功能&quot;&gt;&lt;/a&gt;启用ActiveMQ定时消息功能&lt;/h3&gt;&lt;p&gt;为了使用ActiveMQ的延迟消息功能，我们需要修改ActiveMQ的配置文件&lt;code&gt;activemq.xml&lt;/code&gt;，&lt;br&gt;在broker节点上添加&lt;code&gt;schedulerSupport=&amp;quot;true&amp;quot;&lt;/code&gt;，如下所示:&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="消息中间件" scheme="https://leokongwq.github.io/categories/%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
+    
+    
+      <category term="ActiveMQ" scheme="https://leokongwq.github.io/tags/ActiveMQ/"/>
+    
+      <category term="MQ" scheme="https://leokongwq.github.io/tags/MQ/"/>
     
   </entry>
   
@@ -5428,36 +6310,54 @@
   </entry>
   
   <entry>
-    <title>基于Openresy的图片服务</title>
-    <link href="https://leokongwq.github.io/2018/02/12/openresy-lua-image-server.html"/>
-    <id>https://leokongwq.github.io/2018/02/12/openresy-lua-image-server.html</id>
-    <published>2018-02-12T06:43:12.000Z</published>
-    <updated>2018-02-12T07:50:30.000Z</updated>
+    <title>kafka发送消息过程分析</title>
+    <link href="https://leokongwq.github.io/2018/03/01/kafka-send-msg-profile.html"/>
+    <id>https://leokongwq.github.io/2018/03/01/kafka-send-msg-profile.html</id>
+    <published>2018-03-01T14:08:31.000Z</published>
+    <updated>2018-07-15T13:20:06.000Z</updated>
     
-    <content type="html"><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>有个项目的需要是：用户通过给好友分享带有二维码的图片，好友扫码或在微信中识别二维码来领取分享的礼物。要实现这个需要，能想到的解决方案有两个：</p>
-<a id="more"></a>
-<h3 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h3><p>客户端实现。背景图片存在客户端，客户端动态生成二维码，并完成图片的合成（包括给背景图添加二维码，文字水印，用户头像等信息）。</p>
-<p>优点：图片和合成处理分布在每个用户的手机上，图片合成的计算压力进行了分散。用户体验更好。服务端只需要存储合成后的图片，并进行图片的加速访问。</p>
-<p>缺点：这个方案的可行的前提是客户端当前需要具备这样的能力，而且需要需要访问用户手机的相册（也可以不访问）。现实问题是：1.马上开发上线，开发，审核，推广，用户下载都需要时间。2.用户版本不一致，不能保证覆盖面。</p>
-<!-- more -->
-<p>由于以上的问题，才有了方案二。</p>
-<h3 id="方案二"><a href="#方案二" class="headerlink" title="方案二"></a>方案二</h3><p>服务端实现。背景图片存在服务端，服务端通过图片库来完成图片的合成（二维码，水印等）。</p>
-<p>优点：不依赖客户端。更好的动态控制能力</p>
-<p>缺点：图片处理的压力全部在服务端。</p>
-<h4 id="Java-实现"><a href="#Java-实现" class="headerlink" title="Java 实现"></a>Java 实现</h4><p>一开始的方案是通过Java开发一个图片服务，通过Java库<a href="https://github.com/zxing/zxing" target="_blank" rel="external">zxing</a>来生成二维码。<a href="https://github.com/coobird/thumbnailator" target="_blank" rel="external">Thumbnails</a> 来进行图片的合成，水印等功能。</p>
-<p>马上开发并进行压测后发现效率一般。决定这个方案作为备选方案，抗不住就加机器。</p>
-<h4 id="Openresty-Lua-ImageMagic"><a href="#Openresty-Lua-ImageMagic" class="headerlink" title="Openresty + Lua + ImageMagic"></a>Openresty + Lua + ImageMagic</h4><p>Openresty，Lua，ImageMagic 的作用就不解释了。下面直接上配置和代码。</p>
-<p>Openresty 配置</p>
-<figure class="highlight nginx"><figcaption><span>main block</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前面的一篇文章分析了消息发送时topic分区选择的问题，本文就分析一下后续的发送逻辑。</p>
+<h2 id="消息发送涉及的类"><a href="#消息发送涉及的类" class="headerlink" title="消息发送涉及的类"></a>消息发送涉及的类</h2><h3 id="Producer"><a href="#Producer" class="headerlink" title="Producer"></a>Producer</h3><p><code>Producer</code>类是Kafka消息的发送的入口</p>
+<h3 id="ProducerFactory"><a href="#ProducerFactory" class="headerlink" title="ProducerFactory"></a>ProducerFactory</h3><p><code>ProducerFactory</code> 是一个策略接口，用来创佳<code>Producer</code>, 默认的实现是：<code>DefaultKafkaProducerFactory</code>,其创建<br>的<code>Producer</code>是<code>CloseSafeProducer</code>, <code>CloseSafeProducer</code>是<code>KafkaProducer</code>的一个代理类。</p>
+<p><code>DefaultKafkaProducerFactory</code> 的构造方法接收一个Map对象，用来指的创建<code>Producer</code>的配置。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
 <span class="line">2</span>
 <span class="line">3</span>
 <span class="line">4</span>
-</pre></td><td class="code"><pre><span class="line"><span class="comment"># 二维码文件名缓存</span></span>
-<span class="line"><span class="attribute">lua_shared_dict</span> qr_cache <span class="number">10m</span>;</span>
-<span class="line"><span class="comment"># 合成后的图片缓存，生产环境可以调大</span></span>
-<span class="line"><span class="attribute">lua_shared_dict</span> share_img_file_cache <span class="number">10m</span>;</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">DefaultKafkaProducerFactory</span><span class="params">(Map&lt;String, Object&gt; configs)</span> </span>&#123;</span>
+<span class="line">	<span class="keyword">this</span>(configs, <span class="keyword">null</span>, <span class="keyword">null</span>);</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="function"><span class="keyword">public</span> <span class="title">DefaultKafkaProducerFactory</span><span class="params">(Map&lt;String, Object&gt; configs, Serializer&lt;K&gt; keySerializer,</span>
+<span class="line">		Serializer&lt;V&gt; valueSerializer)</span> </span>&#123;</span>
+<span class="line">	<span class="keyword">this</span>.configs = <span class="keyword">new</span> HashMap&lt;&gt;(configs);</span>
+<span class="line">	<span class="keyword">this</span>.keySerializer = keySerializer;</span>
+<span class="line">	<span class="keyword">this</span>.valueSerializer = valueSerializer;</span>
+<span class="line">&#125;</span>
 </pre></td></tr></table></figure>
-<figure class="highlight nginx"><figcaption><span>server</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
+<h3 id="KafkaTemplate"><a href="#KafkaTemplate" class="headerlink" title="KafkaTemplate"></a>KafkaTemplate</h3><p><code>KafkaTemplate</code>是一个模板类，提供了操作Kafka的高级Api。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> KafkaTemplate&lt;Integer, String&gt; <span class="title">createTemplate</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">	Map&lt;String, Object&gt; senderProps = senderProps();</span>
+<span class="line">	ProducerFactory&lt;Integer, String&gt; pf =</span>
+<span class="line">			<span class="keyword">new</span> DefaultKafkaProducerFactory&lt;&gt;(senderProps);</span>
+<span class="line">	KafkaTemplate&lt;Integer, String&gt; template = <span class="keyword">new</span> KafkaTemplate&lt;&gt;(pf);</span>
+<span class="line">	<span class="keyword">return</span> template;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h2 id="发送消息实例"><a href="#发送消息实例" class="headerlink" title="发送消息实例"></a>发送消息实例</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
 <span class="line">2</span>
 <span class="line">3</span>
 <span class="line">4</span>
@@ -5471,23 +6371,257 @@
 <span class="line">12</span>
 <span class="line">13</span>
 <span class="line">14</span>
-</pre></td><td class="code"><pre><span class="line"></span>
-<span class="line"><span class="section">server</span> &#123;</span>
-<span class="line">    <span class="attribute">listen</span>    <span class="number">80</span>;</span>
-<span class="line">    <span class="attribute">server_name</span> localhost;</span>
-<span class="line">    </span>
-<span class="line">    <span class="attribute">access_log</span>  /data/logs/nginx/image.access.log  main;</span>
-<span class="line">    </span>
-<span class="line">    <span class="attribute">location</span> /images &#123;</span>
-<span class="line">       <span class="attribute">set</span> <span class="variable">$image_root</span> <span class="string">"/data/static"</span>;</span>
-<span class="line">       <span class="attribute">set</span> <span class="variable">$file</span> <span class="string">"<span class="variable">$image_root</span><span class="variable">$uri</span>"</span>;</span>
-<span class="line">       <span class="attribute">set</span> <span class="variable">$convert_bin</span> <span class="string">"/usr/local/bin/convert"</span>;</span>
-<span class="line">       <span class="attribute">rewrite_by_lua_file</span> <span class="string">"/Users/leo/workspace/lua/nginx-imagemagick.lua"</span>;</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+</pre></td><td class="code"><pre><span class="line"><span class="comment">// 生产者配置项</span></span>
+<span class="line"><span class="function"><span class="keyword">private</span> Map&lt;String, Object&gt; <span class="title">senderProps</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">	Map&lt;String, Object&gt; props = <span class="keyword">new</span> HashMap&lt;&gt;();</span>
+<span class="line">	props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, <span class="string">"localhost:9092"</span>);</span>
+<span class="line">	props.put(ProducerConfig.RETRIES_CONFIG, <span class="number">0</span>);</span>
+<span class="line">	props.put(ProducerConfig.BATCH_SIZE_CONFIG, <span class="number">16384</span>);</span>
+<span class="line">	props.put(ProducerConfig.LINGER_MS_CONFIG, <span class="number">1</span>);</span>
+<span class="line">	props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, <span class="number">33554432</span>);</span>
+<span class="line">	props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);</span>
+<span class="line">	props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);</span>
+<span class="line">	<span class="keyword">return</span> props;</span>
+<span class="line">&#125; </span>
+<span class="line"><span class="comment">// 创建生产者工厂实例</span></span>
+<span class="line">ProducerFactory&lt;Integer, String&gt; pf = <span class="keyword">new</span> DefaultKafkaProducerFactory&lt;&gt;(senderProps);</span>
+<span class="line"></span>
+<span class="line"> <span class="meta">@Test</span></span>
+<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testSendMsgSysn</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">	KafkaTemplate&lt;Integer, String&gt; kafkaTemplate = createTemplate();</span>
+<span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span>
+<span class="line">		<span class="comment">// 同步发送</span></span>
+<span class="line">		<span class="comment">//kafkaTemplate.send(topic1, "hello ===&gt; " + i).get();</span></span>
+<span class="line">		<span class="comment">// 异步发送</span></span>
+<span class="line">		kafkaTemplate.send(topic1, <span class="string">"hello ===&gt; "</span> + i);</span>
+<span class="line">	&#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h2 id="消息发送过程分析"><a href="#消息发送过程分析" class="headerlink" title="消息发送过程分析"></a>消息发送过程分析</h2><p><code>Producer</code> 的一个重要方法就是<code>send</code>, 方法签名如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Future&lt;RecordMetadata&gt; <span class="title">send</span><span class="params">(ProducerRecord&lt;K, V&gt; record, Callback callback)</span></span>;</span>
+</pre></td></tr></table></figure>
+<p>从方法的签名我们能够推断出，Kafka的消息发送是异步的。 这个从后面的分析可以得证。</p>
+<a id="more"></a>
+<p><code>Producer</code>的实现类是：<code>KafkaProducer</code>, 它对<code>send</code>方法的实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+</pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span>
+<span class="line"><span class="function"><span class="keyword">public</span> Future&lt;RecordMetadata&gt; <span class="title">send</span><span class="params">(ProducerRecord&lt;K, V&gt; record, Callback callback)</span> </span>&#123;</span>
+<span class="line">	<span class="comment">// intercept the record, which can be potentially modified; this method does not throw exceptions</span></span>
+<span class="line">	ProducerRecord&lt;K, V&gt; interceptedRecord = <span class="keyword">this</span>.interceptors == <span class="keyword">null</span> ? record : <span class="keyword">this</span>.interceptors.onSend(record);</span>
+<span class="line">	<span class="keyword">return</span> doSend(interceptedRecord, callback);</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>该方法会对将要发送的消息进行个性化修改。是Kafka提供的插件机制。可以通过<code>interceptor.classes</code>配置型来配置。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+</pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span>
+<span class="line">* 异步发送一条记录到topic, 等价于　send(record, null)</span>
+<span class="line">* See &#123;<span class="doctag">@link</span> #send(ProducerRecord, Callback)&#125; for details.</span>
+<span class="line">*/</span></span>
+<span class="line"><span class="function"><span class="keyword">private</span> Future&lt;RecordMetadata&gt; <span class="title">doSend</span><span class="params">(ProducerRecord&lt;K, V&gt; record, Callback callback)</span> </span>&#123;</span>
+<span class="line">	TopicPartition tp = <span class="keyword">null</span>;</span>
+<span class="line">	<span class="keyword">try</span> &#123;</span>
+<span class="line">		<span class="comment">// 省略大部分代码</span></span>
+<span class="line">		RecordAccumulator.RecordAppendResult result = accumulator.append(tp, timestamp, serializedKey, serializedValue, interceptCallback, remainingWaitMs);</span>
+<span class="line">		<span class="comment">//当记录累加器满了　或　创建了心的发送批次，此时会唤醒发送线程来真正通过网络发送消息</span></span>
+<span class="line">		<span class="keyword">if</span> (result.batchIsFull || result.newBatchCreated) &#123;</span>
+<span class="line">			log.trace(<span class="string">"Waking up the sender since topic &#123;&#125; partition &#123;&#125; is either full or getting a new batch"</span>, record.topic(), partition);</span>
+<span class="line">			<span class="comment">// 唤醒发现线程</span></span>
+<span class="line">			<span class="keyword">this</span>.sender.wakeup();</span>
+<span class="line">		&#125;</span>
+<span class="line">		<span class="keyword">return</span> result.future;</span>
+<span class="line">	&#125;　</span>
+<span class="line">	<span class="comment">// 省略异常处理代码</span></span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>消息记录累加器： RecordAccumulator</p>
+<figure class="highlight java"><figcaption><span>RecordAccumulator</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+<span class="line">34</span>
+<span class="line">35</span>
+<span class="line">36</span>
+<span class="line">37</span>
+<span class="line">38</span>
+<span class="line">39</span>
+<span class="line">40</span>
+<span class="line">41</span>
+<span class="line">42</span>
+<span class="line">43</span>
+<span class="line">44</span>
+<span class="line">45</span>
+<span class="line">46</span>
+<span class="line">47</span>
+<span class="line">48</span>
+<span class="line">49</span>
+<span class="line">50</span>
+<span class="line">51</span>
+<span class="line">52</span>
+<span class="line">53</span>
+<span class="line">54</span>
+<span class="line">55</span>
+<span class="line">56</span>
+<span class="line">57</span>
+<span class="line">58</span>
+<span class="line">59</span>
+<span class="line">60</span>
+<span class="line">61</span>
+<span class="line">62</span>
+<span class="line">63</span>
+<span class="line">64</span>
+<span class="line">65</span>
+<span class="line">66</span>
+<span class="line">67</span>
+<span class="line">68</span>
+</pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span>
+<span class="line"> * 该类扮演一个队列的角色，用来将消息累积到`MemoryRecords`中</span>
+<span class="line"> * 该类使用一个有上限的内存缓存区来保存消息，默认情况下，调用添加消息的方法append时，如果缓存区满了会阻塞调用线程　(除非手动关闭这一行为)</span>
+<span class="line"> */</span></span>
+<span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">RecordAccumulator</span> </span>&#123;</span>
+<span class="line">	<span class="comment">/**</span>
+<span class="line">     * 将一条记录添加到该累加器中，并返回添加的结果</span>
+<span class="line">     * 返回的结果包含了FutureRecordMetadata 和一个表示批次是否已经满了的标志位，一个批次是否是新创建的标志位</span>
+<span class="line">     * <span class="doctag">@param</span> tp　该记录将要发送到的Topic的Partition信息</span>
+<span class="line">     * <span class="doctag">@param</span> timestamp The timestamp of the record</span>
+<span class="line">     * <span class="doctag">@param</span> key The key for the record</span>
+<span class="line">     * <span class="doctag">@param</span> value The value for the record</span>
+<span class="line">     * <span class="doctag">@param</span> callback 用户提供的回调函数</span>
+<span class="line">     * <span class="doctag">@param</span> maxTimeToBlock 等待内存缓存区有可用空间的最大时间，单位是毫秒</span>
+<span class="line">     */</span></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> RecordAppendResult <span class="title">append</span><span class="params">(TopicPartition tp,</span>
+<span class="line">                                     <span class="keyword">long</span> timestamp,</span>
+<span class="line">                                     <span class="keyword">byte</span>[] key,</span>
+<span class="line">                                     <span class="keyword">byte</span>[] value,</span>
+<span class="line">                                     Callback callback,</span>
+<span class="line">                                     <span class="keyword">long</span> maxTimeToBlock)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span>
+<span class="line">        <span class="comment">// We keep track of the number of appending thread to make sure we do not miss batches in</span></span>
+<span class="line">        <span class="comment">// abortIncompleteBatches().</span></span>
+<span class="line">        appendsInProgress.incrementAndGet();</span>
+<span class="line">        <span class="keyword">try</span> &#123;</span>
+<span class="line">            <span class="comment">// 获取或创建一个指定partion对于的Deque</span></span>
+<span class="line">            Deque&lt;RecordBatch&gt; dq = getOrCreateDeque(tp);</span>
+<span class="line">            <span class="keyword">synchronized</span> (dq) &#123;</span>
+<span class="line">                <span class="keyword">if</span> (closed)</span>
+<span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Cannot send after the producer is closed."</span>);</span>
+<span class="line">                RecordAppendResult appendResult = tryAppend(timestamp, key, value, callback, dq);</span>
+<span class="line">                <span class="keyword">if</span> (appendResult != <span class="keyword">null</span>)</span>
+<span class="line">                    <span class="keyword">return</span> appendResult;</span>
+<span class="line">            &#125;</span>
+<span class="line"></span>
+<span class="line">            <span class="comment">//batchSize 的默认值是：16384</span></span>
+<span class="line">            <span class="keyword">int</span> size = Math.max(<span class="keyword">this</span>.batchSize, Records.LOG_OVERHEAD + Record.recordSize(key, value));</span>
+<span class="line">            log.trace(<span class="string">"Allocating a new &#123;&#125; byte message buffer for topic &#123;&#125; partition &#123;&#125;"</span>, size, tp.topic(), tp.partition());</span>
+<span class="line">            <span class="comment">// 分配一块缓存区，来保存消息</span></span>
+<span class="line">			ByteBuffer buffer = free.allocate(size, maxTimeToBlock);</span>
+<span class="line">            <span class="keyword">synchronized</span> (dq) &#123;</span>
+<span class="line">                <span class="comment">// Need to check if producer is closed again after grabbing the dequeue lock.</span></span>
+<span class="line">                <span class="keyword">if</span> (closed)</span>
+<span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Cannot send after the producer is closed."</span>);</span>
+<span class="line"></span>
+<span class="line">                RecordAppendResult appendResult = tryAppend(timestamp, key, value, callback, dq);</span>
+<span class="line">                <span class="keyword">if</span> (appendResult != <span class="keyword">null</span>) &#123;</span>
+<span class="line">                    <span class="comment">// Somebody else found us a batch, return the one we waited for! Hopefully this doesn't happen often...</span></span>
+<span class="line">                    free.deallocate(buffer);</span>
+<span class="line">                    <span class="keyword">return</span> appendResult;</span>
+<span class="line">                &#125;</span>
+<span class="line">				<span class="comment">// 创建一个内存缓存区来缓存记录 </span></span>
+<span class="line">                MemoryRecords records = MemoryRecords.emptyRecords(buffer, compression, <span class="keyword">this</span>.batchSize);</span>
+<span class="line">                RecordBatch batch = <span class="keyword">new</span> RecordBatch(tp, records, time.milliseconds());</span>
+<span class="line">				<span class="comment">// 将记录添加到内存缓存区</span></span>
+<span class="line">                FutureRecordMetadata future = Utils.notNull(batch.tryAppend(timestamp, key, value, callback, time.milliseconds()));</span>
+<span class="line">				<span class="comment">// 将批次放入队列中</span></span>
+<span class="line">                dq.addLast(batch);</span>
+<span class="line">				<span class="comment">// 将批次放入待确认队列</span></span>
+<span class="line">                incomplete.add(batch);</span>
+<span class="line">				<span class="comment">// 第一条消息肯定是 新创建的， 会立刻发送。</span></span>
+<span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> RecordAppendResult(future, dq.size() &gt; <span class="number">1</span> || batch.records.isFull(), <span class="keyword">true</span>);</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125; <span class="keyword">finally</span> &#123;</span>
+<span class="line">            appendsInProgress.decrementAndGet();</span>
+<span class="line">        &#125;</span>
 <span class="line">    &#125;</span>
 <span class="line">&#125;</span>
 </pre></td></tr></table></figure>
-<p>Lua合成图片代码</p>
-<figure class="highlight lua"><figcaption><span>nginx-imagemagick.lua</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
+<p>消息批次： RecordBatch</p>
+<figure class="highlight java"><figcaption><span>RecordBatch</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+</pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span>
+<span class="line"> * 该类表示一个将要被发送的消息批次</span>
+<span class="line"> * 该类不是线程安全的，因此在修改该类的实例对象状态时需要外部同步</span>
+<span class="line"> */</span></span>
+<span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">RecordBatch</span> </span>&#123;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>消息发送线程：Sender</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
 <span class="line">2</span>
 <span class="line">3</span>
 <span class="line">4</span>
@@ -5601,1048 +6735,313 @@
 <span class="line">112</span>
 <span class="line">113</span>
 <span class="line">114</span>
-<span class="line">115</span>
-<span class="line">116</span>
-<span class="line">117</span>
-<span class="line">118</span>
-<span class="line">119</span>
-<span class="line">120</span>
-<span class="line">121</span>
-<span class="line">122</span>
-<span class="line">123</span>
-<span class="line">124</span>
-<span class="line">125</span>
-<span class="line">126</span>
-<span class="line">127</span>
-<span class="line">128</span>
-<span class="line">129</span>
-<span class="line">130</span>
-<span class="line">131</span>
-<span class="line">132</span>
-<span class="line">133</span>
-<span class="line">134</span>
-<span class="line">135</span>
-<span class="line">136</span>
-<span class="line">137</span>
-<span class="line">138</span>
-<span class="line">139</span>
-<span class="line">140</span>
-<span class="line">141</span>
-<span class="line">142</span>
-<span class="line">143</span>
-<span class="line">144</span>
-<span class="line">145</span>
-<span class="line">146</span>
-<span class="line">147</span>
-<span class="line">148</span>
-<span class="line">149</span>
-<span class="line">150</span>
-<span class="line">151</span>
-<span class="line">152</span>
-<span class="line">153</span>
-<span class="line">154</span>
-<span class="line">155</span>
-<span class="line">156</span>
-<span class="line">157</span>
-<span class="line">158</span>
-<span class="line">159</span>
-<span class="line">160</span>
-<span class="line">161</span>
-<span class="line">162</span>
-<span class="line">163</span>
-<span class="line">164</span>
-<span class="line">165</span>
-<span class="line">166</span>
-<span class="line">167</span>
-<span class="line">168</span>
-<span class="line">169</span>
-<span class="line">170</span>
-<span class="line">171</span>
-<span class="line">172</span>
-<span class="line">173</span>
-<span class="line">174</span>
-<span class="line">175</span>
-<span class="line">176</span>
-<span class="line">177</span>
-<span class="line">178</span>
-<span class="line">179</span>
-<span class="line">180</span>
-<span class="line">181</span>
-<span class="line">182</span>
-<span class="line">183</span>
-<span class="line">184</span>
-<span class="line">185</span>
-<span class="line">186</span>
-<span class="line">187</span>
-<span class="line">188</span>
-<span class="line">189</span>
-<span class="line">190</span>
-<span class="line">191</span>
-<span class="line">192</span>
-<span class="line">193</span>
-<span class="line">194</span>
-<span class="line">195</span>
-<span class="line">196</span>
-<span class="line">197</span>
-<span class="line">198</span>
-<span class="line">199</span>
-<span class="line">200</span>
-<span class="line">201</span>
-<span class="line">202</span>
-<span class="line">203</span>
-<span class="line">204</span>
-<span class="line">205</span>
-<span class="line">206</span>
-<span class="line">207</span>
-<span class="line">208</span>
-<span class="line">209</span>
-<span class="line">210</span>
-<span class="line">211</span>
-<span class="line">212</span>
-<span class="line">213</span>
-<span class="line">214</span>
-<span class="line">215</span>
-<span class="line">216</span>
-<span class="line">217</span>
-<span class="line">218</span>
-<span class="line">219</span>
-<span class="line">220</span>
-<span class="line">221</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> qr = <span class="built_in">require</span>(<span class="string">"qrencode"</span>)</span>
-<span class="line"><span class="keyword">local</span> qr_cache = ngx.shared.qr_cache;</span>
-<span class="line"><span class="keyword">local</span> share_img_file_cache = ngx.shared.share_img_file_cache</span>
-<span class="line"><span class="keyword">local</span> imgages_root_dir = ngx.var.image_root .. <span class="string">"/images/"</span></span>
-<span class="line"><span class="keyword">local</span> img_file_suffix = <span class="string">".png"</span></span>
+</pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span>
+<span class="line"> * 该类表示一个后台线程，用来将消息发送到kafka集群中。</span>
+<span class="line"> */</span></span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Sender</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span>
+<span class="line">	 <span class="comment">/**</span>
+<span class="line">     * The main run loop for the sender thread</span>
+<span class="line">     */</span></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">        log.debug(<span class="string">"Starting Kafka producer I/O thread."</span>);</span>
 <span class="line"></span>
-<span class="line"><span class="comment">-- config</span></span>
-<span class="line"><span class="keyword">local</span> image_sizes = &#123; <span class="string">"640x640"</span>, <span class="string">"320x320"</span>, <span class="string">"124x124"</span>, <span class="string">"140x140"</span>, <span class="string">"64x64"</span>, <span class="string">"60x60"</span>, <span class="string">"32x32"</span>, <span class="string">"0x0"</span> &#125;</span>
+<span class="line">        <span class="comment">// 主循环，获取待发送的消息，并进行发送</span></span>
+<span class="line">        <span class="keyword">while</span> (running) &#123;</span>
+<span class="line">            <span class="keyword">try</span> &#123;</span>
+<span class="line">                run(time.milliseconds());</span>
+<span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span>
+<span class="line">                log.error(<span class="string">"Uncaught error in kafka producer I/O thread: "</span>, e);</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125;</span>
 <span class="line"></span>
-<span class="line"><span class="comment">-- 字符串分隔方法</span></span>
-<span class="line"><span class="function"><span class="keyword">function</span> <span class="title">string:split</span><span class="params">(sep)</span></span></span>
-<span class="line">	<span class="keyword">local</span> sep, fields = sep <span class="keyword">or</span> <span class="string">":"</span>, &#123;&#125;</span>
-<span class="line">	<span class="keyword">local</span> pattern = <span class="built_in">string</span>.format(<span class="string">"([^%s]+)"</span>, sep)</span>
-<span class="line">	self:gsub(pattern, <span class="function"><span class="keyword">function</span> <span class="params">(c)</span></span> fields[#fields + <span class="number">1</span>] = c <span class="keyword">end</span>)</span>
-<span class="line">	<span class="keyword">return</span> fields</span>
-<span class="line"><span class="keyword">end</span></span>
+<span class="line">        log.debug(<span class="string">"Beginning shutdown of Kafka producer I/O thread, sending remaining records."</span>);</span>
 <span class="line"></span>
-<span class="line"><span class="comment">-- parse uri</span></span>
+<span class="line">        <span class="comment">// 停止接收发送消息的请求，但是会将缓存区的消息发送完毕，病处理服务端返回的ack</span></span>
+<span class="line">        <span class="keyword">while</span> (!forceClose &amp;&amp; (<span class="keyword">this</span>.accumulator.hasUnsent() || <span class="keyword">this</span>.client.inFlightRequestCount() &gt; <span class="number">0</span>)) &#123;</span>
+<span class="line">            <span class="keyword">try</span> &#123;</span>
+<span class="line">                run(time.milliseconds());</span>
+<span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span>
+<span class="line">                log.error(<span class="string">"Uncaught error in kafka producer I/O thread: "</span>, e);</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125;</span>
+<span class="line">		<span class="comment">// 强制关闭</span></span>
+<span class="line">        <span class="keyword">if</span> (forceClose) &#123;</span>
+<span class="line">            <span class="comment">// We need to fail all the incomplete batches and wake up the threads waiting on</span></span>
+<span class="line">            <span class="comment">// the futures.</span></span>
+<span class="line">            <span class="keyword">this</span>.accumulator.abortIncompleteBatches();</span>
+<span class="line">        &#125;</span>
+<span class="line">		<span class="comment">// 关闭网络客户端</span></span>
+<span class="line">        <span class="keyword">try</span> &#123;</span>
+<span class="line">            <span class="keyword">this</span>.client.close();</span>
+<span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span>
+<span class="line">            log.error(<span class="string">"Failed to close network client"</span>, e);</span>
+<span class="line">        &#125;</span>
 <span class="line"></span>
-<span class="line"><span class="function"><span class="keyword">function</span> <span class="title">parseUri</span><span class="params">(uri)</span></span></span>
+<span class="line">        log.debug(<span class="string">"Shutdown of Kafka producer I/O thread has completed."</span>);</span>
+<span class="line">    &#125;</span>
 <span class="line"></span>
-<span class="line">	<span class="keyword">local</span> _, _, name, ext, size = <span class="built_in">string</span>.find(uri, <span class="string">"(.+)(%..+)!(%d+x%d+)"</span>)</span>
+<span class="line">	 <span class="comment">/**</span>
+<span class="line">     * Run a single iteration of sending</span>
+<span class="line">     * <span class="doctag">@param</span> now　The current POSIX time in milliseconds</span>
+<span class="line">     */</span></span>
+<span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">run</span><span class="params">(<span class="keyword">long</span> now)</span> </span>&#123;</span>
+<span class="line">		<span class="comment">// 获取元数据</span></span>
+<span class="line">        Cluster cluster = metadata.fetch();</span>
+<span class="line">        <span class="comment">// 获取可以发送数据的 Partition</span></span>
+<span class="line">        RecordAccumulator.ReadyCheckResult result = <span class="keyword">this</span>.accumulator.ready(cluster, now);</span>
 <span class="line"></span>
-<span class="line">	<span class="comment">--ngx.header.content_type = "text/plain";</span></span>
+<span class="line">        <span class="comment">// 如果任何Partition的Leader不能确定，则需要强制获取最新的Partition的Leader信息。</span></span>
+<span class="line">        <span class="keyword">if</span> (result.unknownLeadersExist)</span>
+<span class="line">            <span class="keyword">this</span>.metadata.requestUpdate();</span>
 <span class="line"></span>
-<span class="line">	<span class="comment">--ngx.say(name,size);</span></span>
+<span class="line">        <span class="comment">// 剔除不可用的节点</span></span>
+<span class="line">        Iterator&lt;Node&gt; iter = result.readyNodes.iterator();</span>
+<span class="line">        <span class="keyword">long</span> notReadyTimeout = Long.MAX_VALUE;</span>
+<span class="line">        <span class="keyword">while</span> (iter.hasNext()) &#123;</span>
+<span class="line">            Node node = iter.next();</span>
+<span class="line">            <span class="keyword">if</span> (!<span class="keyword">this</span>.client.ready(node, now)) &#123;</span>
+<span class="line">                iter.remove();</span>
+<span class="line">                notReadyTimeout = Math.min(notReadyTimeout, <span class="keyword">this</span>.client.connectionDelay(node, now));</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125;</span>
 <span class="line"></span>
-<span class="line">	<span class="keyword">if</span> name <span class="keyword">and</span> size <span class="keyword">and</span> ext <span class="keyword">then</span></span>
-<span class="line">		<span class="keyword">return</span> ngx.var.image_root .. name .. ext, size</span>
-<span class="line">	<span class="keyword">else</span></span>
-<span class="line">		<span class="keyword">return</span> <span class="string">""</span>, <span class="string">""</span></span>
-<span class="line">	<span class="keyword">end</span></span>
-<span class="line"><span class="keyword">end</span></span>
+<span class="line">        <span class="comment">// create produce requests</span></span>
+<span class="line">        Map&lt;Integer, List&lt;RecordBatch&gt;&gt; batches = <span class="keyword">this</span>.accumulator.drain(cluster,</span>
+<span class="line">                                                                         result.readyNodes,</span>
+<span class="line">                                                                         <span class="keyword">this</span>.maxRequestSize,</span>
+<span class="line">                                                                         now);</span>
+<span class="line">        <span class="comment">//是否需要保持消息的顺序，max.in.flight.requests.per.connection 的值　＝１　可以保证</span></span>
+<span class="line">		<span class="keyword">if</span> (guaranteeMessageOrder) &#123;</span>
+<span class="line">            <span class="comment">// Mute all the partitions drained</span></span>
+<span class="line">            <span class="keyword">for</span> (List&lt;RecordBatch&gt; batchList : batches.values()) &#123;</span>
+<span class="line">                <span class="keyword">for</span> (RecordBatch batch : batchList)</span>
+<span class="line">                    <span class="keyword">this</span>.accumulator.mutePartition(batch.topicPartition);</span>
+<span class="line">            &#125;</span>
+<span class="line">        &#125;</span>
 <span class="line"></span>
-<span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fileExists</span><span class="params">(name)</span></span></span>
-<span class="line">	<span class="keyword">local</span> f, msg = <span class="built_in">io</span>.open(name, <span class="string">"r"</span>)</span>
-<span class="line">	<span class="keyword">if</span> f ~= <span class="keyword">nil</span> <span class="keyword">then</span></span>
-<span class="line">		<span class="built_in">io</span>.close(f)</span>
-<span class="line">		<span class="keyword">return</span> <span class="keyword">true</span></span>
-<span class="line">	<span class="keyword">else</span></span>
-<span class="line">		ngx.log(ngx.ERR, msg)</span>
-<span class="line">		<span class="keyword">return</span> <span class="keyword">false</span></span>
-<span class="line">	<span class="keyword">end</span></span>
-<span class="line"><span class="keyword">end</span></span>
+<span class="line">        List&lt;RecordBatch&gt; expiredBatches = <span class="keyword">this</span>.accumulator.abortExpiredBatches(<span class="keyword">this</span>.requestTimeout, now);</span>
+<span class="line">        <span class="comment">// update sensors</span></span>
+<span class="line">        <span class="keyword">for</span> (RecordBatch expiredBatch : expiredBatches)</span>
+<span class="line">            <span class="keyword">this</span>.sensors.recordErrors(expiredBatch.topicPartition.topic(), expiredBatch.recordCount);</span>
 <span class="line"></span>
-<span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sizeExists</span><span class="params">(size)</span></span></span>
-<span class="line">	<span class="keyword">for</span> _, value <span class="keyword">in</span> <span class="built_in">pairs</span>(image_sizes) <span class="keyword">do</span></span>
-<span class="line">		<span class="keyword">if</span> value == size <span class="keyword">then</span></span>
-<span class="line">			<span class="keyword">return</span> <span class="keyword">true</span></span>
-<span class="line">		<span class="keyword">end</span></span>
-<span class="line">	<span class="keyword">end</span></span>
-<span class="line">	<span class="keyword">return</span> <span class="keyword">false</span></span>
-<span class="line"><span class="keyword">end</span></span>
+<span class="line">        sensors.updateProduceRequestMetrics(batches);</span>
+<span class="line">		<span class="comment">// 创建需要发送的请求包对象</span></span>
+<span class="line">        List&lt;ClientRequest&gt; requests = createProduceRequests(batches, now);</span>
+<span class="line">        <span class="comment">// If we have any nodes that are ready to send + have sendable data, poll with 0 timeout so this can immediately</span></span>
+<span class="line">        <span class="comment">// loop and try sending more data. Otherwise, the timeout is determined by nodes that have partitions with data</span></span>
+<span class="line">        <span class="comment">// that isn't yet sendable (e.g. lingering, backing off). Note that this specifically does not include nodes</span></span>
+<span class="line">        <span class="comment">// with sendable data that aren't ready to send since they would cause busy looping.</span></span>
+<span class="line">        <span class="keyword">long</span> pollTimeout = Math.min(result.nextReadyCheckDelayMs, notReadyTimeout);</span>
+<span class="line">        <span class="keyword">if</span> (result.readyNodes.size() &gt; <span class="number">0</span>) &#123;</span>
+<span class="line">            log.trace(<span class="string">"Nodes with data ready to send: &#123;&#125;"</span>, result.readyNodes);</span>
+<span class="line">            log.trace(<span class="string">"Created &#123;&#125; produce requests: &#123;&#125;"</span>, requests.size(), requests);</span>
+<span class="line">            pollTimeout = <span class="number">0</span>;</span>
+<span class="line">        &#125;</span>
+<span class="line">		<span class="comment">// 将请求包暂存在待发送队列中</span></span>
+<span class="line">        <span class="keyword">for</span> (ClientRequest request : requests)</span>
+<span class="line">            client.send(request, now);</span>
 <span class="line"></span>
-<span class="line"><span class="comment">-- 返回图片</span></span>
-<span class="line"><span class="function"><span class="keyword">function</span> <span class="title">response_image</span><span class="params">(img_file_path)</span></span></span>
-<span class="line">	ngx.header.content_type = <span class="string">"image/jpg"</span>;</span>
-<span class="line"></span>
-<span class="line">	<span class="keyword">local</span> f = <span class="built_in">io</span>.open(img_file_path, <span class="string">"rb"</span>)</span>
-<span class="line">	<span class="keyword">local</span> content = f:read(<span class="string">"*all"</span>)</span>
-<span class="line">	ngx.<span class="built_in">print</span>(content)</span>
-<span class="line">	f:close()</span>
-<span class="line">	<span class="keyword">return</span> ngx.exit(ngx.OK)</span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- 返回图片, 是二进制</span></span>
-<span class="line"><span class="function"><span class="keyword">function</span> <span class="title">response_image_bin</span><span class="params">(img_bin)</span></span></span>
-<span class="line">	ngx.header.content_type = <span class="string">"image/jpg"</span>;</span>
-<span class="line">	ngx.<span class="built_in">print</span>(img_bin)</span>
-<span class="line">	<span class="comment">-- ngx.flush()</span></span>
-<span class="line">	<span class="keyword">return</span> ngx.exit(ngx.HTTP_OK)</span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- 缓存生成的图片</span></span>
-<span class="line"><span class="function"><span class="keyword">function</span> <span class="title">cache_img_bin</span><span class="params">(cache_key, img_file_path)</span></span></span>
-<span class="line">	<span class="keyword">local</span> f = <span class="built_in">io</span>.open(img_file_path, <span class="string">"rb"</span>)</span>
-<span class="line">	<span class="keyword">local</span> content = f:read(<span class="string">"*all"</span>)</span>
-<span class="line">	share_img_file_cache[cache_key] = content</span>
-<span class="line">	f:close()</span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- 图片大小转化</span></span>
-<span class="line"><span class="function"><span class="keyword">function</span> <span class="title">resize_imgage</span><span class="params">(image_file, width_height)</span></span></span>
-<span class="line">	<span class="keyword">local</span> src_image_path = imgages_root_dir .. image_file</span>
-<span class="line">	<span class="keyword">local</span> target_image_path = imgages_root_dir .. image_file:split(<span class="string">"."</span>)[<span class="number">1</span>] .. <span class="string">"_"</span> .. img_file_suffix</span>
-<span class="line">	<span class="keyword">local</span> command = <span class="built_in">table</span>.concat(</span>
-<span class="line">		&#123;</span>
-<span class="line">			ngx.var.convert_bin,</span>
-<span class="line">			<span class="string">"-resize"</span>,</span>
-<span class="line">			width_height,</span>
-<span class="line">			src_image_path,</span>
-<span class="line">			target_image_path</span>
-<span class="line">		&#125;,</span>
-<span class="line">		<span class="string">" "</span></span>
-<span class="line">	)</span>
-<span class="line">	<span class="comment">-- 进行图片处理</span></span>
-<span class="line">	<span class="built_in">os</span>.execute(command)</span>
-<span class="line">	<span class="keyword">return</span> target_image_path</span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- 生成二维码图片 - 二进制流</span></span>
-<span class="line"><span class="function"><span class="keyword">function</span> <span class="title">gen_qr_code_bin</span><span class="params">(content)</span></span></span>
-<span class="line">	<span class="keyword">local</span> qr_code_bin = qr &#123;</span>
-<span class="line">		text=content,</span>
-<span class="line">		level=<span class="string">"L"</span>,</span>
-<span class="line">		kanji=<span class="keyword">false</span>,</span>
-<span class="line">		ansi=<span class="keyword">false</span>,</span>
-<span class="line">		size=<span class="number">4</span>,</span>
-<span class="line">		margin=<span class="number">2</span>,</span>
-<span class="line">		symversion=<span class="number">0</span>,</span>
-<span class="line">		dpi=<span class="number">78</span>,</span>
-<span class="line">		casesensitive=<span class="keyword">true</span>,</span>
-<span class="line">		foreground=<span class="string">"000000"</span>,</span>
-<span class="line">		background=<span class="string">"FFFFFF"</span></span>
+<span class="line">        <span class="comment">// if some partitions are already ready to be sent, the select time would be 0;</span></span>
+<span class="line">        <span class="comment">// otherwise if some partition already has some data accumulated but not ready yet,</span></span>
+<span class="line">        <span class="comment">// the select time will be the time difference between now and its linger expiry time;</span></span>
+<span class="line">        <span class="comment">// otherwise the select time will be the time difference between now and the metadata expiry time;</span></span>
+<span class="line">        <span class="comment">// 执行真正的网络ＩＯ操作，发送数据，读取响应，执行请求的回调函数</span></span>
+<span class="line">        <span class="keyword">this</span>.client.poll(pollTimeout, now);</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>创建客户端请求对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+</pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建客户端请求对象</span></span>
+<span class="line"><span class="function"><span class="keyword">private</span> ClientRequest <span class="title">produceRequest</span><span class="params">(<span class="keyword">long</span> now, <span class="keyword">int</span> destination, <span class="keyword">short</span> acks, <span class="keyword">int</span> timeout, List&lt;RecordBatch&gt; batches)</span> </span>&#123;</span>
+<span class="line">	Map&lt;TopicPartition, ByteBuffer&gt; produceRecordsByPartition = <span class="keyword">new</span> HashMap&lt;TopicPartition, ByteBuffer&gt;(batches.size());</span>
+<span class="line">	<span class="keyword">final</span> Map&lt;TopicPartition, RecordBatch&gt; recordsByPartition = <span class="keyword">new</span> HashMap&lt;TopicPartition, RecordBatch&gt;(batches.size());</span>
+<span class="line">	<span class="keyword">for</span> (RecordBatch batch : batches) &#123;</span>
+<span class="line">		TopicPartition tp = batch.topicPartition;</span>
+<span class="line">		produceRecordsByPartition.put(tp, batch.records.buffer());</span>
+<span class="line">		recordsByPartition.put(tp, batch);</span>
 <span class="line">	&#125;</span>
-<span class="line">	<span class="keyword">return</span> qr_code_bin</span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- 生成二维码图片文件</span></span>
-<span class="line"><span class="function"><span class="keyword">function</span> <span class="title">gen_qr_code_file</span><span class="params">(qr_file_name, qr_code_bin)</span></span></span>
-<span class="line">	<span class="keyword">local</span> full_qr_file_path = imgages_root_dir .. qr_file_name</span>
-<span class="line">	file = <span class="built_in">io</span>.open(full_qr_file_path, <span class="string">"wb"</span>)</span>
-<span class="line">	<span class="built_in">io</span>.output(file)</span>
-<span class="line">	<span class="built_in">io</span>.write(qr_code_bin)</span>
-<span class="line">	<span class="built_in">io</span>.close(file)</span>
-<span class="line">	<span class="comment">-- 缩放到固定大小</span></span>
-<span class="line">	<span class="comment">-- resize_imgage(qr_file_name, "120x120")</span></span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- 返回指定内容的二维码文件</span></span>
-<span class="line"><span class="function"><span class="keyword">function</span> <span class="title">get_qr_file</span><span class="params">(content)</span></span></span>
-<span class="line">	<span class="keyword">local</span> qr_md5 = ngx.md5(content)</span>
-<span class="line"></span>
-<span class="line">	<span class="keyword">if</span> qr_cache[qr_md5] ~= <span class="keyword">nil</span></span>
-<span class="line">	<span class="keyword">then</span></span>
-<span class="line">		<span class="keyword">return</span> qr_cache[qr_md5]</span>
-<span class="line">	<span class="keyword">else</span></span>
-<span class="line">		<span class="keyword">local</span> qr_file_name = qr_md5 .. img_file_suffix</span>
-<span class="line">		<span class="keyword">local</span> qr_code_bin = gen_qr_code_bin(content)</span>
-<span class="line">		gen_qr_code_file(qr_file_name, qr_code_bin)</span>
-<span class="line"></span>
-<span class="line">		qr_cache[qr_md5] = qr_file_name</span>
-<span class="line">		<span class="keyword">return</span> qr_file_name</span>
-<span class="line">	<span class="keyword">end</span></span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- 获取生成二维码的内容</span></span>
-<span class="line"><span class="function"><span class="keyword">function</span> <span class="title">get_qr_code_content</span><span class="params">()</span></span></span>
-<span class="line">	<span class="comment">-- 解析 body 参数之前一定要先读取 body</span></span>
-<span class="line">	<span class="comment">--	ngx.req.read_body()</span></span>
-<span class="line">	<span class="comment">--	local arg = ngx.req.get_post_args()</span></span>
-<span class="line">	<span class="comment">--	for k,v in pairs(arg) do</span></span>
-<span class="line">	<span class="comment">--		ngx.say("[POST] key:", k, " v:", v)</span></span>
-<span class="line">	<span class="comment">--	end</span></span>
-<span class="line"></span>
-<span class="line">	<span class="keyword">local</span> args = ngx.req.get_uri_args()</span>
-<span class="line">	<span class="keyword">local</span> text = args[<span class="string">'url'</span>]</span>
-<span class="line">	<span class="keyword">return</span> text</span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment">--图片合成</span></span>
-<span class="line"><span class="function"><span class="keyword">function</span> <span class="title">compose_img</span><span class="params">(bg_img, fg_img, result_img)</span></span></span>
-<span class="line">	<span class="keyword">local</span> command = <span class="built_in">table</span>.concat(</span>
-<span class="line">		&#123;</span>
-<span class="line">			ngx.var.convert_bin,</span>
-<span class="line">			bg_img,</span>
-<span class="line">			<span class="string">"+profile '*'"</span>,</span>
-<span class="line">			<span class="string">"-quality 75%"</span>,</span>
-<span class="line">			<span class="string">"-strip"</span>,</span>
-<span class="line">			<span class="string">"-gravity northwest"</span>,</span>
-<span class="line">			<span class="string">"-compose over "</span> .. fg_img,</span>
-<span class="line">			<span class="string">"-geometry +500+525"</span>,</span>
-<span class="line">			<span class="string">"-composite -compress BZip"</span>,</span>
-<span class="line">			result_img</span>
-<span class="line">		&#125;,</span>
-<span class="line">		<span class="string">" "</span></span>
-<span class="line">	)</span>
-<span class="line">	<span class="comment">-- ngx.log(ngx.ERR, command)</span></span>
-<span class="line">	<span class="comment">-- 进行图片处理</span></span>
-<span class="line">	<span class="built_in">os</span>.execute(command)</span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- 图片添加二维码，文字水印</span></span>
-<span class="line"><span class="function"><span class="keyword">function</span> <span class="title">compose_img</span><span class="params">()</span></span></span>
-<span class="line">	<span class="keyword">local</span> text = get_qr_code_content()</span>
-<span class="line">	<span class="keyword">if</span> text == <span class="keyword">nil</span> <span class="keyword">or</span> text == <span class="string">""</span> <span class="keyword">then</span></span>
-<span class="line">		ngx.header.content_type = <span class="string">"text/plain"</span></span>
-<span class="line">		ngx.say(<span class="string">'need a text param'</span>)</span>
-<span class="line">		<span class="keyword">return</span> ngx.exit(ngx.OK)</span>
-<span class="line">	<span class="keyword">end</span></span>
-<span class="line">	<span class="comment">--ngx.log(ngx.ERR, text)</span></span>
-<span class="line"></span>
-<span class="line">	<span class="keyword">local</span> sub_uris = ngx.var.uri:split(<span class="string">"/"</span>)</span>
-<span class="line">	<span class="keyword">local</span> file_name = sub_uris[<span class="built_in">table</span>.getn(sub_uris)]</span>
-<span class="line"></span>
-<span class="line">	ori_filename = ngx.var.image_root .. ngx.var.uri</span>
-<span class="line">	<span class="keyword">if</span> fileExists(ori_filename) == <span class="keyword">false</span> <span class="keyword">then</span></span>
-<span class="line">		<span class="keyword">return</span> ngx.exit(<span class="number">404</span>)</span>
-<span class="line">	<span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line">	ngx.header.content_type = <span class="string">"image/png"</span></span>
-<span class="line"></span>
-<span class="line">	<span class="comment">-- 生成二维码</span></span>
-<span class="line">	<span class="keyword">local</span> qr_code_file = imgages_root_dir .. get_qr_file(text)</span>
-<span class="line">	<span class="keyword">local</span> result_img = ngx.md5(text) .. <span class="string">"_res_"</span> .. img_file_suffix</span>
-<span class="line">	<span class="keyword">local</span> result_file = imgages_root_dir .. result_img</span>
-<span class="line"></span>
-<span class="line">	<span class="keyword">if</span> share_img_file_cache[result_img] ~= <span class="keyword">nil</span></span>
-<span class="line">	<span class="keyword">then</span></span>
-<span class="line">			<span class="comment">-- ngx.log(ngx.ERR, "from cache")</span></span>
-<span class="line">			<span class="keyword">return</span> response_image_bin(share_img_file_cache[result_img])</span>
-<span class="line">	<span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line">	<span class="comment">-- ngx.exit(ngx.OK)</span></span>
-<span class="line">	compose_img(ori_filename, qr_code_file, result_file)</span>
-<span class="line">	cache_img_bin(result_img, result_file)</span>
-<span class="line"></span>
-<span class="line">	response_image(result_file)</span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line">compose_img()</span>
-</pre></td></tr></table></figure>
-<h3 id="方案二的优化和扩展"><a href="#方案二的优化和扩展" class="headerlink" title="方案二的优化和扩展"></a>方案二的优化和扩展</h3><p>1.生成图片的缓存可以通过在openresty前面添加专门的缓存服务器(Openresty，varnish)。<br>2.生成的分析图片可以通过CDN进行分发，这样用户访问的速度更快。<br>3.合成图片的大小可以进一步压缩。目前合成的图片偏大。<br>4.通过这个demo，我们可以进一步丰富功能，只要是ImageMagic支持的功能，理论上都可以实现。</p>
-<h3 id="环境的安装配置"><a href="#环境的安装配置" class="headerlink" title="环境的安装配置"></a>环境的安装配置</h3><h4 id="Openresy安装"><a href="#Openresy安装" class="headerlink" title="Openresy安装"></a>Openresy安装</h4><p>请参考:<a href="http://openresty.org/en/installation.html" target="_blank" rel="external">http://openresty.org/en/installation.html</a></p>
-<h4 id="二维码生成库libqrencode安装"><a href="#二维码生成库libqrencode安装" class="headerlink" title="二维码生成库libqrencode安装"></a>二维码生成库libqrencode安装</h4><p>ubuntu： </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line">sudo apt-get install libqrencode-dev libpng12-dev</span>
-</pre></td></tr></table></figure>
-<p>CentOS</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-</pre></td><td class="code"><pre><span class="line">yum install libpng-devel</span>
-<span class="line">wget http://ftp.riken.jp/Linux/centos/7/os/x86_64/Packages/qrencode-devel-3.4.1-3.el7.x86_64.rpm</span>
-<span class="line">rpm -ivh qrencode-devel-3.4.1-3.el7.x86_64.rpm</span>
-</pre></td></tr></table></figure>
-<p>MacOS</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line">brew install libqrencode</span>
-</pre></td></tr></table></figure>
-<p>安装Lua扩展库</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line">git clone https://github.com/vincascm/qrencode</span>
-<span class="line">make &amp;&amp; make install</span>
-</pre></td></tr></table></figure>
-<p><code>make test</code>如果能成功，控制台会显示一个二维码。</p>
-<p>下面是一个生成二维码的配置</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-<span class="line">22</span>
-<span class="line">23</span>
-<span class="line">24</span>
-<span class="line">25</span>
-<span class="line">26</span>
-<span class="line">27</span>
-<span class="line">28</span>
-<span class="line">29</span>
-<span class="line">30</span>
-<span class="line">31</span>
-<span class="line">32</span>
-<span class="line">33</span>
-<span class="line">34</span>
-<span class="line">35</span>
-<span class="line">36</span>
-<span class="line">37</span>
-</pre></td><td class="code"><pre><span class="line">server &#123;</span>
-<span class="line"></span>
-<span class="line">   listen 8080;</span>
-<span class="line">   server_name img.papa.com.cn;</span>
-<span class="line"></span>
-<span class="line">   location / &#123;</span>
-<span class="line">        default_type image/png;</span>
-<span class="line">        content_by_lua_block &#123;</span>
-<span class="line">              local qr = require(&quot;qrencode&quot;)</span>
-<span class="line">              local args = ngx.req.get_uri_args()</span>
-<span class="line">              local text = args.text</span>
-<span class="line"></span>
-<span class="line">              if text == nil or text== &quot;&quot; then</span>
-<span class="line">                      ngx.say(&apos;need a text param&apos;)</span>
-<span class="line">                      ngx.exit(404)</span>
-<span class="line">              end</span>
-<span class="line"></span>
-<span class="line">              ngx.say(qr &#123;</span>
-<span class="line">                      text=text,</span>
-<span class="line">                      level=&quot;L&quot;,</span>
-<span class="line">                      kanji=false,</span>
-<span class="line">                      ansi=false,</span>
-<span class="line">                      size=4,</span>
-<span class="line">                      margin=2,</span>
-<span class="line">                      symversion=0,</span>
-<span class="line">                      dpi=78,</span>
-<span class="line">                      casesensitive=true,</span>
-<span class="line">                      foreground=&quot;000000&quot;,</span>
-<span class="line">                      background=&quot;FFFFFF&quot;</span>
-<span class="line">              &#125;)</span>
-<span class="line">           &#125;</span>
-<span class="line">           add_header Expires &quot;Fri, 01 Jan 1980 00:00:00 GMT&quot;;    </span>
-<span class="line">           add_header Pragma &quot;no-cache&quot;;    </span>
-<span class="line">           add_header Cache-Control &quot;no-cache, max-age=0, must-revalidate&quot;;</span>
-<span class="line">           #add_header Content-Type image/png;</span>
-<span class="line">  &#125;</span>
+<span class="line">	ProduceRequest request = <span class="keyword">new</span> ProduceRequest(acks, timeout, produceRecordsByPartition);</span>
+<span class="line">	RequestSend send = <span class="keyword">new</span> RequestSend(Integer.toString(destination),</span>
+<span class="line">										<span class="keyword">this</span>.client.nextRequestHeader(ApiKeys.PRODUCE),</span>
+<span class="line">										request.toStruct());</span>
+<span class="line">	RequestCompletionHandler callback = <span class="keyword">new</span> RequestCompletionHandler() &#123;</span>
+<span class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onComplete</span><span class="params">(ClientResponse response)</span> </span>&#123;</span>
+<span class="line">			handleProduceResponse(response, recordsByPartition, time.milliseconds());</span>
+<span class="line">		&#125;</span>
+<span class="line">	&#125;;</span>
+<span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> ClientRequest(now, acks != <span class="number">0</span>, send, callback);</span>
 <span class="line">&#125;</span>
 </pre></td></tr></table></figure>
-<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>在配置真个环境的过程中，有一下几点需要注意：</p>
-<p>1.lua的版本最好使用5.1，否则会有各种问题。<br>2.二维码生成的配置中<code>ansi=false</code>，否则在浏览器不能显示。</p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://github.com/vincascm/qrencode" target="_blank" rel="external">https://github.com/vincascm/qrencode</a></p>
-<p><a href="http://blog.csdn.net/orangleliu/article/details/64912578" target="_blank" rel="external">基于 OpenResty 的二维码生成方案</a></p>
-<p><a href="https://www.jianshu.com/p/62dc0b601e91" target="_blank" rel="external">Lua包管理工具Luarocks详解</a></p>
-<p><a href="http://www.hopesoft.org/blog/?p=1188" target="_blank" rel="external">OpenResty(Nginx)+Lua+GraphicsMagick实现缩略图功能</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;有个项目的需要是：用户通过给好友分享带有二维码的图片，好友扫码或在微信中识别二维码来领取分享的礼物。要实现这个需要，能想到的解决方案有两个：&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="架构" scheme="https://leokongwq.github.io/categories/%E6%9E%B6%E6%9E%84/"/>
-    
-    
-      <category term="Openresy" scheme="https://leokongwq.github.io/tags/Openresy/"/>
-    
-      <category term="Nginx" scheme="https://leokongwq.github.io/tags/Nginx/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Linux文件系统调用算法</title>
-    <link href="https://leokongwq.github.io/2018/02/06/linux-file-system-schedule.html"/>
-    <id>https://leokongwq.github.io/2018/02/06/linux-file-system-schedule.html</id>
-    <published>2018-02-06T12:41:43.000Z</published>
-    <updated>2018-02-08T13:55:50.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>本文转自：<a href="https://www.ibm.com/developerworks/cn/linux/l-lo-io-scheduler-optimize-performance/index.html" target="_blank" rel="external">调整 Linux I/O 调度器优化系统性能</a></p>
-<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>查看RocketMQ文档的过程中，提到了通过修改IO调度算法来提高RocketMQ的性能。网上找了一些文章，感觉IBM这个文章不错。</p>
-<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>前言<br>Linux I/O 调度器是Linux内核中的一个组成部分，用户可以通过调整这个调度器来优化系统性能。本文首先介绍Linux I/O 调度器的结构，然后介绍如何根据不同的存储器来设置Linux I/O 调度器从而达到优化系统性能。</p>
-<a id="more"></a>
-<h3 id="Linux-I-O-系统简介"><a href="#Linux-I-O-系统简介" class="headerlink" title="Linux I/O 系统简介"></a>Linux I/O 系统简介</h3><p>Linux I/O调度器（Linux I/O Scheduler）是LinuxI/O体系的一个组件，它介于通用块层和块设备驱动程序之间。如图 1 所示。</p>
-<p>图1 Linux I/O调度器介于通用块层和块设备驱动程序之间</p>
-<img src="/2018/02/06/linux-file-system-schedule/image001.png" alt="image001.png" title="">
-<p>当Linux内核组件要读写一些数据时，并不是请求一发出，内核便立即执行该请求，而是将其推迟执行。当传输一个新数据块时，内核需要检查它能否通过。Linux IO调度程序是介于通用块层和块设备驱动程序之间，所以它接收来自通用块层的请求，试图合并请求，并找到最合适的请求下发到块设备驱动程序中。之后块设备驱动程序会调用一个函数来响应这个请求。</p>
-<p>Linux整体I/O体系可以分为七层，它们分别是：</p>
-<ol>
-<li>VFS虚拟文件系统：内核要跟多种文件系统打交道，内核抽象了这VFS，专门用来适配各种文件系统，并对外提供统一操作接口。</li>
-<li>磁盘缓存：磁盘缓存是一种将磁盘上的一些数据保留着RAM中的软件机制，这使得对这部分数据的访问可以得到更快的响应。磁盘缓存在Linux中有三种类型：Dentry cache ，Page cache ， Buffer cache。</li>
-<li>映射层：内核从块设备上读取数据，这样内核就必须确定数据在物理设备上的位置，这由映射层（Mapping Layer）来完成。</li>
-<li>通用块层：由于绝大多数情况的I/O操作是跟块设备打交道，所以Linux在此提供了一个类似vfs层的块设备操作抽象层。下层对接各种不同属性的块设备，对上提供统一的Block IO请求标准。</li>
-<li>I/O调度层：大多数的块设备都是磁盘设备，所以有必要根据这类设备的特点以及应用特点来设置一些不同的调度器。</li>
-<li>块设备驱动：块设备驱动对外提供高级的设备操作接口。</li>
-<li>物理硬盘：这层就是具体的物理设备。</li>
-</ol>
-<h3 id="调度算法有哪些？"><a href="#调度算法有哪些？" class="headerlink" title="调度算法有哪些？"></a>调度算法有哪些？</h3><p>Linux 从2.4内核开始支持I/O调度器,到目前为止有5种类型：Linux 2.4内核的 Linus Elevator、Linux 2.6内核的 Deadline、 Anticipatory、 CFQ、 Noop，其中Anticipatory从Linux 2.6.33版本后被删除了。目前主流的Linux发行版本使用Deadline、 CFQ、 Noop三种I/O调度器。下面依次简单介绍：</p>
-<h4 id="1-Linus-Elevator"><a href="#1-Linus-Elevator" class="headerlink" title="1 Linus Elevator"></a>1 Linus Elevator</h4><p>在2.4 内核中它是第一种I/O调度器。它的主要作用是为每个设备维护一个查询请求，当内核收到一个新请求时，如果能合并就合并。如果不能合并，就会尝试排序。如果既不能合并，也没有合适的位置插入，就放到请求队列的最后。</p>
-<h4 id="2-NOOP"><a href="#2-NOOP" class="headerlink" title="2 NOOP"></a>2 NOOP</h4><p>NOOP全称<code>No Operation</code>,中文名称电梯式调度器，该算法实现了最简单的FIFO队列，所有I/O请求大致按照先来后到的顺序进行操作。NOOP实现了一个简单的FIFO队列,它像电梯的工作主法一样对I/O请求进行组织。它是基于先入先出（FIFO）队列概念的 Linux 内核里最简单的I/O 调度器。此调度程序最适合于固态硬盘。NOOP的工作流程如图4 所示。</p>
-<p>图4 NOOP的工作流程</p>
-
-<h4 id="3-CFQ"><a href="#3-CFQ" class="headerlink" title="3 CFQ"></a>3 CFQ</h4><p>CFQ全称Completely Fair Scheduler ，中文名称完全公平调度器，它是现在许多 Linux 发行版的默认调度器，CFQ是内核默认选择的I/O调度器。它将由进程提交的同步请求放到多个进程队列中，然后为每个队列分配时间片以访问磁盘。对于通用的服务器是最好的选择,CFQ均匀地分布对I/O带宽的访问。CFQ为每个进程和线程,单独创建一个队列来管理该进程所产生的请求,以此来保证每个进程都能被很好的分配到I/O带宽，I/O调度器每次执行一个进程的4次请求。该算法的特点是按照I/O请求的地址进行排序，而不是按照先来后到的顺序来进行响应。简单来说就是给所有同步进程分配时间片，然后才排队访问磁盘，CFQ的工作流程如图 3 所示 。</p>
-<p>图3 CFQ的工作流程</p>
-
-<p>Anticipatory的中文含义是”预料的，预想的”，顾名思义有个I/O发生的时候，如果又有进程请求I/O操作，则将产生一个默认的6毫秒猜测时间，猜测下一个进程请求I/O是要干什么的。这个I/O调度器对读操作优化服务时间，在提供一个I/O的时候进行短时间等待，使进程能够提交到另外的I/O。Anticipatory算法从Linux 2.6.33版本后被删除了，因为使用CFQ通过配置也能达到Anticipatory的效果。</p>
-<h4 id="4-DeadLine"><a href="#4-DeadLine" class="headerlink" title="4 DeadLine"></a>4 DeadLine</h4><p>Deadline翻译成中文是截止时间调度器，是对Linus Elevator的一种改进，它避免有些请求太长时间不能被处理。另外可以区分对待读操作和写操作。DEADLINE额外分别为读I/O和写I/O提供了FIFO队列。Deadline的工作流程如图 2 所示。</p>
-<p>图2 Deadline的工作流程</p>
-<img src="/2018/02/06/linux-file-system-schedule/image002.jpg" alt="image002.jpg" title="">
-<h4 id="5-ANTICIPATORY"><a href="#5-ANTICIPATORY" class="headerlink" title="5 ANTICIPATORY"></a>5 ANTICIPATORY</h4><p>CFQ和DEADLINE考虑的焦点在于满足零散IO请求上。对于连续的IO请求，比如顺序读，并没有做优化。为了满足随机IO和顺序IO混合的场景，Linux还支持ANTICIPATORY调度算法。ANTICIPATORY的在DEADLINE的基础上，为每个读IO都设置了6ms的等待时间窗口。如果在这6ms内OS收到了相邻位置的读IO请求，就可以立即满足。</p>
-<p>本质上与Deadline一样，但在最后一次读操作后，要等待6ms，才能继续进行对其它I/O请求进行调度。可以从应用程序中预订一个新的读请求，改进读操作的执行，但以一些写操作为代价。它会在每个6ms中插入新的I/O操作，而会将一些小写入流合并成一个大写入流，用写入延时换取最大的写入吞吐量。AS适合于写入较多的环境，比如文件服务器，但对对数据库环境表现很差。</p>
-<h3 id="I-O调度器的选择"><a href="#I-O调度器的选择" class="headerlink" title="I/O调度器的选择"></a>I/O调度器的选择</h3><p>目前主流Linux发行版本使用三种I/O调度器：DeadLine、CFQ、NOOP，通常来说Deadline适用于大多数环境,特别是写入较多的文件服务器，从原理上看，DeadLine是一种以提高机械硬盘吞吐量为思考出发点的调度算法，尽量保证在有I/O请求达到最终期限的时候进行调度，非常适合业务比较单一并且I/O压力比较重的业务，比如Web服务器，数据库应用等。CFQ 为所有进程分配等量的带宽,适用于有大量进程的多用户系统，CFQ是一种比较通用的调度算法，它是一种以进程为出发点考虑的调度算法，保证大家尽量公平,为所有进程分配等量的带宽,适合于桌面多任务及多媒体应用。NOOP 对于闪存设备和嵌入式系统是最好的选择。对于固态硬盘来说使用NOOP是最好的，DeadLine次之，而CFQ效率最低。</p>
-<p>查看Linux系统的 I/O调度器<br>查看Linux系统的I/O调度器一般分成两个部分，一个是查看Linux系统整体使用的I/O调度器，另一个是查看某磁盘使用的I/O调度器。</p>
-<p>查看当前系统支持的I/O调度器，使用如下命令：</p>
-<p>清单 1. 查看当前系统支持的I/O调度器</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-</pre></td><td class="code"><pre><span class="line"># dmesg | grep -i scheduler</span>
-<span class="line">[    1.508820] io scheduler noop registered</span>
-<span class="line">[    1.508827] io scheduler deadline registered</span>
-<span class="line">[    1.508850] io scheduler cfq registered (default)</span>
-</pre></td></tr></table></figure>
-<p>清单1的代码显示cfq是目前的I/O调度器。</p>
-<p>查看某块硬盘的IO调度算法I/O调度器，使用如下命令：</p>
-<p>清单2. 查看一个硬盘使用的I/O调度器</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line"># cat /sys/block/sda/queue/scheduler</span>
-<span class="line">noop deadline [cfq]</span>
-</pre></td></tr></table></figure>
-<p>清单2显示当前使用的调度器是cfq，就是括号括起来的那一个。</p>
-<h3 id="修改Linux系统的-I-O调度器"><a href="#修改Linux系统的-I-O调度器" class="headerlink" title="修改Linux系统的 I/O调度器"></a>修改Linux系统的 I/O调度器</h3><p>修改Linux系统的 I/O调度器有三种方法，分别是使用shell命令、使用grubby命令或者修改grub配置文件。下面依次介绍：</p>
-<h4 id="使用shell命令"><a href="#使用shell命令" class="headerlink" title="使用shell命令"></a>使用shell命令</h4><p>Linux下更改的I/O调度器很简单。不需要更新内核，可以使用shell命令修改：</p>
-<p>清单3. 查使用shell命令</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line">#echo noop &gt; /sys/block/sdb/queue/scheduler</span>
-</pre></td></tr></table></figure>
-<p>清单3的命令把noop设置为一个磁盘的I/O调度器，你可以随时更改而无需重启计算机。</p>
-<h4 id="永久修改默认的I-O调度器"><a href="#永久修改默认的I-O调度器" class="headerlink" title="永久修改默认的I/O调度器"></a>永久修改默认的I/O调度器</h4><p>使用shell命令修改I/O调度器，只是临时修改，系统重启后，修改的调度器就会失效，要想修改默认的调度器，有两种方法使用grubby命令或者直接编辑grub配置文件。</p>
-<p>使用grubby命令</p>
-<p>例如需要把I/O调度器从cfq调整成 DeadLine ，命令如下：</p>
-<p>清单4.使用grubby命令</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line"># grubby --grub --update-kernel=ALL --args=&quot;elevator=deadline&quot;</span>
-</pre></td></tr></table></figure>
-<p>清单4的命令，通过设置内核加载参数, 这样当机器重启的时候，系统自动把所有设备的 I/O调度器变成 DeadLine 。</p>
-<h4 id="使用编辑器修改配置文件"><a href="#使用编辑器修改配置文件" class="headerlink" title="使用编辑器修改配置文件"></a>使用编辑器修改配置文件</h4><p>也可以直接编辑grub的配置文件 ，通过修改grub配置文件，系统自动把所有设备的 I/O调度器变成cfq。操作过程如下：</p>
-<p>清单5 使用vi编辑器修改grub配置文件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-</pre></td><td class="code"><pre><span class="line">#vi cat /etc/default/grub</span>
-<span class="line">#修改第五行，在行尾添加#</span>
-<span class="line">elevator= cfq</span>
-<span class="line"> </span>
-<span class="line">然后保存文件，重新编译配置文件，</span>
-<span class="line">#grub2-mkconfig -o /boot/grub2/grub.cfg</span>
-</pre></td></tr></table></figure>
-<p>重新启动计算机系统即可。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>Linux I/O调度器是 Linux 内核中的一个组成部分，用户可以通过根据不同的存储器来设置 Linux I/O 调度器从而达到优化系统性能。 一般来说 NOOP 调度器最适合于固态硬盘，DeadLine 调度器适用于写入较多的文件服务器，比如Web服务器，数据库应用等，而CFQ 调度器适合于桌面多任务及媒体应用。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://access.redhat.com/solutions/109223" target="_blank" rel="external">红帽子知识库文章：How to use the Noop I/O Scheduler</a></p>
-<p><a href="http://product.china-pub.com/36767" target="_blank" rel="external">深入理解Linux内核(第三版) 原名: Understanding the Linux Kernel</a></p>
-<p><a href="http://www.361way.com/linux-iosched/4800.html" target="_blank" rel="external">RH442之linux IO调度（电梯算法）</a></p>
-<p><a href="http://www.cnblogs.com/cobbliu/p/5389556.html" target="_blank" rel="external">Linux IO Scheduler（Linux IO 调度器）</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本文转自：&lt;a href=&quot;https://www.ibm.com/developerworks/cn/linux/l-lo-io-scheduler-optimize-performance/index.html&quot;&gt;调整 Linux I/O 调度器优化系统性能&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;查看RocketMQ文档的过程中，提到了通过修改IO调度算法来提高RocketMQ的性能。网上找了一些文章，感觉IBM这个文章不错。&lt;/p&gt;
-&lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;p&gt;前言&lt;br&gt;Linux I/O 调度器是Linux内核中的一个组成部分，用户可以通过调整这个调度器来优化系统性能。本文首先介绍Linux I/O 调度器的结构，然后介绍如何根据不同的存储器来设置Linux I/O 调度器从而达到优化系统性能。&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="linux" scheme="https://leokongwq.github.io/tags/linux/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>基于openresty的后端应用健康检查-动态上下线</title>
-    <link href="https://leokongwq.github.io/2018/01/31/openresty-health-check-dynamic-up-down.html"/>
-    <id>https://leokongwq.github.io/2018/01/31/openresty-health-check-dynamic-up-down.html</id>
-    <published>2018-01-31T12:18:25.000Z</published>
-    <updated>2018-02-01T01:49:10.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>为了保证在应用发布期间不间断用户的请求，我们需要实现后端服务的动态上下线。同时为了在OPS管理台能看到某个应用各个Server结点的健康状态，我们需要后端节点的健康检查功能。基于openresty，这些功能都可以实现。</p>
-<a id="more"></a>
-<h3 id="健康检查"><a href="#健康检查" class="headerlink" title="健康检查"></a>健康检查</h3><p>实现健康检查，可以通过<code>lua-resty-upstream-healthcheck</code>来实现。</p>
-<p>具体配置如下：</p>
-<figure class="highlight"><figcaption><span>nginx.conf</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-<span class="line">22</span>
-<span class="line">23</span>
-<span class="line">24</span>
-<span class="line">25</span>
-<span class="line">26</span>
-<span class="line">27</span>
-<span class="line">28</span>
-<span class="line">29</span>
-<span class="line">30</span>
-<span class="line">31</span>
-<span class="line">32</span>
-<span class="line">33</span>
-<span class="line">34</span>
-<span class="line">35</span>
-<span class="line">36</span>
-<span class="line">37</span>
-<span class="line">38</span>
-<span class="line">39</span>
-<span class="line">40</span>
-<span class="line">41</span>
-<span class="line">42</span>
-<span class="line">43</span>
-<span class="line">44</span>
-<span class="line">45</span>
-</pre></td><td class="code"><pre><span class="line">## 指定共享内存</span>
-<span class="line">lua_shared_dict healthcheck 1m;</span>
-<span class="line"></span>
-<span class="line">## 在worker初始化过程中，启动定时器，进行后端结点的检查</span>
-<span class="line">init_worker_by_lua_block &#123;</span>
-<span class="line">   local hc = require "resty.upstream.healthcheck"</span>
-<span class="line">   local ok, err = hc.spawn_checker &#123;</span>
-<span class="line">       -- shm 表示共享内存区的名称，</span>
-<span class="line">       shm = "healthcheck",</span>
-<span class="line">       -- type 表示健康检查的类型， HTTP or TCP （目前只支持http）</span>
-<span class="line">       type = "http",    </span>
-<span class="line">       -- upstream 指定 upstream 配置的名称   </span>
-<span class="line">       upstream = "tomcat",</span>
-<span class="line">       -- 如果是http类型，指定健康检查发送的请求的URL</span>
-<span class="line">       http_req = "GET /health.txt HTTP/1.0\r\nHost: tomcat\r\n\r\n",</span>
-<span class="line">       -- 请求间隔时间，默认是 1 秒。最小值为 2毫秒</span>
-<span class="line">       interval = 2000,</span>
-<span class="line">       -- 请求的超时时间。 默认值为：1000 毫秒</span>
-<span class="line">       timeout = 5000,</span>
-<span class="line">       -- 失败多少次后，将节点标记为down。 默认值为 5</span>
-<span class="line">       fall = 3, </span>
-<span class="line">       -- 成功多少次后，将节点标记为up。默认值为 2</span>
-<span class="line">       rise = 2,</span>
-<span class="line">       -- 返回的http状态码，表示应用正常</span>
-<span class="line">       valid_statuses = &#123;200, 302&#125;,</span>
-<span class="line">       -- 并发度， 默认值为 1</span>
-<span class="line">       concurrency = 1,</span>
-<span class="line">   &#125;</span>
-<span class="line"> </span>
-<span class="line">   if not ok then</span>
-<span class="line">       ngx.log(ngx.ERR, "=======&gt; failed to spawn health checker: ", err)</span>
-<span class="line">       return</span>
-<span class="line">   end</span>
-<span class="line">&#125;</span>
-<span class="line"></span>
-<span class="line"># 配置监控检查访问页面</span>
-<span class="line">location /server/status &#123;</span>
-<span class="line">  access_log off;</span>
-<span class="line">  default_type text/plain;</span>
-<span class="line">  content_by_lua_block &#123;</span>
-<span class="line">      local hc = require "resty.upstream.healthcheck"</span>
-<span class="line">      ngx.say("Nginx Worker PID: ", ngx.worker.pid())</span>
-<span class="line">      ngx.print(hc.status_page())</span>
-<span class="line">  &#125;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<h3 id="节点上下线"><a href="#节点上下线" class="headerlink" title="节点上下线"></a>节点上下线</h3><p>该功能利用了<code>lua-upstream-nginx-module</code>模块来实现，提供REST分割API来获取upstream的信息，上下线指定upstream下的server。具体看下面的代码：</p>
-<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-</pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置 upstream管理地址</span></span>
-<span class="line"><span class="attribute">location</span> /upstreams &#123;</span>
-<span class="line">  <span class="attribute">default_type</span> text/plain;</span>
-<span class="line">  <span class="attribute">content_by_lua_file</span> /Users/leo/workspace/lua/upstream.lua;</span>
-<span class="line"></span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>upstreams http API lua 代码:</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-<span class="line">22</span>
-<span class="line">23</span>
-<span class="line">24</span>
-<span class="line">25</span>
-<span class="line">26</span>
-<span class="line">27</span>
-<span class="line">28</span>
-<span class="line">29</span>
-<span class="line">30</span>
-<span class="line">31</span>
-<span class="line">32</span>
-<span class="line">33</span>
-<span class="line">34</span>
-<span class="line">35</span>
-<span class="line">36</span>
-<span class="line">37</span>
-<span class="line">38</span>
-<span class="line">39</span>
-<span class="line">40</span>
-<span class="line">41</span>
-<span class="line">42</span>
-<span class="line">43</span>
-<span class="line">44</span>
-<span class="line">45</span>
-<span class="line">46</span>
-<span class="line">47</span>
-<span class="line">48</span>
-<span class="line">49</span>
-<span class="line">50</span>
-<span class="line">51</span>
-<span class="line">52</span>
-<span class="line">53</span>
-<span class="line">54</span>
-<span class="line">55</span>
-<span class="line">56</span>
-<span class="line">57</span>
-<span class="line">58</span>
-<span class="line">59</span>
-<span class="line">60</span>
-<span class="line">61</span>
-<span class="line">62</span>
-<span class="line">63</span>
-<span class="line">64</span>
-<span class="line">65</span>
-<span class="line">66</span>
-<span class="line">67</span>
-<span class="line">68</span>
-<span class="line">69</span>
-<span class="line">70</span>
-<span class="line">71</span>
-<span class="line">72</span>
-<span class="line">73</span>
-<span class="line">74</span>
-<span class="line">75</span>
-<span class="line">76</span>
-<span class="line">77</span>
-<span class="line">78</span>
-<span class="line">79</span>
-<span class="line">80</span>
-<span class="line">81</span>
-<span class="line">82</span>
-<span class="line">83</span>
-<span class="line">84</span>
-<span class="line">85</span>
-<span class="line">86</span>
-<span class="line">87</span>
-<span class="line">88</span>
-<span class="line">89</span>
-<span class="line">90</span>
-<span class="line">91</span>
-<span class="line">92</span>
-<span class="line">93</span>
-<span class="line">94</span>
-<span class="line">95</span>
-<span class="line">96</span>
-<span class="line">97</span>
-<span class="line">98</span>
-<span class="line">99</span>
-<span class="line">100</span>
-<span class="line">101</span>
-<span class="line">102</span>
-<span class="line">103</span>
-<span class="line">104</span>
-<span class="line">105</span>
-<span class="line">106</span>
-<span class="line">107</span>
-<span class="line">108</span>
-<span class="line">109</span>
-<span class="line">110</span>
-<span class="line">111</span>
-<span class="line">112</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> cjson = <span class="built_in">require</span> <span class="string">"cjson"</span></span>
-<span class="line"><span class="keyword">local</span> hc = <span class="built_in">require</span> <span class="string">"resty.upstream.healthcheck"</span></span>
-<span class="line"></span>
-<span class="line"><span class="keyword">local</span> concat = <span class="built_in">table</span>.concat</span>
-<span class="line"><span class="keyword">local</span> upstream = <span class="built_in">require</span> <span class="string">"ngx.upstream"</span></span>
-<span class="line"><span class="keyword">local</span> get_servers = upstream.get_servers</span>
-<span class="line"><span class="keyword">local</span> get_upstreams = upstream.get_upstreams</span>
-<span class="line"><span class="keyword">local</span> get_primary_peers = upstream.get_primary_peers</span>
-<span class="line"><span class="keyword">local</span> get_backup_peers = upstream.get_backup_peers</span>
-<span class="line"><span class="keyword">local</span> set_peer_down = upstream.set_peer_down</span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- 字符串分隔方法</span></span>
-<span class="line"><span class="function"><span class="keyword">function</span> <span class="title">string:split</span><span class="params">(sep)</span></span>  </span>
-<span class="line">	<span class="keyword">local</span> sep, fields = sep <span class="keyword">or</span> <span class="string">":"</span>, &#123;&#125;  </span>
-<span class="line">	<span class="keyword">local</span> pattern = <span class="built_in">string</span>.format(<span class="string">"([^%s]+)"</span>, sep)  </span>
-<span class="line">	self:gsub(pattern, <span class="function"><span class="keyword">function</span> <span class="params">(c)</span></span> fields[#fields + <span class="number">1</span>] = c <span class="keyword">end</span>)  </span>
-<span class="line">	<span class="keyword">return</span> fields  </span>
-<span class="line"><span class="keyword">end</span> </span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- get all upstream config block </span></span>
-<span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">get_all_upstream</span><span class="params">()</span></span></span>
-<span class="line">	<span class="keyword">local</span> us = get_upstreams()</span>
-<span class="line">	<span class="keyword">local</span> upstreams = &#123;&#125;</span>
-<span class="line">	</span>
-<span class="line">	<span class="keyword">for</span> _, u <span class="keyword">in</span> <span class="built_in">ipairs</span>(us) <span class="keyword">do</span></span>
-<span class="line">		<span class="keyword">local</span> srvs = get_servers(u)</span>
-<span class="line">		upstreams[u] = srvs</span>
-<span class="line">	<span class="keyword">end</span>		</span>
-<span class="line">	</span>
-<span class="line">	<span class="keyword">return</span> upstreams	</span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- 获取某个upstream下的所有Server</span></span>
-<span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">get_servers_by_upstream_name</span><span class="params">(upstream_name)</span></span></span>
-<span class="line">	<span class="keyword">local</span> up = get_all_upstream()[upstream_name]</span>
-<span class="line">	<span class="keyword">if</span> <span class="keyword">not</span> up <span class="keyword">then</span></span>
-<span class="line">		<span class="keyword">return</span> &#123;&#125;</span>
-<span class="line">	<span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line">	<span class="keyword">return</span> up	</span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- 获取所有的 peer</span></span>
-<span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">get_all_peers</span><span class="params">(upstream_name)</span></span></span>
-<span class="line">	<span class="keyword">local</span> primary_peers = get_primary_peers(upstream_name)</span>
-<span class="line"><span class="comment">--	local backup_peers = get_backup_peers(upstream_name)</span></span>
-<span class="line"><span class="comment">--	</span></span>
-<span class="line"><span class="comment">--	local primary_cnt = table.getn(primary_peers)</span></span>
-<span class="line"><span class="comment">--	local backup_cnt = table.getn(backup_peers)</span></span>
-<span class="line"><span class="comment">--		</span></span>
-<span class="line"><span class="comment">--	local total = table.getn(primary_peers) + table.getn(backup_peers)</span></span>
-<span class="line"><span class="comment">--	local all_peers = &#123;&#125;</span></span>
-<span class="line"><span class="comment">--	</span></span>
-<span class="line"><span class="comment">--	for i = primary_cnt + 1, total do</span></span>
-<span class="line"><span class="comment">--		backup_peers[i - primary_cnt]["backup"] = true</span></span>
-<span class="line"><span class="comment">--		table.insert(primary_peers, i, backup_peers[i - primary_cnt])</span></span>
-<span class="line"><span class="comment">--	end</span></span>
-<span class="line"><span class="comment">--	</span></span>
-<span class="line">	<span class="keyword">return</span> primary_peers</span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- 操作Server节点上下线</span></span>
-<span class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">op_server</span><span class="params">(upstream_name, server_name, op)</span></span></span>
-<span class="line">	<span class="comment">-- ngx.say(cjson.encode(get_all_peers(upstream_name)))</span></span>
-<span class="line">	<span class="keyword">local</span> all_peers = get_all_peers(upstream_name)</span>
-<span class="line">	<span class="keyword">for</span> i, peer <span class="keyword">in</span> <span class="built_in">ipairs</span>(all_peers) <span class="keyword">do</span> </span>
-<span class="line">		<span class="keyword">if</span> peer[<span class="string">"name"</span>] == server_name <span class="keyword">then</span></span>
-<span class="line">			target_peer = peer</span>
-<span class="line">			<span class="keyword">break</span></span>
-<span class="line">		<span class="keyword">end</span></span>
-<span class="line">	<span class="keyword">end</span> </span>
-<span class="line">	</span>
-<span class="line">	<span class="keyword">if</span> target_peer == <span class="keyword">nil</span> <span class="keyword">then</span></span>
-<span class="line">		ngx.say(cjson.encode(&#123;code = <span class="string">"E00001"</span>, msg = <span class="string">"error peer name"</span>&#125;))	</span>
-<span class="line">	<span class="keyword">else</span></span>
-<span class="line">		<span class="keyword">if</span> op == <span class="string">"down"</span> <span class="keyword">then</span></span>
-<span class="line">			down_value = <span class="keyword">true</span></span>
-<span class="line">		<span class="keyword">else</span></span>
-<span class="line">			down_value = <span class="keyword">false</span></span>
-<span class="line">		<span class="keyword">end</span></span>
-<span class="line">		</span>
-<span class="line">		<span class="keyword">local</span> is_back_up = target_peer[<span class="string">"backup"</span>] <span class="keyword">or</span> <span class="keyword">false</span></span>
-<span class="line">		set_peer_down(upstream_name, is_back_up, target_peer[<span class="string">"id"</span>], down_value)		</span>
-<span class="line">		ngx.say(cjson.encode(&#123;code = <span class="string">"A00000"</span>, msg = <span class="string">"Success"</span>&#125;))	</span>
-<span class="line">	<span class="keyword">end</span></span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line"><span class="keyword">local</span> http_method = ngx.req.get_method()</span>
-<span class="line"><span class="keyword">local</span> sub_uris = ngx.var.uri:split(<span class="string">"/"</span>)</span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- 节点上下线</span></span>
-<span class="line"><span class="keyword">if</span> <span class="built_in">table</span>.getn(sub_uris) == <span class="number">4</span> <span class="keyword">then</span></span>
-<span class="line">	op_server(sub_uris[<span class="number">2</span>], sub_uris[<span class="number">3</span>], sub_uris[<span class="number">4</span>])</span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- 获取master or backup nodes</span></span>
-<span class="line"><span class="keyword">if</span> <span class="built_in">table</span>.getn(sub_uris) == <span class="number">3</span> <span class="keyword">then</span></span>
-<span class="line">	<span class="keyword">if</span> sub_uris[<span class="number">3</span>] == <span class="string">"primary"</span> <span class="keyword">then</span></span>
-<span class="line">		ngx.say(cjson.encode(get_primary_peers(sub_uris[<span class="number">2</span>])))</span>
-<span class="line">	<span class="keyword">else</span></span>
-<span class="line">		ngx.say(cjson.encode(get_backup_peers(sub_uris[<span class="number">2</span>])))</span>
-<span class="line">	<span class="keyword">end</span></span>
-<span class="line">	ngx.exit(ngx.HTTP_OK)</span>
-<span class="line"><span class="keyword">end</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment">-- 获取所有upstream or 指定名称的upstream</span></span>
-<span class="line"><span class="keyword">if</span> sub_uris[<span class="number">2</span>] <span class="keyword">then</span></span>
-<span class="line">	ngx.say(cjson.encode(get_all_peers(sub_uris[<span class="number">2</span>])))	</span>
-<span class="line"><span class="keyword">else</span></span>
-<span class="line">	ngx.say(cjson.encode(get_all_upstream()))</span>
-<span class="line"><span class="keyword">end</span></span>
-</pre></td></tr></table></figure>
-<p>提供的API有：</p>
-<h4 id="获取所有的upstream的信息"><a href="#获取所有的upstream的信息" class="headerlink" title="获取所有的upstream的信息"></a>获取所有的upstream的信息</h4><p><a href="http://localhost/upstreams" target="_blank" rel="external">http://localhost/upstreams</a> </p>
-<h4 id="获取指定upstream的信息"><a href="#获取指定upstream的信息" class="headerlink" title="获取指定upstream的信息"></a>获取指定upstream的信息</h4><p><a href="http://localhost/upstreams/{upstream_name}" target="_blank" rel="external">http://localhost/upstreams/{upstream_name}</a></p>
-<h4 id="获取指定upstream下指定server-name的节点信息"><a href="#获取指定upstream下指定server-name的节点信息" class="headerlink" title="获取指定upstream下指定server_name的节点信息"></a>获取指定upstream下指定server_name的节点信息</h4><p><a href="http://localhost/upstreams/{upstream_name}/{server_name}" target="_blank" rel="external">http://localhost/upstreams/{upstream_name}/{server_name}</a></p>
-<h4 id="指定upstream下指定server-name节点上下线"><a href="#指定upstream下指定server-name节点上下线" class="headerlink" title="指定upstream下指定server_name节点上下线"></a>指定upstream下指定server_name节点上下线</h4><p><a href="http://localhost/upstreams/{upstream_name}/{server_name}/down" target="_blank" rel="external">http://localhost/upstreams/{upstream_name}/{server_name}/down</a></p>
-<p><a href="http://localhost/upstreams/{upstream_name}/{server_name}/up" target="_blank" rel="external">http://localhost/upstreams/{upstream_name}/{server_name}/up</a></p>
-<p>有了这些个API，就有了在OPS控制台远程控制节点上下线的能力。通过和发布系统的配合，在节点发布时，先进行下线操作，指定时间间隔（处理完目前的请求，无流量后进行发布）后再发布。</p>
-<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><p>能不能实现节点平滑的上下线， 一定要用测试结果说话。 下面是一段<a href="http://gatling.io" target="_blank" rel="external">gatling</a>的压测脚本。</p>
-<p>以<code>50req/s</code>的速率发送请求，持续时间为30秒。如果整个压测过程中，在动态下线某个节点后，没有出现失败的请求，那就可以说明平滑的上下线是成功的。</p>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-<span class="line">22</span>
-<span class="line">23</span>
-<span class="line">24</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> qiyueorder</span>
-<span class="line"></span>
-<span class="line"><span class="keyword">import</span> io.gatling.core.<span class="type">Predef</span>._</span>
-<span class="line"><span class="keyword">import</span> io.gatling.http.<span class="type">Predef</span>._</span>
-<span class="line"><span class="keyword">import</span> scala.concurrent.duration._</span>
-<span class="line"></span>
-<span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AccessLimit</span> <span class="keyword">extends</span> <span class="title">Simulation</span> </span>&#123;</span>
-<span class="line"></span>
-<span class="line">	<span class="keyword">val</span> httpConf = http</span>
-<span class="line">		.baseURL(<span class="string">"http://i.vip.iqiyi.com/"</span>)</span>
-<span class="line">		.acceptHeader(<span class="string">"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"</span>)</span>
-<span class="line">		.doNotTrackHeader(<span class="string">"1"</span>)</span>
-<span class="line">		.acceptLanguageHeader(<span class="string">"zh-CN,en;q=0.5"</span>)</span>
-<span class="line">		.acceptEncodingHeader(<span class="string">"gzip, deflate"</span>)</span>
-<span class="line">		.userAgentHeader(<span class="string">"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0"</span>)</span>
-<span class="line"></span>
-<span class="line">	 <span class="keyword">val</span> uri = <span class="string">"/pay/h5/paytype.action"</span></span>
-<span class="line">	 <span class="keyword">val</span> scn = scenario(<span class="string">"qiyue-api限流组件压测"</span>).exec(http(<span class="string">"queryOrderStat"</span>).get(uri))</span>
-<span class="line"></span>
-<span class="line">	setUp(</span>
-<span class="line">		scn.inject(constantUsersPerSec(<span class="number">50</span>) during(<span class="number">30</span> seconds))</span>
-<span class="line">		<span class="comment">//scn.inject(atOnceUsers(50))</span></span>
-<span class="line">	).protocols(httpConf)</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://github.com/cubicdaiya/ngx_dynamic_upstream" target="_blank" rel="external">https://github.com/cubicdaiya/ngx_dynamic_upstream</a><br><a href="https://github.com/openresty/lua-upstream-nginx-module" target="_blank" rel="external">https://github.com/openresty/lua-upstream-nginx-module</a><br><a href="https://github.com/openresty/lua-resty-upstream-healthcheck" target="_blank" rel="external">https://github.com/openresty/lua-resty-upstream-healthcheck</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;为了保证在应用发布期间不间断用户的请求，我们需要实现后端服务的动态上下线。同时为了在OPS管理台能看到某个应用各个Server结点的健康状态，我们需要后端节点的健康检查功能。基于openresty，这些功能都可以实现。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="web" scheme="https://leokongwq.github.io/categories/web/"/>
-    
-    
-      <category term="openresty" scheme="https://leokongwq.github.io/tags/openresty/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>TCP状态转化总结</title>
-    <link href="https://leokongwq.github.io/2018/01/30/tcp-state-transfer-diagram.html"/>
-    <id>https://leokongwq.github.io/2018/01/30/tcp-state-transfer-diagram.html</id>
-    <published>2018-01-30T14:30:24.000Z</published>
-    <updated>2018-02-06T05:32:58.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>文章转载自：<a href="http://blog.csdn.net/wenqian1991/article/details/39667131" target="_blank" rel="external">TCP的三次握手和四次挥手</a></p>
-<h3 id="TCP连接建立过程——三次握手"><a href="#TCP连接建立过程——三次握手" class="headerlink" title="TCP连接建立过程——三次握手"></a>TCP连接建立过程——三次握手</h3><ul>
-<li>第一次握手：客户端发送位码为 SYN = 1（SYN 标志位置位），随机产生初始序列号 Seq = J 的数据包到服务器。服务器由 SYN = 1（置位）知道，客户端要求建立联机。</li>
-<li>第二次握手：服务器收到请求后要确认联机信息，向客户端发送确认号Ack = （客户端的Seq +1，J+1），SYN = 1，ACK = 1（SYN，ACK 标志位置位），随机产生的序列号 Seq = K 的数据包。</li>
-<li>第三次握手：客户端收到后检查 Ack 是否正确，即第一次发送的 Seq +1（J+1），以及位码ACK是否为1。若正确，客户端会再发送 Ack = （服务器端的Seq+1，K+1），ACK = 1，以及序号Seq为服务器确认号J 的确认包。服务器收到后确认之前发送的 Seq（K+1） 值与 ACK= 1 （ACK置位）则连接建立成功。</li>
+<p>ClientRequest</p>
+<pre><code class="java"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">ClientRequest</span> </span>{
+    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">long</span> createdTimeMs;
+    <span class="comment">// 需要进行确认</span>
+    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> expectResponse;
+    <span class="keyword">private</span> <span class="keyword">final</span> RequestSend request;
+    <span class="comment">// 回调</span>
+    <span class="keyword">private</span> <span class="keyword">final</span> RequestCompletionHandler callback;
+    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> isInitiatedByNetworkClient;
+    <span class="keyword">private</span> <span class="keyword">long</span> sendTimeMs;
+}
+</code></pre>
+<h2 id="Producer不丢失消息配置"><a href="#Producer不丢失消息配置" class="headerlink" title="Producer不丢失消息配置"></a>Producer不丢失消息配置</h2><ul>
+<li>同步发送。 类似：producer.send(record).get();</li>
+<li>block.on.buffer.full = true</li>
+<li>acks = all</li>
+<li>retries = MAX_VALUE</li>
+<li>max.in.flight.requests.per.connection = 1</li>
+<li>使用KafkaProducer.send(record, callback)</li>
+<li>callback逻辑中显式关闭producer：close(0) </li>
+<li>replication.factor &gt;= 3</li>
+<li>min.insync.replicas &gt; 1 消息至少要被写入到这么多副本才算成功，也是提升数据持久性的一个参数。与acks配合使用<br>保证replication.factor &gt; min.insync.replicas  如果两者相等，当一个副本挂掉了分区也就没法正常工作了。通常设置replication.factor = min.insync.replicas + 1即可</li>
 </ul>
-<a id="more"></a>
-<p>经过了这三步之后，客户端与服务器端就成功建立起一个 TCP连接。这三个步骤统称为三次握手。</p>
-<p>（上面Seq表示序列号，Ack表示确认号，SYN和ACK以及FIN等都是标志位。ACK 被设置为 1表示确认号字段是有效的，如果 ACK为 0，则该段不包含确认信息。SYN 被用于建立连接过程，在连接请求中，SYN = 1 和 ACK = 0 表示该段没有捎带确认字段。连接应答会捎带一个确认，所以应答时会有 SYN= 1 和 ACK= 1。另外发送ACK无需任何代价，所以我们会看到一旦一个连接建立起来，ACK标志总是被置为1）</p>
-<img src="/2018/01/30/tcp-state-transfer-diagram/20141003170103720.bmp" alt="20141003170103720.bmp" title="">
-<p>从上图可以看出，当客户端调用connect 时，触发了连接请求，向服务器发送了 SYN J包，这时 connect 进入阻塞状态；服务器监听到连接请求，即收到 SYN J包，调用 accept函数接收请求向客户端发送 SYN K，ACK J+1，这时 accept 进入阻塞状态，客户端收到服务器的 SYN K，ACK J+1之后，这时 connect 返回，并对 SYN K 进行确认，服务器收到 ACK K+1时，accept返回，至此三次握手完毕，连接建立。可以得知：<strong>客户端的 connect在三次握手的第二次返回，而服务器端的 accept在三次握手的第三次返回。</strong></p>
-<h3 id="为什么是三次握手："><a href="#为什么是三次握手：" class="headerlink" title="为什么是三次握手："></a>为什么是三次握手：</h3><p>有讲到“三次握手”的目的是“为了防止已失效的连接请求报文段突然又传送到了服务端，因而产生错误”。<br>这样说明“已失效的连接请求报文段”的产生在这样一种情况下：client发出的第一个连接请求报文段并没有丢失，而是在某个网络结点长时间的滞留了，以致延误到连接释放以后的某个时间才到达server。本来这是一个早已失效的报文段。但server收到此失效的连接请求报文段后，就误认为是client再次发出的一个新的连接请求。于是就向client发出确认报文段，同意建立连接。假设不采用“三次握手”，那么只要server发出确认，新的连接就建立了。由于现在client并没有发出建立连接的请求，因此不会理睬server的确认，也不会向server发送数据。但server却以为新的运输连接已经建立，并一直等待client发来数据。这样，server的很多资源就白白浪费掉了。采用“三次握手”的办法可以防止上述现象发生。例如刚才那种情况，client不会向server的确认发出确认。server由于收不到确认，就知道client并没有要求建立连接。”</p>
-<p>下面用抓包工具 Wireshark 实际分析下三次握手的过程，这里是登陆一个网址，然后Wireshark 过滤http 找到与浏览器打开该网站相关的数据包。</p>
-<p>连接的是 HTTP 服务器，可以看到其端口号正是80，客户端的端口号则是随机的。红色框框标记的则是三次握手过程，下面具体来看</p>
-<img src="/2018/01/30/tcp-state-transfer-diagram/20141015150458984.bmp" alt="20141015150458984.bmp" title="">
-<h4 id="第一次握手数据包："><a href="#第一次握手数据包：" class="headerlink" title="第一次握手数据包："></a>第一次握手数据包：</h4><img src="/2018/01/30/tcp-state-transfer-diagram/first_shake_hand.bmp" alt="first_shake_hand.bmp" title="">
-<p>客户端发送一个TCP，标志位SYN置位，序列号为4225926656（默认是相对序列号，可以在Wireshark中protocol preference 设置Absolute Number，显示真正的序列号）。表示客户端请求建立连接。</p>
-<h4 id="第二次握手数据包："><a href="#第二次握手数据包：" class="headerlink" title="第二次握手数据包："></a>第二次握手数据包：</h4><img src="/2018/01/30/tcp-state-transfer-diagram/secend-hand-shake.bmp" alt="secend-hand-shake.bmp" title="">
-<p>看源端口和目的端口。服务器发回确认包，标志位SYN和ACK置位，将确认序号Ack设置为客户的ISN（初始序号）+1，为4225926657，同时发送序列号为3022381253。</p>
-<h4 id="第三次握手数据包"><a href="#第三次握手数据包" class="headerlink" title="第三次握手数据包"></a>第三次握手数据包</h4><img src="/2018/01/30/tcp-state-transfer-diagram/third-hand-shake.bmp" alt="third-hand-shake.bmp" title="">
-<p>客户端再次发送确认包，其中ACK置位，确认序号Ack设置为服务器发过来的序号Seq+1，为3022381254，并发送序号=服务器发过来的确认号。</p>
-<p>对于建连接的三次握手，主要是初始化Seq的值。通信的双方要互相通知对方自己的初始化的Seq（ISN），这个号（上面的K，J）作为以后的数据通信的序号，以保证应用层接收到的数据不会因为网络上的传输问题而乱序，TCP会用这个序号来拼接数据。</p>
-<h3 id="TCP连接终止过程——四次挥手"><a href="#TCP连接终止过程——四次挥手" class="headerlink" title="TCP连接终止过程——四次挥手"></a>TCP连接终止过程——四次挥手</h3><p>由于TCP连接是全双工的，因此每个方向都必须单独进行关闭，也就是发送方和接收方都需要Fin和Ack。这个原则是当一方完成它的数据发送任务后就能发送一个FIN来终止这个方向的连接，收到一个FIN只意味着这一方向上没有数据流动，一个TCP连接在收到一个FIN后仍能发送数据。首先进行关闭的一方将执行主动关闭，而另一方执行被动关闭。</p>
-<p>这里我们假定客户端主动关闭（实际上谁先执行主动关闭没本质区别，通话结束了，谁先挂断没啥区别）</p>
-<p>客户端发送一个FIN Seq = M（FIN置位，序号为M）包，用来关闭客户端到服务器端的数据传送。<br>服务器端收到这个FIN，它发回一个ACK，确认序号Ack 为收到的序号M+1。<br>服务器端关闭与客户端的连接，发送一个FIN Seq = N 给客户端。<br>客户端发回ACK 报文确认，确认序号Ack 为收到的序号N+1。</p>
-<img src="/2018/01/30/tcp-state-transfer-diagram/tcp_close_state_transfer.bmp" alt="tcp_close_state_transfer.bmp" title="">
-<p>对于四次挥手，其实仔细看是两次，因为TCP是全双工的，必须双方都关闭才可以，单方会有两次，共有四次。终止的时候，有一方是被动的，所以看上去就成了四次挥手。</p>
-<p>前面有说道，一旦连接建立起来，ACK标志位总是被置为1。所以我们在下图可以看到TCP建立连接之后，ACK总是被置为1的。</p>
-<img src="/2018/01/30/tcp-state-transfer-diagram/tcp_close_four_wireshark.bmp" alt="tcp_close_four_wireshark.bmp" title="">
-<p>关闭连接过程主要看FIN标志位是否置位，ACK在连接建立成功之后都是置为1的。</p>
-<p>上面Wireshark抓包是服务器端先执行主动关闭。</p>
-<p>第一次挥手：服务器端发起主动关闭，FIN置位，Seq = 3022381791；</p>
-<p>第二次挥手：客户端收到FIN后，发回ACK，Ack = Seq + 1 = 3022381792；至此服务器端的连接关闭了，接下来还需要关闭客户端的。</p>
-<p>第三次挥手：客户端发送FIN，Seq = 4225929031；</p>
-<p>第四次挥手：服务器端收到FIN后，发回ACK，Ack = Seq + 1 = 4225929032.这样客户端的连接也关闭了。至此全双工的TCP连接关闭。</p>
-<p>另外通过下面的截图可以发现：数据传输中的 Sequence Number 的增加是和传输字节数相关的。</p>
-<img src="/2018/01/30/tcp-state-transfer-diagram/20141015152915479.bmp" alt="20141015152915479.bmp" title="">
+<p>解释：</p>
+<ol>
+<li>block.on.buffer.full ： 使得producer将一直等待缓冲区直至其变为可用</li>
+<li>acks ： 所有follower都响应了才认为消息提交成功，即”committed”</li>
+<li>retries = MAX ： 无限重试</li>
+<li>max.in.flight.requests.per.connection=1 ： 限制客户端在单个连接上能够发送的未响应请求的个数。<br>设置此值是1表示kafka broker在响应请求之前client不能再向同一个broker发送请求。注意：设置此参数是为了避免消息乱序</li>
+<li>使用<code>KafkaProducer.send(record, callback)</code>而不是<code>send(record)</code>方法   自定义回调逻辑处理消息发送失败<br>callback逻辑中最好显式关闭<code>producer：close(0)</code></li>
+<li>unclean.leader.election.enable=false  关闭unclean leader选举，即不允许非ISR中的副本被选举为leader，以避免数据丢失</li>
+<li>replication.factor &gt;= 3 业界通用的设置，每个Partition的副本大于等于3</li>
+<li>min.insync.replicas &gt; 1 消息至少要被写入到这么多副本才算成功，也是提升数据持久性的一个参数。与acks配合使用<br>保证replication.factor &gt; min.insync.replicas  如果两者相等，当一个副本挂掉了分区也就没法正常工作了。通常设置replication.factor = min.insync.replicas + 1即可</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li>Kafka的消息发送是异步的。</li>
+<li>Kafka提供了插件机制来扩展消息的发送流程，可以通过配置<code>interceptor.classes</code>来指定消息过滤器，在消息发送前对消息做特殊处理。</li>
+<li>Kafka消息在通过网络发送前会累积在内存中（通过<code>RecordAccumulator</code>）。</li>
+<li>通过配置<code>max.in.flight.requests.per.connection = 1</code> 可以让Kafka一次只发送一条消息，只有在上条消息ack后才发送下一条消息</li>
+</ol>
 ]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;文章转载自：&lt;a href=&quot;http://blog.csdn.net/wenqian1991/article/details/39667131&quot;&gt;TCP的三次握手和四次挥手&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&quot;TCP连接建立过程——三次握手&quot;&gt;&lt;a href=&quot;#TCP连接建立过程——三次握手&quot; class=&quot;headerlink&quot; title=&quot;TCP连接建立过程——三次握手&quot;&gt;&lt;/a&gt;TCP连接建立过程——三次握手&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;第一次握手：客户端发送位码为 SYN = 1（SYN 标志位置位），随机产生初始序列号 Seq = J 的数据包到服务器。服务器由 SYN = 1（置位）知道，客户端要求建立联机。&lt;/li&gt;
-&lt;li&gt;第二次握手：服务器收到请求后要确认联机信息，向客户端发送确认号Ack = （客户端的Seq +1，J+1），SYN = 1，ACK = 1（SYN，ACK 标志位置位），随机产生的序列号 Seq = K 的数据包。&lt;/li&gt;
-&lt;li&gt;第三次握手：客户端收到后检查 Ack 是否正确，即第一次发送的 Seq +1（J+1），以及位码ACK是否为1。若正确，客户端会再发送 Ack = （服务器端的Seq+1，K+1），ACK = 1，以及序号Seq为服务器确认号J 的确认包。服务器收到后确认之前发送的 Seq（K+1） 值与 ACK= 1 （ACK置位）则连接建立成功。&lt;/li&gt;
-&lt;/ul&gt;
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;前面的一篇文章分析了消息发送时topic分区选择的问题，本文就分析一下后续的发送逻辑。&lt;/p&gt;
+&lt;h2 id=&quot;消息发送涉及的类&quot;&gt;&lt;a href=&quot;#消息发送涉及的类&quot; class=&quot;headerlink&quot; title=&quot;消息发送涉及的类&quot;&gt;&lt;/a&gt;消息发送涉及的类&lt;/h2&gt;&lt;h3 id=&quot;Producer&quot;&gt;&lt;a href=&quot;#Producer&quot; class=&quot;headerlink&quot; title=&quot;Producer&quot;&gt;&lt;/a&gt;Producer&lt;/h3&gt;&lt;p&gt;&lt;code&gt;Producer&lt;/code&gt;类是Kafka消息的发送的入口&lt;/p&gt;
+&lt;h3 id=&quot;ProducerFactory&quot;&gt;&lt;a href=&quot;#ProducerFactory&quot; class=&quot;headerlink&quot; title=&quot;ProducerFactory&quot;&gt;&lt;/a&gt;ProducerFactory&lt;/h3&gt;&lt;p&gt;&lt;code&gt;ProducerFactory&lt;/code&gt; 是一个策略接口，用来创佳&lt;code&gt;Producer&lt;/code&gt;, 默认的实现是：&lt;code&gt;DefaultKafkaProducerFactory&lt;/code&gt;,其创建&lt;br&gt;的&lt;code&gt;Producer&lt;/code&gt;是&lt;code&gt;CloseSafeProducer&lt;/code&gt;, &lt;code&gt;CloseSafeProducer&lt;/code&gt;是&lt;code&gt;KafkaProducer&lt;/code&gt;的一个代理类。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;DefaultKafkaProducerFactory&lt;/code&gt; 的构造方法接收一个Map对象，用来指的创建&lt;code&gt;Producer&lt;/code&gt;的配置。&lt;/p&gt;
+&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;DefaultKafkaProducerFactory&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(Map&amp;lt;String, Object&amp;gt; configs)&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;(configs, &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;, &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;DefaultKafkaProducerFactory&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(Map&amp;lt;String, Object&amp;gt; configs, Serializer&amp;lt;K&amp;gt; keySerializer,&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;		Serializer&amp;lt;V&amp;gt; valueSerializer)&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.configs = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; HashMap&amp;lt;&amp;gt;(configs);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.keySerializer = keySerializer;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.valueSerializer = valueSerializer;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h3 id=&quot;KafkaTemplate&quot;&gt;&lt;a href=&quot;#KafkaTemplate&quot; class=&quot;headerlink&quot; title=&quot;KafkaTemplate&quot;&gt;&lt;/a&gt;KafkaTemplate&lt;/h3&gt;&lt;p&gt;&lt;code&gt;KafkaTemplate&lt;/code&gt;是一个模板类，提供了操作Kafka的高级Api。&lt;/p&gt;
+&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; KafkaTemplate&amp;lt;Integer, String&amp;gt; &lt;span class=&quot;title&quot;&gt;createTemplate&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	Map&amp;lt;String, Object&amp;gt; senderProps = senderProps();&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	ProducerFactory&amp;lt;Integer, String&amp;gt; pf =&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;			&lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; DefaultKafkaProducerFactory&amp;lt;&amp;gt;(senderProps);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	KafkaTemplate&amp;lt;Integer, String&amp;gt; template = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; KafkaTemplate&amp;lt;&amp;gt;(pf);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; template;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h2 id=&quot;发送消息实例&quot;&gt;&lt;a href=&quot;#发送消息实例&quot; class=&quot;headerlink&quot; title=&quot;发送消息实例&quot;&gt;&lt;/a&gt;发送消息实例&lt;/h2&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;19&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;20&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;21&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;22&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;23&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;24&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;25&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// 生产者配置项&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; Map&amp;lt;String, Object&amp;gt; &lt;span class=&quot;title&quot;&gt;senderProps&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	Map&amp;lt;String, Object&amp;gt; props = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; HashMap&amp;lt;&amp;gt;();&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, &lt;span class=&quot;string&quot;&gt;&quot;localhost:9092&quot;&lt;/span&gt;);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	props.put(ProducerConfig.RETRIES_CONFIG, &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	props.put(ProducerConfig.BATCH_SIZE_CONFIG, &lt;span class=&quot;number&quot;&gt;16384&lt;/span&gt;);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	props.put(ProducerConfig.LINGER_MS_CONFIG, &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, &lt;span class=&quot;number&quot;&gt;33554432&lt;/span&gt;);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; props;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&amp;#125; &lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// 创建生产者工厂实例&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;ProducerFactory&amp;lt;Integer, String&amp;gt; pf = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; DefaultKafkaProducerFactory&amp;lt;&amp;gt;(senderProps);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt; &lt;span class=&quot;meta&quot;&gt;@Test&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;testSendMsgSysn&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;throws&lt;/span&gt; Exception &lt;/span&gt;&amp;#123;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	KafkaTemplate&amp;lt;Integer, String&amp;gt; kafkaTemplate = createTemplate();&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;for&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; i = &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;; i &amp;lt; &lt;span class=&quot;number&quot;&gt;10&lt;/span&gt;; i++) &amp;#123;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;// 同步发送&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;//kafkaTemplate.send(topic1, &quot;hello ===&amp;gt; &quot; + i).get();&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;// 异步发送&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;		kafkaTemplate.send(topic1, &lt;span class=&quot;string&quot;&gt;&quot;hello ===&amp;gt; &quot;&lt;/span&gt; + i);&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h2 id=&quot;消息发送过程分析&quot;&gt;&lt;a href=&quot;#消息发送过程分析&quot; class=&quot;headerlink&quot; title=&quot;消息发送过程分析&quot;&gt;&lt;/a&gt;消息发送过程分析&lt;/h2&gt;&lt;p&gt;&lt;code&gt;Producer&lt;/code&gt; 的一个重要方法就是&lt;code&gt;send&lt;/code&gt;, 方法签名如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Future&amp;lt;RecordMetadata&amp;gt; &lt;span class=&quot;title&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(ProducerRecord&amp;lt;K, V&amp;gt; record, Callback callback)&lt;/span&gt;&lt;/span&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;从方法的签名我们能够推断出，Kafka的消息发送是异步的。 这个从后面的分析可以得证。&lt;/p&gt;
     
     </summary>
     
-      <category term="网络编程" scheme="https://leokongwq.github.io/categories/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/"/>
+      <category term="消息中间件" scheme="https://leokongwq.github.io/categories/%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
     
     
-      <category term="TCP" scheme="https://leokongwq.github.io/tags/TCP/"/>
+      <category term="kafka" scheme="https://leokongwq.github.io/tags/kafka/"/>
+    
+      <category term="MQ" scheme="https://leokongwq.github.io/tags/MQ/"/>
     
   </entry>
   

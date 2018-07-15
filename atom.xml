@@ -1110,9 +1110,9 @@
       <category term="消息中间件" scheme="https://leokongwq.github.io/categories/%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
     
     
-      <category term="ActiveMQ" scheme="https://leokongwq.github.io/tags/ActiveMQ/"/>
-    
       <category term="MQ" scheme="https://leokongwq.github.io/tags/MQ/"/>
+    
+      <category term="ActiveMQ" scheme="https://leokongwq.github.io/tags/ActiveMQ/"/>
     
   </entry>
   
@@ -7039,9 +7039,9 @@
       <category term="消息中间件" scheme="https://leokongwq.github.io/categories/%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
     
     
-      <category term="kafka" scheme="https://leokongwq.github.io/tags/kafka/"/>
-    
       <category term="MQ" scheme="https://leokongwq.github.io/tags/MQ/"/>
+    
+      <category term="kafka" scheme="https://leokongwq.github.io/tags/kafka/"/>
     
   </entry>
   

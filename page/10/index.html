@@ -273,6 +273,106 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-java-baised-locking" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/07/21/java-baised-locking.html" class="article-date">
+      <time datetime="2017-07-21T01:47:37.000Z" itemprop="datePublished">2017-07-21</time>
+</a>
+
+ 
+    <a href="/2017/07/21/java-baised-locking.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/07/21/java-baised-locking.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/07/21/java-baised-locking.html">java中的偏向锁</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>本文翻译自:<a href="https://blogs.oracle.com/dave/biased-locking-in-hotspot">https://blogs.oracle.com/dave/biased-locking-in-hotspot</a></p>
+<p>The biased locking scheme in HotSpot arose from the following <a href="https://cdn.app.compendium.com/uploads/user/e7c690e8-6ff9-102a-ac6d-e4aebca50425/f4a5b21d-66fa-4885-92bf-c4e81c06d916/File/ccd39237cd4dc109d91786762fba41f0/qrl_oplocks_biasedlocking.pdf">paper</a> authored by myself, Mark Moir, and Bill Scherer. Briefly, the compare-and-swap (CAS) operations normally used to acquire a Java monitor incurs considerable local latency in the executing CPU. Since most objects are locked by at most one thread during their lifetime, we allow that thread to bias an object toward itself. Once biased, that thread can subsequently lock and unlock the object without resorting to expensive atomic instructions. Obviously, an object can be biased toward at most one thread at any given time. (We refer to that thread as the bias holding thread). If another thread tries to acquire a biased object, however, we need to revoke the bias from the original thread. (At this juncture we can either rebias the object or simply revert to normal locking for the remainder of the object’s lifetime). The key challenge in revocation is to coordinate the revoker and the revokee (the bias holding thread) – we must ensure that the revokee doesn’t lock or unlock the object during revocation. As noted in the paper, revocation can be implemented in various ways - signals, suspension, and safepoints to name a few. Critically, for biased locking to prove profitable, the benefit conferred from avoiding the atomic instructions must exceed the revocation costs. Another equivalent way to conceptualize biased locking is that the original owner simply defers unlocking the object until it encounters contention. Biased locking bears some semblance to the concept of lock reservation, which is well-described in <a href="http://www.trl.ibm.com/people/kawatiya/Kawachiya05phd.pdf">Kawachiya’s dissertation</a>. It’s also similar in spirit to “opportunistic locks” (oplocks) found in various file systems; the scheme describe in Mike Burrows’s “How to implement unnecessary mutexes” (In Computer Systems: Theory, Technology and Applications, Dec. 2003); or Christian Siebert’s <a href="https://blogs.oracle.com/dave/www.tu-chemnitz.de/informatik/service/if-berichte/ps/CSR-04-05.ps">one-sided mutual exclusion primitives</a>.</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/java/">java</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/并发/">并发</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/07/21/java-baised-locking.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-mysql-deadlock-detection" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1137,132 +1237,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2017/06/09/linux-task-on-boot.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-springboot-autoconfiguration" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/05/28/springboot-autoconfiguration.html" class="article-date">
-      <time datetime="2017-05-28T15:08:31.000Z" itemprop="datePublished">2017-05-28</time>
-</a>
-
- 
-    <a href="/2017/05/28/springboot-autoconfiguration.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/05/28/springboot-autoconfiguration.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/05/28/springboot-autoconfiguration.html">SpringBoot自动配置分析</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>SpringBoot的使用无疑变得越来越广泛．好处是快速上手，但也带来了额外的复杂性．　了解SpringBoot自动配置的黑魔法对我们熟练使用，排查问题<br>是非常重要的，否在除了问题，你就会变得一头雾水，无处下手．下面以一个非常典型的SpringBoot应用来分析它的自动配置黑魔法．</p>
-<h2 id="应用入口"><a href="#应用入口" class="headerlink" title="应用入口"></a>应用入口</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-</pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableDiscoveryClient</span></span>
-<span class="line"><span class="meta">@EnableCircuitBreaker</span></span>
-<span class="line"><span class="meta">@SpringBootApplication</span></span>
-<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span>
-<span class="line"></span>
-<span class="line">    <span class="meta">@Bean</span></span>
-<span class="line">    <span class="meta">@LoadBalanced</span></span>
-<span class="line">    <span class="function"><span class="keyword">public</span> RestTemplate <span class="title">restTemplate</span><span class="params">()</span> </span>&#123;</span>
-<span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RestTemplate();</span>
-<span class="line">    &#125;</span>
-<span class="line"></span>
-<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span>
-<span class="line">        SpringApplication.run(Application.class, args);</span>
-<span class="line">    &#125;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/consul/">consul</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/springboot/">springboot</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/05/28/springboot-autoconfiguration.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

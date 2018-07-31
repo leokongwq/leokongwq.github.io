@@ -273,6 +273,142 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-js-cross-domain" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/13/js-cross-domain.html" class="article-date">
+      <time datetime="2017-03-13T01:13:37.000Z" itemprop="datePublished">2017-03-13</time>
+</a>
+
+ 
+    <a href="/2017/03/13/js-cross-domain.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/03/13/js-cross-domain.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/13/js-cross-domain.html">js跨域解决方案详解</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>本文转载自：<a href="https://segmentfault.com/a/1190000000718840">详解js跨域问题</a></p>
+<h3 id="什么是跨域？"><a href="#什么是跨域？" class="headerlink" title="什么是跨域？"></a>什么是跨域？</h3><p>概念：只要协议、域名、端口有任何一个不同，都被当作是不同的域。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+</pre></td><td class="code"><pre><span class="line">URL                      说明       是否允许通信</span>
+<span class="line">http:<span class="comment">//www.a.com/a.js</span></span>
+<span class="line">http:<span class="comment">//www.a.com/b.js     同一域名下   允许</span></span>
+<span class="line">http:<span class="comment">//www.a.com/lab/a.js</span></span>
+<span class="line">http:<span class="comment">//www.a.com/script/b.js 同一域名下不同文件夹 允许</span></span>
+<span class="line">http:<span class="comment">//www.a.com:8000/a.js</span></span>
+<span class="line">http:<span class="comment">//www.a.com/b.js     同一域名，不同端口  不允许</span></span>
+<span class="line">http:<span class="comment">//www.a.com/a.js</span></span>
+<span class="line">https:<span class="comment">//www.a.com/b.js 同一域名，不同协议 不允许</span></span>
+<span class="line">http:<span class="comment">//www.a.com/a.js</span></span>
+<span class="line">http:<span class="comment">//70.32.92.74/b.js 域名和域名对应ip 不允许</span></span>
+<span class="line">http:<span class="comment">//www.a.com/a.js</span></span>
+<span class="line">http:<span class="comment">//script.a.com/b.js 主域相同，子域不同 不允许</span></span>
+<span class="line">http:<span class="comment">//www.a.com/a.js</span></span>
+<span class="line">http:<span class="comment">//a.com/b.js 同一域名，不同二级域名（同上） 不允许（cookie这种情况下也不允许访问）</span></span>
+<span class="line">http:<span class="comment">//www.cnblogs.com/a.js</span></span>
+<span class="line">http:<span class="comment">//www.a.com/b.js 不同域名 不允许</span></span>
+</pre></td></tr></table></figure>
+<p>对于端口和协议的不同，只能通过后台来解决</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/js/">js</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/面试/">面试</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/03/13/js-cross-domain.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-java-netty-idleStateHandler" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1139,106 +1275,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2017/02/25/java-memorymapped-file-and-io.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-java-difference-between-direct-non-direct-mapped-bytebuffer-nio" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/02/25/java-difference-between-direct-non-direct-mapped-bytebuffer-nio.html" class="article-date">
-      <time datetime="2017-02-25T08:46:21.000Z" itemprop="datePublished">2017-02-25</time>
-</a>
-
- 
-    <a href="/2017/02/25/java-difference-between-direct-non-direct-mapped-bytebuffer-nio.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/02/25/java-difference-between-direct-non-direct-mapped-bytebuffer-nio.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/02/25/java-difference-between-direct-non-direct-mapped-bytebuffer-nio.html">direct, non-direct, mapped bytebuffer区别</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>本文翻译自：<a href="http://javarevisited.blogspot.jp/2015/08/difference-between-direct-non-direct-mapped-bytebuffer-nio-java.html">http://javarevisited.blogspot.jp/2015/08/difference-between-direct-non-direct-mapped-bytebuffer-nio-java.html</a></p>
-<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>ByteBuffer 是Java NIO API 中一个非常重要的类。它是在JDK1.4中首次添加的，位于包<code>java.nio</code>中。它不仅允许你操作堆内的字节数组，同时也允许你操作JVM堆外的直接内存。 ByteBuffer有三个主要的类型：DirectByteBuffer,  HeapByteBuffer 和 MappedByteBuffer。你可以通过<code>java.nio.ByteBuffer</code>类创建直接或非直接字节缓存。 <code>MappedByteBuffer</code>是<code>ByteBuffer</code>的子类，可以通过<code>FileChannel.map()</code>方法来创建，可以用来操作内存映射文件。 直接字节缓存和非直接内存缓存的主要区别在于内存的位置。 非直接内存缓存只是字节数组的包装类，且在Java Heap上。直接字节缓存是位于JVM堆之外的内存区域。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/java/">java</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/面试/">面试</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/02/25/java-difference-between-direct-non-direct-mapped-bytebuffer-nio.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

@@ -273,6 +273,201 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-kafka-send-msg-profile" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/03/01/kafka-send-msg-profile.html" class="article-date">
+      <time datetime="2018-03-01T14:08:31.000Z" itemprop="datePublished">2018-03-01</time>
+</a>
+
+ 
+    <a href="/2018/03/01/kafka-send-msg-profile.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2018/03/01/kafka-send-msg-profile.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/03/01/kafka-send-msg-profile.html">kafka发送消息过程分析</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前面的一篇文章分析了消息发送时topic分区选择的问题，本文就分析一下后续的发送逻辑。</p>
+<h2 id="消息发送涉及的类"><a href="#消息发送涉及的类" class="headerlink" title="消息发送涉及的类"></a>消息发送涉及的类</h2><h3 id="Producer"><a href="#Producer" class="headerlink" title="Producer"></a>Producer</h3><p><code>Producer</code>类是Kafka消息的发送的入口</p>
+<h3 id="ProducerFactory"><a href="#ProducerFactory" class="headerlink" title="ProducerFactory"></a>ProducerFactory</h3><p><code>ProducerFactory</code> 是一个策略接口，用来创佳<code>Producer</code>, 默认的实现是：<code>DefaultKafkaProducerFactory</code>,其创建<br>的<code>Producer</code>是<code>CloseSafeProducer</code>, <code>CloseSafeProducer</code>是<code>KafkaProducer</code>的一个代理类。</p>
+<p><code>DefaultKafkaProducerFactory</code> 的构造方法接收一个Map对象，用来指的创建<code>Producer</code>的配置。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">DefaultKafkaProducerFactory</span><span class="params">(Map&lt;String, Object&gt; configs)</span> </span>&#123;</span>
+<span class="line">	<span class="keyword">this</span>(configs, <span class="keyword">null</span>, <span class="keyword">null</span>);</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="function"><span class="keyword">public</span> <span class="title">DefaultKafkaProducerFactory</span><span class="params">(Map&lt;String, Object&gt; configs, Serializer&lt;K&gt; keySerializer,</span>
+<span class="line">		Serializer&lt;V&gt; valueSerializer)</span> </span>&#123;</span>
+<span class="line">	<span class="keyword">this</span>.configs = <span class="keyword">new</span> HashMap&lt;&gt;(configs);</span>
+<span class="line">	<span class="keyword">this</span>.keySerializer = keySerializer;</span>
+<span class="line">	<span class="keyword">this</span>.valueSerializer = valueSerializer;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="KafkaTemplate"><a href="#KafkaTemplate" class="headerlink" title="KafkaTemplate"></a>KafkaTemplate</h3><p><code>KafkaTemplate</code>是一个模板类，提供了操作Kafka的高级Api。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> KafkaTemplate&lt;Integer, String&gt; <span class="title">createTemplate</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">	Map&lt;String, Object&gt; senderProps = senderProps();</span>
+<span class="line">	ProducerFactory&lt;Integer, String&gt; pf =</span>
+<span class="line">			<span class="keyword">new</span> DefaultKafkaProducerFactory&lt;&gt;(senderProps);</span>
+<span class="line">	KafkaTemplate&lt;Integer, String&gt; template = <span class="keyword">new</span> KafkaTemplate&lt;&gt;(pf);</span>
+<span class="line">	<span class="keyword">return</span> template;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h2 id="发送消息实例"><a href="#发送消息实例" class="headerlink" title="发送消息实例"></a>发送消息实例</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+</pre></td><td class="code"><pre><span class="line"><span class="comment">// 生产者配置项</span></span>
+<span class="line"><span class="function"><span class="keyword">private</span> Map&lt;String, Object&gt; <span class="title">senderProps</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">	Map&lt;String, Object&gt; props = <span class="keyword">new</span> HashMap&lt;&gt;();</span>
+<span class="line">	props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, <span class="string">"localhost:9092"</span>);</span>
+<span class="line">	props.put(ProducerConfig.RETRIES_CONFIG, <span class="number">0</span>);</span>
+<span class="line">	props.put(ProducerConfig.BATCH_SIZE_CONFIG, <span class="number">16384</span>);</span>
+<span class="line">	props.put(ProducerConfig.LINGER_MS_CONFIG, <span class="number">1</span>);</span>
+<span class="line">	props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, <span class="number">33554432</span>);</span>
+<span class="line">	props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);</span>
+<span class="line">	props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);</span>
+<span class="line">	<span class="keyword">return</span> props;</span>
+<span class="line">&#125; </span>
+<span class="line"><span class="comment">// 创建生产者工厂实例</span></span>
+<span class="line">ProducerFactory&lt;Integer, String&gt; pf = <span class="keyword">new</span> DefaultKafkaProducerFactory&lt;&gt;(senderProps);</span>
+<span class="line"></span>
+<span class="line"> <span class="meta">@Test</span></span>
+<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testSendMsgSysn</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">	KafkaTemplate&lt;Integer, String&gt; kafkaTemplate = createTemplate();</span>
+<span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span>
+<span class="line">		<span class="comment">// 同步发送</span></span>
+<span class="line">		<span class="comment">//kafkaTemplate.send(topic1, "hello ===&gt; " + i).get();</span></span>
+<span class="line">		<span class="comment">// 异步发送</span></span>
+<span class="line">		kafkaTemplate.send(topic1, <span class="string">"hello ===&gt; "</span> + i);</span>
+<span class="line">	&#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h2 id="消息发送过程分析"><a href="#消息发送过程分析" class="headerlink" title="消息发送过程分析"></a>消息发送过程分析</h2><p><code>Producer</code> 的一个重要方法就是<code>send</code>, 方法签名如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Future&lt;RecordMetadata&gt; <span class="title">send</span><span class="params">(ProducerRecord&lt;K, V&gt; record, Callback callback)</span></span>;</span>
+</pre></td></tr></table></figure>
+<p>从方法的签名我们能够推断出，Kafka的消息发送是异步的。 这个从后面的分析可以得证。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/消息中间件/">消息中间件</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MQ/">MQ</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/">kafka</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/03/01/kafka-send-msg-profile.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-kafka-consume-msg-profile" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1752,102 +1947,6 @@ MathJax.Hub.Queue(function() {
         <p class="article-more-link">
           <a href="/2018/01/10/kotlin-coroutine-learn.html#more">阅读全文 >></a>
         </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-mac-autostart" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/01/10/mac-autostart.html" class="article-date">
-      <time datetime="2018-01-10T07:43:30.000Z" itemprop="datePublished">2018-01-10</time>
-</a>
-
- 
-    <a href="/2018/01/10/mac-autostart.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2018/01/10/mac-autostart.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/01/10/mac-autostart.html">mac上禁止jenkins自启动</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>本机安装了Jenkins后，每次开机都会自启动。浪费资源不说，主要是占用了<code>8080</code>这个人见人爱的端口。 通过下面的办法可以禁止它的自启动。</p>
-<h3 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line">launchctl unload -w /Library/LaunchDaemons/org.jenkins-ci.plist</span>
-</pre></td></tr></table></figure>
-<p>通过这个例子指定，OSX上启动的的脚本都是放在目录<code>/Library/LaunchDaemons</code>下。该目录下的每个文件都是有特殊格式的。</p>
-<p>如果想要制作自启动脚本，可以参考这个目录下的脚本。</p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/osx/">osx</a></li></ul>
-    </div>
-
       
       <div class="clearfix"></div>
     </div>

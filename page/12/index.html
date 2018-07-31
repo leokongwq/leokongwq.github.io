@@ -273,6 +273,127 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-java-enum-abstractMethod" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/04/08/java-enum-abstractMethod.html" class="article-date">
+      <time datetime="2017-04-07T16:19:09.000Z" itemprop="datePublished">2017-04-08</time>
+</a>
+
+ 
+    <a href="/2017/04/08/java-enum-abstractMethod.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/04/08/java-enum-abstractMethod.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/08/java-enum-abstractMethod.html">java中的枚举是否可以有抽象方法</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>偶然在代码中看到枚举中定义了抽象方法，觉得很奇怪。以前从来没有想过还可以这么用，真是涨姿势。</p>
+<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> Animal &#123;</span>
+<span class="line">    CAT &#123;</span>
+<span class="line">        <span class="function"><span class="keyword">public</span> String <span class="title">makeNoise</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="string">"MEOW!"</span>; &#125;</span>
+<span class="line">    &#125;,</span>
+<span class="line">    DOG &#123;</span>
+<span class="line">        <span class="function"><span class="keyword">public</span> String <span class="title">makeNoise</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="string">"WOOF!"</span>; &#125;</span>
+<span class="line">    &#125;;</span>
+<span class="line"></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> String <span class="title">makeNoise</span><span class="params">()</span></span>;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>参考自：<a href="http://stackoverflow.com/questions/7413872/can-an-enum-have-abstract-methods">http://stackoverflow.com/questions/7413872/can-an-enum-have-abstract-methods</a></p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/java/">java</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/面试/">面试</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/04/08/java-enum-abstractMethod.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-spring-ExceptionResolver" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1130,142 +1251,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2017/03/13/raft-protocol.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-js-cross-domain" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/13/js-cross-domain.html" class="article-date">
-      <time datetime="2017-03-13T01:13:37.000Z" itemprop="datePublished">2017-03-13</time>
-</a>
-
- 
-    <a href="/2017/03/13/js-cross-domain.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/03/13/js-cross-domain.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/13/js-cross-domain.html">js跨域解决方案详解</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>本文转载自：<a href="https://segmentfault.com/a/1190000000718840">详解js跨域问题</a></p>
-<h3 id="什么是跨域？"><a href="#什么是跨域？" class="headerlink" title="什么是跨域？"></a>什么是跨域？</h3><p>概念：只要协议、域名、端口有任何一个不同，都被当作是不同的域。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-</pre></td><td class="code"><pre><span class="line">URL                      说明       是否允许通信</span>
-<span class="line">http:<span class="comment">//www.a.com/a.js</span></span>
-<span class="line">http:<span class="comment">//www.a.com/b.js     同一域名下   允许</span></span>
-<span class="line">http:<span class="comment">//www.a.com/lab/a.js</span></span>
-<span class="line">http:<span class="comment">//www.a.com/script/b.js 同一域名下不同文件夹 允许</span></span>
-<span class="line">http:<span class="comment">//www.a.com:8000/a.js</span></span>
-<span class="line">http:<span class="comment">//www.a.com/b.js     同一域名，不同端口  不允许</span></span>
-<span class="line">http:<span class="comment">//www.a.com/a.js</span></span>
-<span class="line">https:<span class="comment">//www.a.com/b.js 同一域名，不同协议 不允许</span></span>
-<span class="line">http:<span class="comment">//www.a.com/a.js</span></span>
-<span class="line">http:<span class="comment">//70.32.92.74/b.js 域名和域名对应ip 不允许</span></span>
-<span class="line">http:<span class="comment">//www.a.com/a.js</span></span>
-<span class="line">http:<span class="comment">//script.a.com/b.js 主域相同，子域不同 不允许</span></span>
-<span class="line">http:<span class="comment">//www.a.com/a.js</span></span>
-<span class="line">http:<span class="comment">//a.com/b.js 同一域名，不同二级域名（同上） 不允许（cookie这种情况下也不允许访问）</span></span>
-<span class="line">http:<span class="comment">//www.cnblogs.com/a.js</span></span>
-<span class="line">http:<span class="comment">//www.a.com/b.js 不同域名 不允许</span></span>
-</pre></td></tr></table></figure>
-<p>对于端口和协议的不同，只能通过后台来解决</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/js/">js</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/面试/">面试</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/03/13/js-cross-domain.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

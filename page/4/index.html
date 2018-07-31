@@ -273,6 +273,102 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-mac-autostart" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/01/10/mac-autostart.html" class="article-date">
+      <time datetime="2018-01-10T07:43:30.000Z" itemprop="datePublished">2018-01-10</time>
+</a>
+
+ 
+    <a href="/2018/01/10/mac-autostart.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2018/01/10/mac-autostart.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/01/10/mac-autostart.html">mac上禁止jenkins自启动</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>本机安装了Jenkins后，每次开机都会自启动。浪费资源不说，主要是占用了<code>8080</code>这个人见人爱的端口。 通过下面的办法可以禁止它的自启动。</p>
+<h3 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">launchctl unload -w /Library/LaunchDaemons/org.jenkins-ci.plist</span>
+</pre></td></tr></table></figure>
+<p>通过这个例子指定，OSX上启动的的脚本都是放在目录<code>/Library/LaunchDaemons</code>下。该目录下的每个文件都是有特殊格式的。</p>
+<p>如果想要制作自启动脚本，可以参考这个目录下的脚本。</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/osx/">osx</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-gossip-intro" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1103,110 +1199,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2017/12/15/vertx-Future.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-vertx-cluster" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/12/06/vertx-cluster.html" class="article-date">
-      <time datetime="2017-12-06T11:34:26.000Z" itemprop="datePublished">2017-12-06</time>
-</a>
-
- 
-    <a href="/2017/12/06/vertx-cluster.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/12/06/vertx-cluster.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/06/vertx-cluster.html">vertx集群模式</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="vert-x-集群简介"><a href="#vert-x-集群简介" class="headerlink" title="vert.x 集群简介"></a>vert.x 集群简介</h3><p>在 Vert.x 中，集群化与高可用均是开箱即用的。Vert.x 通过可插拔的集群管理器（cluster manager）来实现集群管理。在 Vert.x 中，采用 Hazelcast 作为默认的集群管理器。</p>
-<h3 id="vert-x-集群器管理的作用"><a href="#vert-x-集群器管理的作用" class="headerlink" title="vert.x 集群器管理的作用"></a>vert.x 集群器管理的作用</h3><p>在 Vert.x 中，集群管理器可用于各种功能，包括：</p>
-<ul>
-<li>对集群中 <code>Vert.x</code>结点进行分组，服务注册和发现</li>
-<li>维护集群范围中的主题订阅者列表（所以我们可知道哪些节点对哪个Event Bus地址感兴趣）</li>
-<li>分布式Map的支持</li>
-<li>分布式锁</li>
-<li>分布式计数器</li>
-</ul>
-<p>集群管理器不处理Event Bus节点之间的传输，这是由 Vert.x 直接通过TCP连接完成。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vert-x/">vert.x</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/12/06/vertx-cluster.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://leokongwq.github.io/"/>
-  <updated>2018-07-15T13:20:06.000Z</updated>
+  <updated>2018-07-29T07:32:41.000Z</updated>
   <id>https://leokongwq.github.io/</id>
   
   <author>
@@ -14,6 +14,619 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>consul 命令介绍</title>
+    <link href="https://leokongwq.github.io/2018/07/29/consul-command-intro.html"/>
+    <id>https://leokongwq.github.io/2018/07/29/consul-command-intro.html</id>
+    <published>2018-07-28T16:25:40.000Z</published>
+    <updated>2018-07-29T07:32:41.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="consul-命令用法"><a href="#consul-命令用法" class="headerlink" title="consul 命令用法"></a>consul 命令用法</h2><p>安装完consul后，通过在控制台直接实现<code>consul</code>命令了解consul命令行的用法，输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+</pre></td><td class="code"><pre><span class="line">Usage: consul [--version] [--help] &lt;command&gt; [&lt;args&gt;]</span>
+<span class="line"></span>
+<span class="line">Available commands are:</span>
+<span class="line">agent          Runs a Consul agent</span>
+<span class="line">catalog        Interact with the catalog</span>
+<span class="line">event          Fire a new event</span>
+<span class="line">exec           Executes a command on Consul nodes</span>
+<span class="line">force-leave    Forces a member of the cluster to enter the &quot;left&quot; state</span>
+<span class="line">info           Provides debugging information for operators.</span>
+<span class="line">join           Tell Consul agent to join cluster</span>
+<span class="line">keygen         Generates a new encryption key</span>
+<span class="line">keyring        Manages gossip layer encryption keys</span>
+<span class="line">kv             Interact with the key-value store</span>
+<span class="line">leave          Gracefully leaves the Consul cluster and shuts down</span>
+<span class="line">lock           Execute a command holding a lock</span>
+<span class="line">maint          Controls node or service maintenance mode</span>
+<span class="line">members        Lists the members of a Consul cluster</span>
+<span class="line">monitor        Stream logs from a Consul agent</span>
+<span class="line">operator       Provides cluster-level tools for Consul operators</span>
+<span class="line">reload         Triggers the agent to reload configuration files</span>
+<span class="line">rtt            Estimates network round trip time between nodes</span>
+<span class="line">snapshot       Saves, restores and inspects snapshots of Consul server state</span>
+<span class="line">validate       Validate config files/directories</span>
+<span class="line">version        Prints the Consul version</span>
+<span class="line">watch          Watch for changes in Consul</span>
+</pre></td></tr></table></figure>
+<p>如上所示， consul提供的命令很多，下面就逐个学习下每个命令的作用和用法。</p>
+<a id="more"></a>
+<h2 id="agent"><a href="#agent" class="headerlink" title="agent"></a>agent</h2><p><code>agent</code> 命令的作用是启动一个<code>consul</code> 进程， 该进程的具体作用和该命令的参数有关。</p>
+<p>通过 <code>consul agent --help</code> 可以获取该命令的详细用法</p>
+<h3 id="datacenter"><a href="#datacenter" class="headerlink" title="datacenter"></a>datacenter</h3><p>该参数指定该<code>agent</code>所在的数据中心名称。格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-datacenter=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="advertise"><a href="#advertise" class="headerlink" title="advertise"></a>advertise</h3><p>该参数用来设置<code>advertise</code>所使用的地址。默认值和<code>-bind</code>指定的地址一样</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-advertise=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="advertise-wan"><a href="#advertise-wan" class="headerlink" title="advertise-wan"></a>advertise-wan</h3><p>设置广域网环境的的<code>advertise</code>地址。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-advertise-wan=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="bind"><a href="#bind" class="headerlink" title="-bind"></a>-bind</h3><p>设置集群通信所使用的IP地址。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-bind=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="bootstrap"><a href="#bootstrap" class="headerlink" title="bootstrap"></a>bootstrap</h3><p>将Server设置为<code>boostrap</code>模式。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-bootstrap</span>
+</pre></td></tr></table></figure>
+<h3 id="bootstrap-expect"><a href="#bootstrap-expect" class="headerlink" title="bootstrap-expect"></a>bootstrap-expect</h3><p>将Server设置为<code>expect boostrap</code>模式。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-bootstrap-expect=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="client"><a href="#client" class="headerlink" title="client"></a>client</h3><p>设置客户端访问所使用的IP地址。 该地址可用于RPC, DNS,HTTP,HTTPS通信使用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-client=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="config-dir"><a href="#config-dir" class="headerlink" title="config-dir"></a>config-dir</h3><p>设置配置文件所在的目录的路径。consul会读取该目录下所有以<code>.json</code>结尾的文件作为配置文件，并且以文件名字典序来应用这些配置文件。</p>
+<p>该参数可以多次使用，来指定多个配置文件目录。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-config-dir=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="config-file"><a href="#config-file" class="headerlink" title="config-file"></a>config-file</h3><p>指定配置文件路径，可以多次多次使用，用来指定多个配置文件。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-config-file=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="config-format"><a href="#config-format" class="headerlink" title="config-format"></a>config-format</h3><p>设置配置文件的格式。 <code>json</code>或<code>hcl</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-config-format=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="data-dir"><a href="#data-dir" class="headerlink" title="data-dir"></a>data-dir</h3><p>设置保存<code>agent</code>状态数据的目录。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-data-dir=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="dev"><a href="#dev" class="headerlink" title="dev"></a>dev</h3><p>该<code>agent</code>以开发模式运行。会输出详细的日子信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-dev</span>
+</pre></td></tr></table></figure>
+<h3 id="disable-host-node-id"><a href="#disable-host-node-id" class="headerlink" title="disable-host-node-id"></a>disable-host-node-id</h3><p>该该选项设置为true, 则consul不会使用所在主机的信息生成集群结点id。 从而每次都生成一个随机值。<br>建议不要开始该选项。默认的结点id将会是主机名<code>hostname</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-disable-host-node-id</span>
+</pre></td></tr></table></figure>
+<h3 id="disable-keyring-file"><a href="#disable-keyring-file" class="headerlink" title="disable-keyring-file"></a>disable-keyring-file</h3><p>禁止将<code>keyring</code>备份到文件中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-disable-keyring-file</span>
+</pre></td></tr></table></figure>
+<h3 id="dns-port"><a href="#dns-port" class="headerlink" title="dns-port"></a>dns-port</h3><p>设置DNS 查询所使用的端口。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-dns-port=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="domain"><a href="#domain" class="headerlink" title="domain"></a>domain</h3><p>DNS 接口所使用的域名。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-domain=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="enable-script-checks"><a href="#enable-script-checks" class="headerlink" title="enable-script-checks"></a>enable-script-checks</h3><p>启用健康检测脚本。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-enable-script-checks</span>
+</pre></td></tr></table></figure>
+<h3 id="encrypt"><a href="#encrypt" class="headerlink" title="encrypt"></a>encrypt</h3><p>提供<code>gossip</code>广播加密数据所使用的key.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-encrypt=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="hcl"><a href="#hcl" class="headerlink" title="hcl"></a>hcl</h3><p><code>hcl</code> 配置片段。 可以多次使用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-hcl=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="http-port"><a href="#http-port" class="headerlink" title="http-port"></a>http-port</h3><p>设置http API 服务监听的端口。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-http-port=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="join"><a href="#join" class="headerlink" title="join"></a>join</h3><p>设置该<code>agent</code>启动时加入所在集群的成员IP地址。可以多次使用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-join=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="join-wan"><a href="#join-wan" class="headerlink" title="join-wan"></a>join-wan</h3><p>设置该<code>agent</code>启动时加入所在跨IDC集群的成员IP地址。可以多次使用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-join-wan=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="log-level"><a href="#log-level" class="headerlink" title="log-level"></a>log-level</h3><p>设置<code>agent</code>的日志输出级别。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-log-level=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="node"><a href="#node" class="headerlink" title="node"></a>node</h3><p>设置该结点在集群中的名称，必须唯一。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-node=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="node-id"><a href="#node-id" class="headerlink" title="node-id"></a>node-id</h3><p>设置该结点在集群中永恒的ID，默认是一个随机生成的值，并保存的数据目录中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-node-id=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="node-meta"><a href="#node-meta" class="headerlink" title="node-meta"></a>node-meta</h3><p>给该结点设置元数据。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-node-meta=&lt;key:value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="non-voting-server"><a href="#non-voting-server" class="headerlink" title="non-voting-server"></a>non-voting-server</h3><p>该选项使该Server不参于Raft协议的选举流程，仅仅进行数据同步。这样角色的结点主要用来扩展consul集群的读能力。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-non-voting-server</span>
+</pre></td></tr></table></figure>
+<h3 id="pid-file"><a href="#pid-file" class="headerlink" title="pid-file"></a>pid-file</h3><p>指定保存pid的文件路径。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-pid-file=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="protocol"><a href="#protocol" class="headerlink" title="protocol"></a>protocol</h3><p>设置协议版本。默认使用最新版本。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-protocol=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="raft-protocol"><a href="#raft-protocol" class="headerlink" title="raft-protocol"></a>raft-protocol</h3><p>设置Raft协议的版本。默认使用最新版本。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-raft-protocol=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="recursor"><a href="#recursor" class="headerlink" title="recursor"></a>recursor</h3><p>上游DNS服务器的地址。可以多次使用，指定多个地址。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-recursor=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="rejoin"><a href="#rejoin" class="headerlink" title="rejoin"></a>rejoin</h3><p>忽略上次的离开，并尝试从新加入集群。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-rejoin</span>
+</pre></td></tr></table></figure>
+<h3 id="retry-interval"><a href="#retry-interval" class="headerlink" title="retry-interval"></a>retry-interval</h3><p>每次尝试重试加入集群的重试时间间隔。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-retry-interval=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="retry-interval-wan"><a href="#retry-interval-wan" class="headerlink" title="retry-interval-wan"></a>retry-interval-wan</h3><p>同样用来指定加入集群的重试时间间隔，不过针对的广域网。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-retry-interval-wan=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="retry-join"><a href="#retry-join" class="headerlink" title="retry-join"></a>retry-join</h3><p>Address of an agent to join at start time with retries enabled. Can<br>be specified multiple times.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-retry-join=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="retry-join-wan"><a href="#retry-join-wan" class="headerlink" title="retry-join-wan"></a>retry-join-wan</h3><p>Address of an agent to join -wan at start time with retries<br>enabled. Can be specified multiple times.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-retry-join-wan=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="retry-max"><a href="#retry-max" class="headerlink" title="retry-max"></a>retry-max</h3><p>设置重试的最大次数。默认值是<code>0</code>, 意味着一直进行尝试。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-retry-max=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="retry-max-wan"><a href="#retry-max-wan" class="headerlink" title="retry-max-wan"></a>retry-max-wan</h3><p>设置重试的最大次数。针对的是广域网。默认值是<code>0</code>, 意味着一直进行尝试。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-retry-max-wan=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="segment"><a href="#segment" class="headerlink" title="segment"></a>segment</h3><p>(企业级版本才有的功能) 设置加入的网络段。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-segment=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="serf-lan-bind"><a href="#serf-lan-bind" class="headerlink" title="serf-lan-bind"></a>serf-lan-bind</h3><p>Address to bind Serf LAN listeners to.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-serf-lan-bind=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="serf-wan-bind"><a href="#serf-wan-bind" class="headerlink" title="serf-wan-bind"></a>serf-wan-bind</h3><p>Address to bind Serf WAN listeners to.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-serf-wan-bind=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="server"><a href="#server" class="headerlink" title="-server"></a>-server</h3><p>以<code>server</code>模式启动，默认是<code>client</code></p>
+<h3 id="syslog"><a href="#syslog" class="headerlink" title="syslog"></a>syslog</h3><p>将日志输出到syslog.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-syslog</span>
+</pre></td></tr></table></figure>
+<h3 id="ui"><a href="#ui" class="headerlink" title="ui"></a>ui</h3><p>启用consul内置的静态wei UI服务器。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-ui</span>
+</pre></td></tr></table></figure>
+<h3 id="ui-dir"><a href="#ui-dir" class="headerlink" title="ui-dir"></a>ui-dir</h3><p>指定包含web界面的资源目录。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-ui-dir=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h2 id="catalog"><a href="#catalog" class="headerlink" title="catalog"></a>catalog</h2><p>此命令具有与Consul目录交互的子命令。该目录不应与代理混淆，尽管API和回应可能类似。</p>
+<p>以下是一些简单示例，并提供了更详细的示例在子命令或文档中。</p>
+<p>列出所有数据中心</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">$ consul catalog datacenters</span>
+</pre></td></tr></table></figure>
+<p>列出所有结点</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">$ consul catalog nodes</span>
+</pre></td></tr></table></figure>
+<p>列出所有服务</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">$ consul catalog services</span>
+</pre></td></tr></table></figure>
+<h2 id="event"><a href="#event" class="headerlink" title="event"></a>event</h2><p>跨数据中心发布自定义用户事件。 必须提供事件名称，但事件的内容是可选的。 </p>
+<p>支持通过正则表达式，节点名称，服务名称，或标签进行过滤。</p>
+<h3 id="name"><a href="#name" class="headerlink" title="name"></a>name</h3><p>事件的名称</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-name=&lt;string&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="node-1"><a href="#node-1" class="headerlink" title="node"></a>node</h3><p>用来指定通过正则表达式过滤的节点名称。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-node=&lt;string&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="service"><a href="#service" class="headerlink" title="service"></a>service</h3><p>用来指定通过正则表达式过滤的服务名称。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-service=&lt;string&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="tag"><a href="#tag" class="headerlink" title="tag"></a>tag</h3><p>用来指定通过正则表达式过滤的服务的标签名称。必须和<code>-service</code>选项一起使用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-tag=&lt;string&gt;</span>
+</pre></td></tr></table></figure>
+<h2 id="exec"><a href="#exec" class="headerlink" title="exec"></a>exec</h2><p>在远程Consul节点上执行命令。 节点的响应内容可以通过正则表达式进行过滤。</p>
+<p>可用的选项如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+<span class="line">27</span>
+<span class="line">28</span>
+<span class="line">29</span>
+<span class="line">30</span>
+<span class="line">31</span>
+<span class="line">32</span>
+<span class="line">33</span>
+</pre></td><td class="code"><pre><span class="line">-node=&lt;string&gt;</span>
+<span class="line"></span>
+<span class="line">Regular expression to filter on node names.</span>
+<span class="line"></span>
+<span class="line">-prefix=&lt;string&gt;</span>
+<span class="line"></span>
+<span class="line">Prefix in the KV store to use for request data.</span>
+<span class="line"></span>
+<span class="line">-service=&lt;string&gt;</span>
+<span class="line"></span>
+<span class="line">Regular expression to filter on service instances.</span>
+<span class="line"></span>
+<span class="line">-shell</span>
+<span class="line"></span>
+<span class="line">Use a shell to run the command.</span>
+<span class="line"></span>
+<span class="line">-tag=&lt;string&gt;</span>
+<span class="line"></span>
+<span class="line">Regular expression to filter on service tags. Must be used with</span>
+<span class="line">-service.</span>
+<span class="line"></span>
+<span class="line">-verbose</span>
+<span class="line"></span>
+<span class="line">Enables verbose output.</span>
+<span class="line"></span>
+<span class="line">-wait=&lt;duration&gt;</span>
+<span class="line"></span>
+<span class="line">Period to wait with no responses before terminating execution.</span>
+<span class="line"></span>
+<span class="line">-wait-repl=&lt;duration&gt;</span>
+<span class="line"></span>
+<span class="line">Period to wait for replication before firing event. This is an</span>
+<span class="line">optimization to allow stale reads to be performed.</span>
+</pre></td></tr></table></figure>
+<h2 id="leave"><a href="#leave" class="headerlink" title="leave"></a>leave</h2><p>将一个结点优雅进入<code>leave</code>状态，并关闭。</p>
+<h2 id="force-leave"><a href="#force-leave" class="headerlink" title="force-leave"></a>force-leave</h2><p>强制一个集群的节点进入<code>left</code>状态。</p>
+<h2 id="info"><a href="#info" class="headerlink" title="info"></a>info</h2><p>提供操作命令的调试信息。</p>
+<h2 id="join-1"><a href="#join-1" class="headerlink" title="join"></a>join</h2><p>使一个运行中的agent加入到集群中。</p>
+<h3 id="wan"><a href="#wan" class="headerlink" title="wan"></a>wan</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-wan</span>
+</pre></td></tr></table></figure>
+<h2 id="keygen"><a href="#keygen" class="headerlink" title="keygen"></a>keygen</h2><p>生成一个新的加密用的key，用来供agent对网络流量就行加密。  </p>
+<h2 id="keyring"><a href="#keyring" class="headerlink" title="keyring"></a>keyring</h2><p>管理用来加密<code>gossip</code>消息的秘钥。<code>Gossip</code>加密是可以选的。当启用<code>Gossip</code>加密，该命令可以用来检查集群中处于激活状态下的加密key，添加新的key，删除老的key。把这些功能结合起来，就可以实现不破坏集群的前提下，更新加密秘钥的功能。</p>
+<p>该命令提供的所有操作都只能在<code>Server</code>模式的结点上执行， 并且影响范围包括<code>LAN</code>和<code>WAN</code>。</p>
+<p>当所有结点正确返回时，该命令输出:0, 否则其他任何情况都输出1。</p>
+<p>该命令的选项如下：</p>
+<h3 id="install"><a href="#install" class="headerlink" title="install"></a>install</h3><p>安装一个新的秘钥，并广播到集群的所有结点中。秘钥的格式是base64的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-install=&lt;string&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="list"><a href="#list" class="headerlink" title="list"></a>list</h3><p>列出所有正在集群中使用的秘钥。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-list</span>
+</pre></td></tr></table></figure>
+<h3 id="relay-factor"><a href="#relay-factor" class="headerlink" title="relay-factor"></a>relay-factor</h3><p>Setting this to a non-zero value will cause nodes to relay their<br>response to the operation through this many randomly-chosen other<br>nodes in the cluster. The maximum allowed value is 5.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-relay-factor=&lt;int&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="remove"><a href="#remove" class="headerlink" title="remove"></a>remove</h3><p>从集群中删除秘钥。 该操作只能针对哪些当前不是主秘钥的秘钥。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-remove=&lt;string&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="use"><a href="#use" class="headerlink" title="use"></a>use</h3><p>Change the primary encryption key, which is used to encrypt<br>messages. The key must already be installed before this operation<br>can succeed.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-use=&lt;string&gt;</span>
+</pre></td></tr></table></figure>
+<h2 id="kv"><a href="#kv" class="headerlink" title="kv"></a>kv</h2><p>该命令包含一些操作Consul K-V 存储的子命令。</p>
+<p>下面是一些简单的例子：</p>
+<p>创建或更新一个名称为<code>redis/config/connections</code>，值为5的键值对。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">$ consul kv put redis/config/connections 5</span>
+</pre></td></tr></table></figure>
+<p>获取该键值对的值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">$ consul kv get redis/config/connections</span>
+</pre></td></tr></table></figure>
+<p>获取该键值对的详细信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">$ consul kv get -detailed redis/config/connections</span>
+</pre></td></tr></table></figure>
+<p>删除该键值对</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">$ consul kv delete redis/config/connections</span>
+</pre></td></tr></table></figure>
+<h3 id="子命令"><a href="#子命令" class="headerlink" title="子命令"></a>子命令</h3><p>delete    Removes data from the KV store<br>export    Exports a tree from the KV store as JSON<br>get       Retrieves or lists data from the KV store<br>import    Imports a tree stored as JSON to the KV store<br>put       Sets or updates data in the KV store</p>
+<h2 id="lock"><a href="#lock" class="headerlink" title="lock"></a>lock</h2><p>Acquires a lock or semaphore at a given path, and invokes a child process<br>when successful. The child process can assume the lock is held while it<br>executes. If the lock is lost or communication is disrupted the child<br>process will be sent a SIGTERM signal and given time to gracefully exit.<br>After the grace period expires the process will be hard terminated.</p>
+<p>For Consul agents on Windows, the child process is always hard terminated<br>with a SIGKILL, since Windows has no POSIX compatible notion for SIGTERM.</p>
+<p>When -n=1, only a single lock holder or leader exists providing mutual<br>exclusion. Setting a higher value switches to a semaphore allowing multiple<br>holders to coordinate.</p>
+<p>The prefix provided must have write privileges.</p>
+<h2 id="maint"><a href="#maint" class="headerlink" title="maint"></a>maint</h2><p>该命令的作用是将节点或服务置于维护模式。在维护模式下，无论通过DNS查询还是HTTP接口，都不再返回节点或服务的信息。命令有效地将其从可用池中取出节点。该命令的执行原理是通过注册节点或服务的健康检查来完成的。</p>
+<p>为节点或服务启用维护模式时，你可以选择指定一个字符串来表明原因。该字符串将出现在“Notes”字段中<br>对节点或注册的重要健康检查服务。如果没有提供原因，将使用默认值。</p>
+<p>维护模式是持久的，并且会在agent重启启动的时候恢复。 因此，在将给定节点或服务将被放回可以池中之前需要禁用维护模式。</p>
+<p>默认情况下，我们将一个节点作为一个整体进行操作。通过指定<code>-service</code>参数，可以操作具体的服务。</p>
+<p>如果没有给出参数，将显示agent的维护状态。如果当前没有任何维护，则返回空白。</p>
+<h3 id="disable"><a href="#disable" class="headerlink" title="disable"></a>disable</h3><p>禁用维护模式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-disable</span>
+</pre></td></tr></table></figure>
+<h3 id="enable"><a href="#enable" class="headerlink" title="enable"></a>enable</h3><p>启用维护模式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-enable</span>
+</pre></td></tr></table></figure>
+<h3 id="reason"><a href="#reason" class="headerlink" title="reason"></a>reason</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-reason=&lt;string&gt;</span>
+</pre></td></tr></table></figure>
+<p>指定本次操作的原因描述信息</p>
+<h3 id="service-1"><a href="#service-1" class="headerlink" title="service"></a>service</h3><p>指定操作的服务ID。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-service=&lt;string&gt;</span>
+</pre></td></tr></table></figure>
+<h2 id="members"><a href="#members" class="headerlink" title="members"></a>members</h2><p>该命令的作用是：输出集群成员信息</p>
+<p>可用的参数有：</p>
+<h3 id="detailed"><a href="#detailed" class="headerlink" title="-detailed"></a>-detailed</h3><p>输出更详细的节点信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+</pre></td><td class="code"><pre><span class="line">consul members -detailed</span>
+<span class="line">Node   Address         Status  Tags</span>
+<span class="line">bogon  127.0.0.1:8301  alive   build=1.0.2:b55059f,dc=dc1,id=fc1742c4-d97b-8a5b-ff3c-ab11941e2fea,port=8300,raft_vsn=3,role=consul,segment=&lt;all&gt;,vsn=2,vsn_max=3,vsn_min=2,wan_join_port=8302</span>
+</pre></td></tr></table></figure>
+<h3 id="segment-1"><a href="#segment-1" class="headerlink" title="segment"></a>segment</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-segment=&lt;string&gt;</span>
+</pre></td></tr></table></figure>
+<p>企业级版本才有的功能。 可以只输出所属segment的结点信息。</p>
+<h3 id="status"><a href="#status" class="headerlink" title="status"></a>status</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-status=&lt;string&gt;</span>
+</pre></td></tr></table></figure>
+<p>根据状态进行过滤需要输出的结点。</p>
+<h3 id="wan-1"><a href="#wan-1" class="headerlink" title="wan"></a>wan</h3><p>如果agent允许在server模式下，该选项可以输出其它在<code>WAN</code>广域网的节点信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-wan</span>
+</pre></td></tr></table></figure>
+<h2 id="monitor"><a href="#monitor" class="headerlink" title="monitor"></a>monitor</h2><p>显示Consul agent 的最近日志消息，并连接到agent，实时输出agent上日志消息。 而且可以通过参数来指定需要查看的日志级别。默认输出的是DEBUG级别的日志。</p>
+<h2 id="operator"><a href="#operator" class="headerlink" title="operator"></a>operator</h2><p>该命令提供了Consul集群级别的操作能力， 在使用时需要非常小心。使用不当有可能造成，节点数据过期或数据丢失。</p>
+<p>子命令如下：</p>
+<h3 id="autopilot"><a href="#autopilot" class="headerlink" title="autopilot"></a>autopilot</h3><p><code>autopilot</code> 命令用于与Consul的<code>autopilot</code>子系统进行交互。 该命令可用于查看或修改当前配置。</p>
+<h4 id="get-config"><a href="#get-config" class="headerlink" title="get-config"></a>get-config</h4><p>显示当前的自动驾驶仪配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+</pre></td><td class="code"><pre><span class="line">consul operator autopilot get-config</span>
+<span class="line">CleanupDeadServers = true</span>
+<span class="line">LastContactThreshold = 200ms</span>
+<span class="line">MaxTrailingLogs = 250</span>
+<span class="line">ServerStabilizationTime = 10s</span>
+<span class="line">RedundancyZoneTag = &quot;&quot;</span>
+<span class="line">DisableUpgradeMigration = false</span>
+<span class="line">UpgradeVersionTag = &quot;&quot;</span>
+</pre></td></tr></table></figure>
+<h4 id="set-config"><a href="#set-config" class="headerlink" title="set-config"></a>set-config</h4><p>修改当前的自动驾驶仪配置</p>
+<h3 id="raft"><a href="#raft" class="headerlink" title="raft"></a>raft</h3><h4 id="list-peers"><a href="#list-peers" class="headerlink" title="list-peers"></a>list-peers</h4><p>Display the current Raft peer configuration</p>
+<h4 id="remove-peer"><a href="#remove-peer" class="headerlink" title="remove-peer"></a>remove-peer</h4><p>Remove a Consul server from the Raft configuration</p>
+<h2 id="reload"><a href="#reload" class="headerlink" title="reload"></a>reload</h2><p>该命令的作用是重新加载配置文件，以此来替代<code>SIGHUP</code>信号。</p>
+<h2 id="rtt"><a href="#rtt" class="headerlink" title="rtt"></a>rtt</h2><p><code>rtt</code>命令的用法如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">Usage: consul rtt [options] node1 [node2]</span>
+</pre></td></tr></table></figure>
+<p>该命令的作用是：预估2个结点间一次通信的耗时状况的。至少需要提供一个节点名称。如果只提供了一个节点的名称，<br>则第二个结点的名称默认就是agent所在的结点名称。</p>
+<blockquote>
+<p>需要注意的是：这些节点名称和<code>consul members</code>输出中的结点名称相同，不是一个IP地址。</p>
+</blockquote>
+<p>默认情况下，都是假设2个节点在同一个数据中心内，并使用局域网的网络协调器。如果有<code>-wan</code>参数，那么使用格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+</pre></td><td class="code"><pre><span class="line">consul rtt -wan bogon.dc1</span>
+<span class="line">Estimated bogon.dc1 &lt;-&gt; bogon.dc1 rtt: 0.020 ms (using WAN coordinates)</span>
+</pre></td></tr></table></figure>
+<p>节点的名称后面需要添加所属数据中心的名称。</p>
+<p>该命令不能用来测量局域网和广域网2个节点间的网络通信耗时，因为他们位于不同的<code>gossip</code>域。</p>
+<p>该命令可以使用的参数如下：</p>
+<h3 id="ca-file"><a href="#ca-file" class="headerlink" title="ca-file"></a>ca-file</h3><p>指定TLS通信是使用的<code>CA</code>文件。 该选项的值也可以通过环境变量<code>CONSUL_CACERT</code>的值获取。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-ca-file=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="ca-path"><a href="#ca-path" class="headerlink" title="ca-path"></a>ca-path</h3><p>指定TLS通信是使用的<code>CA</code>文件所在的目录。 该选项的值也可以通过环境变量<code>CONSUL_CAPATH</code>的值获取。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-ca-path=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="client-cert"><a href="#client-cert" class="headerlink" title="client-cert"></a>client-cert</h3><p>指定在使用TLS进行通信时，并且启用了<code>verify_incoming</code>功能时，客户端所使用的证书文件，<br>也可以通过环境变量<code>CONSUL_CLIENT_CERT</code> 来指定。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-client-cert=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="client-key"><a href="#client-key" class="headerlink" title="client-key"></a>client-key</h3><p>指定在使用TLS进行通信时，并且启用了<code>verify_incoming</code>功能时，客户端所使用的key文件。也可以通过环境变量<code>CONSUL_CLIENT_KEY</code> 来指定。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-client-key=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="http-addr"><a href="#http-addr" class="headerlink" title="http-addr"></a>http-addr</h3><p>指定提供http服务的Consul agent 的IP地址和端口号。也可以通过环境变量<code>CONSUL_HTTP_ADDR</code>的值来指定。</p>
+<p>默认的值是：<code>http://127.0.0.1:8500</code>。 也可以通过设置环境变量<code>CONSUL_HTTP_SSL=true</code>来启用https进行通信。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-http-addr=&lt;address&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="tls-server-name"><a href="#tls-server-name" class="headerlink" title="tls-server-name"></a>tls-server-name</h3><p>指定当通过TLS进行通信时作为<code>SNI</code>主机的服务器名称。也可以通过<code>CONSUL_TLS_SERVER_NAME</code>环境变量来指定。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-tls-server-name=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<h3 id="token"><a href="#token" class="headerlink" title="token"></a>token</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-token=&lt;value&gt;</span>
+</pre></td></tr></table></figure>
+<p>指定请求中使用的ACL token的值。也可以通过环境变量<code>CONSUL_HTTP_TOKEN</code>来指定。如果没有指定，则使用通过http 访问Consul agent 所使用的token值。</p>
+<h3 id="wan-2"><a href="#wan-2" class="headerlink" title="wan"></a>wan</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+</pre></td><td class="code"><pre><span class="line">-wan</span>
+</pre></td></tr></table></figure>
+<p>使用广域网协调器来替代局域网协调器。</p>
+<h2 id="snapshot"><a href="#snapshot" class="headerlink" title="snapshot"></a>snapshot</h2><p>该命令包含一些子命令，作用是保存，重新加载 或在故障恢复时检查 Consul Server 的状态。</p>
+<p>这些操作都是原子性的，保存当前时间点 包括<code>键/值条目</code>，<code>服务目录</code>，<code>准备好的查询</code>，<code>会话和ACL</code>信息的快照。</p>
+<p>如果启用了<code>ACLS</code>功能，那么在使用这些子命令时，需要提供管理token来进行快照的操作。</p>
+<h3 id="创建一个快照"><a href="#创建一个快照" class="headerlink" title="创建一个快照"></a>创建一个快照</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+</pre></td><td class="code"><pre><span class="line">$ consul snapshot save backup.snap</span>
+<span class="line">```      </span>
+<span class="line"></span>
+<span class="line">### 从快照中恢复</span>
+</pre></td></tr></table></figure>
+<p>$ consul snapshot restore backup.snap<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+</pre></td><td class="code"><pre><span class="line"></span>
+<span class="line">先启动一个没有任何数据的agent,然后执行该命令，加载指定的快照信息。</span>
+<span class="line"></span>
+<span class="line">### 检查快照信息</span>
+</pre></td></tr></table></figure></p>
+<p>$ consul snapshot inspect backup.snap<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+</pre></td><td class="code"><pre><span class="line"></span>
+<span class="line">输出：</span>
+</pre></td></tr></table></figure></p>
+<p>leo@bogon consul snapshot inspect a.snap<br>ID           2-110-1532832078752<br>Size         1175<br>Index        110<br>Term         2<br>Version      1<br>```</p>
+<p>可以允许一个Consul agent, 每小时保存一次快照信息。 不过该功能只有企业级版本才有。</p>
+<h2 id="validate"><a href="#validate" class="headerlink" title="validate"></a>validate</h2><p>校验consul配置文件，或配置文件目录下配置文件的正确性</p>
+<h2 id="version"><a href="#version" class="headerlink" title="version"></a>version</h2><p>打印consul的版本</p>
+<h2 id="watch"><a href="#watch" class="headerlink" title="watch"></a>watch</h2>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;consul-命令用法&quot;&gt;&lt;a href=&quot;#consul-命令用法&quot; class=&quot;headerlink&quot; title=&quot;consul 命令用法&quot;&gt;&lt;/a&gt;consul 命令用法&lt;/h2&gt;&lt;p&gt;安装完consul后，通过在控制台直接实现&lt;code&gt;consul&lt;/code&gt;命令了解consul命令行的用法，输出如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;19&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;20&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;21&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;22&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;23&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;24&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;25&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;Usage: consul [--version] [--help] &amp;lt;command&amp;gt; [&amp;lt;args&amp;gt;]&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;Available commands are:&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;agent          Runs a Consul agent&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;catalog        Interact with the catalog&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;event          Fire a new event&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;exec           Executes a command on Consul nodes&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;force-leave    Forces a member of the cluster to enter the &amp;quot;left&amp;quot; state&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;info           Provides debugging information for operators.&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;join           Tell Consul agent to join cluster&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;keygen         Generates a new encryption key&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;keyring        Manages gossip layer encryption keys&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;kv             Interact with the key-value store&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;leave          Gracefully leaves the Consul cluster and shuts down&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;lock           Execute a command holding a lock&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;maint          Controls node or service maintenance mode&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;members        Lists the members of a Consul cluster&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;monitor        Stream logs from a Consul agent&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;operator       Provides cluster-level tools for Consul operators&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;reload         Triggers the agent to reload configuration files&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;rtt            Estimates network round trip time between nodes&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;snapshot       Saves, restores and inspects snapshots of Consul server state&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;validate       Validate config files/directories&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;version        Prints the Consul version&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;watch          Watch for changes in Consul&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;如上所示， consul提供的命令很多，下面就逐个学习下每个命令的作用和用法。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="分布式" scheme="https://leokongwq.github.io/categories/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+    
+      <category term="consul" scheme="https://leokongwq.github.io/tags/consul/"/>
+    
+  </entry>
   
   <entry>
     <title>servlet如何正确处理302跳转</title>
@@ -757,36 +1370,36 @@
     <link href="https://leokongwq.github.io/2018/07/08/consul-acl.html"/>
     <id>https://leokongwq.github.io/2018/07/08/consul-acl.html</id>
     <published>2018-07-08T15:08:31.000Z</published>
-    <updated>2018-07-15T13:20:06.000Z</updated>
+    <updated>2018-07-31T14:47:52.000Z</updated>
     
     <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h2 id="配置项"><a href="#配置项" class="headerlink" title="配置项"></a>配置项</h2><h3 id="acl-datacenter"><a href="#acl-datacenter" class="headerlink" title="acl_datacenter"></a>acl_datacenter</h3><p>该配置项指定了对ACL信息具有权威性的数据中心。 必须提供它才能启用ACL。 所有Server实例和数据中心必须就ACL数据中心达成一致。<br>必须在整个集群的Server节点上设置该配置项。但是针对API来说，如果要使客户端的请求能被正确转发，那么也需要在客户端节点设置。<br>在Consul 0.8及更高版本中，还可以启用代理级别的ACL。 有关详细信息，请参阅<a href="https://www.consul.io/docs/guides/acl.html" target="_blank" rel="external">ACL指南</a>。</p>
-<h3 id="acl-default-policy"><a href="#acl-default-policy" class="headerlink" title="acl_default_policy"></a>acl_default_policy</h3><p>该配置项可选的值为<code>allow</code>和<code>deny</code>。默认值为’allow’。默认的策略控制token在没有匹配的规则时的行为。<br>在<code>allow</code>模式下，ACL规则是一个黑名单：任何没有被禁止的操作都是可以执行的。<br>在<code>deny</code>模式下，ACL规则是一个白名单，任何没有明确指定的操作都是被禁止的。</p>
+<h3 id="acl-default-policy"><a href="#acl-default-policy" class="headerlink" title="acl_default_policy"></a>acl_default_policy</h3><p>该配置项可选的值为<code>allow</code>和<code>deny</code>。默认值为<code>allow</code>。默认的策略控制token在没有匹配的规则时的行为。<br>在<code>allow</code>模式下，ACL规则是一个黑名单：任何没有被禁止的操作都是可以执行的。<br>在<code>deny</code>模式下，ACL规则是一个白名单，任何没有明确指定的操作都是被禁止的。</p>
 <blockquote>
 <p>注意：该配置项只有在配置了<code>acl_datacenter</code>后才起作用</p>
 </blockquote>
 <a id="more"></a>
-<h3 id="acl-down-policy"><a href="#acl-down-policy" class="headerlink" title="acl_down_policy"></a>acl_down_policy</h3><p>该配置项可选的值为<code>allow</code>，<code>deny</code>或<code>extend-cache</code>，　默认值是<code>extend-cache</code>。假如不能从<code>acl_datacenter</code>或<code>Leader</code>节点获取一个token的acl信息，则该配置项指定的策略被使用。</p>
+<h3 id="acl-down-policy"><a href="#acl-down-policy" class="headerlink" title="acl_down_policy"></a>acl_down_policy</h3><p>该配置项可选的值为<code>allow</code>，<code>deny</code>或<code>extend-cache</code>，　默认值是<code>extend-cache</code>。假如不能从<code>acl_datacenter</code>或<code>Leader</code>节点获取一个<code>token</code>的<code>acl</code>信息，则该配置项指定的策略被使用。</p>
 <ul>
 <li><code>allow</code>模式下，所有的操作都允许。 </li>
 <li><code>deny</code>模式下，所有的操作都被禁止。 </li>
-<li><code>extend-cache</code>模式下,使用缓存的 ACL规则并忽略这些规则的过期时间。如果一个不可缓存的ＡＣＬ的规则被使用，则当作<code>deny</code>策略来处理。</li>
+<li><code>extend-cache</code>模式下,使用缓存的<code>ACL</code>规则并忽略这些规则的过期时间。如果一个不可缓存的<code>ACL</code>的规则被使用，则当作<code>deny</code>策略来处理。</li>
 </ul>
 <h3 id="acl-master-token"><a href="#acl-master-token" class="headerlink" title="acl_master_token"></a>acl_master_token</h3><p>该配置项只能用在<code>acl_datacenter</code>中的Server节点上。 如果该令牌不存在，则将使用管理级权限创建该令牌。 它允许操作员使用众所周知的令牌ID来引导ACL系统。</p>
-<p>仅当服务器获得集群领导时才安装acl_master_token。 如果要安装或更改acl_master_token，请在所有服务器的配置中为acl_master_token设置新值。 完成此操作后，重新启动当前领导者以强制进行领导者选举。 如果未提供acl_master_token，则服务器不会创建主令牌。 提供值时，它可以是任何字符串值。 使用UUID可以确保它看起来与其他令牌相同，但并不是绝对必要的。</p>
-<h3 id="acl-agent-master-token"><a href="#acl-agent-master-token" class="headerlink" title="acl_agent_master_token"></a>acl_agent_master_token</h3><p>用作特殊访问 token，在配置它的每个 agent 上具有 agent ACL 策略 write 特权。 只有当 Consul server 不可用于解析 ACL token 时， 此 tokone 才应由运维人员在服务中断期间使用。 应用程序应在正常操作期间使用常规 ACL token。该配置项从版本<code>0.7.2</code>开始使用，并且只有当配置项<code>acl_enforce_version_8</code>设置为true时才起作用。更多信息参考<a href="https://www.consul.io/docs/guides/acl.html#acl-agent-master-token" target="_blank" rel="external"> ACL Agent Master Token </a></p>
+<p>仅当服务器获得集群领导时才安装<code>acl_master_token</code>。 如果要安装或更改<code>acl_master_token</code>，请在所有服务器的配置中为<code>acl_master_token</code>设置新值。 完成此操作后，重新启动当前领导者以强制进行领导者选举。 如果未提供<code>acl_master_token</code>，则服务器不会创建主令牌。 提供值时，它可以是任何字符串值。 使用UUID可以确保它看起来与其他令牌相同，但并不是绝对必要的。</p>
+<h3 id="acl-agent-master-token"><a href="#acl-agent-master-token" class="headerlink" title="acl_agent_master_token"></a>acl_agent_master_token</h3><p>用作特殊访问<code>token</code>，在配置它的每个<code>agent</code>上具有 agent ACL 策略 write 特权。 只有当 Consul server 不可用于解析 ACL token 时， 此<code>token</code>才应由运维人员在服务中断期间使用。 应用程序应在正常操作期间使用常规 ACL token。该配置项从版本<code>0.7.2</code>开始使用，并且只有当配置项<code>acl_enforce_version_8</code>设置为true时才起作用。更多信息参考<a href="https://www.consul.io/docs/guides/acl.html#acl-agent-master-token" target="_blank" rel="external"> ACL Agent Master Token </a></p>
 <h3 id="acl-agent-token"><a href="#acl-agent-token" class="headerlink" title="acl_agent_token"></a>acl_agent_token</h3><p>由客户端和<code>Server</code>节点执行内部操作使用。如果没有设置该配置项的值，则<code>acl_token</code>配置项的被使用。该配置项从版本<code>0.7.2</code>开始使用。</p>
 <p>此令牌必须至少具有对其将注册的节点名称的写访问权，以便设置目录中的任何节点级信息，例如元数据或节点的标记地址。 使用此令牌还有其他地方，请参阅<a href="https://www.consul.io/docs/guides/acl.html#acl-agent-token" target="_blank" rel="external">ACL代理令牌</a>以获取更多详细信息。</p>
 <h3 id="acl-enforce-version-8"><a href="#acl-enforce-version-8" class="headerlink" title="acl_enforce_version_8"></a>acl_enforce_version_8</h3><p>用于客户端和服务器，以确定是否应在Consul 0.8之前预览新的ACL策略。 在Consul 0.7.2中添加，在0.8之前的Consul版本中默认为false，在Consul 0.8及更高版本中默认为true。 通过在实施开始之前允许策略到位，这有助于简化向新ACL功能的过渡。 有关详细信息，请参阅ACL指南。</p>
 <h3 id="acl-replication-token"><a href="#acl-replication-token" class="headerlink" title="acl_replication_token"></a>acl_replication_token</h3><p>仅用于运行Consul 0.7或更高版本的<code>acl_datacenter</code>之外的服务器。 提供时，这将启用使用此令牌进行ACL复制，以检索ACL并将其复制到非权威的本地数据中心。 在Consul 0.9.1和更高版本中，您可以使用<code>enable_acl_replication</code>启用ACL复制，然后稍后使用每个服务器上的代理令牌API设置令牌。 如果在配置文件中设置了<code>acl_replication_token</code> ，它将自动将<code>enable_acl_replication</code>设置为true以实现向后兼容性。</p>
 <p>如果存在影响权威数据中心的分区或其他中断，并且<code>acl_down_policy</code>设置为<code>extend-cache</code>，则可以在中断期间使用复制的ACL集解析不在缓存中的令牌。 有关更多详细信息，请参阅<a href="https://www.consul.io/docs/guides/acl.html#replication" target="_blank" rel="external">ACL指南复制部分</a>。</p>
-<h3 id="acl-token"><a href="#acl-token" class="headerlink" title="acl_token"></a>acl_token</h3><p>如果设置了该配置项，代理将在向Consul服务器发出请求时使用此令牌。 客户端可以通过提供<code>？token</code>查询参数，基于每个请求覆盖此令牌。 如果未提供，则使用映射到“匿名”ACL策略的空标记。</p>
+<h3 id="acl-token"><a href="#acl-token" class="headerlink" title="acl_token"></a>acl_token</h3><p>如果设置了该配置项，代理将在向Consul服务器发出请求时使用此令牌。 客户端可以通过提供<code>?token</code>查询参数，基于每个请求覆盖此令牌。 如果未提供，则使用映射到“匿名”ACL策略的空标记。</p>
 <h3 id="acl-ttl"><a href="#acl-ttl" class="headerlink" title="acl_ttl"></a>acl_ttl</h3><p>用于控制ACL缓存的过期时间。 默认是30秒。 此设置会对性能产生重大影响：减少它会导致更频繁的刷新，增加它会减少刷新次数。 但是，由于缓存未被主动失效，因此ACL策略可能会过时到TTL值。</p>
 ]]></content>
     
     <summary type="html">
     
       &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;h2 id=&quot;配置项&quot;&gt;&lt;a href=&quot;#配置项&quot; class=&quot;headerlink&quot; title=&quot;配置项&quot;&gt;&lt;/a&gt;配置项&lt;/h2&gt;&lt;h3 id=&quot;acl-datacenter&quot;&gt;&lt;a href=&quot;#acl-datacenter&quot; class=&quot;headerlink&quot; title=&quot;acl_datacenter&quot;&gt;&lt;/a&gt;acl_datacenter&lt;/h3&gt;&lt;p&gt;该配置项指定了对ACL信息具有权威性的数据中心。 必须提供它才能启用ACL。 所有Server实例和数据中心必须就ACL数据中心达成一致。&lt;br&gt;必须在整个集群的Server节点上设置该配置项。但是针对API来说，如果要使客户端的请求能被正确转发，那么也需要在客户端节点设置。&lt;br&gt;在Consul 0.8及更高版本中，还可以启用代理级别的ACL。 有关详细信息，请参阅&lt;a href=&quot;https://www.consul.io/docs/guides/acl.html&quot;&gt;ACL指南&lt;/a&gt;。&lt;/p&gt;
-&lt;h3 id=&quot;acl-default-policy&quot;&gt;&lt;a href=&quot;#acl-default-policy&quot; class=&quot;headerlink&quot; title=&quot;acl_default_policy&quot;&gt;&lt;/a&gt;acl_default_policy&lt;/h3&gt;&lt;p&gt;该配置项可选的值为&lt;code&gt;allow&lt;/code&gt;和&lt;code&gt;deny&lt;/code&gt;。默认值为’allow’。默认的策略控制token在没有匹配的规则时的行为。&lt;br&gt;在&lt;code&gt;allow&lt;/code&gt;模式下，ACL规则是一个黑名单：任何没有被禁止的操作都是可以执行的。&lt;br&gt;在&lt;code&gt;deny&lt;/code&gt;模式下，ACL规则是一个白名单，任何没有明确指定的操作都是被禁止的。&lt;/p&gt;
+&lt;h3 id=&quot;acl-default-policy&quot;&gt;&lt;a href=&quot;#acl-default-policy&quot; class=&quot;headerlink&quot; title=&quot;acl_default_policy&quot;&gt;&lt;/a&gt;acl_default_policy&lt;/h3&gt;&lt;p&gt;该配置项可选的值为&lt;code&gt;allow&lt;/code&gt;和&lt;code&gt;deny&lt;/code&gt;。默认值为&lt;code&gt;allow&lt;/code&gt;。默认的策略控制token在没有匹配的规则时的行为。&lt;br&gt;在&lt;code&gt;allow&lt;/code&gt;模式下，ACL规则是一个黑名单：任何没有被禁止的操作都是可以执行的。&lt;br&gt;在&lt;code&gt;deny&lt;/code&gt;模式下，ACL规则是一个白名单，任何没有明确指定的操作都是被禁止的。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;注意：该配置项只有在配置了&lt;code&gt;acl_datacenter&lt;/code&gt;后才起作用&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -6306,742 +6919,6 @@
     
     
       <category term="spring" scheme="https://leokongwq.github.io/tags/spring/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>kafka发送消息过程分析</title>
-    <link href="https://leokongwq.github.io/2018/03/01/kafka-send-msg-profile.html"/>
-    <id>https://leokongwq.github.io/2018/03/01/kafka-send-msg-profile.html</id>
-    <published>2018-03-01T14:08:31.000Z</published>
-    <updated>2018-07-15T13:20:06.000Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前面的一篇文章分析了消息发送时topic分区选择的问题，本文就分析一下后续的发送逻辑。</p>
-<h2 id="消息发送涉及的类"><a href="#消息发送涉及的类" class="headerlink" title="消息发送涉及的类"></a>消息发送涉及的类</h2><h3 id="Producer"><a href="#Producer" class="headerlink" title="Producer"></a>Producer</h3><p><code>Producer</code>类是Kafka消息的发送的入口</p>
-<h3 id="ProducerFactory"><a href="#ProducerFactory" class="headerlink" title="ProducerFactory"></a>ProducerFactory</h3><p><code>ProducerFactory</code> 是一个策略接口，用来创佳<code>Producer</code>, 默认的实现是：<code>DefaultKafkaProducerFactory</code>,其创建<br>的<code>Producer</code>是<code>CloseSafeProducer</code>, <code>CloseSafeProducer</code>是<code>KafkaProducer</code>的一个代理类。</p>
-<p><code>DefaultKafkaProducerFactory</code> 的构造方法接收一个Map对象，用来指的创建<code>Producer</code>的配置。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">DefaultKafkaProducerFactory</span><span class="params">(Map&lt;String, Object&gt; configs)</span> </span>&#123;</span>
-<span class="line">	<span class="keyword">this</span>(configs, <span class="keyword">null</span>, <span class="keyword">null</span>);</span>
-<span class="line">&#125;</span>
-<span class="line"></span>
-<span class="line"><span class="function"><span class="keyword">public</span> <span class="title">DefaultKafkaProducerFactory</span><span class="params">(Map&lt;String, Object&gt; configs, Serializer&lt;K&gt; keySerializer,</span>
-<span class="line">		Serializer&lt;V&gt; valueSerializer)</span> </span>&#123;</span>
-<span class="line">	<span class="keyword">this</span>.configs = <span class="keyword">new</span> HashMap&lt;&gt;(configs);</span>
-<span class="line">	<span class="keyword">this</span>.keySerializer = keySerializer;</span>
-<span class="line">	<span class="keyword">this</span>.valueSerializer = valueSerializer;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<h3 id="KafkaTemplate"><a href="#KafkaTemplate" class="headerlink" title="KafkaTemplate"></a>KafkaTemplate</h3><p><code>KafkaTemplate</code>是一个模板类，提供了操作Kafka的高级Api。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> KafkaTemplate&lt;Integer, String&gt; <span class="title">createTemplate</span><span class="params">()</span> </span>&#123;</span>
-<span class="line">	Map&lt;String, Object&gt; senderProps = senderProps();</span>
-<span class="line">	ProducerFactory&lt;Integer, String&gt; pf =</span>
-<span class="line">			<span class="keyword">new</span> DefaultKafkaProducerFactory&lt;&gt;(senderProps);</span>
-<span class="line">	KafkaTemplate&lt;Integer, String&gt; template = <span class="keyword">new</span> KafkaTemplate&lt;&gt;(pf);</span>
-<span class="line">	<span class="keyword">return</span> template;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<h2 id="发送消息实例"><a href="#发送消息实例" class="headerlink" title="发送消息实例"></a>发送消息实例</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-<span class="line">22</span>
-<span class="line">23</span>
-<span class="line">24</span>
-<span class="line">25</span>
-</pre></td><td class="code"><pre><span class="line"><span class="comment">// 生产者配置项</span></span>
-<span class="line"><span class="function"><span class="keyword">private</span> Map&lt;String, Object&gt; <span class="title">senderProps</span><span class="params">()</span> </span>&#123;</span>
-<span class="line">	Map&lt;String, Object&gt; props = <span class="keyword">new</span> HashMap&lt;&gt;();</span>
-<span class="line">	props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, <span class="string">"localhost:9092"</span>);</span>
-<span class="line">	props.put(ProducerConfig.RETRIES_CONFIG, <span class="number">0</span>);</span>
-<span class="line">	props.put(ProducerConfig.BATCH_SIZE_CONFIG, <span class="number">16384</span>);</span>
-<span class="line">	props.put(ProducerConfig.LINGER_MS_CONFIG, <span class="number">1</span>);</span>
-<span class="line">	props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, <span class="number">33554432</span>);</span>
-<span class="line">	props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);</span>
-<span class="line">	props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);</span>
-<span class="line">	<span class="keyword">return</span> props;</span>
-<span class="line">&#125; </span>
-<span class="line"><span class="comment">// 创建生产者工厂实例</span></span>
-<span class="line">ProducerFactory&lt;Integer, String&gt; pf = <span class="keyword">new</span> DefaultKafkaProducerFactory&lt;&gt;(senderProps);</span>
-<span class="line"></span>
-<span class="line"> <span class="meta">@Test</span></span>
-<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testSendMsgSysn</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
-<span class="line">	KafkaTemplate&lt;Integer, String&gt; kafkaTemplate = createTemplate();</span>
-<span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span>
-<span class="line">		<span class="comment">// 同步发送</span></span>
-<span class="line">		<span class="comment">//kafkaTemplate.send(topic1, "hello ===&gt; " + i).get();</span></span>
-<span class="line">		<span class="comment">// 异步发送</span></span>
-<span class="line">		kafkaTemplate.send(topic1, <span class="string">"hello ===&gt; "</span> + i);</span>
-<span class="line">	&#125;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<h2 id="消息发送过程分析"><a href="#消息发送过程分析" class="headerlink" title="消息发送过程分析"></a>消息发送过程分析</h2><p><code>Producer</code> 的一个重要方法就是<code>send</code>, 方法签名如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-</pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Future&lt;RecordMetadata&gt; <span class="title">send</span><span class="params">(ProducerRecord&lt;K, V&gt; record, Callback callback)</span></span>;</span>
-</pre></td></tr></table></figure>
-<p>从方法的签名我们能够推断出，Kafka的消息发送是异步的。 这个从后面的分析可以得证。</p>
-<a id="more"></a>
-<p><code>Producer</code>的实现类是：<code>KafkaProducer</code>, 它对<code>send</code>方法的实现如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-</pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span>
-<span class="line"><span class="function"><span class="keyword">public</span> Future&lt;RecordMetadata&gt; <span class="title">send</span><span class="params">(ProducerRecord&lt;K, V&gt; record, Callback callback)</span> </span>&#123;</span>
-<span class="line">	<span class="comment">// intercept the record, which can be potentially modified; this method does not throw exceptions</span></span>
-<span class="line">	ProducerRecord&lt;K, V&gt; interceptedRecord = <span class="keyword">this</span>.interceptors == <span class="keyword">null</span> ? record : <span class="keyword">this</span>.interceptors.onSend(record);</span>
-<span class="line">	<span class="keyword">return</span> doSend(interceptedRecord, callback);</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>该方法会对将要发送的消息进行个性化修改。是Kafka提供的插件机制。可以通过<code>interceptor.classes</code>配置型来配置。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-</pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span>
-<span class="line">* 异步发送一条记录到topic, 等价于　send(record, null)</span>
-<span class="line">* See &#123;<span class="doctag">@link</span> #send(ProducerRecord, Callback)&#125; for details.</span>
-<span class="line">*/</span></span>
-<span class="line"><span class="function"><span class="keyword">private</span> Future&lt;RecordMetadata&gt; <span class="title">doSend</span><span class="params">(ProducerRecord&lt;K, V&gt; record, Callback callback)</span> </span>&#123;</span>
-<span class="line">	TopicPartition tp = <span class="keyword">null</span>;</span>
-<span class="line">	<span class="keyword">try</span> &#123;</span>
-<span class="line">		<span class="comment">// 省略大部分代码</span></span>
-<span class="line">		RecordAccumulator.RecordAppendResult result = accumulator.append(tp, timestamp, serializedKey, serializedValue, interceptCallback, remainingWaitMs);</span>
-<span class="line">		<span class="comment">//当记录累加器满了　或　创建了心的发送批次，此时会唤醒发送线程来真正通过网络发送消息</span></span>
-<span class="line">		<span class="keyword">if</span> (result.batchIsFull || result.newBatchCreated) &#123;</span>
-<span class="line">			log.trace(<span class="string">"Waking up the sender since topic &#123;&#125; partition &#123;&#125; is either full or getting a new batch"</span>, record.topic(), partition);</span>
-<span class="line">			<span class="comment">// 唤醒发现线程</span></span>
-<span class="line">			<span class="keyword">this</span>.sender.wakeup();</span>
-<span class="line">		&#125;</span>
-<span class="line">		<span class="keyword">return</span> result.future;</span>
-<span class="line">	&#125;　</span>
-<span class="line">	<span class="comment">// 省略异常处理代码</span></span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>消息记录累加器： RecordAccumulator</p>
-<figure class="highlight java"><figcaption><span>RecordAccumulator</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-<span class="line">22</span>
-<span class="line">23</span>
-<span class="line">24</span>
-<span class="line">25</span>
-<span class="line">26</span>
-<span class="line">27</span>
-<span class="line">28</span>
-<span class="line">29</span>
-<span class="line">30</span>
-<span class="line">31</span>
-<span class="line">32</span>
-<span class="line">33</span>
-<span class="line">34</span>
-<span class="line">35</span>
-<span class="line">36</span>
-<span class="line">37</span>
-<span class="line">38</span>
-<span class="line">39</span>
-<span class="line">40</span>
-<span class="line">41</span>
-<span class="line">42</span>
-<span class="line">43</span>
-<span class="line">44</span>
-<span class="line">45</span>
-<span class="line">46</span>
-<span class="line">47</span>
-<span class="line">48</span>
-<span class="line">49</span>
-<span class="line">50</span>
-<span class="line">51</span>
-<span class="line">52</span>
-<span class="line">53</span>
-<span class="line">54</span>
-<span class="line">55</span>
-<span class="line">56</span>
-<span class="line">57</span>
-<span class="line">58</span>
-<span class="line">59</span>
-<span class="line">60</span>
-<span class="line">61</span>
-<span class="line">62</span>
-<span class="line">63</span>
-<span class="line">64</span>
-<span class="line">65</span>
-<span class="line">66</span>
-<span class="line">67</span>
-<span class="line">68</span>
-</pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span>
-<span class="line"> * 该类扮演一个队列的角色，用来将消息累积到`MemoryRecords`中</span>
-<span class="line"> * 该类使用一个有上限的内存缓存区来保存消息，默认情况下，调用添加消息的方法append时，如果缓存区满了会阻塞调用线程　(除非手动关闭这一行为)</span>
-<span class="line"> */</span></span>
-<span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">RecordAccumulator</span> </span>&#123;</span>
-<span class="line">	<span class="comment">/**</span>
-<span class="line">     * 将一条记录添加到该累加器中，并返回添加的结果</span>
-<span class="line">     * 返回的结果包含了FutureRecordMetadata 和一个表示批次是否已经满了的标志位，一个批次是否是新创建的标志位</span>
-<span class="line">     * <span class="doctag">@param</span> tp　该记录将要发送到的Topic的Partition信息</span>
-<span class="line">     * <span class="doctag">@param</span> timestamp The timestamp of the record</span>
-<span class="line">     * <span class="doctag">@param</span> key The key for the record</span>
-<span class="line">     * <span class="doctag">@param</span> value The value for the record</span>
-<span class="line">     * <span class="doctag">@param</span> callback 用户提供的回调函数</span>
-<span class="line">     * <span class="doctag">@param</span> maxTimeToBlock 等待内存缓存区有可用空间的最大时间，单位是毫秒</span>
-<span class="line">     */</span></span>
-<span class="line">    <span class="function"><span class="keyword">public</span> RecordAppendResult <span class="title">append</span><span class="params">(TopicPartition tp,</span>
-<span class="line">                                     <span class="keyword">long</span> timestamp,</span>
-<span class="line">                                     <span class="keyword">byte</span>[] key,</span>
-<span class="line">                                     <span class="keyword">byte</span>[] value,</span>
-<span class="line">                                     Callback callback,</span>
-<span class="line">                                     <span class="keyword">long</span> maxTimeToBlock)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span>
-<span class="line">        <span class="comment">// We keep track of the number of appending thread to make sure we do not miss batches in</span></span>
-<span class="line">        <span class="comment">// abortIncompleteBatches().</span></span>
-<span class="line">        appendsInProgress.incrementAndGet();</span>
-<span class="line">        <span class="keyword">try</span> &#123;</span>
-<span class="line">            <span class="comment">// 获取或创建一个指定partion对于的Deque</span></span>
-<span class="line">            Deque&lt;RecordBatch&gt; dq = getOrCreateDeque(tp);</span>
-<span class="line">            <span class="keyword">synchronized</span> (dq) &#123;</span>
-<span class="line">                <span class="keyword">if</span> (closed)</span>
-<span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Cannot send after the producer is closed."</span>);</span>
-<span class="line">                RecordAppendResult appendResult = tryAppend(timestamp, key, value, callback, dq);</span>
-<span class="line">                <span class="keyword">if</span> (appendResult != <span class="keyword">null</span>)</span>
-<span class="line">                    <span class="keyword">return</span> appendResult;</span>
-<span class="line">            &#125;</span>
-<span class="line"></span>
-<span class="line">            <span class="comment">//batchSize 的默认值是：16384</span></span>
-<span class="line">            <span class="keyword">int</span> size = Math.max(<span class="keyword">this</span>.batchSize, Records.LOG_OVERHEAD + Record.recordSize(key, value));</span>
-<span class="line">            log.trace(<span class="string">"Allocating a new &#123;&#125; byte message buffer for topic &#123;&#125; partition &#123;&#125;"</span>, size, tp.topic(), tp.partition());</span>
-<span class="line">            <span class="comment">// 分配一块缓存区，来保存消息</span></span>
-<span class="line">			ByteBuffer buffer = free.allocate(size, maxTimeToBlock);</span>
-<span class="line">            <span class="keyword">synchronized</span> (dq) &#123;</span>
-<span class="line">                <span class="comment">// Need to check if producer is closed again after grabbing the dequeue lock.</span></span>
-<span class="line">                <span class="keyword">if</span> (closed)</span>
-<span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Cannot send after the producer is closed."</span>);</span>
-<span class="line"></span>
-<span class="line">                RecordAppendResult appendResult = tryAppend(timestamp, key, value, callback, dq);</span>
-<span class="line">                <span class="keyword">if</span> (appendResult != <span class="keyword">null</span>) &#123;</span>
-<span class="line">                    <span class="comment">// Somebody else found us a batch, return the one we waited for! Hopefully this doesn't happen often...</span></span>
-<span class="line">                    free.deallocate(buffer);</span>
-<span class="line">                    <span class="keyword">return</span> appendResult;</span>
-<span class="line">                &#125;</span>
-<span class="line">				<span class="comment">// 创建一个内存缓存区来缓存记录 </span></span>
-<span class="line">                MemoryRecords records = MemoryRecords.emptyRecords(buffer, compression, <span class="keyword">this</span>.batchSize);</span>
-<span class="line">                RecordBatch batch = <span class="keyword">new</span> RecordBatch(tp, records, time.milliseconds());</span>
-<span class="line">				<span class="comment">// 将记录添加到内存缓存区</span></span>
-<span class="line">                FutureRecordMetadata future = Utils.notNull(batch.tryAppend(timestamp, key, value, callback, time.milliseconds()));</span>
-<span class="line">				<span class="comment">// 将批次放入队列中</span></span>
-<span class="line">                dq.addLast(batch);</span>
-<span class="line">				<span class="comment">// 将批次放入待确认队列</span></span>
-<span class="line">                incomplete.add(batch);</span>
-<span class="line">				<span class="comment">// 第一条消息肯定是 新创建的， 会立刻发送。</span></span>
-<span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> RecordAppendResult(future, dq.size() &gt; <span class="number">1</span> || batch.records.isFull(), <span class="keyword">true</span>);</span>
-<span class="line">            &#125;</span>
-<span class="line">        &#125; <span class="keyword">finally</span> &#123;</span>
-<span class="line">            appendsInProgress.decrementAndGet();</span>
-<span class="line">        &#125;</span>
-<span class="line">    &#125;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>消息批次： RecordBatch</p>
-<figure class="highlight java"><figcaption><span>RecordBatch</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-</pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span>
-<span class="line"> * 该类表示一个将要被发送的消息批次</span>
-<span class="line"> * 该类不是线程安全的，因此在修改该类的实例对象状态时需要外部同步</span>
-<span class="line"> */</span></span>
-<span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">RecordBatch</span> </span>&#123;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>消息发送线程：Sender</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-<span class="line">22</span>
-<span class="line">23</span>
-<span class="line">24</span>
-<span class="line">25</span>
-<span class="line">26</span>
-<span class="line">27</span>
-<span class="line">28</span>
-<span class="line">29</span>
-<span class="line">30</span>
-<span class="line">31</span>
-<span class="line">32</span>
-<span class="line">33</span>
-<span class="line">34</span>
-<span class="line">35</span>
-<span class="line">36</span>
-<span class="line">37</span>
-<span class="line">38</span>
-<span class="line">39</span>
-<span class="line">40</span>
-<span class="line">41</span>
-<span class="line">42</span>
-<span class="line">43</span>
-<span class="line">44</span>
-<span class="line">45</span>
-<span class="line">46</span>
-<span class="line">47</span>
-<span class="line">48</span>
-<span class="line">49</span>
-<span class="line">50</span>
-<span class="line">51</span>
-<span class="line">52</span>
-<span class="line">53</span>
-<span class="line">54</span>
-<span class="line">55</span>
-<span class="line">56</span>
-<span class="line">57</span>
-<span class="line">58</span>
-<span class="line">59</span>
-<span class="line">60</span>
-<span class="line">61</span>
-<span class="line">62</span>
-<span class="line">63</span>
-<span class="line">64</span>
-<span class="line">65</span>
-<span class="line">66</span>
-<span class="line">67</span>
-<span class="line">68</span>
-<span class="line">69</span>
-<span class="line">70</span>
-<span class="line">71</span>
-<span class="line">72</span>
-<span class="line">73</span>
-<span class="line">74</span>
-<span class="line">75</span>
-<span class="line">76</span>
-<span class="line">77</span>
-<span class="line">78</span>
-<span class="line">79</span>
-<span class="line">80</span>
-<span class="line">81</span>
-<span class="line">82</span>
-<span class="line">83</span>
-<span class="line">84</span>
-<span class="line">85</span>
-<span class="line">86</span>
-<span class="line">87</span>
-<span class="line">88</span>
-<span class="line">89</span>
-<span class="line">90</span>
-<span class="line">91</span>
-<span class="line">92</span>
-<span class="line">93</span>
-<span class="line">94</span>
-<span class="line">95</span>
-<span class="line">96</span>
-<span class="line">97</span>
-<span class="line">98</span>
-<span class="line">99</span>
-<span class="line">100</span>
-<span class="line">101</span>
-<span class="line">102</span>
-<span class="line">103</span>
-<span class="line">104</span>
-<span class="line">105</span>
-<span class="line">106</span>
-<span class="line">107</span>
-<span class="line">108</span>
-<span class="line">109</span>
-<span class="line">110</span>
-<span class="line">111</span>
-<span class="line">112</span>
-<span class="line">113</span>
-<span class="line">114</span>
-</pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span>
-<span class="line"> * 该类表示一个后台线程，用来将消息发送到kafka集群中。</span>
-<span class="line"> */</span></span>
-<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Sender</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span>
-<span class="line">	 <span class="comment">/**</span>
-<span class="line">     * The main run loop for the sender thread</span>
-<span class="line">     */</span></span>
-<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span>
-<span class="line">        log.debug(<span class="string">"Starting Kafka producer I/O thread."</span>);</span>
-<span class="line"></span>
-<span class="line">        <span class="comment">// 主循环，获取待发送的消息，并进行发送</span></span>
-<span class="line">        <span class="keyword">while</span> (running) &#123;</span>
-<span class="line">            <span class="keyword">try</span> &#123;</span>
-<span class="line">                run(time.milliseconds());</span>
-<span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span>
-<span class="line">                log.error(<span class="string">"Uncaught error in kafka producer I/O thread: "</span>, e);</span>
-<span class="line">            &#125;</span>
-<span class="line">        &#125;</span>
-<span class="line"></span>
-<span class="line">        log.debug(<span class="string">"Beginning shutdown of Kafka producer I/O thread, sending remaining records."</span>);</span>
-<span class="line"></span>
-<span class="line">        <span class="comment">// 停止接收发送消息的请求，但是会将缓存区的消息发送完毕，病处理服务端返回的ack</span></span>
-<span class="line">        <span class="keyword">while</span> (!forceClose &amp;&amp; (<span class="keyword">this</span>.accumulator.hasUnsent() || <span class="keyword">this</span>.client.inFlightRequestCount() &gt; <span class="number">0</span>)) &#123;</span>
-<span class="line">            <span class="keyword">try</span> &#123;</span>
-<span class="line">                run(time.milliseconds());</span>
-<span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span>
-<span class="line">                log.error(<span class="string">"Uncaught error in kafka producer I/O thread: "</span>, e);</span>
-<span class="line">            &#125;</span>
-<span class="line">        &#125;</span>
-<span class="line">		<span class="comment">// 强制关闭</span></span>
-<span class="line">        <span class="keyword">if</span> (forceClose) &#123;</span>
-<span class="line">            <span class="comment">// We need to fail all the incomplete batches and wake up the threads waiting on</span></span>
-<span class="line">            <span class="comment">// the futures.</span></span>
-<span class="line">            <span class="keyword">this</span>.accumulator.abortIncompleteBatches();</span>
-<span class="line">        &#125;</span>
-<span class="line">		<span class="comment">// 关闭网络客户端</span></span>
-<span class="line">        <span class="keyword">try</span> &#123;</span>
-<span class="line">            <span class="keyword">this</span>.client.close();</span>
-<span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span>
-<span class="line">            log.error(<span class="string">"Failed to close network client"</span>, e);</span>
-<span class="line">        &#125;</span>
-<span class="line"></span>
-<span class="line">        log.debug(<span class="string">"Shutdown of Kafka producer I/O thread has completed."</span>);</span>
-<span class="line">    &#125;</span>
-<span class="line"></span>
-<span class="line">	 <span class="comment">/**</span>
-<span class="line">     * Run a single iteration of sending</span>
-<span class="line">     * <span class="doctag">@param</span> now　The current POSIX time in milliseconds</span>
-<span class="line">     */</span></span>
-<span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">run</span><span class="params">(<span class="keyword">long</span> now)</span> </span>&#123;</span>
-<span class="line">		<span class="comment">// 获取元数据</span></span>
-<span class="line">        Cluster cluster = metadata.fetch();</span>
-<span class="line">        <span class="comment">// 获取可以发送数据的 Partition</span></span>
-<span class="line">        RecordAccumulator.ReadyCheckResult result = <span class="keyword">this</span>.accumulator.ready(cluster, now);</span>
-<span class="line"></span>
-<span class="line">        <span class="comment">// 如果任何Partition的Leader不能确定，则需要强制获取最新的Partition的Leader信息。</span></span>
-<span class="line">        <span class="keyword">if</span> (result.unknownLeadersExist)</span>
-<span class="line">            <span class="keyword">this</span>.metadata.requestUpdate();</span>
-<span class="line"></span>
-<span class="line">        <span class="comment">// 剔除不可用的节点</span></span>
-<span class="line">        Iterator&lt;Node&gt; iter = result.readyNodes.iterator();</span>
-<span class="line">        <span class="keyword">long</span> notReadyTimeout = Long.MAX_VALUE;</span>
-<span class="line">        <span class="keyword">while</span> (iter.hasNext()) &#123;</span>
-<span class="line">            Node node = iter.next();</span>
-<span class="line">            <span class="keyword">if</span> (!<span class="keyword">this</span>.client.ready(node, now)) &#123;</span>
-<span class="line">                iter.remove();</span>
-<span class="line">                notReadyTimeout = Math.min(notReadyTimeout, <span class="keyword">this</span>.client.connectionDelay(node, now));</span>
-<span class="line">            &#125;</span>
-<span class="line">        &#125;</span>
-<span class="line"></span>
-<span class="line">        <span class="comment">// create produce requests</span></span>
-<span class="line">        Map&lt;Integer, List&lt;RecordBatch&gt;&gt; batches = <span class="keyword">this</span>.accumulator.drain(cluster,</span>
-<span class="line">                                                                         result.readyNodes,</span>
-<span class="line">                                                                         <span class="keyword">this</span>.maxRequestSize,</span>
-<span class="line">                                                                         now);</span>
-<span class="line">        <span class="comment">//是否需要保持消息的顺序，max.in.flight.requests.per.connection 的值　＝１　可以保证</span></span>
-<span class="line">		<span class="keyword">if</span> (guaranteeMessageOrder) &#123;</span>
-<span class="line">            <span class="comment">// Mute all the partitions drained</span></span>
-<span class="line">            <span class="keyword">for</span> (List&lt;RecordBatch&gt; batchList : batches.values()) &#123;</span>
-<span class="line">                <span class="keyword">for</span> (RecordBatch batch : batchList)</span>
-<span class="line">                    <span class="keyword">this</span>.accumulator.mutePartition(batch.topicPartition);</span>
-<span class="line">            &#125;</span>
-<span class="line">        &#125;</span>
-<span class="line"></span>
-<span class="line">        List&lt;RecordBatch&gt; expiredBatches = <span class="keyword">this</span>.accumulator.abortExpiredBatches(<span class="keyword">this</span>.requestTimeout, now);</span>
-<span class="line">        <span class="comment">// update sensors</span></span>
-<span class="line">        <span class="keyword">for</span> (RecordBatch expiredBatch : expiredBatches)</span>
-<span class="line">            <span class="keyword">this</span>.sensors.recordErrors(expiredBatch.topicPartition.topic(), expiredBatch.recordCount);</span>
-<span class="line"></span>
-<span class="line">        sensors.updateProduceRequestMetrics(batches);</span>
-<span class="line">		<span class="comment">// 创建需要发送的请求包对象</span></span>
-<span class="line">        List&lt;ClientRequest&gt; requests = createProduceRequests(batches, now);</span>
-<span class="line">        <span class="comment">// If we have any nodes that are ready to send + have sendable data, poll with 0 timeout so this can immediately</span></span>
-<span class="line">        <span class="comment">// loop and try sending more data. Otherwise, the timeout is determined by nodes that have partitions with data</span></span>
-<span class="line">        <span class="comment">// that isn't yet sendable (e.g. lingering, backing off). Note that this specifically does not include nodes</span></span>
-<span class="line">        <span class="comment">// with sendable data that aren't ready to send since they would cause busy looping.</span></span>
-<span class="line">        <span class="keyword">long</span> pollTimeout = Math.min(result.nextReadyCheckDelayMs, notReadyTimeout);</span>
-<span class="line">        <span class="keyword">if</span> (result.readyNodes.size() &gt; <span class="number">0</span>) &#123;</span>
-<span class="line">            log.trace(<span class="string">"Nodes with data ready to send: &#123;&#125;"</span>, result.readyNodes);</span>
-<span class="line">            log.trace(<span class="string">"Created &#123;&#125; produce requests: &#123;&#125;"</span>, requests.size(), requests);</span>
-<span class="line">            pollTimeout = <span class="number">0</span>;</span>
-<span class="line">        &#125;</span>
-<span class="line">		<span class="comment">// 将请求包暂存在待发送队列中</span></span>
-<span class="line">        <span class="keyword">for</span> (ClientRequest request : requests)</span>
-<span class="line">            client.send(request, now);</span>
-<span class="line"></span>
-<span class="line">        <span class="comment">// if some partitions are already ready to be sent, the select time would be 0;</span></span>
-<span class="line">        <span class="comment">// otherwise if some partition already has some data accumulated but not ready yet,</span></span>
-<span class="line">        <span class="comment">// the select time will be the time difference between now and its linger expiry time;</span></span>
-<span class="line">        <span class="comment">// otherwise the select time will be the time difference between now and the metadata expiry time;</span></span>
-<span class="line">        <span class="comment">// 执行真正的网络ＩＯ操作，发送数据，读取响应，执行请求的回调函数</span></span>
-<span class="line">        <span class="keyword">this</span>.client.poll(pollTimeout, now);</span>
-<span class="line">    &#125;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>创建客户端请求对象</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-</pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建客户端请求对象</span></span>
-<span class="line"><span class="function"><span class="keyword">private</span> ClientRequest <span class="title">produceRequest</span><span class="params">(<span class="keyword">long</span> now, <span class="keyword">int</span> destination, <span class="keyword">short</span> acks, <span class="keyword">int</span> timeout, List&lt;RecordBatch&gt; batches)</span> </span>&#123;</span>
-<span class="line">	Map&lt;TopicPartition, ByteBuffer&gt; produceRecordsByPartition = <span class="keyword">new</span> HashMap&lt;TopicPartition, ByteBuffer&gt;(batches.size());</span>
-<span class="line">	<span class="keyword">final</span> Map&lt;TopicPartition, RecordBatch&gt; recordsByPartition = <span class="keyword">new</span> HashMap&lt;TopicPartition, RecordBatch&gt;(batches.size());</span>
-<span class="line">	<span class="keyword">for</span> (RecordBatch batch : batches) &#123;</span>
-<span class="line">		TopicPartition tp = batch.topicPartition;</span>
-<span class="line">		produceRecordsByPartition.put(tp, batch.records.buffer());</span>
-<span class="line">		recordsByPartition.put(tp, batch);</span>
-<span class="line">	&#125;</span>
-<span class="line">	ProduceRequest request = <span class="keyword">new</span> ProduceRequest(acks, timeout, produceRecordsByPartition);</span>
-<span class="line">	RequestSend send = <span class="keyword">new</span> RequestSend(Integer.toString(destination),</span>
-<span class="line">										<span class="keyword">this</span>.client.nextRequestHeader(ApiKeys.PRODUCE),</span>
-<span class="line">										request.toStruct());</span>
-<span class="line">	RequestCompletionHandler callback = <span class="keyword">new</span> RequestCompletionHandler() &#123;</span>
-<span class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onComplete</span><span class="params">(ClientResponse response)</span> </span>&#123;</span>
-<span class="line">			handleProduceResponse(response, recordsByPartition, time.milliseconds());</span>
-<span class="line">		&#125;</span>
-<span class="line">	&#125;;</span>
-<span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> ClientRequest(now, acks != <span class="number">0</span>, send, callback);</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>ClientRequest</p>
-<pre><code class="java"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">ClientRequest</span> </span>{
-    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">long</span> createdTimeMs;
-    <span class="comment">// 需要进行确认</span>
-    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> expectResponse;
-    <span class="keyword">private</span> <span class="keyword">final</span> RequestSend request;
-    <span class="comment">// 回调</span>
-    <span class="keyword">private</span> <span class="keyword">final</span> RequestCompletionHandler callback;
-    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> isInitiatedByNetworkClient;
-    <span class="keyword">private</span> <span class="keyword">long</span> sendTimeMs;
-}
-</code></pre>
-<h2 id="Producer不丢失消息配置"><a href="#Producer不丢失消息配置" class="headerlink" title="Producer不丢失消息配置"></a>Producer不丢失消息配置</h2><ul>
-<li>同步发送。 类似：producer.send(record).get();</li>
-<li>block.on.buffer.full = true</li>
-<li>acks = all</li>
-<li>retries = MAX_VALUE</li>
-<li>max.in.flight.requests.per.connection = 1</li>
-<li>使用KafkaProducer.send(record, callback)</li>
-<li>callback逻辑中显式关闭producer：close(0) </li>
-<li>replication.factor &gt;= 3</li>
-<li>min.insync.replicas &gt; 1 消息至少要被写入到这么多副本才算成功，也是提升数据持久性的一个参数。与acks配合使用<br>保证replication.factor &gt; min.insync.replicas  如果两者相等，当一个副本挂掉了分区也就没法正常工作了。通常设置replication.factor = min.insync.replicas + 1即可</li>
-</ul>
-<p>解释：</p>
-<ol>
-<li>block.on.buffer.full ： 使得producer将一直等待缓冲区直至其变为可用</li>
-<li>acks ： 所有follower都响应了才认为消息提交成功，即”committed”</li>
-<li>retries = MAX ： 无限重试</li>
-<li>max.in.flight.requests.per.connection=1 ： 限制客户端在单个连接上能够发送的未响应请求的个数。<br>设置此值是1表示kafka broker在响应请求之前client不能再向同一个broker发送请求。注意：设置此参数是为了避免消息乱序</li>
-<li>使用<code>KafkaProducer.send(record, callback)</code>而不是<code>send(record)</code>方法   自定义回调逻辑处理消息发送失败<br>callback逻辑中最好显式关闭<code>producer：close(0)</code></li>
-<li>unclean.leader.election.enable=false  关闭unclean leader选举，即不允许非ISR中的副本被选举为leader，以避免数据丢失</li>
-<li>replication.factor &gt;= 3 业界通用的设置，每个Partition的副本大于等于3</li>
-<li>min.insync.replicas &gt; 1 消息至少要被写入到这么多副本才算成功，也是提升数据持久性的一个参数。与acks配合使用<br>保证replication.factor &gt; min.insync.replicas  如果两者相等，当一个副本挂掉了分区也就没法正常工作了。通常设置replication.factor = min.insync.replicas + 1即可</li>
-</ol>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
-<li>Kafka的消息发送是异步的。</li>
-<li>Kafka提供了插件机制来扩展消息的发送流程，可以通过配置<code>interceptor.classes</code>来指定消息过滤器，在消息发送前对消息做特殊处理。</li>
-<li>Kafka消息在通过网络发送前会累积在内存中（通过<code>RecordAccumulator</code>）。</li>
-<li>通过配置<code>max.in.flight.requests.per.connection = 1</code> 可以让Kafka一次只发送一条消息，只有在上条消息ack后才发送下一条消息</li>
-</ol>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;前面的一篇文章分析了消息发送时topic分区选择的问题，本文就分析一下后续的发送逻辑。&lt;/p&gt;
-&lt;h2 id=&quot;消息发送涉及的类&quot;&gt;&lt;a href=&quot;#消息发送涉及的类&quot; class=&quot;headerlink&quot; title=&quot;消息发送涉及的类&quot;&gt;&lt;/a&gt;消息发送涉及的类&lt;/h2&gt;&lt;h3 id=&quot;Producer&quot;&gt;&lt;a href=&quot;#Producer&quot; class=&quot;headerlink&quot; title=&quot;Producer&quot;&gt;&lt;/a&gt;Producer&lt;/h3&gt;&lt;p&gt;&lt;code&gt;Producer&lt;/code&gt;类是Kafka消息的发送的入口&lt;/p&gt;
-&lt;h3 id=&quot;ProducerFactory&quot;&gt;&lt;a href=&quot;#ProducerFactory&quot; class=&quot;headerlink&quot; title=&quot;ProducerFactory&quot;&gt;&lt;/a&gt;ProducerFactory&lt;/h3&gt;&lt;p&gt;&lt;code&gt;ProducerFactory&lt;/code&gt; 是一个策略接口，用来创佳&lt;code&gt;Producer&lt;/code&gt;, 默认的实现是：&lt;code&gt;DefaultKafkaProducerFactory&lt;/code&gt;,其创建&lt;br&gt;的&lt;code&gt;Producer&lt;/code&gt;是&lt;code&gt;CloseSafeProducer&lt;/code&gt;, &lt;code&gt;CloseSafeProducer&lt;/code&gt;是&lt;code&gt;KafkaProducer&lt;/code&gt;的一个代理类。&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;DefaultKafkaProducerFactory&lt;/code&gt; 的构造方法接收一个Map对象，用来指的创建&lt;code&gt;Producer&lt;/code&gt;的配置。&lt;/p&gt;
-&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;DefaultKafkaProducerFactory&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(Map&amp;lt;String, Object&amp;gt; configs)&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;(configs, &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;, &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;);&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;DefaultKafkaProducerFactory&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(Map&amp;lt;String, Object&amp;gt; configs, Serializer&amp;lt;K&amp;gt; keySerializer,&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;		Serializer&amp;lt;V&amp;gt; valueSerializer)&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.configs = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; HashMap&amp;lt;&amp;gt;(configs);&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.keySerializer = keySerializer;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.valueSerializer = valueSerializer;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;h3 id=&quot;KafkaTemplate&quot;&gt;&lt;a href=&quot;#KafkaTemplate&quot; class=&quot;headerlink&quot; title=&quot;KafkaTemplate&quot;&gt;&lt;/a&gt;KafkaTemplate&lt;/h3&gt;&lt;p&gt;&lt;code&gt;KafkaTemplate&lt;/code&gt;是一个模板类，提供了操作Kafka的高级Api。&lt;/p&gt;
-&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; KafkaTemplate&amp;lt;Integer, String&amp;gt; &lt;span class=&quot;title&quot;&gt;createTemplate&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	Map&amp;lt;String, Object&amp;gt; senderProps = senderProps();&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	ProducerFactory&amp;lt;Integer, String&amp;gt; pf =&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;			&lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; DefaultKafkaProducerFactory&amp;lt;&amp;gt;(senderProps);&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	KafkaTemplate&amp;lt;Integer, String&amp;gt; template = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; KafkaTemplate&amp;lt;&amp;gt;(pf);&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; template;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;h2 id=&quot;发送消息实例&quot;&gt;&lt;a href=&quot;#发送消息实例&quot; class=&quot;headerlink&quot; title=&quot;发送消息实例&quot;&gt;&lt;/a&gt;发送消息实例&lt;/h2&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;19&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;20&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;21&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;22&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;23&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;24&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;25&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// 生产者配置项&lt;/span&gt;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; Map&amp;lt;String, Object&amp;gt; &lt;span class=&quot;title&quot;&gt;senderProps&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	Map&amp;lt;String, Object&amp;gt; props = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; HashMap&amp;lt;&amp;gt;();&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, &lt;span class=&quot;string&quot;&gt;&quot;localhost:9092&quot;&lt;/span&gt;);&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	props.put(ProducerConfig.RETRIES_CONFIG, &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;);&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	props.put(ProducerConfig.BATCH_SIZE_CONFIG, &lt;span class=&quot;number&quot;&gt;16384&lt;/span&gt;);&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	props.put(ProducerConfig.LINGER_MS_CONFIG, &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;);&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, &lt;span class=&quot;number&quot;&gt;33554432&lt;/span&gt;);&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class);&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; props;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;&amp;#125; &lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// 创建生产者工厂实例&lt;/span&gt;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;ProducerFactory&amp;lt;Integer, String&amp;gt; pf = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; DefaultKafkaProducerFactory&amp;lt;&amp;gt;(senderProps);&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt; &lt;span class=&quot;meta&quot;&gt;@Test&lt;/span&gt;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;testSendMsgSysn&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;throws&lt;/span&gt; Exception &lt;/span&gt;&amp;#123;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	KafkaTemplate&amp;lt;Integer, String&amp;gt; kafkaTemplate = createTemplate();&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;for&lt;/span&gt; (&lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; i = &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;; i &amp;lt; &lt;span class=&quot;number&quot;&gt;10&lt;/span&gt;; i++) &amp;#123;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;// 同步发送&lt;/span&gt;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;//kafkaTemplate.send(topic1, &quot;hello ===&amp;gt; &quot; + i).get();&lt;/span&gt;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;// 异步发送&lt;/span&gt;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;		kafkaTemplate.send(topic1, &lt;span class=&quot;string&quot;&gt;&quot;hello ===&amp;gt; &quot;&lt;/span&gt; + i);&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;
-&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;h2 id=&quot;消息发送过程分析&quot;&gt;&lt;a href=&quot;#消息发送过程分析&quot; class=&quot;headerlink&quot; title=&quot;消息发送过程分析&quot;&gt;&lt;/a&gt;消息发送过程分析&lt;/h2&gt;&lt;p&gt;&lt;code&gt;Producer&lt;/code&gt; 的一个重要方法就是&lt;code&gt;send&lt;/code&gt;, 方法签名如下：&lt;/p&gt;
-&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Future&amp;lt;RecordMetadata&amp;gt; &lt;span class=&quot;title&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(ProducerRecord&amp;lt;K, V&amp;gt; record, Callback callback)&lt;/span&gt;&lt;/span&gt;;&lt;/span&gt;
-&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;从方法的签名我们能够推断出，Kafka的消息发送是异步的。 这个从后面的分析可以得证。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="消息中间件" scheme="https://leokongwq.github.io/categories/%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
-    
-    
-      <category term="MQ" scheme="https://leokongwq.github.io/tags/MQ/"/>
-    
-      <category term="kafka" scheme="https://leokongwq.github.io/tags/kafka/"/>
     
   </entry>
   

@@ -273,6 +273,157 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-consul-command-intro" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/07/29/consul-command-intro.html" class="article-date">
+      <time datetime="2018-07-28T16:25:40.000Z" itemprop="datePublished">2018-07-29</time>
+</a>
+
+ 
+    <a href="/2018/07/29/consul-command-intro.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2018/07/29/consul-command-intro.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/07/29/consul-command-intro.html">consul 命令介绍</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="consul-命令用法"><a href="#consul-命令用法" class="headerlink" title="consul 命令用法"></a>consul 命令用法</h2><p>安装完consul后，通过在控制台直接实现<code>consul</code>命令了解consul命令行的用法，输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+</pre></td><td class="code"><pre><span class="line">Usage: consul [--version] [--help] &lt;command&gt; [&lt;args&gt;]</span>
+<span class="line"></span>
+<span class="line">Available commands are:</span>
+<span class="line">agent          Runs a Consul agent</span>
+<span class="line">catalog        Interact with the catalog</span>
+<span class="line">event          Fire a new event</span>
+<span class="line">exec           Executes a command on Consul nodes</span>
+<span class="line">force-leave    Forces a member of the cluster to enter the &quot;left&quot; state</span>
+<span class="line">info           Provides debugging information for operators.</span>
+<span class="line">join           Tell Consul agent to join cluster</span>
+<span class="line">keygen         Generates a new encryption key</span>
+<span class="line">keyring        Manages gossip layer encryption keys</span>
+<span class="line">kv             Interact with the key-value store</span>
+<span class="line">leave          Gracefully leaves the Consul cluster and shuts down</span>
+<span class="line">lock           Execute a command holding a lock</span>
+<span class="line">maint          Controls node or service maintenance mode</span>
+<span class="line">members        Lists the members of a Consul cluster</span>
+<span class="line">monitor        Stream logs from a Consul agent</span>
+<span class="line">operator       Provides cluster-level tools for Consul operators</span>
+<span class="line">reload         Triggers the agent to reload configuration files</span>
+<span class="line">rtt            Estimates network round trip time between nodes</span>
+<span class="line">snapshot       Saves, restores and inspects snapshots of Consul server state</span>
+<span class="line">validate       Validate config files/directories</span>
+<span class="line">version        Prints the Consul version</span>
+<span class="line">watch          Watch for changes in Consul</span>
+</pre></td></tr></table></figure>
+<p>如上所示， consul提供的命令很多，下面就逐个学习下每个命令的作用和用法。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/分布式/">分布式</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/consul/">consul</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/07/29/consul-command-intro.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-how-to-process-302-in-j2ee-correctly" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -421,7 +572,7 @@ MathJax.Hub.Queue(function() {
       
           
               <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h2 id="配置项"><a href="#配置项" class="headerlink" title="配置项"></a>配置项</h2><h3 id="acl-datacenter"><a href="#acl-datacenter" class="headerlink" title="acl_datacenter"></a>acl_datacenter</h3><p>该配置项指定了对ACL信息具有权威性的数据中心。 必须提供它才能启用ACL。 所有Server实例和数据中心必须就ACL数据中心达成一致。<br>必须在整个集群的Server节点上设置该配置项。但是针对API来说，如果要使客户端的请求能被正确转发，那么也需要在客户端节点设置。<br>在Consul 0.8及更高版本中，还可以启用代理级别的ACL。 有关详细信息，请参阅<a href="https://www.consul.io/docs/guides/acl.html">ACL指南</a>。</p>
-<h3 id="acl-default-policy"><a href="#acl-default-policy" class="headerlink" title="acl_default_policy"></a>acl_default_policy</h3><p>该配置项可选的值为<code>allow</code>和<code>deny</code>。默认值为’allow’。默认的策略控制token在没有匹配的规则时的行为。<br>在<code>allow</code>模式下，ACL规则是一个黑名单：任何没有被禁止的操作都是可以执行的。<br>在<code>deny</code>模式下，ACL规则是一个白名单，任何没有明确指定的操作都是被禁止的。</p>
+<h3 id="acl-default-policy"><a href="#acl-default-policy" class="headerlink" title="acl_default_policy"></a>acl_default_policy</h3><p>该配置项可选的值为<code>allow</code>和<code>deny</code>。默认值为<code>allow</code>。默认的策略控制token在没有匹配的规则时的行为。<br>在<code>allow</code>模式下，ACL规则是一个黑名单：任何没有被禁止的操作都是可以执行的。<br>在<code>deny</code>模式下，ACL规则是一个白名单，任何没有明确指定的操作都是被禁止的。</p>
 <blockquote>
 <p>注意：该配置项只有在配置了<code>acl_datacenter</code>后才起作用</p>
 </blockquote>
@@ -1144,104 +1295,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2018/05/24/zookeeper-learning-summary.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-common-dns-records" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/05/24/common-dns-records.html" class="article-date">
-      <time datetime="2018-05-24T06:18:58.000Z" itemprop="datePublished">2018-05-24</time>
-</a>
-
- 
-    <a href="/2018/05/24/common-dns-records.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2018/05/24/common-dns-records.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/24/common-dns-records.html">常见DNS记录解释</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="A记录"><a href="#A记录" class="headerlink" title="A记录"></a>A记录</h3><p>A记录，又称IP指向，用户可以设置域名到目标主机IP地址的映射，从而实现通过域名找到服务器。</p>
-<h4 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h4><p>可以配置多条A记录，通过域名解析来实现<code>轮询</code>负载均衡。</p>
-<h4 id="泛域名解析"><a href="#泛域名解析" class="headerlink" title="泛域名解析"></a>泛域名解析</h4><p>泛域名解析指的是将一个域名所有未指定的子域名统一解析到一个地址。</p>
-<p>在<code>主机名</code>中填入<code>*</code>，类型为<code>A</code>，<code>IP地址/主机名</code>中填入web服务器的IP地址，点击“新增”按钮即可。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/web/">web</a>
-    </div>
-
-
-      
-      
-        <p class="article-more-link">
-          <a href="/2018/05/24/common-dns-records.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

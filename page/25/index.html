@@ -273,6 +273,108 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-linux-backlog-maxconn" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/10/24/linux-backlog-maxconn.html" class="article-date">
+      <time datetime="2016-10-24T13:35:41.000Z" itemprop="datePublished">2016-10-24</time>
+</a>
+
+ 
+    <a href="/2016/10/24/linux-backlog-maxconn.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2016/10/24/linux-backlog-maxconn.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/10/24/linux-backlog-maxconn.html">linux网络编程backlog和somaxconn</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><blockquote>
+<p>学习过的知识只要用的机会不多,多半过段时间就会忘记.如果能反复学习或者记笔记则会记得更牢固一点.以后也可以直接查看复习.</p>
+</blockquote>
+<p><strong>以下内容基于Linux 2.6.18内核</strong></p>
+<h3 id="listen方法传入的backlog参数"><a href="#listen方法传入的backlog参数" class="headerlink" title="listen方法传入的backlog参数"></a>listen方法传入的backlog参数</h3><pre><code>#include &lt;sys/socket.h&gt;
+
+int listen(int sockfd, int backlog);
+</code></pre><p>在上面的代码中我们看到listen函数的第二个参数为backlog. 这个参数的意义在不同的Linux内核版本或操作系统定义是不同的.</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/linux/">linux</a>
+    </div>
+
+
+      
+      
+        <p class="article-more-link">
+          <a href="/2016/10/24/linux-backlog-maxconn.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-npm-11-useful-tips" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1135,105 +1237,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2016/10/17/nodejs-module-path.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-Fibers-and-Threads-in-node" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2016/10/17/Fibers-and-Threads-in-node.html" class="article-date">
-      <time datetime="2016-10-17T03:26:39.000Z" itemprop="datePublished">2016-10-17</time>
-</a>
-
- 
-    <a href="/2016/10/17/Fibers-and-Threads-in-node.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2016/10/17/Fibers-and-Threads-in-node.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/10/17/Fibers-and-Threads-in-node.html">Fibers-and-Threads-in-node</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>I like node.js, and I’m not the only one, obviously! I like it primarily for two things: it is simple and it is very fast. I already said it many times but one more won’t hurt.Before working with node, I had spent many years working with threaded application servers. This was fun sometimes but it was also often frustrating: so many APIs to learn, so much code to write, so many risks with critical sections and deadlocks, such a waste of costly system resources (stacks, locks), etc. Node came as a breath of fresh air: a simple event loop and callbacks. You can do a lot with so little, and it really flies!But it does not look like we managed to eradicate threads. They keep coming back. At the beginning of last year Marcel Laverdet opened Pandora’s box by releasing node-fibers: his threads are a little greener than our old ones but they have some similarities with them. And this week the box got wide open as Jorge Chamorro Bieling released threads_a_gogo, an implementation of real threads for node.js.Isn’t that awful? We were perfectly happy with the event loop and callbacks, and now we have to deal with threads and all their complexities again. Why on earth? Can’t we stop the thread cancer before it kills us!Well. First, things aren’t so bad because fibers and threads did not make it into node’s core. The core is still relying only on the event loop and callbacks. And it is probably better this way.And then maybe we need to overcome our natural aversion for threads and their complexities. Maybe these new threads aren’t so complex after all. And maybe they solve real problems. This is what I’m going to explore in this post.</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/nodejs/">nodejs</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/node/">node</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2016/10/17/Fibers-and-Threads-in-node.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

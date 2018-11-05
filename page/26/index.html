@@ -273,6 +273,100 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-nodejs-module-path" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/10/17/nodejs-module-path.html" class="article-date">
+      <time datetime="2016-10-17T03:26:47.000Z" itemprop="datePublished">2016-10-17</time>
+</a>
+
+ 
+    <a href="/2016/10/17/nodejs-module-path.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2016/10/17/nodejs-module-path.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/10/17/nodejs-module-path.html">nodejs模块path简介</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <blockquote>
+<p>该模块提供了一些用来处理和转换文件路径的工具方法</p>
+</blockquote>
+<h3 id="path-basename-p-ext"><a href="#path-basename-p-ext" class="headerlink" title="path.basename(p[, ext])"></a>path.basename(p[, ext])</h3><p>返回路径最后一部分，和Unix命令<code>basename</code>很相似。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+      
+        <p class="article-more-link">
+          <a href="/2016/10/17/nodejs-module-path.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-Fibers-and-Threads-in-node" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1146,110 +1240,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2016/10/17/linux-delete-file-not-free-the-space.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-nodeJs-module-async" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2016/10/17/nodeJs-module-async.html" class="article-date">
-      <time datetime="2016-10-17T02:28:22.000Z" itemprop="datePublished">2016-10-17</time>
-</a>
-
- 
-    <a href="/2016/10/17/nodeJs-module-async.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2016/10/17/nodeJs-module-async.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/10/17/nodeJs-module-async.html">nodeJs解决异步回调方案之module-async</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="async简介"><a href="#async简介" class="headerlink" title="async简介"></a>async简介</h3><p>Aync是一个处理异步Javascript的功能强大工具模块。最初是为了Nodejs环境开发设计的，但是也可以直接在浏览器端使用。</p>
-<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><pre><code>bower install async
-component install caolan/async
-jam install async
-spm install async
-</code></pre><p>Async 提供了接近70个函数，包括常用的功能性特性(map, reduce, filter, each…) 和一些常用的异步流程控制模式 (parallel, series, waterfall…)。所有的这些函数允许你遵循NodeJs惯例，提供一个回调函数作为异步函数的最后一个参数。该函数的第一个参数是Error类型的参数，并且只会被调用一次。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/web/">web</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/node/">node</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2016/10/17/nodeJs-module-async.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

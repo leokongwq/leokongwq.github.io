@@ -273,6 +273,121 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-kotlin-coroutine-learn" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/01/10/kotlin-coroutine-learn.html" class="article-date">
+      <time datetime="2018-01-10T11:17:15.000Z" itemprop="datePublished">2018-01-10</time>
+</a>
+
+ 
+    <a href="/2018/01/10/kotlin-coroutine-learn.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2018/01/10/kotlin-coroutine-learn.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/01/10/kotlin-coroutine-learn.html">kotlin之coroutine学习笔记</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="runBlocking"><a href="#runBlocking" class="headerlink" title="runBlocking"></a>runBlocking</h3><h4 id="声明"><a href="#声明" class="headerlink" title="声明"></a>声明</h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+</pre></td><td class="code"><pre><span class="line">@Throws(InterruptedException::class)</span>
+<span class="line">public fun &lt;T&gt; runBlocking(context: CoroutineContext = EmptyCoroutineContext, block: suspend CoroutineScope.() -&gt; T): T &#123;</span>
+<span class="line">    val currentThread = Thread.currentThread()</span>
+<span class="line">    val eventLoop = if (context[ContinuationInterceptor] == null) BlockingEventLoop(currentThread) else null</span>
+<span class="line">    val newContext = newCoroutineContext(context + (eventLoop ?: EmptyCoroutineContext))</span>
+<span class="line">    val coroutine = BlockingCoroutine&lt;T&gt;(newContext, currentThread, privateEventLoop = eventLoop != null)</span>
+<span class="line">    coroutine.initParentJob(context[Job])</span>
+<span class="line">    block.startCoroutine(coroutine, coroutine)</span>
+<span class="line">    return coroutine.joinBlocking()</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/kotlin/">kotlin</a>
+    </div>
+
+
+      
+      
+        <p class="article-more-link">
+          <a href="/2018/01/10/kotlin-coroutine-learn.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-mac-autostart" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1103,102 +1218,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2017/12/16/vertx-async-callback-hell.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-vertx-Future" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/12/15/vertx-Future.html" class="article-date">
-      <time datetime="2017-12-15T11:57:31.000Z" itemprop="datePublished">2017-12-15</time>
-</a>
-
- 
-    <a href="/2017/12/15/vertx-Future.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/12/15/vertx-Future.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/15/vertx-Future.html">vertx-Future</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在Java中<code>Future</code>表示一个异步计算的结果，提供了许多方法来获取结果，取消计算等。在Vert.x中<code>Future</code>表示一个动作的结果，该结果可能出现也可能没有出现。二者有许多相似之处。</p>
-<p>Vert.x中<code>Future</code>的继承层次如下：</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vert-x/">vert.x</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/12/15/vertx-Future.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

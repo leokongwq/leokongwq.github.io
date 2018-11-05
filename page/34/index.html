@@ -273,6 +273,110 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-mac-sshd" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/05/14/mac-sshd.html" class="article-date">
+      <time datetime="2015-05-13T16:00:00.000Z" itemprop="datePublished">2015-05-14</time>
+</a>
+
+ 
+    <a href="/2015/05/14/mac-sshd.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2015/05/14/mac-sshd.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/05/14/mac-sshd.html">mac-sshd</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="mac启用sshd服务"><a href="#mac启用sshd服务" class="headerlink" title="mac启用sshd服务"></a>mac启用sshd服务</h3><p>本启动苹果的sshd服务，通过crt链接，但发现竟然报错<br>报错内容：</p>
+<pre><code>joedeMacBook-Pro:etc joe$ /usr/sbin/sshd
+Could not load host key: /etc/ssh_host_rsa_key
+Could not load host key: /etc/ssh_host_dsa_key
+</code></pre><p>发现没有这两个文件</p>
+<pre><code>/etc/ssh_host_rsa_key
+/etc/ssh_host_dsa_key
+</code></pre><p>解决方法：</p>
+<pre><code>sudo ssh-keygen -t rsa -f /etc/ssh_host_rsa_key
+sudo ssh-keygen -t dsa -f /etc/ssh_host_dsa_key
+</code></pre>
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/linux/">linux</a><a class="article-category-link" href="/categories/linux/mac/">mac</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mac/">mac</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ssh/">ssh</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-java-Guava-Joiner" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1134,6 +1238,146 @@ MathJax.Hub.Queue(function() {
 
 
   
+    <article id="post-JVMOptimize" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/04/16/JVMOptimize.html" class="article-date">
+      <time datetime="2015-04-15T16:00:00.000Z" itemprop="datePublished">2015-04-16</time>
+</a>
+
+ 
+    <a href="/2015/04/16/JVMOptimize.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2015/04/16/JVMOptimize.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/04/16/JVMOptimize.html">JVM常用参数和调优</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="JVM常用参数和调优"><a href="#JVM常用参数和调优" class="headerlink" title="JVM常用参数和调优"></a>JVM常用参数和调优</h3><h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>下面所有内容都是针对Sun JDK1.6 JVM    </p>
+<h4 id="jvm常用参数"><a href="#jvm常用参数" class="headerlink" title="jvm常用参数"></a>jvm常用参数</h4><ul>
+<li><p>-Xms4096m：设置JVM堆初始大小为4096M</p>
+</li>
+<li><p>-Xmx4096m：设置JVM堆最大为4096M</p>
+</li>
+<li><p>-Xmn2g（-xx:NewSize=2g）：设置年轻代大小为2G。</p>
+</li>
+<li><p>-Xss128k：设置每个线程的堆栈大小。JDK5.0以后每个线程堆栈大小为1M，以前每个线程堆栈大小为 256K。根据应用的线程所需内存大小进行调整。在相同物理内存下，减小这个值能生成更多的线程。</p>
+</li>
+<li><p>-xx:PermSize=128m 设置持久代的初始大小</p>
+</li>
+<li><p>-XX:MaxPermSize=128m 设置持久代的最大值</p>
+</li>
+<li><p>-XX:NewRatio=4:设置年轻代（包括Eden和两个Survivor区）与年老代的比值（除去持久代）。设置为4，    则年轻代与年老代所占比值为1：4，年轻代占整个堆栈的1/5</p>
+</li>
+<li><p>-XX:SurvivorRatio=4：设置年轻代中Eden区与Survivor区的大小比值。设置为4，则两个Survivor区    与一个Eden区的比值为2:4，一个Survivor区占整个年轻代的1/6</p>
+</li>
+<li><p>-XX:MaxTenuringThreshold=0：设置垃圾最大年龄。如果设置为0的话，则年轻代对象不 经过Survivor    区，直接进入年老代。对于年老代比较多的应用，可以提高效率。如果将此值设置为一个较大值，则年轻代    对象会在Survivor区进行 多次复制，这样可以增加对象再年轻代的存活时间，增加在年轻代即被回收的概论。</p>
+</li>
+</ul>
+<h4 id="jvm性能调优"><a href="#jvm性能调优" class="headerlink" title="jvm性能调优"></a>jvm性能调优</h4><h6 id="JVM性能调优的重点"><a href="#JVM性能调优的重点" class="headerlink" title="JVM性能调优的重点"></a>JVM性能调优的重点</h6><ul>
+<li><p>内存分配</p>
+<p>  为了满足性能指标，合理分配应用占用的堆内存空间和堆内各个区块的比例</p>
+</li>
+<li><p>垃圾收集</p>
+<p>  根据应用的特点选择最合适的满足需求的垃圾收集器</p>
+</li>
+</ul>
+<h6 id="JVM性能调优步骤"><a href="#JVM性能调优步骤" class="headerlink" title="JVM性能调优步骤"></a>JVM性能调优步骤</h6><ol>
+<li><p>添加JVM参数，打印垃圾收集日志并分析    </p>
+<p> -Xloggc:filename</p>
+<p> -XX:+PrintGCDetails</p>
+<p> -XX:+PrintGCTimeStamps</p>
+</li>
+<li><p>根据分析结果调整堆空间和堆内个部分的比例</p>
+</li>
+<li><p>根据垃圾收集日志挑选符合自己应用的收集器</p>
+</li>
+<li><p>根据垃圾收集日志继续调整堆空间和垃圾收集器参数</p>
+</li>
+<li><p>根据垃圾收集日志重复3，4步骤</p>
+</li>
+</ol>
+<h4 id="jvm参数详解"><a href="#jvm参数详解" class="headerlink" title="jvm参数详解"></a>jvm参数详解</h4><p><a href="http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html" target="_blank" rel="external">jvm参数</a>     </p>
+<p><strong><em>未完待续….</em></strong></p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/JVM/">JVM</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jvm/">jvm</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-githubblog" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1242,146 +1486,6 @@ Specify an analytics engine like google, getclicky, or custom.
       
     <div class="article-tag tagcloud">
         <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/github/">github</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jekyll/">jekyll</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-JVMOptimize" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2015/04/16/JVMOptimize.html" class="article-date">
-      <time datetime="2015-04-15T16:00:00.000Z" itemprop="datePublished">2015-04-16</time>
-</a>
-
- 
-    <a href="/2015/04/16/JVMOptimize.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2015/04/16/JVMOptimize.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/04/16/JVMOptimize.html">JVM常用参数和调优</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <h3 id="JVM常用参数和调优"><a href="#JVM常用参数和调优" class="headerlink" title="JVM常用参数和调优"></a>JVM常用参数和调优</h3><h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>下面所有内容都是针对Sun JDK1.6 JVM    </p>
-<h4 id="jvm常用参数"><a href="#jvm常用参数" class="headerlink" title="jvm常用参数"></a>jvm常用参数</h4><ul>
-<li><p>-Xms4096m：设置JVM堆初始大小为4096M</p>
-</li>
-<li><p>-Xmx4096m：设置JVM堆最大为4096M</p>
-</li>
-<li><p>-Xmn2g（-xx:NewSize=2g）：设置年轻代大小为2G。</p>
-</li>
-<li><p>-Xss128k：设置每个线程的堆栈大小。JDK5.0以后每个线程堆栈大小为1M，以前每个线程堆栈大小为 256K。根据应用的线程所需内存大小进行调整。在相同物理内存下，减小这个值能生成更多的线程。</p>
-</li>
-<li><p>-xx:PermSize=128m 设置持久代的初始大小</p>
-</li>
-<li><p>-XX:MaxPermSize=128m 设置持久代的最大值</p>
-</li>
-<li><p>-XX:NewRatio=4:设置年轻代（包括Eden和两个Survivor区）与年老代的比值（除去持久代）。设置为4，    则年轻代与年老代所占比值为1：4，年轻代占整个堆栈的1/5</p>
-</li>
-<li><p>-XX:SurvivorRatio=4：设置年轻代中Eden区与Survivor区的大小比值。设置为4，则两个Survivor区    与一个Eden区的比值为2:4，一个Survivor区占整个年轻代的1/6</p>
-</li>
-<li><p>-XX:MaxTenuringThreshold=0：设置垃圾最大年龄。如果设置为0的话，则年轻代对象不 经过Survivor    区，直接进入年老代。对于年老代比较多的应用，可以提高效率。如果将此值设置为一个较大值，则年轻代    对象会在Survivor区进行 多次复制，这样可以增加对象再年轻代的存活时间，增加在年轻代即被回收的概论。</p>
-</li>
-</ul>
-<h4 id="jvm性能调优"><a href="#jvm性能调优" class="headerlink" title="jvm性能调优"></a>jvm性能调优</h4><h6 id="JVM性能调优的重点"><a href="#JVM性能调优的重点" class="headerlink" title="JVM性能调优的重点"></a>JVM性能调优的重点</h6><ul>
-<li><p>内存分配</p>
-<p>  为了满足性能指标，合理分配应用占用的堆内存空间和堆内各个区块的比例</p>
-</li>
-<li><p>垃圾收集</p>
-<p>  根据应用的特点选择最合适的满足需求的垃圾收集器</p>
-</li>
-</ul>
-<h6 id="JVM性能调优步骤"><a href="#JVM性能调优步骤" class="headerlink" title="JVM性能调优步骤"></a>JVM性能调优步骤</h6><ol>
-<li><p>添加JVM参数，打印垃圾收集日志并分析    </p>
-<p> -Xloggc:filename</p>
-<p> -XX:+PrintGCDetails</p>
-<p> -XX:+PrintGCTimeStamps</p>
-</li>
-<li><p>根据分析结果调整堆空间和堆内个部分的比例</p>
-</li>
-<li><p>根据垃圾收集日志挑选符合自己应用的收集器</p>
-</li>
-<li><p>根据垃圾收集日志继续调整堆空间和垃圾收集器参数</p>
-</li>
-<li><p>根据垃圾收集日志重复3，4步骤</p>
-</li>
-</ol>
-<h4 id="jvm参数详解"><a href="#jvm参数详解" class="headerlink" title="jvm参数详解"></a>jvm参数详解</h4><p><a href="http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html" target="_blank" rel="external">jvm参数</a>     </p>
-<p><strong><em>未完待续….</em></strong></p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/JVM/">JVM</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jvm/">jvm</a></li></ul>
     </div>
 
       

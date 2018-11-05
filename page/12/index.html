@@ -273,6 +273,102 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-maven-command-line-parameters" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/04/28/maven-command-line-parameters.html" class="article-date">
+      <time datetime="2017-04-28T15:08:31.000Z" itemprop="datePublished">2017-04-28</time>
+</a>
+
+ 
+    <a href="/2017/04/28/maven-command-line-parameters.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/04/28/maven-command-line-parameters.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/28/maven-command-line-parameters.html">maven  命令行参数解释</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>一直在使用maven管理项目，通常用的命令都是基于各个plugin提供的，maven提供的命令行参数接触的不算多。<br>本文就将maven提供的命令行参数进行一下总结，在该过程中你会有意外的惊喜。</p>
+<p>文章使用的maven版本为: 3.5.2</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/maven/">maven</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/04/28/maven-command-line-parameters.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-java-enum-abstractMethod" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1151,107 +1247,6 @@ MathJax.Hub.Queue(function() {
         <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
     </div>
 
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-raft-protocol" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/13/raft-protocol.html" class="article-date">
-      <time datetime="2017-03-13T10:27:06.000Z" itemprop="datePublished">2017-03-13</time>
-</a>
-
- 
-    <a href="/2017/03/13/raft-protocol.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/03/13/raft-protocol.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/13/raft-protocol.html">raft协议简介</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="raft是什么？"><a href="#raft是什么？" class="headerlink" title="raft是什么？"></a>raft是什么？</h3><p>raft是一个分布式一致性算法。</p>
-<h3 id="raft-系统结点分类"><a href="#raft-系统结点分类" class="headerlink" title="raft 系统结点分类"></a>raft 系统结点分类</h3><ul>
-<li>Follower</li>
-<li>Leader</li>
-<li>Candidate</li>
-</ul>
-<h3 id="Leader选举"><a href="#Leader选举" class="headerlink" title="Leader选举"></a>Leader选举</h3><p>raft系统结点启动时的身份是：<code>Follower</code>。 如果Follower结点不能和Leader结点进行通信则会变为Candidate结点，然后Candidate结点请求其它结点进行投票。其它结点会以它们的投票结果进行响应。如果Candidate获取了大多数的投票则会变为Leader结点。该过程称为Leader选举。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/架构/">架构</a>
-    </div>
-
-
-      
-      
-        <p class="article-more-link">
-          <a href="/2017/03/13/raft-protocol.html#more">阅读全文 >></a>
-        </p>
       
       <div class="clearfix"></div>
     </div>

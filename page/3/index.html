@@ -273,6 +273,132 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-spring-extension-point-autoconfig-summary" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/03/06/spring-extension-point-autoconfig-summary.html" class="article-date">
+      <time datetime="2018-03-06T14:57:35.000Z" itemprop="datePublished">2018-03-06</time>
+</a>
+
+ 
+    <a href="/2018/03/06/spring-extension-point-autoconfig-summary.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2018/03/06/spring-extension-point-autoconfig-summary.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/03/06/spring-extension-point-autoconfig-summary.html">spring扩展点及springboot自动配置总结</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="spring扩展点和自动配置"><a href="#spring扩展点和自动配置" class="headerlink" title="spring扩展点和自动配置"></a>spring扩展点和自动配置</h2><h3 id="BeanFactoryPostProcessor"><a href="#BeanFactoryPostProcessor" class="headerlink" title="BeanFactoryPostProcessor"></a>BeanFactoryPostProcessor</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">BeanFactoryPostProcessor</span> </span>&#123;  </span>
+<span class="line">  </span>
+<span class="line">    <span class="comment">/** </span>
+<span class="line">     * Modify the application context's internal bean factory after its standard </span>
+<span class="line">     * initialization. All bean definitions will have been loaded, but no beans </span>
+<span class="line">     * will have been instantiated yet. This allows for overriding or adding </span>
+<span class="line">     * properties even to eager-initializing beans. </span>
+<span class="line">     * <span class="doctag">@param</span> beanFactory the bean factory used by the application context </span>
+<span class="line">     * <span class="doctag">@throws</span> org.springframework.beans.BeansException in case of errors </span>
+<span class="line">     */</span>  </span>
+<span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">postProcessBeanFactory</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> <span class="keyword">throws</span> BeansException</span>;  </span>
+<span class="line">  </span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>通过该扩展点，我们修改，新增<code>BeanDefinition</code>。因为此时所有的<code>BeanDefinition</code>已经加载，但是没有Bean被创建。一般用在需要覆盖或替换Bean的属性时。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/web/">web</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/03/06/spring-extension-point-autoconfig-summary.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-kafka-send-msg-profile" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1831,121 +1957,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2018/01/19/distribute-system-consistent.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-kotlin-coroutine-learn" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/01/10/kotlin-coroutine-learn.html" class="article-date">
-      <time datetime="2018-01-10T11:17:15.000Z" itemprop="datePublished">2018-01-10</time>
-</a>
-
- 
-    <a href="/2018/01/10/kotlin-coroutine-learn.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2018/01/10/kotlin-coroutine-learn.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/01/10/kotlin-coroutine-learn.html">kotlin之coroutine学习笔记</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="runBlocking"><a href="#runBlocking" class="headerlink" title="runBlocking"></a>runBlocking</h3><h4 id="声明"><a href="#声明" class="headerlink" title="声明"></a>声明</h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-</pre></td><td class="code"><pre><span class="line">@Throws(InterruptedException::class)</span>
-<span class="line">public fun &lt;T&gt; runBlocking(context: CoroutineContext = EmptyCoroutineContext, block: suspend CoroutineScope.() -&gt; T): T &#123;</span>
-<span class="line">    val currentThread = Thread.currentThread()</span>
-<span class="line">    val eventLoop = if (context[ContinuationInterceptor] == null) BlockingEventLoop(currentThread) else null</span>
-<span class="line">    val newContext = newCoroutineContext(context + (eventLoop ?: EmptyCoroutineContext))</span>
-<span class="line">    val coroutine = BlockingCoroutine&lt;T&gt;(newContext, currentThread, privateEventLoop = eventLoop != null)</span>
-<span class="line">    coroutine.initParentJob(context[Job])</span>
-<span class="line">    block.startCoroutine(coroutine, coroutine)</span>
-<span class="line">    return coroutine.joinBlocking()</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/kotlin/">kotlin</a>
-    </div>
-
-
-      
-      
-        <p class="article-more-link">
-          <a href="/2018/01/10/kotlin-coroutine-learn.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

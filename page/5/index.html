@@ -273,6 +273,102 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-vertx-Future" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/12/15/vertx-Future.html" class="article-date">
+      <time datetime="2017-12-15T11:57:31.000Z" itemprop="datePublished">2017-12-15</time>
+</a>
+
+ 
+    <a href="/2017/12/15/vertx-Future.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/12/15/vertx-Future.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/15/vertx-Future.html">vertx-Future</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在Java中<code>Future</code>表示一个异步计算的结果，提供了许多方法来获取结果，取消计算等。在Vert.x中<code>Future</code>表示一个动作的结果，该结果可能出现也可能没有出现。二者有许多相似之处。</p>
+<p>Vert.x中<code>Future</code>的继承层次如下：</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vert-x/">vert.x</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/12/15/vertx-Future.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-vertx-cluster" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1201,122 +1297,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2017/11/30/java8-CompletableFuture-1.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-vertx-http-server-analyze" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/11/22/vertx-http-server-analyze.html" class="article-date">
-      <time datetime="2017-11-22T13:41:28.000Z" itemprop="datePublished">2017-11-22</time>
-</a>
-
- 
-    <a href="/2017/11/22/vertx-http-server-analyze.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/11/22/vertx-http-server-analyze.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/22/vertx-http-server-analyze.html">vertx创建http服务器分析</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="创建HTTP服务器"><a href="#创建HTTP服务器" class="headerlink" title="创建HTTP服务器"></a>创建HTTP服务器</h3><p>从前面的文章我们知道Vert.x创建一个HttpServer的API是非常简单的，但需要注意的是里面的机制是非常复杂的，现在我们就来仔细分析一下Vert.x是如何一步步创建一个HttpServer的。</p>
-<p>创建http服务器代码</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyVerticle</span> <span class="keyword">extends</span> <span class="title">AbstractVerticle</span> </span>&#123;</span>
-<span class="line">    <span class="meta">@Override</span></span>
-<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
-<span class="line">        vertx.createHttpServer().requestHandler(req -&gt; &#123;</span>
-<span class="line">            res.response().end(<span class="string">"hello Vert.x"</span>);</span>
-<span class="line">        &#125;).listen(<span class="number">8888</span>);</span>
-<span class="line">    &#125;</span>
-<span class="line">&#125;     </span>
-<span class="line">vertx.deployVerticle(MyVerticle.class.getName());</span>
-</pre></td></tr></table></figure>
-<p>Vertx发布Verticle的分析参考:<a href="/2017/11/22/vertx-Vertx.html">vert.x之Vertx类解析</a></p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vert-x/">vert.x</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/11/22/vertx-http-server-analyze.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

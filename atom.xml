@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://leokongwq.github.io/"/>
-  <updated>2018-11-03T04:58:39.000Z</updated>
+  <updated>2018-11-07T15:02:22.000Z</updated>
   <id>https://leokongwq.github.io/</id>
   
   <author>
@@ -14,6 +14,196 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>JDK8环境下使用struts2</title>
+    <link href="https://leokongwq.github.io/2018/11/07/struts2-with-jdk8.html"/>
+    <id>https://leokongwq.github.io/2018/11/07/struts2-with-jdk8.html</id>
+    <published>2018-11-07T14:07:54.000Z</published>
+    <updated>2018-11-07T15:02:22.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>最近将组内项目的部署环境进行了一次升级。将JDK1.7S升级为1.8，Resin替换为Tomcat。在升级替换的过程中遇到了一些问题。特记录再次，希望能帮助有同样需求的朋友。</p>
+<a id="more"></a>
+<h3 id="Struts2-和-JDK8"><a href="#Struts2-和-JDK8" class="headerlink" title="Struts2 和 JDK8"></a>Struts2 和 JDK8</h3><p>项目中使用的<code>Struts2</code>版本是<code>2.3.35</code>。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.struts<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>struts2-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.35<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>Struts2里面依赖<code>xwork-core</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.struts.xwork<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>xwork-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.35<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p><code>xwork-core</code>依赖<code>asm-*</code></p>
+<p>问题来了!</p>
+<p>低版本的<code>ASM</code>不能在JDK1.8环境中使用。如果强行使用，会导致一些奇怪的问题。</p>
+<p>例如：</p>
+<ol>
+<li>只有一部分<code>Action</code>类可以正常被Struts2加载并处理http请求。某些在JDK1.7环境下可以正常工作的<code>Action</code>不能在JDK1.8下使用。原来可以访问的接口，现在是<code>404</code>。</li>
+</ol>
+<p>具体问题出在：</p>
+<figure class="highlight java"><figcaption><span>DefaultClassFinder</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+</pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">readClassDef</span><span class="params">(String className)</span> </span>&#123;</span>
+<span class="line">   <span class="keyword">if</span> (!className.endsWith(<span class="string">".class"</span>)) &#123;</span>
+<span class="line">       className = className.replace(<span class="string">'.'</span>, <span class="string">'/'</span>) + <span class="string">".class"</span>;</span>
+<span class="line">   &#125;</span>
+<span class="line">   <span class="keyword">try</span> &#123;</span>
+<span class="line">       URL resource = classLoaderInterface.getResource(className);</span>
+<span class="line">       <span class="keyword">if</span> (resource != <span class="keyword">null</span>) &#123;</span>
+<span class="line">           InputStream in = resource.openStream();</span>
+<span class="line">           <span class="keyword">try</span> &#123;</span>
+<span class="line">               ClassReader classReader = <span class="keyword">new</span> ClassReader(in);</span>
+<span class="line">               classReader.accept(<span class="keyword">new</span> InfoBuildingVisitor(<span class="keyword">this</span>), ClassReader.SKIP_DEBUG);</span>
+<span class="line">           &#125; <span class="keyword">finally</span> &#123;</span>
+<span class="line">               in.close();</span>
+<span class="line">           &#125;</span>
+<span class="line">       &#125; <span class="keyword">else</span> &#123;</span>
+<span class="line">           <span class="keyword">throw</span> <span class="keyword">new</span> XWorkException(<span class="string">"Could not load "</span> + className);</span>
+<span class="line">       &#125;</span>
+<span class="line">   &#125; <span class="keyword">catch</span> (IOException e) &#123;</span>
+<span class="line">       <span class="keyword">throw</span> <span class="keyword">new</span> XWorkException(<span class="string">"Could not load "</span> + className, e);</span>
+<span class="line">   &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>这部分代码就因为使用了低版本的<code>ASM</code>导致类解析失败(<code>IndexOutOfBoundsException</code>)。</p>
+<h4 id="解决办法一"><a href="#解决办法一" class="headerlink" title="解决办法一"></a>解决办法一</h4><p>最简单方便的解决版本就是升级Struts2的版本到<code>2.5.x</code>。新版本将<code>xwork</code>依赖直接合并到<code>struts2-core</code>中了。而且使用了<code>ASM 5.X</code>版本，支持JDK8。</p>
+<h4 id="解决办法二"><a href="#解决办法二" class="headerlink" title="解决办法二"></a>解决办法二</h4><p>使用Struts2官方提供的一个插件。具体用法如下：</p>
+<hr>
+<p>在项目中加入依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.struts<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>struts2-java8-support-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.35<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>排除ASM依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.struts.xwork<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>xwork-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>asm<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>asm<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>asm<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>asm-commons<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<h3 id="Struts2-版本升级问题"><a href="#Struts2-版本升级问题" class="headerlink" title="Struts2 版本升级问题"></a>Struts2 版本升级问题</h3><h4 id="标签库不兼容"><a href="#标签库不兼容" class="headerlink" title="标签库不兼容"></a>标签库不兼容</h4><p>众所周知，Struts2框架的安全问题很多，建议升级到最新版本<code>2.5.x</code>。</p>
+<p>但是2.5.x版本的Struts2提供的<strong>标签库</strong>和低版本的不兼容。这就会导致原有的<strong>JSP页面不能正常渲染</strong>。</p>
+<p>当然了，如果你的项目里面没有使用Struts2替换的标签，这个问题可以忽略了。</p>
+<h4 id="核心类拦截器变化"><a href="#核心类拦截器变化" class="headerlink" title="核心类拦截器变化"></a>核心类拦截器变化</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">filter</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>struts2<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span>
+<span class="line">        <span class="tag">&lt;<span class="name">filter-class</span>&gt;</span>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter<span class="tag">&lt;/<span class="name">filter-class</span>&gt;</span></span>
+<span class="line"><span class="comment">&lt;!-- org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter </span>
+<span class="line">之前的核心过滤器全类名会有个ng  ,struts2.5核心过滤器没有这个</span>
+<span class="line">--&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">filter</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;<span class="name">filter-mapping</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>struts2<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">filter-mapping</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<h3 id="aspectjweaver"><a href="#aspectjweaver" class="headerlink" title="aspectjweaver"></a>aspectjweaver</h3><p>我们项目使用的版本是：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.aspectj<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>aspectjweaver<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span>
+<span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.6.9<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span>
+<span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span>
+</pre></td></tr></table></figure>
+<p>升级JDK1.8以后，需要同时升级该jar的版本到<code>1.8.13</code>。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://blog.csdn.net/gh670011677/article/details/75019003" target="_blank" rel="external">Struts2.5配置</a></p>
+<p><a href="https://struts.apache.org/plugins/java-8-support/" target="_blank" rel="external">Java 8 Support Plugin</a></p>
+<p><a href="https://cwiki.apache.org/confluence/display/WW/Struts+2.3+to+2.5+migration" target="_blank" rel="external">Struts+2.3+to+2.5+migration</a></p>
+<p><a href="https://stackoverflow.com/questions/41307863/what-is-the-difference-between-struts-2-3-x-and-struts-2-5-x" target="_blank" rel="external">what-is-the-difference-between-struts-2-3-x-and-struts-2-5-x</a></p>
+<p><a href="https://asm.ow2.io/versions.html" target="_blank" rel="external">ASM-VERSIONS</a></p>
+<p><a href="https://nosec.org/home/detail/1755.html" target="_blank" rel="external">Struts2最新RCE漏洞S2-057</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;最近将组内项目的部署环境进行了一次升级。将JDK1.7S升级为1.8，Resin替换为Tomcat。在升级替换的过程中遇到了一些问题。特记录再次，希望能帮助有同样需求的朋友。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="struts2" scheme="https://leokongwq.github.io/tags/struts2/"/>
+    
+      <category term="JDK8" scheme="https://leokongwq.github.io/tags/JDK8/"/>
+    
+  </entry>
   
   <entry>
     <title>maven加速</title>
@@ -1812,9 +2002,9 @@
       <category term="消息中间件" scheme="https://leokongwq.github.io/categories/%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
     
     
-      <category term="MQ" scheme="https://leokongwq.github.io/tags/MQ/"/>
-    
       <category term="ActiveMQ" scheme="https://leokongwq.github.io/tags/ActiveMQ/"/>
+    
+      <category term="MQ" scheme="https://leokongwq.github.io/tags/MQ/"/>
     
   </entry>
   
@@ -5347,93 +5537,6 @@
       <category term="linux" scheme="https://leokongwq.github.io/tags/linux/"/>
     
       <category term="computer" scheme="https://leokongwq.github.io/tags/computer/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>计算机是如何启动的</title>
-    <link href="https://leokongwq.github.io/2018/03/21/computer-booting.html"/>
-    <id>https://leokongwq.github.io/2018/03/21/computer-booting.html</id>
-    <published>2018-03-21T06:28:17.000Z</published>
-    <updated>2018-03-21T07:30:13.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>本文转载自<a href="http://www.ruanyifeng.com/blog/2013/02/booting.html" target="_blank" rel="external">计算机是如何启动的？</a></p>
-<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>最近在学习<code>Linux内核完全剖析0.12</code>。前两章提到了计算机操作系统是如何加载的。因此想要复习下计算机的整个启动过程。在找相关资料的过程中发现了<a href="http://www.ruanyifeng.com/" target="_blank" rel="external">阮一峰前辈</a>写的文章。转载一下。</p>
-<a id="more"></a>
-<p>从打开电源到开始操作，计算机的启动是一个非常复杂的过程。</p>
-<p>我一直搞不清楚，这个过程到底是怎么回事，只看见屏幕快速滚动各种提示…… 这几天，我查了一些资料，试图搞懂它。下面就是我整理的笔记。</p>
-<h2 id="boot的含义"><a href="#boot的含义" class="headerlink" title="boot的含义"></a>boot的含义</h2><p>先问一个问题，”启动”用英语怎么说？</p>
-<p>回答是<code>boot</code>。可是，<code>boot</code>原来的意思是靴子，”启动”与靴子有什么关系呢？ 原来，这里的boot是bootstrap（鞋带）的缩写，它来自一句谚语：</p>
-<blockquote>
-<p>“pull oneself up by one’s bootstraps”</p>
-</blockquote>
-<p>字面意思是”拽着鞋带把自己拉起来”，这当然是不可能的事情。最早的时候，工程师们用它来比喻，计算机启动是一个很矛盾的过程：必须先运行程序，然后计算机才能启动，但是计算机不启动就无法运行程序！</p>
-<p>早期真的是这样，必须想尽各种办法，把一小段程序装进内存，然后计算机才能正常运行。所以，工程师们把这个过程叫做”拉鞋带”，久而久之就简称为boot了。</p>
-<p>计算机的整个启动过程分成四个阶段。</p>
-<h3 id="第一阶段：BIOS"><a href="#第一阶段：BIOS" class="headerlink" title="第一阶段：BIOS"></a>第一阶段：BIOS</h3><p>上个世纪70年代初，”只读内存”（read-only memory，缩写为ROM）发明，开机程序被刷入ROM芯片，计算机通电后，第一件事就是读取它。</p>
-<img src="/2018/03/21/computer-booting/bg2013021502.jpg" alt="bg2013021502.jpg" title="">
-<p>这块芯片里的程序叫做”基本輸出輸入系統”（Basic Input/Output System），简称为<a href="http://en.wikipedia.org/wiki/BIOS" target="_blank" rel="external">BIOS</a>。</p>
-<h4 id="硬件自检"><a href="#硬件自检" class="headerlink" title="硬件自检"></a>硬件自检</h4><p>BIOS程序首先检查，计算机硬件能否满足运行的基本条件，这叫做<code>硬件自检</code>（Power-On Self-Test），缩写为POST。</p>
-<p>如果硬件出现问题，主板会发出不同含义的蜂鸣，启动中止。如果没有问题，屏幕就会显示出CPU、内存、硬盘等信息。</p>
-<img src="/2018/03/21/computer-booting/bg2013021503.png" alt="bg2013021503.png" title="">
-<h4 id="启动顺序"><a href="#启动顺序" class="headerlink" title="启动顺序"></a>启动顺序</h4><p>硬件自检完成后，BIOS把控制权转交给下一阶段的启动程序。</p>
-<p>这时，BIOS需要知道，”下一阶段的启动程序”具体存放在哪一个设备。也就是说，BIOS需要有一个外部储存设备的排序，排在前面的设备就是优先转交控制权的设备。这种排序叫做<code>启动顺序</code>（Boot Sequence）。</p>
-<p>打开BIOS的操作界面，里面有一项就是”设定启动顺序”。</p>
-<img src="/2018/03/21/computer-booting/bg2013021504.jpg" alt="bg2013021504.jpg" title="">
-<h3 id="第二阶段：主引导记录"><a href="#第二阶段：主引导记录" class="headerlink" title="第二阶段：主引导记录"></a>第二阶段：主引导记录</h3><p>BIOS按照”启动顺序”，把控制权转交给排在第一位的储存设备。</p>
-<p>这时，计算机读取该设备的<code>第一个扇区</code>，也就是读取最前面的<code>512</code>个字节。如果这512个字节的最后两个字节是<code>0x55</code>和<code>0xAA</code>，表明这个设备可以用于启动；如果不是，表明设备不能用于启动，控制权于是被转交给”启动顺序”中的下一个设备。</p>
-<p>这最前面的512个字节，就叫做<code>主引导记录</code>（Master boot record，缩写为MBR）。</p>
-<h4 id="主引导记录的结构"><a href="#主引导记录的结构" class="headerlink" title="主引导记录的结构"></a>主引导记录的结构</h4><p>“主引导记录”只有512个字节，放不了太多东西。它的主要作用是，告诉计算机到硬盘的哪一个位置去找操作系统。</p>
-<p>主引导记录由三个部分组成：</p>
-<ul>
-<li>第1-446字节：调用操作系统的机器码。</li>
-<li>第447-510字节：分区表（Partition table）。</li>
-<li>第511-512字节：主引导记录签名（0x55和0xAA）。</li>
-</ul>
-<p>其中，第二部分”分区表”的作用，是将硬盘分成若干个区。</p>
-<h4 id="分区表"><a href="#分区表" class="headerlink" title="分区表"></a>分区表</h4><p>硬盘分区有很多好处。考虑到每个区可以安装不同的操作系统，”主引导记录” 因此必须知道将控制权转交给哪个区。</p>
-<p>分区表的长度只有<code>64</code>个字节，里面又分成<code>四项</code>，每项<code>16</code>个字节。所以，一个硬盘最多只能分四个一级分区，又叫做<code>主分区</code>。</p>
-<p>每个主分区的16个字节，由6个部分组成：</p>
-<ul>
-<li>第1个字节：如果为0x80，就表示该主分区是激活分区，控制权要转交给这个分区。四个主分区里面<code>只能有一个</code>是激活的。</li>
-<li>第2-4个字节：主分区第一个扇区的物理位置（柱面、磁头、扇区号等等）。</li>
-<li>第5个字节：主分区类型。</li>
-<li>第6-8个字节：主分区最后一个扇区的物理位置。</li>
-<li>第9-12字节：该主分区第一个扇区的逻辑地址。</li>
-<li>第13-16字节：主分区的扇区总数。</li>
-</ul>
-<p>最后的四个字节（”主分区的扇区总数”），决定了这个主分区的长度。也就是说，一个主分区的扇区总数最多不超过2的32次方。</p>
-<p>如果每个扇区为512个字节，就意味着单个分区最大不超过2TB。再考虑到扇区的逻辑地址也是32位，所以单个硬盘可利用的空间最大也不超过2TB。如果想使用更大的硬盘，只有2个方法：一是提高每个扇区的字节数，二是增加扇区总数。</p>
-<h3 id="第三阶段：硬盘启动"><a href="#第三阶段：硬盘启动" class="headerlink" title="第三阶段：硬盘启动"></a>第三阶段：硬盘启动</h3><p>这时，计算机的控制权就要转交给硬盘的某个分区了，这里又分成三种情况。</p>
-<h4 id="情况A：卷引导记录"><a href="#情况A：卷引导记录" class="headerlink" title="情况A：卷引导记录"></a>情况A：卷引导记录</h4><p>上一节提到，四个主分区里面，只有一个是激活的。计算机会读取激活分区的第一个扇区，叫做<a href="http://en.wikipedia.org/wiki/Volume_Boot_Record" target="_blank" rel="external"><code>卷引导记录</code></a>（Volume boot record，缩写为<code>VBR</code>）。</p>
-<p>“卷引导记录”的主要作用是，告诉计算机，操作系统在这个分区里的位置。然后，计算机就会加载操作系统了。</p>
-<h4 id="情况B：扩展分区和逻辑分区"><a href="#情况B：扩展分区和逻辑分区" class="headerlink" title="情况B：扩展分区和逻辑分区"></a>情况B：扩展分区和逻辑分区</h4><p>随着硬盘越来越大，四个主分区已经不够了，需要更多的分区。但是，分区表只有四项，因此规定有且仅有一个区可以被定义成<code>扩展分区</code>（Extended partition）。</p>
-<p>所谓<code>扩展分区</code>，就是指这个区里面又分成多个区。这种分区里面的分区，就叫做<code>逻辑分区</code>（logical partition）。</p>
-<p>计算机先读取扩展分区的第一个扇区，叫做<a href="http://en.wikipedia.org/wiki/Extended_partition" target="_blank" rel="external">扩展引导记录</a>（Extended boot record，缩写为EBR）。它里面也包含一张64字节的分区表，但是最多只有两项（也就是两个逻辑分区）。</p>
-<p>计算机接着读取第二个逻辑分区的第一个扇区，再从里面的分区表中找到第三个逻辑分区的位置，以此类推，直到某个逻辑分区的分区表只包含它自身为止（即只有一个分区项）。因此，扩展分区可以包含无数个逻辑分区。</p>
-<p>但是，似乎很少通过这种方式启动操作系统。如果操作系统确实安装在扩展分区，一般采用下一种方式启动。</p>
-<h4 id="情况C：启动管理器"><a href="#情况C：启动管理器" class="headerlink" title="情况C：启动管理器"></a>情况C：启动管理器</h4><p>在这种情况下，计算机读取”主引导记录”前面446字节的机器码之后，不再把控制权转交给某一个分区，而是运行事先安装的<a href="http://en.wikipedia.org/wiki/Boot_loader#Modern_boot_loaders" target="_blank" rel="external">启动管理器</a>（boot loader），由用户选择启动哪一个操作系统。</p>
-<p>Linux环境中，目前最流行的启动管理器是<a href="http://en.wikipedia.org/wiki/GNU_GRUB" target="_blank" rel="external"><code>Grub</code></a>。</p>
-<img src="/2018/03/21/computer-booting/bg2013021505.png" alt="bg2013021505.png" title="">
-<h3 id="第四阶段：操作系统"><a href="#第四阶段：操作系统" class="headerlink" title="第四阶段：操作系统"></a>第四阶段：操作系统</h3><p>控制权转交给操作系统后，操作系统的内核首先被载入内存。</p>
-<p>以Linux系统为例，先载入/boot目录下面的kernel。内核加载成功后，第一个运行的程序是/sbin/init。它根据配置文件（Debian系统是/etc/initab）产生init进程。这是Linux启动后的第一个进程，pid进程编号为1，其他进程都是它的后代。</p>
-<p>然后，init线程加载系统的各个模块，比如窗口程序和网络程序，直至执行/bin/login程序，跳出登录界面，等待用户输入用户名和密码。</p>
-<p>至此，全部启动过程完成。</p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="http://en.wikipedia.org/wiki/Booting#Modern_boot_loaders" target="_blank" rel="external">维基百科:引导程序</a></p>
-<p><a href="http://www.ibm.com/developerworks/cn/linux/l-bootload.html" target="_blank" rel="external">引导加载程序之争：了解 LILO 和 GRUB</a></p>
-<p><a href="https://wiki.deepin.org/index.php?title=%E7%B3%BB%E7%BB%9F%E5%BC%95%E5%AF%BC%E5%99%A8&amp;action=edit" target="_blank" rel="external">系统引导器</a></p>
-<p><a href="https://zh.wikipedia.org/wiki/GNU_GRUB" target="_blank" rel="external">GNU GRUB</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本文转载自&lt;a href=&quot;http://www.ruanyifeng.com/blog/2013/02/booting.html&quot;&gt;计算机是如何启动的？&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;最近在学习&lt;code&gt;Linux内核完全剖析0.12&lt;/code&gt;。前两章提到了计算机操作系统是如何加载的。因此想要复习下计算机的整个启动过程。在找相关资料的过程中发现了&lt;a href=&quot;http://www.ruanyifeng.com/&quot;&gt;阮一峰前辈&lt;/a&gt;写的文章。转载一下。&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="OS" scheme="https://leokongwq.github.io/tags/OS/"/>
     
   </entry>
   

@@ -7,8 +7,40 @@
     </url>
 
     <url>
+        <loc>https://leokongwq.github.io/2018/11/16/springboot-ConfigurationProperties.html</loc>
+        <lastmod>2018-11-17T03:49:32.820Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/2018/11/17/springboot-servlet3-component.html</loc>
+        <lastmod>2018-11-17T03:44:26.752Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/2018/11/07/struts2-with-jdk8.html</loc>
+        <lastmod>2018-11-07T15:02:22.000Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/2018/11/03/how-to-make-maven-faster.html</loc>
+        <lastmod>2018-11-03T04:58:39.000Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://leokongwq.github.io/2018/06/27/activemq-deleyQueue.html</loc>
-        <lastmod>2018-07-15T13:20:06.000Z</lastmod>
+        <lastmod>2018-11-03T04:40:32.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
@@ -16,31 +48,7 @@
 
     <url>
         <loc>https://leokongwq.github.io/2018/07/08/consul-acl.html</loc>
-        <lastmod>2018-07-15T13:20:06.000Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://leokongwq.github.io/2018/07/15/how-to-process-302-in-j2ee-correctly.html</loc>
-        <lastmod>2018-07-15T13:20:06.000Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://leokongwq.github.io/2018/02/28/kafka-consume-msg-profile.html</loc>
-        <lastmod>2018-07-15T13:20:06.000Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://leokongwq.github.io/2018/03/01/kafka-send-msg-profile.html</loc>
-        <lastmod>2018-07-15T13:20:06.000Z</lastmod>
+        <lastmod>2018-11-03T04:40:32.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
@@ -48,7 +56,31 @@
 
     <url>
         <loc>https://leokongwq.github.io/2017/04/28/maven-command-line-parameters.html</loc>
-        <lastmod>2018-07-15T13:20:06.000Z</lastmod>
+        <lastmod>2018-11-03T04:40:32.000Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/2018/02/28/kafka-consume-msg-profile.html</loc>
+        <lastmod>2018-11-03T04:40:32.000Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/2018/07/15/how-to-process-302-in-j2ee-correctly.html</loc>
+        <lastmod>2018-11-03T04:40:32.000Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/2018/03/01/kafka-send-msg-profile.html</loc>
+        <lastmod>2018-11-03T04:40:32.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
@@ -56,7 +88,15 @@
 
     <url>
         <loc>https://leokongwq.github.io/2017/05/28/springboot-autoconfiguration.html</loc>
-        <lastmod>2018-07-15T13:20:06.000Z</lastmod>
+        <lastmod>2018-11-03T04:40:32.000Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/2018/07/29/consul-command-intro.html</loc>
+        <lastmod>2018-07-29T07:32:41.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
@@ -2583,7 +2623,7 @@
     </url>
 
     <url>
-        <loc>https://leokongwq.github.io/2016/10/13/java-serialization-deepknow.html</loc>
+        <loc>https://leokongwq.github.io/2016/10/11/jvm-codecache.html</loc>
         <lastmod>2016-10-15T02:00:19.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
@@ -2591,7 +2631,7 @@
     </url>
 
     <url>
-        <loc>https://leokongwq.github.io/2016/10/11/jvm-codecache.html</loc>
+        <loc>https://leokongwq.github.io/2016/10/13/java-serialization-deepknow.html</loc>
         <lastmod>2016-10-15T02:00:19.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>

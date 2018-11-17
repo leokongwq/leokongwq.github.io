@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://leokongwq.github.io/"/>
-  <updated>2018-11-07T15:02:22.000Z</updated>
+  <updated>2018-11-17T03:44:26.752Z</updated>
   <id>https://leokongwq.github.io/</id>
   
   <author>
@@ -14,6 +14,428 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>springboot 之 Servlet3 web组件</title>
+    <link href="https://leokongwq.github.io/2018/11/17/springboot-servlet3-component.html"/>
+    <id>https://leokongwq.github.io/2018/11/17/springboot-servlet3-component.html</id>
+    <published>2018-11-17T03:32:28.000Z</published>
+    <updated>2018-11-17T03:44:26.752Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p><a href="https://jcp.org/en/jsr/detail?id=315" target="_blank" rel="external">Servlet3.0</a> 规范新增了很多注解，例如：<code>@WebFilter</code>, <code>@WebServlet</code>, <code>@WebListener</code>, 可以帮助我们简化Web应用的开发，不在使用繁琐的xml配置。</p>
+<p>但是在SpringBoot环境和支持Servlet3.0规范的容器下使用有些许的区别。</p>
+<a id="more"></a>
+<h3 id="springboot环境下使用Servlet3-0注解"><a href="#springboot环境下使用Servlet3-0注解" class="headerlink" title="springboot环境下使用Servlet3.0注解"></a>springboot环境下使用Servlet3.0注解</h3><h4 id="Servlet"><a href="#Servlet" class="headerlink" title="Servlet"></a>Servlet</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+</pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span>
+<span class="line"> * <span class="doctag">@author</span> jiexiu</span>
+<span class="line"> */</span></span>
+<span class="line"><span class="meta">@WebServlet</span>(name = <span class="string">"authServlet"</span>, urlPatterns = &#123;<span class="string">"/abc"</span>&#125;, loadOnStartup=<span class="number">1</span>)</span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AuthServlet</span> <span class="keyword">extends</span> <span class="title">HttpServlet</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">AuthServlet</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">        <span class="keyword">super</span>();</span>
+<span class="line">    &#125;</span>
+<span class="line"></span>
+<span class="line">    <span class="meta">@Override</span></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> <span class="keyword">throws</span> ServletException </span>&#123;</span>
+<span class="line">        System.out.println(<span class="string">"AuthServlet init"</span>);</span>
+<span class="line">        <span class="keyword">super</span>.init();</span>
+<span class="line">    &#125;</span>
+<span class="line"></span>
+<span class="line">    <span class="meta">@Override</span></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doGet</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> </span>&#123;</span>
+<span class="line">        <span class="keyword">try</span> &#123;</span>
+<span class="line">            resp.getOutputStream().write(<span class="string">"hello"</span>.getBytes());</span>
+<span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span>
+<span class="line">            e.printStackTrace();</span>
+<span class="line">        &#125;</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h4 id="Filter"><a href="#Filter" class="headerlink" title="Filter"></a>Filter</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+</pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span>
+<span class="line"> * <span class="doctag">@author</span> : jiexiu</span>
+<span class="line"> * DateTime: 2018/3/7 下午10:32</span>
+<span class="line"> * Mail:leokongwq@gmail.com   </span>
+<span class="line"> * Description: desc</span>
+<span class="line"> */</span></span>
+<span class="line"><span class="meta">@WebFilter</span>(<span class="string">"/*"</span>)</span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AuthFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">    <span class="meta">@Override</span></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(FilterConfig filterConfig)</span> <span class="keyword">throws</span> ServletException </span>&#123;</span>
+<span class="line">        System.out.println(<span class="string">"AuthFilter init"</span>);</span>
+<span class="line">    &#125;</span>
+<span class="line"></span>
+<span class="line">    <span class="meta">@Override</span></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest request, ServletResponse response, FilterChain chain)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span>
+<span class="line">        System.out.println(request.getLocalName());</span>
+<span class="line">        chain.doFilter(request, response);</span>
+<span class="line">    &#125;</span>
+<span class="line"></span>
+<span class="line">    <span class="meta">@Override</span></span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h4 id="Application-启动类"><a href="#Application-启动类" class="headerlink" title="Application 启动类"></a>Application 启动类</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+</pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span>
+<span class="line"> * <span class="doctag">@author</span> jiexiu</span>
+<span class="line"> */</span></span>
+<span class="line"><span class="meta">@EnableDiscoveryClient</span></span>
+<span class="line"><span class="meta">@SpringBootApplication</span></span>
+<span class="line"><span class="meta">@ServletComponentScan</span></span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BookServiceApplication</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span>
+<span class="line">		SpringApplication.run(BookServiceApplication.class, args);</span>
+<span class="line">	&#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="ServletComponentScan"><a href="#ServletComponentScan" class="headerlink" title="@ServletComponentScan"></a>@ServletComponentScan</h3><p><code>@ServletComponentScan</code>这个注解很重要，它告诉SpringBoot从哪里加载Servlet组件。</p>
+<p>如果不加该注解，则在SpringBoot内置的Servlet容器中不能正常加载注解指定的组件。</p>
+<p>原因参见：<a href="https://github.com/spring-projects/spring-boot/issues/2290" target="_blank" rel="external">https://github.com/spring-projects/spring-boot/issues/2290</a></p>
+<h3 id="原理解析"><a href="#原理解析" class="headerlink" title="原理解析"></a>原理解析</h3><p><code>@ServletComponentScan</code>注解是被 <code>ServletComponentRegisteringPostProcessor</code>进行处理的。 代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+</pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ServletComponentRegisteringPostProcessor</span></span>
+<span class="line">  <span class="keyword">implements</span> <span class="title">BeanFactoryPostProcessor</span>, <span class="title">ApplicationContextAware</span> </span>&#123;</span>
+<span class="line">   </span>
+<span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> List&lt;ServletComponentHandler&gt; HANDLERS;</span>
+<span class="line"> </span>
+<span class="line">    <span class="keyword">static</span> &#123;</span>
+<span class="line">        List&lt;ServletComponentHandler&gt; handlers = <span class="keyword">new</span> ArrayList&lt;&gt;();</span>
+<span class="line">        handlers.add(<span class="keyword">new</span> WebServletHandler());</span>
+<span class="line">        handlers.add(<span class="keyword">new</span> WebFilterHandler());</span>
+<span class="line">        handlers.add(<span class="keyword">new</span> WebListenerHandler());</span>
+<span class="line">        HANDLERS = Collections.unmodifiableList(handlers);</span>
+<span class="line">    &#125;</span>
+<span class="line">     </span>
+<span class="line">    <span class="comment">//...</span></span>
+<span class="line">     </span>
+<span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">scanPackage</span><span class="params">(</span>
+<span class="line">      ClassPathScanningCandidateComponentProvider componentProvider, </span>
+<span class="line">      String packageToScan)</span></span>&#123;</span>
+<span class="line">        <span class="comment">//...</span></span>
+<span class="line">        <span class="keyword">for</span> (ServletComponentHandler handler : HANDLERS) &#123;</span>
+<span class="line">            handler.handle(((ScannedGenericBeanDefinition) candidate),</span>
+<span class="line">              (BeanDefinitionRegistry) <span class="keyword">this</span>.applicationContext);</span>
+<span class="line">        &#125;</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;p&gt;&lt;a href=&quot;https://jcp.org/en/jsr/detail?id=315&quot;&gt;Servlet3.0&lt;/a&gt; 规范新增了很多注解，例如：&lt;code&gt;@WebFilter&lt;/code&gt;, &lt;code&gt;@WebServlet&lt;/code&gt;, &lt;code&gt;@WebListener&lt;/code&gt;, 可以帮助我们简化Web应用的开发，不在使用繁琐的xml配置。&lt;/p&gt;
+&lt;p&gt;但是在SpringBoot环境和支持Servlet3.0规范的容器下使用有些许的区别。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="springboot" scheme="https://leokongwq.github.io/categories/springboot/"/>
+    
+    
+      <category term="springboot" scheme="https://leokongwq.github.io/tags/springboot/"/>
+    
+      <category term="servlet3" scheme="https://leokongwq.github.io/tags/servlet3/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>springboot 之 ConfigurationProperties</title>
+    <link href="https://leokongwq.github.io/2018/11/16/springboot-ConfigurationProperties.html"/>
+    <id>https://leokongwq.github.io/2018/11/16/springboot-ConfigurationProperties.html</id>
+    <published>2018-11-16T14:49:59.000Z</published>
+    <updated>2018-11-17T03:49:32.820Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p><code>ConfigurationProperties</code> 是SpringBoot引入的一个和外部配置文件相关的注解类。它可以帮助我们更好的使用外置的配置文件属性。</p>
+<h3 id="源码解析"><a href="#源码解析" class="headerlink" title="源码解析"></a>源码解析</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+</pre></td><td class="code"><pre><span class="line"><span class="meta">@Target</span>(&#123; ElementType.TYPE, ElementType.METHOD &#125;)</span>
+<span class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)</span>
+<span class="line"><span class="meta">@Documented</span></span>
+<span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> ConfigurationProperties &#123;</span>
+<span class="line">    <span class="meta">@AliasFor</span>(<span class="string">"prefix"</span>)</span>
+<span class="line">    <span class="function">String <span class="title">value</span><span class="params">()</span> <span class="keyword">default</span> ""</span>;</span>
+<span class="line">    <span class="meta">@AliasFor</span>(<span class="string">"value"</span>)</span>
+<span class="line">    <span class="function">String <span class="title">prefix</span><span class="params">()</span> <span class="keyword">default</span> ""</span>;</span>
+<span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">ignoreInvalidFields</span><span class="params">()</span> <span class="keyword">default</span> <span class="keyword">false</span></span>;</span>
+<span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">ignoreNestedProperties</span><span class="params">()</span> <span class="keyword">default</span> <span class="keyword">false</span></span>;</span>
+<span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">ignoreUnknownFields</span><span class="params">()</span> <span class="keyword">default</span> <span class="keyword">true</span></span>;</span>
+<span class="line">    <span class="meta">@Deprecated</span></span>
+<span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">exceptionIfInvalid</span><span class="params">()</span> <span class="keyword">default</span> <span class="keyword">true</span></span>;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<h4 id="prefix-amp-value"><a href="#prefix-amp-value" class="headerlink" title="prefix &amp; value"></a>prefix &amp; value</h4><p>prefix 属性可以指定配置文件中配置项的前缀，如此，相同前缀的配置项就可以统一解析。</p>
+<h4 id="ignoreInvalidFields"><a href="#ignoreInvalidFields" class="headerlink" title="ignoreInvalidFields"></a>ignoreInvalidFields</h4><p>是否忽略不可用的字段，默认为<code>false</code>， 当配置项不能被正确转化为Java类的字段值时，会抛出异常。</p>
+<h4 id="ignoreNestedProperties"><a href="#ignoreNestedProperties" class="headerlink" title="ignoreNestedProperties"></a>ignoreNestedProperties</h4><p>是否忽略嵌套属性，默认为<code>false</code>， </p>
+<h4 id="ignoreUnknownFields"><a href="#ignoreUnknownFields" class="headerlink" title="ignoreUnknownFields"></a>ignoreUnknownFields</h4><p>是否忽略Java类不存在的字段，默认值为<code>true</code>。</p>
+<h4 id="exceptionIfInvalid"><a href="#exceptionIfInvalid" class="headerlink" title="exceptionIfInvalid"></a>exceptionIfInvalid</h4><p>如果Java类加了注解<code>@Validated</code>，并且校验失败了，是否抛出异常。默认<code>true</code></p>
+<h3 id="属性注入到Java类"><a href="#属性注入到Java类" class="headerlink" title="属性注入到Java类"></a>属性注入到Java类</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+<span class="line">26</span>
+</pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span>
+<span class="line"><span class="meta">@ConfigurationProperties</span></span>
+<span class="line"><span class="meta">@PropertySource</span>(<span class="string">"classpath:configprops.properties"</span>)</span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConfigProperties</span> </span>&#123;</span>
+<span class="line"> </span>
+<span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Credentials</span> </span>&#123;</span>
+<span class="line">        <span class="meta">@Length</span>(max = <span class="number">4</span>, min = <span class="number">1</span>)</span>
+<span class="line">        <span class="keyword">private</span> String authMethod;</span>
+<span class="line">        <span class="keyword">private</span> String username;</span>
+<span class="line">        <span class="keyword">private</span> String password;</span>
+<span class="line"> </span>
+<span class="line">       <span class="comment">// standard getters and setters</span></span>
+<span class="line">    &#125;</span>
+<span class="line">    <span class="meta">@NotBlank</span></span>
+<span class="line">    <span class="keyword">private</span> String host;</span>
+<span class="line">    <span class="meta">@Min</span>(<span class="number">1025</span>)</span>
+<span class="line">    <span class="meta">@Max</span>(<span class="number">65536</span>)</span>
+<span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> port;</span>
+<span class="line">    <span class="meta">@Pattern</span>(regexp = <span class="string">"^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]&#123;2,6&#125;$"</span>)</span>
+<span class="line">    <span class="keyword">private</span> String from;</span>
+<span class="line">    <span class="keyword">private</span> Credentials credentials;</span>
+<span class="line">    <span class="keyword">private</span> List&lt;String&gt; defaultRecipients;</span>
+<span class="line">    <span class="keyword">private</span> Map&lt;String, String&gt; additionalHeaders;</span>
+<span class="line">  </span>
+<span class="line">    <span class="comment">// standard getters and setters</span></span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>默认属性配置从<code>application.properties</code>文件中获取，也可以通过<code>@PropertySource</code>指定。</p>
+<p><code>@Configuration</code>注解不可缺少。</p>
+<p>资源文件内容如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+</pre></td><td class="code"><pre><span class="line">#Simple properties</span>
+<span class="line">mail.host=mailer@mail.com</span>
+<span class="line">mail.port=9000</span>
+<span class="line">mail.from=mailer@mail.com</span>
+<span class="line"> </span>
+<span class="line">#List properties</span>
+<span class="line">mail.defaultRecipients[0]=admin@mail.com</span>
+<span class="line">mail.defaultRecipients[1]=owner@mail.com</span>
+<span class="line"> </span>
+<span class="line">#Map Properties</span>
+<span class="line">mail.additionalHeaders.redelivery=true</span>
+<span class="line">mail.additionalHeaders.secure=true</span>
+<span class="line"> </span>
+<span class="line">#Object properties</span>
+<span class="line">mail.credentials.username=john</span>
+<span class="line">mail.credentials.password=password</span>
+<span class="line">mail.credentials.authMethod=SHA1</span>
+</pre></td></tr></table></figure>
+<h4 id="内嵌类属性"><a href="#内嵌类属性" class="headerlink" title="内嵌类属性"></a>内嵌类属性</h4><p><code>mail.credentials.username</code>可以注入到内嵌属性<code>credentials</code>中</p>
+<h4 id="列表字段"><a href="#列表字段" class="headerlink" title="列表字段"></a>列表字段</h4><p><code>mail.defaultRecipients[0]</code> 可以注入到类的列表(数组页可以)属性中。</p>
+<h4 id="map字段"><a href="#map字段" class="headerlink" title="map字段"></a>map字段</h4><p><code>mail.additionalHeaders.redelivery</code> 格式的配置项也可以注入到<code>Map</code>类型的属性中。</p>
+<h3 id="通过-ConfigurationProperties-Bean注解在配置类的bean定义方法上"><a href="#通过-ConfigurationProperties-Bean注解在配置类的bean定义方法上" class="headerlink" title="通过@ConfigurationProperties + @Bean注解在配置类的bean定义方法上"></a>通过@ConfigurationProperties + @Bean注解在配置类的bean定义方法上</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span>
+<span class="line"><span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"mail"</span>)</span>
+<span class="line"><span class="function"><span class="keyword">public</span> ConfigProperties <span class="title">mailConfig</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ConfigProperties();</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="ConfigurationProperties-EnableConfigurationProperties"><a href="#ConfigurationProperties-EnableConfigurationProperties" class="headerlink" title="@ConfigurationProperties + @EnableConfigurationProperties"></a>@ConfigurationProperties + @EnableConfigurationProperties</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+</pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span>
+<span class="line"><span class="meta">@EnableConfigurationProperties</span>(&#123;ConfigProperties.class&#125;)</span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span>
+<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span>
+<span class="line">        SpringApplication.run(Application.class, args);</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="属性校验"><a href="#属性校验" class="headerlink" title="属性校验"></a>属性校验</h3><p>可以给属性类上加入<code>javax.validation.constraints.*</code>中的注解，来对配置项进行校验。配合<code>exceptionIfInvalid</code>可以更早的发现问题。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;p&gt;&lt;code&gt;ConfigurationProperties&lt;/code&gt; 是SpringBoot引入的一个和外部配置文件相关的注解类。它可以帮助我们更好的使用外置的配置文件属性。&lt;/p&gt;
+&lt;h3 id=&quot;源码解析&quot;&gt;&lt;a href=&quot;#源码解析&quot; class=&quot;headerlink&quot; title=&quot;源码解析&quot;&gt;&lt;/a&gt;源码解析&lt;/h3&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;@Target&lt;/span&gt;(&amp;#123; ElementType.TYPE, ElementType.METHOD &amp;#125;)&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;@Retention&lt;/span&gt;(RetentionPolicy.RUNTIME)&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;@Documented&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;meta&quot;&gt;@interface&lt;/span&gt; ConfigurationProperties &amp;#123;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;meta&quot;&gt;@AliasFor&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;&quot;prefix&quot;&lt;/span&gt;)&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;String &lt;span class=&quot;title&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &quot;&quot;&lt;/span&gt;;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;meta&quot;&gt;@AliasFor&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;&quot;value&quot;&lt;/span&gt;)&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;String &lt;span class=&quot;title&quot;&gt;prefix&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &quot;&quot;&lt;/span&gt;;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ignoreInvalidFields&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;false&lt;/span&gt;&lt;/span&gt;;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ignoreNestedProperties&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;false&lt;/span&gt;&lt;/span&gt;;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ignoreUnknownFields&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;true&lt;/span&gt;&lt;/span&gt;;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;meta&quot;&gt;@Deprecated&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;exceptionIfInvalid&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;true&lt;/span&gt;&lt;/span&gt;;&lt;/span&gt;
+&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+      <category term="springboot" scheme="https://leokongwq.github.io/categories/springboot/"/>
+    
+    
+      <category term="spring" scheme="https://leokongwq.github.io/tags/spring/"/>
+    
+      <category term="springboot" scheme="https://leokongwq.github.io/tags/springboot/"/>
+    
+      <category term="译" scheme="https://leokongwq.github.io/tags/%E8%AF%91/"/>
+    
+  </entry>
   
   <entry>
     <title>JDK8环境下使用struts2</title>
@@ -2002,9 +2424,9 @@
       <category term="消息中间件" scheme="https://leokongwq.github.io/categories/%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
     
     
-      <category term="ActiveMQ" scheme="https://leokongwq.github.io/tags/ActiveMQ/"/>
-    
       <category term="MQ" scheme="https://leokongwq.github.io/tags/MQ/"/>
+    
+      <category term="ActiveMQ" scheme="https://leokongwq.github.io/tags/ActiveMQ/"/>
     
   </entry>
   
@@ -5210,333 +5632,6 @@
     
     
       <category term="spring" scheme="https://leokongwq.github.io/tags/spring/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>spring对缓存的支持及相关注解说明</title>
-    <link href="https://leokongwq.github.io/2018/05/12/spring-cache.html"/>
-    <id>https://leokongwq.github.io/2018/05/12/spring-cache.html</id>
-    <published>2018-05-12T13:54:44.000Z</published>
-    <updated>2018-05-12T15:21:37.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>Spring 3.1 引入了基于注释（annotation）的缓存（cache）技术，但是它本质上不是一个具体的缓存实现方案（例如 EHCache 或者 OSCache），而是一个对缓存使用的抽象，通过在既有代码中添加少量它定义的各种annotation，即能够达到缓存方法的返回对象的效果。</p>
-<p>Spring 的缓存技术还具备相当的灵活性，不仅能够使用 <code>SpEL（Spring Expression Language）</code>来定义缓存的 <code>key</code>和各种<code>condition</code>，还提供开箱即用的缓存临时存储方案，也支持和主流的专业缓存例如<code>EHCache</code>集成。</p>
-<a id="more"></a>
-<h3 id="一个例子"><a href="#一个例子" class="headerlink" title="一个例子"></a>一个例子</h3><p>先从一个例子来直观感受一下spring Cache 如何使用。</p>
-<h4 id="相关类"><a href="#相关类" class="headerlink" title="相关类"></a>相关类</h4><figure class="highlight java"><figcaption><span>Product</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-</pre></td><td class="code"><pre><span class="line"><span class="meta">@Data</span></span>
-<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Product</span> </span>&#123;</span>
-<span class="line">    <span class="keyword">private</span> Long id;</span>
-<span class="line">    <span class="keyword">private</span> String name;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<figure class="highlight java"><figcaption><span>ProductDao</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ProductDao</span> <span class="keyword">extends</span> <span class="title">MongoRepository</span>&lt;<span class="title">Product</span>, <span class="title">Long</span>&gt; </span>&#123;</span>
-<span class="line"></span>
-<span class="line">    <span class="function">User <span class="title">findById</span><span class="params">(Long id)</span></span>;</span>
-<span class="line"></span>
-<span class="line">    <span class="function">List&lt;User&gt; <span class="title">findByName</span><span class="params">(String name)</span></span>;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<figure class="highlight java"><figcaption><span>ProductService</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-</pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span>
-<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProductService</span> </span>&#123;</span>
-<span class="line"></span>
-<span class="line">    <span class="meta">@Resource</span></span>
-<span class="line">    <span class="keyword">private</span> ProductDao productDao;</span>
-<span class="line"></span>
-<span class="line">    <span class="meta">@Cacheable</span>(cacheNames = &#123;<span class="string">"products"</span>&#125;, key = <span class="string">"#id"</span>)</span>
-<span class="line">    <span class="function"><span class="keyword">public</span> Product <span class="title">getProductById</span><span class="params">(Long id)</span> </span>&#123;</span>
-<span class="line">        <span class="keyword">return</span> productDao.findById(id);</span>
-<span class="line">    &#125;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<h4 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h4><p>方法<code>getProductById</code>上加了注解<code>@Cacheable</code>，表示该方法的返回值是可以被缓存的。</p>
-<p>属性<code>cacheNames</code>或<code>value</code>作用相同，都是用来指定返回结果保存到哪个缓存中的，属性<code>key</code>用来指定缓存结果对应的<code>key</code>(缓存通常都是key-value结构）。在改例中，key是由参数<code>id</code>进行计算的。</p>
-<h3 id="Cacheable-详解"><a href="#Cacheable-详解" class="headerlink" title="Cacheable 详解"></a>Cacheable 详解</h3><p><code>@Cacheable</code>注解是Spring Cache中最重要的注解，它的配置属性如下：</p>
-<h4 id="value"><a href="#value" class="headerlink" title="value"></a>value</h4><p>指定方法返回结果保存到的缓存名称。作用和<code>cacheNames</code>相同。支持<code>数组</code>配置</p>
-<h4 id="cacheNames"><a href="#cacheNames" class="headerlink" title="cacheNames"></a>cacheNames</h4><p>参考<code>value</code>属性解释</p>
-<h4 id="key"><a href="#key" class="headerlink" title="key"></a>key</h4><p>属性<code>key</code>的类型是字符串，格式为<code>SpEL</code>表达式，用来动态计算缓存结果的<code>键</code>值。默认值为空，意味着所有的方法参数都会参与计算。</p>
-<h4 id="keyGenerator"><a href="#keyGenerator" class="headerlink" title="keyGenerator"></a>keyGenerator</h4><p>该属性指定自定义<code>KeyGenerator</code>的Bean的名称。默认值为空，意味着使用<code>SimpleKeyGenerator</code></p>
-<h4 id="cacheManager"><a href="#cacheManager" class="headerlink" title="cacheManager"></a>cacheManager</h4><p>类型为：<code>org.springframework.cache.CacheManager</code> 的bean的名称。该bean需要我们在spring配置文件中配置。在SpringBoot中，如果检测到有对应的缓存框架，则会自动配置一个名称为<code>cacheManager</code>的bean。</p>
-<h4 id="cacheResolver"><a href="#cacheResolver" class="headerlink" title="cacheResolver"></a>cacheResolver</h4><p>类型为：<code>org.springframework.cache.interceptor.CacheResolver</code> 的bean的名称。</p>
-<h4 id="condition"><a href="#condition" class="headerlink" title="condition"></a>condition</h4><p>类型为字符串，结果是SpEL表达式，指定缓存的条件。默认值为空字符串，意味着方法的返回值总是被缓存。</p>
-<h4 id="unless"><a href="#unless" class="headerlink" title="unless"></a>unless</h4><p>类型为字符串，结果是SpEL表达式，和<code>condition</code>不同的是，该表示式是在方法调用会进行计算的，用来否决方法的缓存。默认是空字符串，意味着从来不否决缓存结果。</p>
-<h4 id="sync"><a href="#sync" class="headerlink" title="sync"></a>sync</h4><p>类型是boolean，4.3版本开始支持。表示在多个线程同时<code>加载</code>同一个缓存key对应的资源时，是否进行同步。默认值为false。</p>
-<p>如果设置为true, 则能避免重复加载。该属性的功能能否起作用取决于如下条件：</p>
-<ol>
-<li>不支持unless </li>
-<li>只能指定一个缓存（cacheName取值唯一）</li>
-<li>不能和其它缓存相关的操作进行组合</li>
-</ol>
-<h3 id="缓存key的计算规则"><a href="#缓存key的计算规则" class="headerlink" title="缓存key的计算规则"></a>缓存key的计算规则</h3><p>上面提到缓存<code>key</code>的格式为SpEL表达式。默认的计算规则如下：</p>
-<ul>
-<li>如果方法没有参数，则返回0</li>
-<li>如果方法只有一个参数，则返回该参数。</li>
-<li>如果方法有多余一个参数，则key的值由所有参数的hashcode计算而来。具体可以参考<code>SimpleKeyGenerator</code></li>
-</ul>
-<h3 id="KeyGenerator"><a href="#KeyGenerator" class="headerlink" title="KeyGenerator"></a>KeyGenerator</h3><p><code>KeyGenerator</code> 接口用来计算方法返回值对应的缓存键的值。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">KeyGenerator</span> </span>&#123;</span>
-<span class="line">    <span class="function">Object <span class="title">generate</span><span class="params">(Object target, Method method, Object... params)</span></span>;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>spring默认提供了两个实现类：<code>DefaultKeyGenerator</code>（4.0版本开始不推荐使用） 和 <code>SimpleKeyGenerator</code>（默认使用）。</p>
-<p>我们可以通过实现该接口自定义实现。</p>
-<h3 id="key-SpEL-举例"><a href="#key-SpEL-举例" class="headerlink" title="key SpEL 举例"></a>key SpEL 举例</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-</pre></td><td class="code"><pre><span class="line"><span class="meta">@Cacheable</span>(value=<span class="string">"books"</span>, key=<span class="string">"#isbn"</span></span>
-<span class="line"><span class="function"><span class="keyword">public</span> Book <span class="title">findBook</span><span class="params">(ISBN isbn, <span class="keyword">boolean</span> checkWarehouse, <span class="keyword">boolean</span> includeUsed)</span></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line">@<span class="title">Cacheable</span><span class="params">(value=<span class="string">"books"</span>, key=<span class="string">"#isbn.rawNumber"</span>)</span></span>
-<span class="line"><span class="keyword">public</span> Book <span class="title">findBook</span><span class="params">(ISBN isbn, <span class="keyword">boolean</span> checkWarehouse, <span class="keyword">boolean</span> includeUsed)</span></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line">@<span class="title">Cacheable</span><span class="params">(value=<span class="string">"books"</span>, key=<span class="string">"T(someType).hash(#isbn)"</span>)</span></span>
-<span class="line"><span class="keyword">public</span> Book <span class="title">findBook</span><span class="params">(ISBN isbn, <span class="keyword">boolean</span> checkWarehouse, <span class="keyword">boolean</span> includeUsed)</span></span></span>
-</pre></td></tr></table></figure>
-<p>SpEL语法可以参考：<a href="https://docs.spring.io/spring/docs/3.1.x/spring-framework-reference/html/expressions.html" target="_blank" rel="external">Chapter 7, Spring Expression Language (SpEL)</a></p>
-<h3 id="条件缓存"><a href="#条件缓存" class="headerlink" title="条件缓存"></a>条件缓存</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line"><span class="meta">@Cacheable</span>(value=<span class="string">"book"</span>, condition=<span class="string">"#name.length &lt; 32"</span>)</span>
-<span class="line"><span class="function"><span class="keyword">public</span> Book <span class="title">findBook</span><span class="params">(String name)</span></span></span>
-</pre></td></tr></table></figure>
-<h3 id="SpEL计算上下文"><a href="#SpEL计算上下文" class="headerlink" title="SpEL计算上下文"></a>SpEL计算上下文</h3><img src="/2018/05/12/spring-cache/SpEL-contect.jpg" alt="SpEL-contect.jpg" title="">
-<h3 id="CachePut"><a href="#CachePut" class="headerlink" title="@CachePut"></a>@CachePut</h3><p>如果缓存需要更新，且不干扰方法的执行,可以使用注解<code>@CachePut</code>。<code>@CachePut</code>标注的方法在执行前不会去检查缓存中是否存在之前执行过的结果，而是每次都会执行该方法，并将执行结果以键值对的形式存入指定的缓存中。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line"><span class="meta">@CachePut</span>(cacheNames=<span class="string">"book"</span>, key=<span class="string">"#isbn"</span>)</span>
-<span class="line"><span class="function"><span class="keyword">public</span> Book <span class="title">updateBook</span><span class="params">(ISBN isbn, BookDescriptor descriptor)</span></span></span>
-</pre></td></tr></table></figure>
-<p><strong>注意</strong>：应该避免@CachePut 和 @Cacheable同时使用的情况。</p>
-<h3 id="CacheEvict"><a href="#CacheEvict" class="headerlink" title="@CacheEvict"></a>@CacheEvict</h3><p>spring cache不仅支持将数据缓存，还支持将缓存数据删除。此过程经常用于从缓存中清除过期或未使用的数据。<br><code>@CacheEvict</code>要求指定一个或多个缓存，使之都受影响。此外，还提供了一个额外的参数<code>allEntries</code> 。表示是否需要清除缓存中的所有元素。默认为<code>false</code>，表示不需要。当指定了<code>allEntries</code>为<code>true</code>时，Spring Cache将忽略指定的key。有的时候我们需要Cache一下清除所有的元素。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line"><span class="meta">@CacheEvict</span>(cacheNames=<span class="string">"books"</span>, allEntries=<span class="keyword">true</span>)</span>
-<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">loadBooks</span><span class="params">(InputStream batch)</span></span></span>
-</pre></td></tr></table></figure>
-<p>清除操作默认是在对应<strong>方法成功执行之后</strong>触发的，即方法如果因为抛出异常而未能成功返回时也不会触发清除操作。使用<code>beforeInvocation</code>可以改变触发清除操作的时间，当我们指定该属性值为true时，Spring会在调用该方法之前清除缓存中的指定元素。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-</pre></td><td class="code"><pre><span class="line"><span class="meta">@CacheEvict</span>(cacheNames=<span class="string">"books"</span>, beforeInvocation=<span class="keyword">true</span>)</span>
-<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">loadBooks</span><span class="params">(InputStream batch)</span></span></span>
-</pre></td></tr></table></figure>
-<h3 id="CacheConfig"><a href="#CacheConfig" class="headerlink" title="@CacheConfig"></a>@CacheConfig</h3><p>有时候一个类中可能会有多个缓存操作，而这些缓存操作可能是重复的。这个时候可以使用@CacheConfig</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-</pre></td><td class="code"><pre><span class="line"><span class="meta">@CacheConfig</span>(<span class="string">"books"</span>)</span>
-<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BookRepositoryImpl</span> <span class="keyword">implements</span> <span class="title">BookRepository</span> </span>&#123;</span>
-<span class="line"></span>
-<span class="line">    <span class="meta">@Cacheable</span></span>
-<span class="line">    <span class="function"><span class="keyword">public</span> Book <span class="title">findBook</span><span class="params">(ISBN isbn)</span> </span>&#123;...&#125;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p><code>@CacheConfig</code>是一个类级别的注解，允许共享缓存的名称、KeyGenerator、CacheManager 和CacheResolver。<br>该操作会被覆盖。</p>
-<h3 id="开启缓存注解"><a href="#开启缓存注解" class="headerlink" title="开启缓存注解"></a>开启缓存注解</h3><p>java类配置：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-</pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span>
-<span class="line"><span class="meta">@EnableCaching</span></span>
-<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AppConfig</span> </span>&#123;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>XML 配置</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-</pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span>
-<span class="line">    <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span>
-<span class="line">    <span class="attr">xmlns:cache</span>=<span class="string">"http://www.springframework.org/schema/cache"</span></span>
-<span class="line">    <span class="attr">xsi:schemaLocation</span>=<span class="string">"</span>
-<span class="line">        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd</span>
-<span class="line">        http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd"</span>&gt;</span></span>
-<span class="line"></span>
-<span class="line">        <span class="tag">&lt;<span class="name">cache:annotation-driven</span> /&gt;</span></span>
-<span class="line"></span>
-<span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span>
-</pre></td></tr></table></figure>
-<h3 id="配置CacheManager"><a href="#配置CacheManager" class="headerlink" title="配置CacheManager"></a>配置CacheManager</h3><p>CacheManager是Spring定义的一个用来管理Cache的接口。Spring自身已经为我们提供了两种CacheManager的实现，一种是基于Java API的ConcurrentMap，另一种是基于第三方Cache实现——Ehcache，如果我们需要使用其它类型的缓存时，我们可以自己来实现Spring的CacheManager接口或AbstractCacheManager抽象类。下面分别来看看Spring已经为我们实现好了的两种CacheManager的配置示例。</p>
-<h4 id="基于ConcurrentMap的配置"><a href="#基于ConcurrentMap的配置" class="headerlink" title="基于ConcurrentMap的配置"></a>基于ConcurrentMap的配置</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-</pre></td><td class="code"><pre><span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"cacheManager"</span> <span class="attr">class</span>=<span class="string">"org.springframework.cache.support.SimpleCacheManager"</span>&gt;</span></span>
-<span class="line">     <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"caches"</span>&gt;</span></span>
-<span class="line">        <span class="tag">&lt;<span class="name">set</span>&gt;</span></span>
-<span class="line">        <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"</span>    <span class="attr">p:name</span>=<span class="string">"xxx"</span>/&gt;</span></span>
-<span class="line">        <span class="tag">&lt;/<span class="name">set</span>&gt;</span></span>
-<span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span>
-<span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span>
-<span class="line">```  </span>
-<span class="line"></span>
-<span class="line">上面的配置使用的是一个SimpleCacheManager，其中包含一个名为“xxx”的ConcurrentMapCache。</span>
-<span class="line"></span>
-<span class="line">#### 基于Ehcache的配置</span>
-<span class="line"> </span>
-<span class="line"> ```xml</span>
-<span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"cacheManager"</span> <span class="attr">class</span>=<span class="string">"org.springframework.cache.ehcache.EhCacheCacheManager"</span> <span class="attr">p:cache-manager-ref</span>=<span class="string">"ehcacheManager"</span>/&gt;</span></span>
-<span class="line"></span>
-<span class="line">   <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"ehcacheManager"</span> <span class="attr">class</span>=<span class="string">"org.springframework.cache.ehcache.EhCacheManagerFactoryBean"</span> <span class="attr">p:config-location</span>=<span class="string">"ehcache-spring.xml"</span>/&gt;</span></span>
-</pre></td></tr></table></figure>
-<p>上面的配置使用了一个Spring提供的EhCacheCacheManager来生成一个Spring的CacheManager，其接收一个Ehcache的CacheManager，因为真正用来存入缓存数据的还是Ehcache。Ehcache的CacheManager是通过Spring提供的EhCacheManagerFactoryBean来生成的，其可以通过指定ehcache的配置文件位置来生成一个Ehcache的CacheManager。若未指定则将按照Ehcache的默认规则取classpath根路径下的ehcache.xml文件，若该文件也不存在，则获取Ehcache对应jar包中的ehcache-failsafe.xml文件作为配置文件。更多关于Ehcache的内容这里就不多说了，它不属于本文讨论的内容，欲了解更多关于Ehcache的内容可以参考我之前发布的Ehcache系列文章，也可以参考官方文档等。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
-<li>通过少量的配置 annotation 注释即可使得既有代码支持缓存</li>
-<li>支持开箱即用 Out-Of-The-Box，即不用安装和部署额外第三方组件即可使用缓存</li>
-<li>支持 Spring Express Language，能使用对象的任何属性或者方法来定义缓存的 key 和 condition</li>
-<li>支持 AspectJ，并通过其实现任何方法的缓存支持</li>
-<li>支持自定义 key 和自定义缓存管理者，具有相当的灵活性和扩展性</li>
-</ul>
-<h3 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h3><p><a href="https://www.ibm.com/developerworks/cn/opensource/os-cn-spring-cache/" target="_blank" rel="external">https://www.ibm.com/developerworks/cn/opensource/os-cn-spring-cache/</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Spring 3.1 引入了基于注释（annotation）的缓存（cache）技术，但是它本质上不是一个具体的缓存实现方案（例如 EHCache 或者 OSCache），而是一个对缓存使用的抽象，通过在既有代码中添加少量它定义的各种annotation，即能够达到缓存方法的返回对象的效果。&lt;/p&gt;
-&lt;p&gt;Spring 的缓存技术还具备相当的灵活性，不仅能够使用 &lt;code&gt;SpEL（Spring Expression Language）&lt;/code&gt;来定义缓存的 &lt;code&gt;key&lt;/code&gt;和各种&lt;code&gt;condition&lt;/code&gt;，还提供开箱即用的缓存临时存储方案，也支持和主流的专业缓存例如&lt;code&gt;EHCache&lt;/code&gt;集成。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="web" scheme="https://leokongwq.github.io/categories/web/"/>
-    
-    
-      <category term="spring" scheme="https://leokongwq.github.io/tags/spring/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>linux系统如何启动</title>
-    <link href="https://leokongwq.github.io/2018/03/23/computer-booting-linux.html"/>
-    <id>https://leokongwq.github.io/2018/03/23/computer-booting-linux.html</id>
-    <published>2018-03-23T09:14:27.000Z</published>
-    <updated>2018-05-13T15:36:32.000Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h2><h3 id="intel-CPU发展历史简介"><a href="#intel-CPU发展历史简介" class="headerlink" title="intel CPU发展历史简介"></a>intel CPU发展历史简介</h3><ul>
-<li>1971年，Intel 发布了第一款的微处理器4004。它是一个<code>4位</code>的微处理器。</li>
-<li>1972年，Intel 发布了第一款八位处理器8008。它是一个<code>8位</code>的微处理器，地址总线(address bus)是<code>14位</code>的，就是说可以访问到<code>16K</code>的内存空间。</li>
-<li>1974年4月，Intel 发布了第二款八位处理器<code>8080</code>。它是8008是增强版，增加了几个累加器，使它可以访问<code>16位</code>(8+8)的内存地址，即<code>64K</code>范围内的地址空间。而且它也是公认的“第一款真正可用的微处理器”。8080的架构对8086产生了很大的影响，并且为 x86系列奠定了基础。</li>
-<li>1976年开始设计，1978年中旬Intel 发布了8086。标志了x86王朝的开始。它是一款<code>16位</code>的微处理器，却被设计成可以访问<code>1MB</code>的内存（即<code>20位</code>的地址空间）</li>
-<li>1982年，Intel 的80286面世了。它是第一款采用保护模式的x86微处理器。地址总线增加到<code>24</code>位使它可以访问到16M 的内存空间。</li>
-<li>1985年，Intel 发布了80386。一个拥有32位的微处理器。并且地址总数(address bus)也是32位的，寻址能力大幅提高到4G。</li>
-</ul>
-<a id="more"></a>
-<h3 id="内存寻址和管理"><a href="#内存寻址和管理" class="headerlink" title="内存寻址和管理"></a>内存寻址和管理</h3><p>所谓寻址就是CPU查找数据或待执行指令位置的过程。</p>
-<p>在8080及以前的CPU中，内存寻址访问是绝对地址。就是<code>指令的地址即物理地址</code>，中间没有任何的转换。</p>
-<p>8086中，地址总线为20位，也就是说寻址空间为1M。 但是CPU中“算术逻辑运算单元（ALU）”的宽度，即数据总线却只有16位，也就是可直接加以运算的指针长度是16位的。如何填补这个空隙呢？可能的解决方案有多种，例如，可以像一些8位CPU中那样，增设一些20位的指令专用于地址运算和操作，但是那样又会造成CPU内存结构的不均匀。又例如，当时的PDP－11小型机也是16位的，但是其内存管理单元（MMU）可以将16位的地址映射到24位的地址空间。受此启发，Intel设计了一种在当时看来不失为巧妙的方法，即分段的方法。</p>
-<p>为了支持分段，Intel在8086 CPU中设置了四个段寄存器：CS、DS、SS和ES，分别用于可执行代码段、数据段、堆栈段及其它段。每个段寄存器都是<code>16</code>位的，对应于地址总线中的<code>高16位</code>。每条<code>访内</code>指令中的内部地址也都是<code>16位</code>的，但是在送上地址总线之前，CPU内部自动地把它与<code>某个段寄存器</code>中的内容相加。因为段寄存器中的内容对应于20位地址总线中的高16位(也就是把段寄存器左移4位)，所以相加时实际上是内存总线中的高12位与段寄存器中的16位相加，而低4位保留不变，这样就形成一个20位的实际地址，也就实现了从16位内存地址到20位实际地址的转换，或者叫“映射”。</p>
-<p>这种寻址方式也就是所谓的<code>实模式</code>。</p>
-<p>但在这种机制下，由段寄存器确定一个<code>基地址</code>，一个进程总是可以访问由此开始连续的64K字节地址空间，且<code>无法加以限制</code>。进一步，通过改变<code>段寄存器CS</code>的内容，这个进程可以随心所欲的访问内存中的任何一个单元，因此根本谈不上对系统和其它进程的保护。这就是<code>实模式</code>的最大缺点。也是后面引入<code>保护模式</code>的根本原因。</p>
-<p>80286的地址总线增加到24位使它可以访问到16M的内存空间。即使是可访的地址空间增加了，但它的分段大小依然是64K（因为段偏移量的大小为16位）。</p>
-<p>386是32位的CPU，数据、地址总线都是32位，因此寻址空间为4G。80386中对内存的管理有两种，一个是段式内存管理，一个是页式内存管理。</p>
-<p>由于Intel是在16位CPU基础上涉及32位CPU的，因此在32位处理器中，它继承了段寄存器。由于寻址空间的增大，16位的段寄存器已不能够提供基地址了()。这样就引入了一个数据结构来描述关于段的一些信息（即<code>段描述符</code>）。当一个访存指令发出一个内存地址时，CPU按照下面过程实现从指令中的32位逻辑地址到32位物理地址的转换：</p>
-<ol>
-<li>首先根据指令的性质来确定该使用哪一个段寄存器。</li>
-<li>根据段寄存器的内容，找到相应的<code>段描述结构</code>。</li>
-<li>从<code>段描述结构</code>中得到<code>基地址</code>。</li>
-<li>将指令中的地址作为位移，与段描述结构中规定的段长度相比，看是否越界；(基地址 + 偏移 是否大于规定的段长度)</li>
-<li>根据指令的性质和段描述符中的访问权限来确定是否越权；</li>
-<li>最后才将指令中的地址作为位移，与段基地址相加，得到物理地址。</li>
-</ol>
-<p>同时，在上面过程中，由于有对访问权限的检查，就实现了保护。</p>
-<p>面提到的“段描述结构”实际就是段描述符。80386中有<code>两个寄存器</code>，分别是全局的段描述表寄存器(<code>GDTR</code>)和局部的段描述表寄存器(<code>LDTR</code>)，用来指向存储在内存中的某个段描述表。原段寄存器(指的是CS,DS,SS等寄存器)中的<code>高13位</code>指明某个段描述符在段描述表中的偏移，这个偏移加上GDTR（或LDTR）中段描述表的基地址，就得到段描述符的地址。最后从段描述子中得到段的32位基地址和长度以及其它的一些信息（这些信息包括关于越界和权限检查）。</p>
-<p>段式内存管理只是386保护模式的一个部分，由于其效率的问题以及段是可变长度的，又发展出了页式内存管理。386处理器中有一个寄存器<code>CR0</code>，如果它的<code>PG</code>位为1，就打开了页式内存管理。</p>
-<p>页式内存管理是在由段式内存管理形成的地址上再加上一层地址映射。此时由段式管理形成的地址就不再是物理地址了，而是“线性地址”。段式内存管理先把“逻辑地址”映射为“线性地址”，再由页式内存管理把“线性地址”映射为“物理地址”；当不使用页式内存管理时，“线性地址”就直接用作“物理地址”。</p>
-<p>80386把内存分为4K的页面，每一个页面被映射到物理内存中任一块4K字节大小的空间（边界必须与4K字节对齐）。需要注意的是，在段式管理中，连续的逻辑地址经映射后在线性空间还是连续的，但连续的线性地址经映射后在物理空间却不一定连续。</p>
-<p>页式内存管理中，32位的线性地址划分为三个部分：10位的页目录表下标、10位的页面表下标、12位的页内地址偏移(2的12次方字节刚好是4KB)。CPU增加了一个<code>CR3</code>寄存器存放指向当前页目录表的指针。寻址方式就改为：</p>
-<ol>
-<li>从<code>CR3</code>取得页目录表的基地址；</li>
-<li>根据10位页目录表下标和1中得到的基地址，取得相应页面表的基地址；</li>
-<li>根据10位页面表下标和2中得到的基地址，从页面表中取得相应的页面描述项；</li>
-<li>将页面描述项中的页面基地址和线性地址中的12位页内偏移地址偏移相加，得到物理地址。</li>
-</ol>
-<p>同时，在地址转换的过程中也有越界和权限的检查，就不赘述了。</p>
-<p>还有一个特例，就是所谓的<code>Flat（平坦）地址模式</code>，Linux内核就是采用这种模式的。它是在段式内存管理的基础上，如果每个段寄存器都指向同一个段描述子，而此段描述子中把段的基地址设为0，长度设为最大（4G），这样就形成了一个覆盖整个地址空间的巨大段。此时逻辑地址就和物理地址相同。形象的看，这样的地址就没有层次结构（段:偏移）了，所以叫做平坦模式，它是段式管理的特例。</p>
-<h3 id="BIOS"><a href="#BIOS" class="headerlink" title="BIOS"></a>BIOS</h3><ol>
-<li>80x86 系列CPU可以运行在16位<code>实模式</code>和32<code>保护模式下</code></li>
-<li>80x86 系列CPU在加电时自动进入<code>实模式</code>，并且将代码段寄存器<code>CS</code>的值设为<code>0xFFFF</code>， 指令指针寄存器<code>IP</code>的值设置为<code>0x0000</code>。</li>
-<li><code>实模式</code>下<code>IP</code>是16位的，并且地址是绝对地址。保护模式下，<code>EIP</code>的值是32位，并且地址是线下地址。</li>
-<li>实模式下地址的计算是通过：<code>段地址 * 16 + 段偏移量</code>。 （都是从0开始计算）</li>
-<li>实模式下的寻址空间为1M，也就是从 0x00000 - 0xFFFFF </li>
-</ol>
-<h3 id="启动顺序"><a href="#启动顺序" class="headerlink" title="启动顺序"></a>启动顺序</h3><ol>
-<li>开解接通电源后，北桥芯片会向CPU发出一个<code>Reset</code>信号，让CPU复位初始化。<code>CS</code>寄存器和<code>IP</code>寄存器的值被分别设置为<code>0xFFFF</code>和<code>0x0000</code>。电源开始稳定供电后，芯片组便撤去<code>Reset</code>信号。CPU马上开始从绝对地址：<code>0xFFFF0</code>处开始执行。该地址其实是1M地址空间的最后16个字节处，并且就是BIOS程序所在的地址空间，放在这里的一般是一个跳转指令，跳到系统BIOS的真正开始代码处。</li>
-</ol>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://my.oschina.net/wuying/blog/53419" target="_blank" rel="external">理解“统一编址与独立编址、I/O端口与I/O内存”</a><br><a href="http://www.eefocus.com/mcu-dsp/400488/r0" target="_blank" rel="external">处理器系列之寻址空间详解</a><br><a href="http://memorymyann.iteye.com/blog/188764" target="_blank" rel="external">intel80X86的实地址模式和保护模式</a><br><a href="http://www.cnblogs.com/driftsand/archive/2013/02/16/2913743.html" target="_blank" rel="external">计算机的内存分配</a><br><a href="https://blog.csdn.net/acmilanvanbasten/article/details/38852153" target="_blank" rel="external">BIOS 工作流程解析</a><br><a href="https://blog.csdn.net/liuyez123/article/details/51096914" target="_blank" rel="external">X86/X64处理器体系结构及寻址模式</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h2 id=&quot;背景知识&quot;&gt;&lt;a href=&quot;#背景知识&quot; class=&quot;headerlink&quot; title=&quot;背景知识&quot;&gt;&lt;/a&gt;背景知识&lt;/h2&gt;&lt;h3 id=&quot;intel-CPU发展历史简介&quot;&gt;&lt;a href=&quot;#intel-CPU发展历史简介&quot; class=&quot;headerlink&quot; title=&quot;intel CPU发展历史简介&quot;&gt;&lt;/a&gt;intel CPU发展历史简介&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;1971年，Intel 发布了第一款的微处理器4004。它是一个&lt;code&gt;4位&lt;/code&gt;的微处理器。&lt;/li&gt;
-&lt;li&gt;1972年，Intel 发布了第一款八位处理器8008。它是一个&lt;code&gt;8位&lt;/code&gt;的微处理器，地址总线(address bus)是&lt;code&gt;14位&lt;/code&gt;的，就是说可以访问到&lt;code&gt;16K&lt;/code&gt;的内存空间。&lt;/li&gt;
-&lt;li&gt;1974年4月，Intel 发布了第二款八位处理器&lt;code&gt;8080&lt;/code&gt;。它是8008是增强版，增加了几个累加器，使它可以访问&lt;code&gt;16位&lt;/code&gt;(8+8)的内存地址，即&lt;code&gt;64K&lt;/code&gt;范围内的地址空间。而且它也是公认的“第一款真正可用的微处理器”。8080的架构对8086产生了很大的影响，并且为 x86系列奠定了基础。&lt;/li&gt;
-&lt;li&gt;1976年开始设计，1978年中旬Intel 发布了8086。标志了x86王朝的开始。它是一款&lt;code&gt;16位&lt;/code&gt;的微处理器，却被设计成可以访问&lt;code&gt;1MB&lt;/code&gt;的内存（即&lt;code&gt;20位&lt;/code&gt;的地址空间）&lt;/li&gt;
-&lt;li&gt;1982年，Intel 的80286面世了。它是第一款采用保护模式的x86微处理器。地址总线增加到&lt;code&gt;24&lt;/code&gt;位使它可以访问到16M 的内存空间。&lt;/li&gt;
-&lt;li&gt;1985年，Intel 发布了80386。一个拥有32位的微处理器。并且地址总数(address bus)也是32位的，寻址能力大幅提高到4G。&lt;/li&gt;
-&lt;/ul&gt;
-    
-    </summary>
-    
-    
-      <category term="linux" scheme="https://leokongwq.github.io/tags/linux/"/>
-    
-      <category term="computer" scheme="https://leokongwq.github.io/tags/computer/"/>
     
   </entry>
   

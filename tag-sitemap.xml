@@ -527,71 +527,99 @@
     </url>
 
     <url>
-        <loc>https://leokongwq.github.io/tags/spring/</loc>
-        <lastmod>2018-07-14T03:48:49.000Z</lastmod>
+        <loc>https://leokongwq.github.io/tags/MQ/</loc>
+        <lastmod>2018-11-03T04:40:32.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
         <loc>https://leokongwq.github.io/tags/ActiveMQ/</loc>
-        <lastmod>2018-07-15T13:20:06.000Z</lastmod>
+        <lastmod>2018-11-03T04:40:32.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
         <loc>https://leokongwq.github.io/tags/consul/</loc>
-        <lastmod>2018-07-15T13:20:06.000Z</lastmod>
+        <lastmod>2018-11-03T04:40:32.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
         <loc>https://leokongwq.github.io/tags/web/</loc>
-        <lastmod>2018-07-15T13:20:06.000Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>https://leokongwq.github.io/tags/maven/</loc>
-        <lastmod>2018-07-15T13:20:06.000Z</lastmod>
+        <lastmod>2018-11-03T04:40:32.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
         <loc>https://leokongwq.github.io/tags/kafka/</loc>
-        <lastmod>2018-07-15T13:20:06.000Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>https://leokongwq.github.io/tags/MQ/</loc>
-        <lastmod>2018-07-15T13:20:06.000Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>https://leokongwq.github.io/tags/springboot/</loc>
-        <lastmod>2018-07-15T13:20:06.000Z</lastmod>
+        <lastmod>2018-11-03T04:40:32.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
         <loc>https://leokongwq.github.io/tags/tomcat/</loc>
-        <lastmod>2018-07-15T13:20:06.000Z</lastmod>
+        <lastmod>2018-11-03T04:40:32.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
         <loc>https://leokongwq.github.io/tags/resin/</loc>
-        <lastmod>2018-07-15T13:20:06.000Z</lastmod>
+        <lastmod>2018-11-03T04:40:32.000Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/tags/maven/</loc>
+        <lastmod>2018-11-03T04:58:39.000Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/tags/struts2/</loc>
+        <lastmod>2018-11-07T15:02:22.000Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/tags/JDK8/</loc>
+        <lastmod>2018-11-07T15:02:22.000Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/tags/servlet3/</loc>
+        <lastmod>2018-11-17T03:44:26.752Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/tags/spring/</loc>
+        <lastmod>2018-11-17T03:49:32.820Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/tags/springboot/</loc>
+        <lastmod>2018-11-17T03:49:32.820Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/tags/%E8%AF%91/</loc>
+        <lastmod>2018-11-17T03:49:32.820Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>

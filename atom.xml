@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://leokongwq.github.io/"/>
-  <updated>2018-11-17T03:44:26.752Z</updated>
+  <updated>2018-11-21T15:48:09.849Z</updated>
   <id>https://leokongwq.github.io/</id>
   
   <author>
@@ -14,6 +14,261 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>RestTemplate超时引发的血案</title>
+    <link href="https://leokongwq.github.io/2018/11/21/springboot-resttempate-timout.html"/>
+    <id>https://leokongwq.github.io/2018/11/21/springboot-resttempate-timout.html</id>
+    <published>2018-11-21T15:01:05.000Z</published>
+    <updated>2018-11-21T15:48:09.849Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近线上出了一次故障，收银台系统所有服务全部假死。订单量瞬时下降，造成很大损失。</p>
+<p>故障总结，导致问题的原因有两方面：</p>
+<ol>
+<li>数据库慢查询</li>
+<li>RestTemplate超时时间设置不生效。</li>
+<li>spring-web不同版本设置RestTemplate方式不完全一样。</li>
+</ol>
+<a id="more"></a>
+<h3 id="默认超时设置"><a href="#默认超时设置" class="headerlink" title="默认超时设置"></a>默认超时设置</h3><p>默认情况下是没有超时设置的，此时超时依赖两方面：</p>
+<ol>
+<li>依赖TCP连接本身的超时时间（tcp空闲连接，超过一定时间，连接会被关闭）。</li>
+<li>请求所经过的网络节点的超时时间。e.g. 中间经过nginx, nginx默认读取后端服务的超时时间是60s，所以超时时间在60s左右（日志显示稍微大一点，不会大很多）。</li>
+</ol>
+<h4 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h4><figure class="highlight java"><figcaption><span>例子</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">long</span> start = System.currentTimeMillis();</span>
+<span class="line"><span class="keyword">try</span> &#123;</span>
+<span class="line">    RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span>
+<span class="line">    Map responseObject = restTemplate.getForObject(url, Map.class);</span>
+<span class="line">    System.out.println(responseObject);</span>
+<span class="line">&#125; <span class="keyword">catch</span> (Exception e) &#123;</span>
+<span class="line">    Assert.assertNotNull(e);</span>
+<span class="line">    System.out.println(<span class="string">"timeout = "</span> + (System.currentTimeMillis() - start));</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>原因：</p>
+<p><code>RestTemplate</code> 继承自 <code>HttpAccessor</code>, 默认使用的<code>ClientHttpRequestFactory</code>是<code>SimpleClientHttpRequestFactory</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+<span class="line">25</span>
+</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">HttpAccessor</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">	<span class="comment">/**</span>
+<span class="line">	 * Logger available to subclasses.</span>
+<span class="line">	 */</span></span>
+<span class="line">	<span class="keyword">protected</span> <span class="keyword">final</span> Log logger = LogFactory.getLog(getClass());</span>
+<span class="line"></span>
+<span class="line">	<span class="keyword">private</span> ClientHttpRequestFactory requestFactory = <span class="keyword">new</span> SimpleClientHttpRequestFactory();</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleClientHttpRequestFactory</span> <span class="keyword">implements</span> <span class="title">ClientHttpRequestFactory</span> </span>&#123;</span>
+<span class="line"></span>
+<span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_CHUNK_SIZE = <span class="number">4096</span>;</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">	<span class="keyword">private</span> Proxy proxy;</span>
+<span class="line"></span>
+<span class="line">	<span class="keyword">private</span> <span class="keyword">boolean</span> bufferRequestBody = <span class="keyword">true</span>;</span>
+<span class="line"></span>
+<span class="line">	<span class="keyword">private</span> <span class="keyword">int</span> chunkSize = DEFAULT_CHUNK_SIZE;</span>
+<span class="line"></span>
+<span class="line">  <span class="comment">// 连接和读取超时都是 -1, 也就是没有超时设置。</span></span>
+<span class="line">	<span class="keyword">private</span> <span class="keyword">int</span> connectTimeout = -<span class="number">1</span>;</span>
+<span class="line">	<span class="keyword">private</span> <span class="keyword">int</span> readTimeout = -<span class="number">1</span>;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>那么我们使用<code>RestTemplate</code>该如何设置超时时间呢？ </p>
+<h3 id="RestTemplate超时设置"><a href="#RestTemplate超时设置" class="headerlink" title="RestTemplate超时设置"></a>RestTemplate超时设置</h3><p>由上面的代码我们了解到，超时设置其实应该通过内部的<code>ClientHttpRequestFactory</code>来设置的。</p>
+<p>所以就可以通过给<code>RestTemplate</code>设置一个我们自己创建的，设置了超时时间的<code>ClientHttpRequestFactory</code>来实现。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line">SimpleClientHttpRequestFactory clientHttpRequestFactory = <span class="keyword">new</span> SimpleClientHttpRequestFactory();</span>
+<span class="line">clientHttpRequestFactory.setConnectTimeout(<span class="number">1000</span>);</span>
+<span class="line">clientHttpRequestFactory.setReadTimeout(<span class="number">50</span>);</span>
+<span class="line">RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span>
+<span class="line">restTemplate.setRequestFactory(clientHttpRequestFactory);</span>
+</pre></td></tr></table></figure>
+<p>或者</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+</pre></td><td class="code"><pre><span class="line">HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = <span class="keyword">new</span> HttpComponentsClientHttpRequestFactory();</span>
+<span class="line">clientHttpRequestFactory.setConnectTimeout(<span class="number">1000</span>);</span>
+<span class="line">clientHttpRequestFactory.setReadTimeout(<span class="number">50</span>);</span>
+<span class="line">RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span>
+<span class="line">restTemplate.setRequestFactory(clientHttpRequestFactory);</span>
+</pre></td></tr></table></figure>
+<p>但是要注意的是: <code>HttpComponentsClientHttpRequestFactory</code> 底层使用了apache的<code>HttpClient</code>，超时时间的设置其实是针对它进行设置的。</p>
+<figure class="highlight java"><figcaption><span>HttpComponentsClientHttpRequestFactory</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+</pre></td><td class="code"><pre><span class="line"></span>
+<span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_MAX_TOTAL_CONNECTIONS = <span class="number">100</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_MAX_CONNECTIONS_PER_ROUTE = <span class="number">5</span>;</span>
+<span class="line"><span class="comment">//默认读取超时 60s</span></span>
+<span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_READ_TIMEOUT_MILLISECONDS = (<span class="number">60</span> * <span class="number">1000</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">private</span> HttpClient httpClient;</span>
+<span class="line"></span>
+<span class="line"><span class="comment">/**</span>
+<span class="line"> * Set the connection timeout for the underlying HttpClient.</span>
+<span class="line"> * A timeout value of 0 specifies an infinite timeout.</span>
+<span class="line"> * <span class="doctag">@param</span> timeout the timeout value in milliseconds</span>
+<span class="line"> */</span></span>
+<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setConnectTimeout</span><span class="params">(<span class="keyword">int</span> timeout)</span> </span>&#123;</span>
+<span class="line">	Assert.isTrue(timeout &gt;= <span class="number">0</span>, <span class="string">"Timeout must be a non-negative value"</span>);</span>
+<span class="line">	getHttpClient().getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, timeout);</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<p>到此，如果就通过上面提到的方式设置超时时间，那么我们的应用就不用有超时问题，也不会发生故障了。</p>
+<p>但问题就发生在，公司内部使用的组件，不是通过<code>HttpComponentsClientHttpRequestFactory</code>设置超时时间，而是通过设置<code>HttpComponentsClientHttpRequestFactory</code>内部的<code>HttpClient</code>设置的超时时间，并且设置了<code>HttpClient</code> 使用的 <code>HttpClientConnectionManager</code>，从而导致了问题的发生。</p>
+<h3 id="问题代码-amp-测试"><a href="#问题代码-amp-测试" class="headerlink" title="问题代码&amp;测试"></a>问题代码&amp;测试</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
+<span class="line">2</span>
+<span class="line">3</span>
+<span class="line">4</span>
+<span class="line">5</span>
+<span class="line">6</span>
+<span class="line">7</span>
+<span class="line">8</span>
+<span class="line">9</span>
+<span class="line">10</span>
+<span class="line">11</span>
+<span class="line">12</span>
+<span class="line">13</span>
+<span class="line">14</span>
+<span class="line">15</span>
+<span class="line">16</span>
+<span class="line">17</span>
+<span class="line">18</span>
+<span class="line">19</span>
+<span class="line">20</span>
+<span class="line">21</span>
+<span class="line">22</span>
+<span class="line">23</span>
+<span class="line">24</span>
+</pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span>
+<span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testRestTemplateWithRequestFactoryWithoutTimeOut</span><span class="params">()</span> </span>&#123;</span>
+<span class="line">    <span class="keyword">long</span> start = System.currentTimeMillis();</span>
+<span class="line">    <span class="keyword">try</span> &#123;</span>
+<span class="line">        HttpComponentsClientHttpRequestFactory requestFactory = <span class="keyword">new</span> HttpComponentsClientHttpRequestFactory();</span>
+<span class="line"></span>
+<span class="line">        <span class="comment">//2.设置超时时间， 设置/不设置ConnectionManager</span></span>
+<span class="line">        HttpClient httpClient = HttpClientBuilder.create()</span>
+<span class="line">                .setDefaultRequestConfig(getRequestConfig())</span>
+<span class="line">                .setDefaultSocketConfig(getSocketConfig())</span>
+<span class="line">                .setConnectionManager(<span class="keyword">new</span> PoolingHttpClientConnectionManager(<span class="number">3</span>, TimeUnit.MINUTES))</span>
+<span class="line">                .build();</span>
+<span class="line"></span>
+<span class="line">        requestFactory.setHttpClient(httpClient);</span>
+<span class="line">        RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span>
+<span class="line">        restTemplate.setRequestFactory(requestFactory);</span>
+<span class="line"></span>
+<span class="line">        Map responseObject = restTemplate.getForObject(QUERY_USER_RENEW_URL, Map.class);</span>
+<span class="line">        System.out.println(responseObject);</span>
+<span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span>
+<span class="line">        Assert.assertNotNull(e);</span>
+<span class="line">        System.out.println(<span class="string">"timeout = "</span> + (System.currentTimeMillis() - start));</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><h4 id="spring-web-版本-3-2-0"><a href="#spring-web-版本-3-2-0" class="headerlink" title="spring-web 版本 3.2.0"></a>spring-web 版本 3.2.0</h4><ol>
+<li>默认超时 60s, 因为nginx默认的proxy_read_timeout 是60s</li>
+<li>设置了 HttpClient的超时时间， 不设置 ConnectionManager 超时生效</li>
+<li>设置了 HttpClient的超时时间， 设置 ConnectionManager 超时生效</li>
+</ol>
+<h4 id="spring-web-版本-4-0-9-RELEASE"><a href="#spring-web-版本-4-0-9-RELEASE" class="headerlink" title="spring-web 版本 4.0.9.RELEASE"></a>spring-web 版本 4.0.9.RELEASE</h4><ol>
+<li>默认超时 60s, 因为nginx默认的proxy_read_timeout 是60s</li>
+<li>设置了 HttpClient的超时时间， 不设置 ConnectionManager 超时生效</li>
+<li>设置了 HttpClient的超时时间， 设置 ConnectionManager 超时不生效 （qiyue-store 就是这样问题）</li>
+</ol>
+<h4 id="spring-web-版本-4-3-0-RELEASE"><a href="#spring-web-版本-4-3-0-RELEASE" class="headerlink" title="spring-web 版本 4.3.0.RELEASE"></a>spring-web 版本 4.3.0.RELEASE</h4><ol>
+<li>默认超时 60s, 因为nginx默认的proxy_read_timeout 是60s</li>
+<li>设置了 HttpClient的超时时间， 不设置 ConnectionManager 超时生效</li>
+<li>设置了 HttpClient的超时时间， 设置 ConnectionManager 超时生效</li>
+</ol>
+<h4 id="spring-web-版本-4-3-11-RELEASE"><a href="#spring-web-版本-4-3-11-RELEASE" class="headerlink" title="spring-web 版本 4.3.11.RELEASE"></a>spring-web 版本 4.3.11.RELEASE</h4><ol>
+<li>默认超时 60s, 因为nginx默认的 proxy_read_timeout 是60s</li>
+<li>设置了 HttpClient的超时时间， 不设置 ConnectionManager 超时生效</li>
+<li>设置了 HttpClient的超时时间， 设置 ConnectionManager 超时生效</li>
+</ol>
+<p>其实问题就在与不同的版本中<code>HttpComponentsClientHttpRequestFactory.createRequest</code>方法的实现逻辑不同。如何不同，自己查看。😁</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>超时设置至关重要。外部依赖接口调用可以通过Hystrix进行包装。</li>
+<li>任何参数的设置都需要验证是否可以正常工作，可以加入到测试环节中，方便在不同的依赖版本中进行验证。</li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;p&gt;最近线上出了一次故障，收银台系统所有服务全部假死。订单量瞬时下降，造成很大损失。&lt;/p&gt;
+&lt;p&gt;故障总结，导致问题的原因有两方面：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;数据库慢查询&lt;/li&gt;
+&lt;li&gt;RestTemplate超时时间设置不生效。&lt;/li&gt;
+&lt;li&gt;spring-web不同版本设置RestTemplate方式不完全一样。&lt;/li&gt;
+&lt;/ol&gt;
+    
+    </summary>
+    
+      <category term="springboot" scheme="https://leokongwq.github.io/categories/springboot/"/>
+    
+    
+      <category term="springboot" scheme="https://leokongwq.github.io/tags/springboot/"/>
+    
+      <category term="RestTemplate" scheme="https://leokongwq.github.io/tags/RestTemplate/"/>
+    
+  </entry>
   
   <entry>
     <title>springboot 之 Servlet3 web组件</title>
@@ -230,7 +485,7 @@
     <link href="https://leokongwq.github.io/2018/11/16/springboot-ConfigurationProperties.html"/>
     <id>https://leokongwq.github.io/2018/11/16/springboot-ConfigurationProperties.html</id>
     <published>2018-11-16T14:49:59.000Z</published>
-    <updated>2018-11-17T03:49:32.820Z</updated>
+    <updated>2018-11-21T15:01:26.189Z</updated>
     
     <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p><code>ConfigurationProperties</code> 是SpringBoot引入的一个和外部配置文件相关的注解类。它可以帮助我们更好的使用外置的配置文件属性。</p>
 <h3 id="源码解析"><a href="#源码解析" class="headerlink" title="源码解析"></a>源码解析</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
@@ -4865,766 +5120,6 @@
 &lt;li&gt;文件路径相关的代码调整&lt;/li&gt;
 &lt;li&gt;其它原因&lt;/li&gt;
 &lt;/ul&gt;
-    
-    </summary>
-    
-      <category term="web" scheme="https://leokongwq.github.io/categories/web/"/>
-    
-    
-      <category term="spring" scheme="https://leokongwq.github.io/tags/spring/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>基于Spring构建RESTFUL风格的controller</title>
-    <link href="https://leokongwq.github.io/2018/05/12/spring-rest-controller.html"/>
-    <id>https://leokongwq.github.io/2018/05/12/spring-rest-controller.html</id>
-    <published>2018-05-12T15:23:46.000Z</published>
-    <updated>2018-05-30T08:42:42.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Spring为开发REST服务提供一流的支持。在本文中，我们将使用Spring 4 <code>@RestController</code>注解开发基于Spring 4 MVC的RESTful JSON服务和RESTful XML服务。</p>
-<p>Spring在内部使用<code>HttpMessageConverters</code>将响应转换为所需的格式[JSON / XML / etc ..]，这些格式基于类路径中可用的某些库，并可以选择使用请求中的<code>Accept Headers</code>。</p>
-<p>为了服务JSON，我们将使用Jackson库[jackson-databind.jar]。 对于XML，我们将使用Jackson XML扩展[jackson-dataformat-xml.jar]。 只有在类路径中存在这些库才会触发Spring以所需格式转换输出。 此外，我们将进一步通过使用JAXB批注注释域类来支持XML，以防Jackson的XML扩展库由于某种原因而不可用。</p>
-<p><strong>注意</strong>：如果你通过在浏览器中输入网址发送请求，则可以添加后缀[.xml / .json]，以帮助确定要提供的内容的类型。</p>
-<a id="more"></a>
-<blockquote>
-<p>文章使用的是SpringBoot 1.5.2版本，并使用MAVEN3管理项目。</p>
-</blockquote>
-<h3 id="第一步-添加实体类"><a href="#第一步-添加实体类" class="headerlink" title="第一步 添加实体类"></a>第一步 添加实体类</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Message</span> </span>&#123;</span>
-<span class="line"> </span>
-<span class="line">    String name;</span>
-<span class="line">    String text;</span>
-<span class="line"> </span>
-<span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Message</span><span class="params">(String name, String text)</span> </span>&#123;</span>
-<span class="line">        <span class="keyword">this</span>.name = name;</span>
-<span class="line">        <span class="keyword">this</span>.text = text;</span>
-<span class="line">    &#125;</span>
-<span class="line"> </span>
-<span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span>
-<span class="line">        <span class="keyword">return</span> name;</span>
-<span class="line">    &#125;</span>
-<span class="line"> </span>
-<span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getText</span><span class="params">()</span> </span>&#123;</span>
-<span class="line">        <span class="keyword">return</span> text;</span>
-<span class="line">    &#125;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<h3 id="第二步-添加-Controller"><a href="#第二步-添加-Controller" class="headerlink" title="第二步 添加 Controller"></a>第二步 添加 Controller</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.PathVariable;</span>
-<span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;</span>
-<span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RestController;</span>
-<span class="line"> </span>
-<span class="line"><span class="keyword">import</span> com.websystique.springmvc.domain.Message;</span>
-<span class="line"> </span>
-<span class="line"><span class="meta">@RestController</span></span>
-<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloWorldRestController</span> </span>&#123;</span>
-<span class="line"> </span>
-<span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/"</span>)</span>
-<span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">welcome</span><span class="params">()</span> </span>&#123;</span>
-<span class="line">        <span class="keyword">return</span> <span class="string">"Welcome to RestTemplate Example."</span>;</span>
-<span class="line">    &#125;</span>
-<span class="line"> </span>
-<span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/hello/&#123;player&#125;"</span>)</span>
-<span class="line">    <span class="function"><span class="keyword">public</span> Message <span class="title">message</span><span class="params">(@PathVariable String player)</span> </span>&#123;</span>
-<span class="line">        Message msg = <span class="keyword">new</span> Message(player, <span class="string">"Hello "</span> + player);</span>
-<span class="line">        <span class="keyword">return</span> msg;</span>
-<span class="line">    &#125;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>如果jackson-dataformat-xml.jar不可用，并且您仍希望获得XML响应，则只需在模型类（Message）上添加JAXB注释，即可启用XML输出支持。 以下是相同的演示</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-<span class="line">22</span>
-<span class="line">23</span>
-<span class="line">24</span>
-<span class="line">25</span>
-<span class="line">26</span>
-<span class="line">27</span>
-<span class="line">28</span>
-<span class="line">29</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> javax.xml.bind.annotation.XmlElement;</span>
-<span class="line"><span class="keyword">import</span> javax.xml.bind.annotation.XmlRootElement;</span>
-<span class="line"></span>
-<span class="line"><span class="meta">@XmlRootElement</span>(name = <span class="string">"player"</span>)</span>
-<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Message</span> </span>&#123;</span>
-<span class="line"> </span>
-<span class="line">    String name;</span>
-<span class="line">    String text;</span>
-<span class="line"> </span>
-<span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Message</span><span class="params">()</span></span>&#123;</span>
-<span class="line">         </span>
-<span class="line">    &#125;</span>
-<span class="line">     </span>
-<span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Message</span><span class="params">(String name, String text)</span> </span>&#123;</span>
-<span class="line">        <span class="keyword">this</span>.name = name;</span>
-<span class="line">        <span class="keyword">this</span>.text = text;</span>
-<span class="line">    &#125;</span>
-<span class="line"> </span>
-<span class="line">    <span class="meta">@XmlElement</span></span>
-<span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span>
-<span class="line">        <span class="keyword">return</span> name;</span>
-<span class="line">    &#125;</span>
-<span class="line">     </span>
-<span class="line">    <span class="meta">@XmlElement</span></span>
-<span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getText</span><span class="params">()</span> </span>&#123;</span>
-<span class="line">        <span class="keyword">return</span> text;</span>
-<span class="line">    &#125;</span>
-<span class="line"></span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>有了以上的准备，你可以通过下面的请求url来获取指定格式的响应：</p>
-<h4 id="json"><a href="#json" class="headerlink" title="json"></a>json</h4><p><a href="http://127.0.0.1:2223/hello/tom" target="_blank" rel="external">http://127.0.0.1:2223/hello/tom</a><br><a href="http://127.0.0.1:2223/hello/tom.json" target="_blank" rel="external">http://127.0.0.1:2223/hello/tom.json</a></p>
-<h4 id="xml"><a href="#xml" class="headerlink" title="xml"></a>xml</h4><p><a href="http://127.0.0.1:2223/hello/tom" target="_blank" rel="external">http://127.0.0.1:2223/hello/tom</a> 添加请求头 Accept:application/xml</p>
-<p>或 </p>
-<p><a href="http://127.0.0.1:2223/hello/tom.xml" target="_blank" rel="external">http://127.0.0.1:2223/hello/tom.xml</a></p>
-<h3 id="ContentNegotiationStrategy"><a href="#ContentNegotiationStrategy" class="headerlink" title="ContentNegotiationStrategy"></a>ContentNegotiationStrategy</h3><p><code>ContentNegotiationStrategy</code>是一个策略接口，作用是将给定的请求解析为媒体类型（<code>MediaType</code>）列表。</p>
-<p>它有两个重要的实现类，如下所示</p>
-<h4 id="ServletPathExtensionContentNegotiationStrategy"><a href="#ServletPathExtensionContentNegotiationStrategy" class="headerlink" title="ServletPathExtensionContentNegotiationStrategy"></a>ServletPathExtensionContentNegotiationStrategy</h4><p>根据请求路径的扩展名来解析</p>
-<h4 id="HeaderContentNegotiationStrategy"><a href="#HeaderContentNegotiationStrategy" class="headerlink" title="HeaderContentNegotiationStrategy"></a>HeaderContentNegotiationStrategy</h4><p>根据请求头<code>Accept</code>来解析</p>
-<blockquote>
-<p>Spring 在内部会根据请求的MediaType信息和HttpMessageConverter支持的MediaType进行匹配，如果能找到支持该请求的MediaType的HttpMessageConverter，则利用该HttpMessageConverter输出响应。</p>
-</blockquote>
-<h3 id="REST快速理解"><a href="#REST快速理解" class="headerlink" title="REST快速理解"></a>REST快速理解</h3><p>REST代表<code>Representational State Transfer</code>。它是一种可用于设计Web服务的架构风格，可从各种客户端使用。 其核心思想是，不使用诸如CORBA，RPC或SOAP之类的复杂机制来连接机器，而是使用简单的HTTP来进行调用。</p>
-<p>在基于REST的设计中，对资源的操作是通过一组通用的动词来实现：</p>
-<ul>
-<li>创建资源：应该使用 HTTP POST</li>
-<li>检索资源：应使用 HTTP GET</li>
-<li>更新资源：应该使用 HTTP PUT</li>
-<li>删除资源：应该使用 HTTP DELETE</li>
-</ul>
-<p>这意味着，作为REST服务开发人员或调用方，你应该遵守上述标准。</p>
-<p>通常基于Rest的Web服务返回JSON或XML作为响应，尽管它不仅限于这些类型。 客户端可以指定（使用HTTP Accept头）他们感兴趣的资源类型，服务器可以返回资源，指定它正在服务的资源的Content-Type。 想要详细了解REST，这个<a href="https://stackoverflow.com/questions/671118/what-exactly-is-restful-programming" target="_blank" rel="external">StackOverflow</a>是必须要阅读的。</p>
-<h3 id="RestController"><a href="#RestController" class="headerlink" title="RestController"></a>RestController</h3><p>以下是一个基于Rest的<code>Contrller</code>，实现了REST API。 </p>
-<p>该<code>Contrller</code>是提供了如下的API：</p>
-<ul>
-<li>GET request to /api/user/ returns a list of users</li>
-<li>GET request to /api/user/1 returns the user with ID 1</li>
-<li>POST request to /api/user/ with a user object as JSON creates a new user</li>
-<li>PUT request to /api/user/3 with a user object as JSON updates the user with ID 3</li>
-<li>DELETE request to /api/user/4 deletes the user with ID 4</li>
-<li>DELETE request to /api/user/ deletes all the users</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-<span class="line">22</span>
-<span class="line">23</span>
-<span class="line">24</span>
-<span class="line">25</span>
-<span class="line">26</span>
-<span class="line">27</span>
-<span class="line">28</span>
-<span class="line">29</span>
-<span class="line">30</span>
-<span class="line">31</span>
-<span class="line">32</span>
-<span class="line">33</span>
-<span class="line">34</span>
-<span class="line">35</span>
-<span class="line">36</span>
-<span class="line">37</span>
-<span class="line">38</span>
-<span class="line">39</span>
-<span class="line">40</span>
-<span class="line">41</span>
-<span class="line">42</span>
-<span class="line">43</span>
-<span class="line">44</span>
-<span class="line">45</span>
-<span class="line">46</span>
-<span class="line">47</span>
-<span class="line">48</span>
-<span class="line">49</span>
-<span class="line">50</span>
-<span class="line">51</span>
-<span class="line">52</span>
-<span class="line">53</span>
-<span class="line">54</span>
-<span class="line">55</span>
-<span class="line">56</span>
-<span class="line">57</span>
-<span class="line">58</span>
-<span class="line">59</span>
-<span class="line">60</span>
-<span class="line">61</span>
-<span class="line">62</span>
-<span class="line">63</span>
-<span class="line">64</span>
-<span class="line">65</span>
-<span class="line">66</span>
-<span class="line">67</span>
-<span class="line">68</span>
-<span class="line">69</span>
-<span class="line">70</span>
-<span class="line">71</span>
-<span class="line">72</span>
-<span class="line">73</span>
-<span class="line">74</span>
-<span class="line">75</span>
-<span class="line">76</span>
-<span class="line">77</span>
-<span class="line">78</span>
-<span class="line">79</span>
-<span class="line">80</span>
-<span class="line">81</span>
-<span class="line">82</span>
-<span class="line">83</span>
-<span class="line">84</span>
-<span class="line">85</span>
-<span class="line">86</span>
-<span class="line">87</span>
-<span class="line">88</span>
-<span class="line">89</span>
-<span class="line">90</span>
-<span class="line">91</span>
-<span class="line">92</span>
-<span class="line">93</span>
-<span class="line">94</span>
-<span class="line">95</span>
-<span class="line">96</span>
-<span class="line">97</span>
-<span class="line">98</span>
-<span class="line">99</span>
-<span class="line">100</span>
-<span class="line">101</span>
-<span class="line">102</span>
-<span class="line">103</span>
-<span class="line">104</span>
-<span class="line">105</span>
-<span class="line">106</span>
-<span class="line">107</span>
-<span class="line">108</span>
-<span class="line">109</span>
-<span class="line">110</span>
-<span class="line">111</span>
-<span class="line">112</span>
-<span class="line">113</span>
-<span class="line">114</span>
-<span class="line">115</span>
-<span class="line">116</span>
-<span class="line">117</span>
-<span class="line">118</span>
-<span class="line">119</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.List;</span>
-<span class="line"> </span>
-<span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span>
-<span class="line"><span class="keyword">import</span> org.springframework.http.HttpHeaders;</span>
-<span class="line"><span class="keyword">import</span> org.springframework.http.HttpStatus;</span>
-<span class="line"><span class="keyword">import</span> org.springframework.http.MediaType;</span>
-<span class="line"><span class="keyword">import</span> org.springframework.http.ResponseEntity;</span>
-<span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.PathVariable;</span>
-<span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RequestBody;</span>
-<span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;</span>
-<span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RequestMethod;</span>
-<span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RestController;</span>
-<span class="line"><span class="keyword">import</span> org.springframework.web.util.UriComponentsBuilder;</span>
-<span class="line"> </span>
-<span class="line"><span class="keyword">import</span> com.websystique.springmvc.model.User;</span>
-<span class="line"><span class="keyword">import</span> com.websystique.springmvc.service.UserService;</span>
-<span class="line"> </span>
-<span class="line"><span class="meta">@RestController</span></span>
-<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloWorldRestController</span> </span>&#123;</span>
-<span class="line"> </span>
-<span class="line">    <span class="meta">@Autowired</span></span>
-<span class="line">    UserService userService;  <span class="comment">//Service which will do all data retrieval/manipulation work</span></span>
-<span class="line"> </span>
-<span class="line">     </span>
-<span class="line">    <span class="comment">//-------------------Retrieve All Users--------------------------------------------------------</span></span>
-<span class="line">     </span>
-<span class="line">    <span class="meta">@RequestMapping</span>(value = <span class="string">"/user/"</span>, method = RequestMethod.GET)</span>
-<span class="line">    <span class="keyword">public</span> ResponseEntity&lt;List&lt;User&gt;&gt; listAllUsers() &#123;</span>
-<span class="line">        List&lt;User&gt; users = userService.findAllUsers();</span>
-<span class="line">        <span class="keyword">if</span>(users.isEmpty())&#123;</span>
-<span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;List&lt;User&gt;&gt;(HttpStatus.NO_CONTENT);<span class="comment">//You many decide to return HttpStatus.NOT_FOUND</span></span>
-<span class="line">        &#125;</span>
-<span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;List&lt;User&gt;&gt;(users, HttpStatus.OK);</span>
-<span class="line">    &#125;</span>
-<span class="line"> </span>
-<span class="line"> </span>
-<span class="line">    <span class="comment">//-------------------Retrieve Single User--------------------------------------------------------</span></span>
-<span class="line">     </span>
-<span class="line">    <span class="meta">@RequestMapping</span>(value = <span class="string">"/user/&#123;id&#125;"</span>, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)</span>
-<span class="line">    <span class="function"><span class="keyword">public</span> ResponseEntity&lt;User&gt; <span class="title">getUser</span><span class="params">(@PathVariable(<span class="string">"id"</span>)</span> <span class="keyword">long</span> id) </span>&#123;</span>
-<span class="line">        System.out.println(<span class="string">"Fetching User with id "</span> + id);</span>
-<span class="line">        User user = userService.findById(id);</span>
-<span class="line">        <span class="keyword">if</span> (user == <span class="keyword">null</span>) &#123;</span>
-<span class="line">            System.out.println(<span class="string">"User with id "</span> + id + <span class="string">" not found"</span>);</span>
-<span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;User&gt;(HttpStatus.NOT_FOUND);</span>
-<span class="line">        &#125;</span>
-<span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;User&gt;(user, HttpStatus.OK);</span>
-<span class="line">    &#125;</span>
-<span class="line"> </span>
-<span class="line">     </span>
-<span class="line">     </span>
-<span class="line">    <span class="comment">//-------------------Create a User--------------------------------------------------------</span></span>
-<span class="line">     </span>
-<span class="line">    <span class="meta">@RequestMapping</span>(value = <span class="string">"/user/"</span>, method = RequestMethod.POST)</span>
-<span class="line">    <span class="function"><span class="keyword">public</span> ResponseEntity&lt;Void&gt; <span class="title">createUser</span><span class="params">(@RequestBody User user,    UriComponentsBuilder ucBuilder)</span> </span>&#123;</span>
-<span class="line">        System.out.println(<span class="string">"Creating User "</span> + user.getName());</span>
-<span class="line"> </span>
-<span class="line">        <span class="keyword">if</span> (userService.isUserExist(user)) &#123;</span>
-<span class="line">            System.out.println(<span class="string">"A User with name "</span> + user.getName() + <span class="string">" already exist"</span>);</span>
-<span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;Void&gt;(HttpStatus.CONFLICT);</span>
-<span class="line">        &#125;</span>
-<span class="line"> </span>
-<span class="line">        userService.saveUser(user);</span>
-<span class="line"> </span>
-<span class="line">        HttpHeaders headers = <span class="keyword">new</span> HttpHeaders();</span>
-<span class="line">        headers.setLocation(ucBuilder.path(<span class="string">"/user/&#123;id&#125;"</span>).buildAndExpand(user.getId()).toUri());</span>
-<span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;Void&gt;(headers, HttpStatus.CREATED);</span>
-<span class="line">    &#125;</span>
-<span class="line"> </span>
-<span class="line">     </span>
-<span class="line">    <span class="comment">//------------------- Update a User --------------------------------------------------------</span></span>
-<span class="line">     </span>
-<span class="line">    <span class="meta">@RequestMapping</span>(value = <span class="string">"/user/&#123;id&#125;"</span>, method = RequestMethod.PUT)</span>
-<span class="line">    <span class="function"><span class="keyword">public</span> ResponseEntity&lt;User&gt; <span class="title">updateUser</span><span class="params">(@PathVariable(<span class="string">"id"</span>)</span> <span class="keyword">long</span> id, @RequestBody User user) </span>&#123;</span>
-<span class="line">        System.out.println(<span class="string">"Updating User "</span> + id);</span>
-<span class="line">         </span>
-<span class="line">        User currentUser = userService.findById(id);</span>
-<span class="line">         </span>
-<span class="line">        <span class="keyword">if</span> (currentUser==<span class="keyword">null</span>) &#123;</span>
-<span class="line">            System.out.println(<span class="string">"User with id "</span> + id + <span class="string">" not found"</span>);</span>
-<span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;User&gt;(HttpStatus.NOT_FOUND);</span>
-<span class="line">        &#125;</span>
-<span class="line"> </span>
-<span class="line">        currentUser.setName(user.getName());</span>
-<span class="line">        currentUser.setAge(user.getAge());</span>
-<span class="line">        currentUser.setSalary(user.getSalary());</span>
-<span class="line">         </span>
-<span class="line">        userService.updateUser(currentUser);</span>
-<span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;User&gt;(currentUser, HttpStatus.OK);</span>
-<span class="line">    &#125;</span>
-<span class="line"> </span>
-<span class="line">    <span class="comment">//------------------- Delete a User --------------------------------------------------------</span></span>
-<span class="line">     </span>
-<span class="line">    <span class="meta">@RequestMapping</span>(value = <span class="string">"/user/&#123;id&#125;"</span>, method = RequestMethod.DELETE)</span>
-<span class="line">    <span class="function"><span class="keyword">public</span> ResponseEntity&lt;User&gt; <span class="title">deleteUser</span><span class="params">(@PathVariable(<span class="string">"id"</span>)</span> <span class="keyword">long</span> id) </span>&#123;</span>
-<span class="line">        System.out.println(<span class="string">"Fetching &amp; Deleting User with id "</span> + id);</span>
-<span class="line"> </span>
-<span class="line">        User user = userService.findById(id);</span>
-<span class="line">        <span class="keyword">if</span> (user == <span class="keyword">null</span>) &#123;</span>
-<span class="line">            System.out.println(<span class="string">"Unable to delete. User with id "</span> + id + <span class="string">" not found"</span>);</span>
-<span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;User&gt;(HttpStatus.NOT_FOUND);</span>
-<span class="line">        &#125;</span>
-<span class="line"> </span>
-<span class="line">        userService.deleteUserById(id);</span>
-<span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;User&gt;(HttpStatus.NO_CONTENT);</span>
-<span class="line">    &#125;</span>
-<span class="line"> </span>
-<span class="line">     </span>
-<span class="line">    <span class="comment">//------------------- Delete All Users --------------------------------------------------------</span></span>
-<span class="line">     </span>
-<span class="line">    <span class="meta">@RequestMapping</span>(value = <span class="string">"/user/"</span>, method = RequestMethod.DELETE)</span>
-<span class="line">    <span class="function"><span class="keyword">public</span> ResponseEntity&lt;User&gt; <span class="title">deleteAllUsers</span><span class="params">()</span> </span>&#123;</span>
-<span class="line">        System.out.println(<span class="string">"Deleting All Users"</span>);</span>
-<span class="line"> </span>
-<span class="line">        userService.deleteAllUsers();</span>
-<span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ResponseEntity&lt;User&gt;(HttpStatus.NO_CONTENT);</span>
-<span class="line">    &#125;</span>
-<span class="line"> </span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<h4 id="详解"><a href="#详解" class="headerlink" title="详解"></a>详解</h4><ul>
-<li>@RestController：首先，我们使用Spring 4的新的<code>@RestController</code>注解。此注释避免我们在每个方法上添加<code>@ResponseBody``注解。在Spring-MVC内部下，</code>@RestController<code>本身是用</code>@ResponseBody<code>注解的，可以被认为是</code>@Controller<code>和</code>@ResponseBody`的组合。</li>
-<li>@RequestBody：如果一个方法参数使用<code>@RequestBody</code>进行注解，那么Spring会将传入的HTTP请求主体（针对该方法的@RequestMapping中提到的URL）绑定到该参数。原理是Spring内部使用<code>HttpMessageConverter</code>将HTTP请求体转换为域对象[将请求主体反序列化为域对象]，这是基于请求中存在的<code>ACCEPT</code>或<code>Content-Type</code>头。</li>
-<li>@ResponseBody：如果一个方法用@ResponseBody注解，Spring会将返回值绑定到传出的HTTP响应正文。在这样做的过程中，Spring将在内部使用<code>HttpMessageConverter</code>将返回值转换为HTTP响应主体[将对象序列化到响应主体]，并基于请求HTTP头中的Content-Type。如前所述，在Spring 4中，你可能会停止使用此注释。</li>
-<li>ResponseEntity 它代表整个HTTP响应。好的一点是你可以控制任何进入它的东西。你可以指定状态码，标题和正文。它带有几个构造函数来携带您想要在HTTP响应中发送的信息。</li>
-<li>@PathVariable：这个注解表示一个方法参数应该绑定到一个URI模板变量[‘}’]。基本上，<code>@RestController</code>，<code>@RequestBody</code>，<code>ResponseEntity</code>和<code>@PathVariable</code>是你在Spring 4中实现一个REST API所需要知道的。另外，spring提供了几个支持类来帮助你实现一些自定义的东西。</li>
-<li>MediaType：使用<code>@RequestMapping</code>注释，你可以另外指定要通过特定控制器方法生成或使用的<code>MediaType</code>（使用生成或消费属性），以进一步缩小映射范围。</li>
-</ul>
-<h3 id="使用RestTemplate编写REST客户端"><a href="#使用RestTemplate编写REST客户端" class="headerlink" title="使用RestTemplate编写REST客户端"></a>使用RestTemplate编写REST客户端</h3><p>PostMan是一个很棒用来测试Rest API的客户端。 但是，如果你想要在应用程序中调用基于REST的Web服务，则需要为你的应用程序提供REST客户端。 最受欢迎的HTTP客户端之一是Apache HttpComponents HttpClient。 但是，该客户端提供的功能过于基础，需要自己编写大量符合REST风格的代码。</p>
-<p>Spring提供的RestTemplate提供了更高级别的方法，这些方法对应于六种主要的HTTP方法中的每一种，这些方法使得调用许多RESTful服务只需一行代码，并成为实施REST的最佳实践。</p>
-<p>下面显示了HTTP方法和相应的RestTemplate方法来处理这种类型的HTTP请求。</p>
-<p>HTTP 方法和 RestTemplate 方法对应关系:</p>
-<ul>
-<li>HTTP GET : getForObject, getForEntity</li>
-<li>HTTP PUT : put(String url, Object request, String…​urlVariables)</li>
-<li>HTTP DELETE : delete</li>
-<li>HTTP POST : postForLocation(String url, Object request, String…​ urlVariables), postForObject(String url, Object request, Class responseType, String…​ uriVariables)</li>
-<li>HTTP HEAD : headForHeaders(String url, String…​ urlVariables)</li>
-<li>HTTP OPTIONS : optionsForAllow(String url, String…​ urlVariables)</li>
-<li>HTTP PATCH and others : exchange execute</li>
-</ul>
-<h4 id="自定义REST客户端，使用先前创建的REST服务"><a href="#自定义REST客户端，使用先前创建的REST服务" class="headerlink" title="自定义REST客户端，使用先前创建的REST服务"></a>自定义REST客户端，使用先前创建的REST服务</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-<span class="line">22</span>
-<span class="line">23</span>
-<span class="line">24</span>
-<span class="line">25</span>
-<span class="line">26</span>
-<span class="line">27</span>
-<span class="line">28</span>
-<span class="line">29</span>
-<span class="line">30</span>
-<span class="line">31</span>
-<span class="line">32</span>
-<span class="line">33</span>
-<span class="line">34</span>
-<span class="line">35</span>
-<span class="line">36</span>
-<span class="line">37</span>
-<span class="line">38</span>
-<span class="line">39</span>
-<span class="line">40</span>
-<span class="line">41</span>
-<span class="line">42</span>
-<span class="line">43</span>
-<span class="line">44</span>
-<span class="line">45</span>
-<span class="line">46</span>
-<span class="line">47</span>
-<span class="line">48</span>
-<span class="line">49</span>
-<span class="line">50</span>
-<span class="line">51</span>
-<span class="line">52</span>
-<span class="line">53</span>
-<span class="line">54</span>
-<span class="line">55</span>
-<span class="line">56</span>
-<span class="line">57</span>
-<span class="line">58</span>
-<span class="line">59</span>
-<span class="line">60</span>
-<span class="line">61</span>
-<span class="line">62</span>
-<span class="line">63</span>
-<span class="line">64</span>
-<span class="line">65</span>
-<span class="line">66</span>
-<span class="line">67</span>
-<span class="line">68</span>
-<span class="line">69</span>
-<span class="line">70</span>
-<span class="line">71</span>
-<span class="line">72</span>
-<span class="line">73</span>
-<span class="line">74</span>
-<span class="line">75</span>
-<span class="line">76</span>
-<span class="line">77</span>
-<span class="line">78</span>
-<span class="line">79</span>
-<span class="line">80</span>
-<span class="line">81</span>
-<span class="line">82</span>
-<span class="line">83</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.net.URI;</span>
-<span class="line"><span class="keyword">import</span> java.util.LinkedHashMap;</span>
-<span class="line"><span class="keyword">import</span> java.util.List;</span>
-<span class="line"> </span>
-<span class="line"><span class="keyword">import</span> org.springframework.web.client.RestTemplate;</span>
-<span class="line"> </span>
-<span class="line"><span class="keyword">import</span> com.websystique.springmvc.model.User;</span>
-<span class="line"> </span>
-<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringRestTestClient</span> </span>&#123;</span>
-<span class="line"> </span>
-<span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String REST_SERVICE_URI = <span class="string">"&lt;a class="</span>vglnk<span class="string">" href="</span>http:<span class="comment">//localhost:8080/Spring4MVCCRUDRestService" rel="nofollow"&gt;&lt;span&gt;http&lt;/span&gt;&lt;span&gt;://&lt;/span&gt;&lt;span&gt;localhost&lt;/span&gt;&lt;span&gt;:&lt;/span&gt;&lt;span&gt;8080&lt;/span&gt;&lt;span&gt;/&lt;/span&gt;&lt;span&gt;Spring4MVCCRUDRestService&lt;/span&gt;&lt;/a&gt;";</span></span>
-<span class="line">     </span>
-<span class="line">    <span class="comment">/* GET */</span></span>
-<span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span>
-<span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">listAllUsers</span><span class="params">()</span></span>&#123;</span>
-<span class="line">        System.out.println(<span class="string">"Testing listAllUsers API-----------"</span>);</span>
-<span class="line">         </span>
-<span class="line">        RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span>
-<span class="line">        List&lt;LinkedHashMap&lt;String, Object&gt;&gt; usersMap = restTemplate.getForObject(REST_SERVICE_URI+<span class="string">"/user/"</span>, List.class);</span>
-<span class="line">         </span>
-<span class="line">        <span class="keyword">if</span>(usersMap!=<span class="keyword">null</span>)&#123;</span>
-<span class="line">            <span class="keyword">for</span>(LinkedHashMap&lt;String, Object&gt; map : usersMap)&#123;</span>
-<span class="line">                System.out.println(<span class="string">"User : id="</span>+map.get(<span class="string">"id"</span>)+<span class="string">", Name="</span>+map.get(<span class="string">"name"</span>)+<span class="string">", Age="</span>+map.get(<span class="string">"age"</span>)+<span class="string">", Salary="</span>+map.get(<span class="string">"salary"</span>));;</span>
-<span class="line">            &#125;</span>
-<span class="line">        &#125;<span class="keyword">else</span>&#123;</span>
-<span class="line">            System.out.println(<span class="string">"No user exist----------"</span>);</span>
-<span class="line">        &#125;</span>
-<span class="line">    &#125;</span>
-<span class="line">     </span>
-<span class="line">    <span class="comment">/* GET */</span></span>
-<span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">getUser</span><span class="params">()</span></span>&#123;</span>
-<span class="line">        System.out.println(<span class="string">"Testing getUser API----------"</span>);</span>
-<span class="line">        RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span>
-<span class="line">        User user = restTemplate.getForObject(REST_SERVICE_URI+<span class="string">"/user/1"</span>, User.class);</span>
-<span class="line">        System.out.println(user);</span>
-<span class="line">    &#125;</span>
-<span class="line">     </span>
-<span class="line">    <span class="comment">/* POST */</span></span>
-<span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">createUser</span><span class="params">()</span> </span>&#123;</span>
-<span class="line">        System.out.println(<span class="string">"Testing create User API----------"</span>);</span>
-<span class="line">        RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span>
-<span class="line">        User user = <span class="keyword">new</span> User(<span class="number">0</span>,<span class="string">"Sarah"</span>,<span class="number">51</span>,<span class="number">134</span>);</span>
-<span class="line">        URI uri = restTemplate.postForLocation(REST_SERVICE_URI+<span class="string">"/user/"</span>, user, User.class);</span>
-<span class="line">        System.out.println(<span class="string">"Location : "</span>+uri.toASCIIString());</span>
-<span class="line">    &#125;</span>
-<span class="line"> </span>
-<span class="line">    <span class="comment">/* PUT */</span></span>
-<span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">updateUser</span><span class="params">()</span> </span>&#123;</span>
-<span class="line">        System.out.println(<span class="string">"Testing update User API----------"</span>);</span>
-<span class="line">        RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span>
-<span class="line">        User user  = <span class="keyword">new</span> User(<span class="number">1</span>,<span class="string">"Tomy"</span>,<span class="number">33</span>, <span class="number">70000</span>);</span>
-<span class="line">        restTemplate.put(REST_SERVICE_URI+<span class="string">"/user/1"</span>, user);</span>
-<span class="line">        System.out.println(user);</span>
-<span class="line">    &#125;</span>
-<span class="line"> </span>
-<span class="line">    <span class="comment">/* DELETE */</span></span>
-<span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">deleteUser</span><span class="params">()</span> </span>&#123;</span>
-<span class="line">        System.out.println(<span class="string">"Testing delete User API----------"</span>);</span>
-<span class="line">        RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span>
-<span class="line">        restTemplate.delete(REST_SERVICE_URI+<span class="string">"/user/3"</span>);</span>
-<span class="line">    &#125;</span>
-<span class="line"> </span>
-<span class="line"> </span>
-<span class="line">    <span class="comment">/* DELETE */</span></span>
-<span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">deleteAllUsers</span><span class="params">()</span> </span>&#123;</span>
-<span class="line">        System.out.println(<span class="string">"Testing all delete Users API----------"</span>);</span>
-<span class="line">        RestTemplate restTemplate = <span class="keyword">new</span> RestTemplate();</span>
-<span class="line">        restTemplate.delete(REST_SERVICE_URI+<span class="string">"/user/"</span>);</span>
-<span class="line">    &#125;</span>
-<span class="line"> </span>
-<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String args[])</span></span>&#123;</span>
-<span class="line">        listAllUsers();</span>
-<span class="line">        getUser();</span>
-<span class="line">        createUser();</span>
-<span class="line">        listAllUsers();</span>
-<span class="line">        updateUser();</span>
-<span class="line">        listAllUsers();</span>
-<span class="line">        deleteUser();</span>
-<span class="line">        listAllUsers();</span>
-<span class="line">        deleteAllUsers();</span>
-<span class="line">        listAllUsers();</span>
-<span class="line">    &#125;</span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<p>输出：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-<span class="line">22</span>
-<span class="line">23</span>
-<span class="line">24</span>
-<span class="line">25</span>
-<span class="line">26</span>
-<span class="line">27</span>
-<span class="line">28</span>
-<span class="line">29</span>
-<span class="line">30</span>
-<span class="line">31</span>
-<span class="line">32</span>
-</pre></td><td class="code"><pre><span class="line">Testing listAllUsers API-----------</span>
-<span class="line">User : id=1, Name=Sam, Age=30, Salary=70000.0</span>
-<span class="line">User : id=2, Name=Tom, Age=40, Salary=50000.0</span>
-<span class="line">User : id=3, Name=Jerome, Age=45, Salary=30000.0</span>
-<span class="line">User : id=4, Name=Silvia, Age=50, Salary=40000.0</span>
-<span class="line">Testing getUser API----------</span>
-<span class="line">User [id=1, name=Sam, age=30, salary=70000.0]</span>
-<span class="line">Testing create User API----------</span>
-<span class="line">Location : &lt;a class=&quot;vglnk&quot; href=&quot;http://localhost:8080/Spring4MVCCRUDRestService/user/5&quot; rel=&quot;nofollow&quot;&gt;&lt;span&gt;http&lt;/span&gt;&lt;span&gt;://&lt;/span&gt;&lt;span&gt;localhost&lt;/span&gt;&lt;span&gt;:&lt;/span&gt;&lt;span&gt;8080&lt;/span&gt;&lt;span&gt;/&lt;/span&gt;&lt;span&gt;Spring4MVCCRUDRestService&lt;/span&gt;&lt;span&gt;/&lt;/span&gt;&lt;span&gt;user&lt;/span&gt;&lt;span&gt;/&lt;/span&gt;&lt;span&gt;5&lt;/span&gt;&lt;/a&gt;</span>
-<span class="line">Testing listAllUsers API-----------</span>
-<span class="line">User : id=1, Name=Sam, Age=30, Salary=70000.0</span>
-<span class="line">User : id=2, Name=Tom, Age=40, Salary=50000.0</span>
-<span class="line">User : id=3, Name=Jerome, Age=45, Salary=30000.0</span>
-<span class="line">User : id=4, Name=Silvia, Age=50, Salary=40000.0</span>
-<span class="line">User : id=5, Name=Sarah, Age=51, Salary=134.0</span>
-<span class="line">Testing update User API----------</span>
-<span class="line">User [id=1, name=Tomy, age=33, salary=70000.0]</span>
-<span class="line">Testing listAllUsers API-----------</span>
-<span class="line">User : id=1, Name=Tomy, Age=33, Salary=70000.0</span>
-<span class="line">User : id=2, Name=Tom, Age=40, Salary=50000.0</span>
-<span class="line">User : id=3, Name=Jerome, Age=45, Salary=30000.0</span>
-<span class="line">User : id=4, Name=Silvia, Age=50, Salary=40000.0</span>
-<span class="line">User : id=5, Name=Sarah, Age=51, Salary=134.0</span>
-<span class="line">Testing delete User API----------</span>
-<span class="line">Testing listAllUsers API-----------</span>
-<span class="line">User : id=1, Name=Tomy, Age=33, Salary=70000.0</span>
-<span class="line">User : id=2, Name=Tom, Age=40, Salary=50000.0</span>
-<span class="line">User : id=4, Name=Silvia, Age=50, Salary=40000.0</span>
-<span class="line">User : id=5, Name=Sarah, Age=51, Salary=134.0</span>
-<span class="line">Testing all delete Users API----------</span>
-<span class="line">Testing listAllUsers API-----------</span>
-<span class="line">No user exist----------</span>
-</pre></td></tr></table></figure>
-<h3 id="REST-API-添加-CORS-支持"><a href="#REST-API-添加-CORS-支持" class="headerlink" title="REST API 添加 CORS 支持"></a>REST API 添加 CORS 支持</h3><p>在访问REST API时，您可能会面临有关同源策略的问题。</p>
-<p>可能的错误如下：</p>
-<ul>
-<li>“no” Access-Control-Allow-Origin“标题出现在请求的资源上。 原因’<a href="http://127.0.0.1:8080&#39;因此不被允许访问。“或" target="_blank" rel="external">http://127.0.0.1:8080&#39;因此不被允许访问。“或</a></li>
-<li>“XMLHttpRequest无法加载<code>http://abc.com/bla</code>。 原始<code>http：// localhost：12345</code>不被Access-Control-Allow-Origin允许。“在这种情况下很常见。</li>
-</ul>
-<p>解决方案是Cross-Origin Resource Sharing(跨源资源共享)。 基本上，在服务器端，我们可以返回额外的CORS访问控制头和响应，这最终将允许进一步的域间通信。</p>
-<p>在Spring中，我们可以编写一个简单的过滤器，在每个响应中添加这些CORS特定的响应头信息。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span>
-<span class="line">2</span>
-<span class="line">3</span>
-<span class="line">4</span>
-<span class="line">5</span>
-<span class="line">6</span>
-<span class="line">7</span>
-<span class="line">8</span>
-<span class="line">9</span>
-<span class="line">10</span>
-<span class="line">11</span>
-<span class="line">12</span>
-<span class="line">13</span>
-<span class="line">14</span>
-<span class="line">15</span>
-<span class="line">16</span>
-<span class="line">17</span>
-<span class="line">18</span>
-<span class="line">19</span>
-<span class="line">20</span>
-<span class="line">21</span>
-<span class="line">22</span>
-<span class="line">23</span>
-<span class="line">24</span>
-<span class="line">25</span>
-<span class="line">26</span>
-<span class="line">27</span>
-</pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> javax.servlet.Filter;</span>
-<span class="line"><span class="keyword">import</span> javax.servlet.FilterChain;</span>
-<span class="line"><span class="keyword">import</span> javax.servlet.FilterConfig;</span>
-<span class="line"><span class="keyword">import</span> javax.servlet.ServletException;</span>
-<span class="line"><span class="keyword">import</span> javax.servlet.ServletRequest;</span>
-<span class="line"><span class="keyword">import</span> javax.servlet.ServletResponse;</span>
-<span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span>
-<span class="line"> </span>
-<span class="line"></span>
-<span class="line"><span class="meta">@WebFilter</span> </span>
-<span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CORSFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span>
-<span class="line"> </span>
-<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest req, ServletResponse res, FilterChain chain)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span>
-<span class="line">        System.out.println(<span class="string">"Filtering on..........................................................."</span>);</span>
-<span class="line">        HttpServletResponse response = (HttpServletResponse) res;</span>
-<span class="line">        response.setHeader(<span class="string">"Access-Control-Allow-Origin"</span>, <span class="string">"*"</span>);</span>
-<span class="line">        response.setHeader(<span class="string">"Access-Control-Allow-Methods"</span>, <span class="string">"POST, GET, PUT, OPTIONS, DELETE"</span>);</span>
-<span class="line">        response.setHeader(<span class="string">"Access-Control-Max-Age"</span>, <span class="string">"3600"</span>);</span>
-<span class="line">        response.setHeader(<span class="string">"Access-Control-Allow-Headers"</span>, <span class="string">"x-requested-with"</span>);</span>
-<span class="line">        chain.doFilter(req, res);</span>
-<span class="line">    &#125;</span>
-<span class="line"> </span>
-<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(FilterConfig filterConfig)</span> </span>&#123;&#125;</span>
-<span class="line"> </span>
-<span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123;&#125;</span>
-<span class="line"> </span>
-<span class="line">&#125;</span>
-</pre></td></tr></table></figure>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="http://websystique.com/springmvc/spring-mvc-4-restful-web-services-crud-example-resttemplate/" target="_blank" rel="external">spring-mvc-4-restful-web-services-crud-example-resttemplate</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;p&gt;Spring为开发REST服务提供一流的支持。在本文中，我们将使用Spring 4 &lt;code&gt;@RestController&lt;/code&gt;注解开发基于Spring 4 MVC的RESTful JSON服务和RESTful XML服务。&lt;/p&gt;
-&lt;p&gt;Spring在内部使用&lt;code&gt;HttpMessageConverters&lt;/code&gt;将响应转换为所需的格式[JSON / XML / etc ..]，这些格式基于类路径中可用的某些库，并可以选择使用请求中的&lt;code&gt;Accept Headers&lt;/code&gt;。&lt;/p&gt;
-&lt;p&gt;为了服务JSON，我们将使用Jackson库[jackson-databind.jar]。 对于XML，我们将使用Jackson XML扩展[jackson-dataformat-xml.jar]。 只有在类路径中存在这些库才会触发Spring以所需格式转换输出。 此外，我们将进一步通过使用JAXB批注注释域类来支持XML，以防Jackson的XML扩展库由于某种原因而不可用。&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：如果你通过在浏览器中输入网址发送请求，则可以添加后缀[.xml / .json]，以帮助确定要提供的内容的类型。&lt;/p&gt;
     
     </summary>
     

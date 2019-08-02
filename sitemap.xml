@@ -114,27 +114,6 @@
   </url>
   
   <url>
-    <loc>https://leokongwq.github.io/2017/04/28/maven-command-line-parameters.html</loc>
-    
-    <lastmod>2018-11-03T04:40:32.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://leokongwq.github.io/2018/06/27/activemq-deleyQueue.html</loc>
-    
-    <lastmod>2018-11-03T04:40:32.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://leokongwq.github.io/2017/05/28/springboot-autoconfiguration.html</loc>
-    
-    <lastmod>2018-11-03T04:40:32.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://leokongwq.github.io/2018/03/01/kafka-send-msg-profile.html</loc>
     
     <lastmod>2018-11-03T04:40:32.000Z</lastmod>
@@ -156,7 +135,28 @@
   </url>
   
   <url>
+    <loc>https://leokongwq.github.io/2017/05/28/springboot-autoconfiguration.html</loc>
+    
+    <lastmod>2018-11-03T04:40:32.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://leokongwq.github.io/2017/04/28/maven-command-line-parameters.html</loc>
+    
+    <lastmod>2018-11-03T04:40:32.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://leokongwq.github.io/2018/07/15/how-to-process-302-in-j2ee-correctly.html</loc>
+    
+    <lastmod>2018-11-03T04:40:32.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://leokongwq.github.io/2018/06/27/activemq-deleyQueue.html</loc>
     
     <lastmod>2018-11-03T04:40:32.000Z</lastmod>
     

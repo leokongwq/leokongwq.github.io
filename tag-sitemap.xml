@@ -3,6 +3,34 @@
 
 
     <url>
+        <loc>https://leokongwq.github.io/tags/activemq/</loc>
+        <lastmod>2019-08-28T13:54:24.768Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/tags/springboot/</loc>
+        <lastmod>2019-08-28T13:54:24.768Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/tags/java-agent/</loc>
+        <lastmod>2019-08-25T14:17:43.360Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/tags/hystrix/</loc>
+        <lastmod>2019-08-25T13:10:50.264Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
         <loc>https://leokongwq.github.io/tags/spring/</loc>
         <lastmod>2019-08-02T14:46:15.687Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -53,13 +81,6 @@
 
     <url>
         <loc>https://leokongwq.github.io/tags/RestTemplate/</loc>
-        <lastmod>2018-11-21T15:48:09.849Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>https://leokongwq.github.io/tags/springboot/</loc>
         <lastmod>2018-11-21T15:48:09.849Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>

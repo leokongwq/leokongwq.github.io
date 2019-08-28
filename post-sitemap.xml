@@ -8,6 +8,30 @@
     </url>
 
     <url>
+        <loc>https://leokongwq.github.io/2019/08/28/springboot-jms.html</loc>
+        <lastmod>2019-08-28T13:54:24.768Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/2019/08/25/java-agent-summary.html</loc>
+        <lastmod>2019-08-25T14:17:43.360Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/2019/08/10/hystrix-summary.html</loc>
+        <lastmod>2019-08-25T13:10:50.264Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://leokongwq.github.io/2019/04/17/spring-spel.html</loc>
         <lastmod>2019-08-02T14:46:15.687Z</lastmod>
         <changefreq>weekly</changefreq>

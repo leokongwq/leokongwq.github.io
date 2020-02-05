@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="author" content="kongwenqiang">
+
+
+
+<meta name="description" content="本文翻译自Software Architecture Patterns。 Layered Architecture分层架构是最通用和使用频率最高的架构模式，通常也称之为N-层架构。这种模式也是大多数Java EE应用程序的事实上的架构标准，因此，它被大多数架构师，设计人员和开发人员所广泛了解。 分层架构模式能与传统的IT通信和大多数公司中的组织结构紧密匹配，这使其成为大多数业务应用程序开发工作的自">
+<meta name="keywords" content="架构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="架构模式">
+<meta property="og:url" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns.html">
+<meta property="og:site_name" content="戒修-沉迷技术的小沙弥">
+<meta property="og:description" content="本文翻译自Software Architecture Patterns。 Layered Architecture分层架构是最通用和使用频率最高的架构模式，通常也称之为N-层架构。这种模式也是大多数Java EE应用程序的事实上的架构标准，因此，它被大多数架构师，设计人员和开发人员所广泛了解。 分层架构模式能与传统的IT通信和大多数公司中的组织结构紧密匹配，这使其成为大多数业务应用程序开发工作的自">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/layered-architecture.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/closed-layers-and-request-access.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/open-layers-and-request-flow.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/layered-architecture-example.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/mediator-topology.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/mediator-topology-example.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/broker-topology.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/broker-topology-example.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/microkernel-architecture-pattern.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/microkernel-architecture-example.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/basic-microservices-architecture-pattern.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/API-REST-based-topology.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/app-REST-based-topology.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/Centralized-messaging-topology.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/space-based-architecture-pattern.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/processing-unit-component.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/messaging-grid-component.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/data-grid-component.png">
+<meta property="og:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/data-grid-component.png">
+<meta property="og:updated_time" content="2020-02-01T10:50:21.282Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="架构模式">
+<meta name="twitter:description" content="本文翻译自Software Architecture Patterns。 Layered Architecture分层架构是最通用和使用频率最高的架构模式，通常也称之为N-层架构。这种模式也是大多数Java EE应用程序的事实上的架构标准，因此，它被大多数架构师，设计人员和开发人员所广泛了解。 分层架构模式能与传统的IT通信和大多数公司中的组织结构紧密匹配，这使其成为大多数业务应用程序开发工作的自">
+<meta name="twitter:image" content="https://leokongwq.github.io/2020/01/31/Architecture-Patterns/layered-architecture.png">
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="戒修-沉迷技术的小沙弥" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>架构模式 | 戒修-沉迷技术的小沙弥</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<script src="/js/search.js"></script>
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">kongwenqiang</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">认识自己很重要！</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false">
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class="no-result">No results found <i class="fa fa-spinner fa-pulse"></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:leokongwq@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/leokongwq" title="GitHub"></a>
+                            
+                                <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AOP/">AOP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ActiveMQ/">ActiveMQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ActiveQM/">ActiveQM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDD/">DDD</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DNS/">DNS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JDK8/">JDK8</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MQ/">MQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NET/">NET</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Nginx/">Nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OS/">OS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Openresy/">Openresy</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/REST/">REST</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RMQ/">RMQ</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RestTemplate/">RestTemplate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/">TCP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP-IP/">TCP/IP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/activemq/">activemq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/algo/">algo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/aop/">aop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cache/">cache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/computer/">computer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/consul/">consul</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/curator/">curator</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/curl/">curl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devops/">devops</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/devtools/">devtools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/github/">github</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/">golang</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gossip/">gossip</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava/">guava</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hive/">hive</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hystrix/">hystrix</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java-agent/">java agent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java8/">java8</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jdk/">jdk</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jekyll/">jekyll</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jquery/">jquery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/json/">json</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jta/">jta</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jvm/">jvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logback/">logback</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lua/">lua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mac/">mac</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/microservices/">microservices</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mmap/">mmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mockito/">mockito</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mongodb/">mongodb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mq/">mq</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/netty/">netty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/npm/">npm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oauth2/">oauth2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/openresty/">openresty</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/osx/">osx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pig/">pig</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/resin/">resin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/servlet3/">servlet3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/soa/">soa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring-mvc/">spring-mvc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springMVC/">springMVC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springboot/">springboot</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/springcloud/">springcloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqoop/">sqoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ssh/">ssh</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/struts2/">struts2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tomcat/">tomcat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uml/">uml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vert-x/">vert.x</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web/">web</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web安全/">web安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xa/">xa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xml/">xml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zookeeper/">zookeeper</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/任务调度/">任务调度</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发/">并发</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微服务/">微服务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络/">网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/译/">译</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/随笔/">随笔</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/面试/">面试</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.imhan.com">Hanny&#39;s Blog</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.chepoo.com">IT技术精华网</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">只想做个好程序员!</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">kongwenqiang</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">kongwenqiang</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">认识自己很重要！</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:leokongwq@gmail.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/leokongwq" title="GitHub"></a>
+                            
+                                <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我">
+</nav>
+      <div class="body-wrap"><article id="post-Architecture-Patterns" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/01/31/Architecture-Patterns.html" class="article-date">
+      <time datetime="2020-01-31T06:06:58.000Z" itemprop="datePublished">2020-01-31</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      架构模式
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/架构/">架构</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>本文翻译自<a href>Software Architecture Patterns</a>。</p>
+<h3 id="Layered-Architecture"><a href="#Layered-Architecture" class="headerlink" title="Layered Architecture"></a>Layered Architecture</h3><p>分层架构是最通用和使用频率最高的架构模式，通常也称之为N-层架构。这种模式也是大多数Java EE应用程序的事实上的架构标准，因此，它被大多数架构师，设计人员和开发人员所广泛了解。 分层架构模式能与传统的IT通信和大多数公司中的组织结构紧密匹配，这使其成为大多数业务应用程序开发工作的自然选择。</p>
+<h4 id="Pattern-Description"><a href="#Pattern-Description" class="headerlink" title="Pattern Description"></a>Pattern Description</h4><p>分层架构模式中的组件被组织为水平分隔的层，每一层在应用程序中扮演特定的角色（例如，表示层或业务逻辑层）。 尽管分层体系架构模式没有指定模式中必须存在的层的数量和类型，但是大多数分层架构都由四个标准层组成：<code>表示层</code>，<code>业务层</code>，<code>持久性</code>和<code>数据库层</code>，如图（图1-1）所示。在某些情况下，尤其是在将持久性逻辑（例如SQL或HSQL）嵌入业务层组件中时，业务层和持久性层会组合为一个业务层。 因此，较小的应用程序可能仅具有三层，而较大且更复杂的业务应用程序可能包含五层或更多层。</p>
+<a id="more"></a>
+<p>分层体系结构模式的每一层在应用程序中都有特定的角色和职责。例如，表示层将负责处理所有用户界面和浏览器通信逻辑，而业务层将负责执行与请求关联的特定业务规则。架构中的每个层围绕需要完成的工作形成抽象，以满足特定的业务需求。例如，表示层无需了解或担心如何获取客户数据；它只需要以特定格式在屏幕上显示该信息。同样，业务层无需担心如何格式化客户数据以在屏幕上显示，甚至客户数据来自何处；它只需要从持久层获取数据，对数据执行业务逻辑（例如，计算值或汇总数据），然后将该信息传递到表示层。</p>
+<img src="/2020/01/31/Architecture-Patterns/layered-architecture.png">  
+<p>Figure 1-1. Layered architecture pattern</p>
+<p>分层体系结构模式的强大功能之一是组件之间关注点的分离。 特定层中的组件仅处理与该层有关的逻辑。 例如，表示层中的组件仅处理表示逻辑，而驻留在业务层中的组件仅处理业务逻辑。 这种类型的组件分类使你可以轻松地在体系结构中建立有效的角色和责任模型，并且由于定义良好的组件接口和有限的组件范围，因此可以使用此体系结构模式轻松开发，测试，管理和维护应用程序。</p>
+<h4 id="Key-Concepts"><a href="#Key-Concepts" class="headerlink" title="Key Concepts"></a>Key Concepts</h4><p>请注意，在图1-2中，体系结构中的每个层都标记为已关闭。 在分层架构模式中，这是一个非常重要的概念。 封闭层意味着当请求不能跨层。 例如，来自表示层的请求必须先经过业务层，然后再到达持久层，然后才到达数据库层。</p>
+<img src="/2020/01/31/Architecture-Patterns/closed-layers-and-request-access.png">  
+<p>Figure 1-2. Closed layers and request access</p>
+<p>那么，为什么不允许表示层直接访问持久层或数据库层呢？ 毕竟，从表示层进行直接数据库访问要比经过一堆不必要的层要快得多。 这个问题的答案在于一个关键概念，即层隔离。</p>
+<p>层隔离意味着在架构的任意一层中进行的更改通常不会影响其它层中的组件：更改仅与该层中的组件相关。 如果允许表示层直接访问持久层，则在持久层中对SQL所做的更改将影响业务层和表示层，从而产生一个紧密耦合的应用程序，在组件之间具有许多相互依赖关系。 这种类型的体系结构变得非常困难且更改成本很高。</p>
+<p>层隔离也意味着每一层都独立于其他层，因此对体系结构中其它层的内部运作了解甚少或根本不了解。 为了理解此概念的强大功能和重要性，请考虑进行大量的重构工作，以将表示框架从JSP（Java服务器页面）转换为JSF（Java Server Faces）。 假设表示层和业务层之间使用的合同（例如，模型）保持不变，则业务层不受重新引用的影响，并且完全独立于表示层使用的用户界面框架的类型 。</p>
+<p>虽然封闭的层有助于层隔离，因此有助于隔离架构中的更改，但有时某些层是开放的是有意义的。 例如，<br>假设你想在架构中添加一个包含公共服务组件的层，该层需要被业务逻辑层访问。那么通常一个好的实践是添加一个服务层。因为架构体系限制了对共享服务层的访问。如果没有一个单独的层来表示该感念，那么就没有一个规则来限制对共享服务的访问。</p>
+<p>在此示例中，新服务层可能会驻留在业务层下方，以指示无法从表示层访问此服务层中的组件。 但是，这带来了一个问题，即现在需要业务层经过服务层才能到达持久层，这根本没有意义。 这是分层体系结构中的一个古老问题，可以通过在体系结构中创建开放层来解决。</p>
+<p>如图1-3所示，在这种情况下，服务层被标记为“开放”，这意味着允许请求绕过该开放层并直接进入其下一层。 在下面的示例中，由于服务层是开放的，因此现在允许业务层绕过它，而直接进入持久层，这是很有意义的。</p>
+<img src="/2020/01/31/Architecture-Patterns/open-layers-and-request-flow.png">  
+<p>Figure 1-3. Open layers and request flow</p>
+<p>利用开放层和封闭层的概念可以帮助定义架构中层和请求流之间的关系，还可以为设计人员和开发人员提供必要的信息，以了解架构中各个层的<strong>访问限制</strong>。 无法记录或正确传达架构中哪些层是打开和关闭的（以及原因）通常会导致紧密耦合且脆弱的架构，这很难测试，维护和部署。</p>
+<h4 id="Pattern-Example"><a href="#Pattern-Example" class="headerlink" title="Pattern Example"></a>Pattern Example</h4><p>为了说明分层架构是如何工作的，下面以一个获取客户信息的用例来进行具体说明，如图1-4所示。 黑色箭头表示直到数据库以检索客户数据的请求，红色箭返回到屏幕的数据响应。 在此示例中，客户信息包含客户数据和订单数据（客户下的订单）。</p>
+<p>客户屏幕负责接受请求并显示客户信息。它不知道数据在哪里，如何检索它，或者必须查询多少个数据库表才能获取数据。客户屏幕一旦收到获取特定个人的客户信息的请求，便会将请求转发到客户委托模块。该模块负责了解业务层中的哪些模块可以处理该请求，以及如何到达该模块以及它需要哪些数据（合同）。业务层中的客户对象负责汇总业务请求所需的所有信息（在这种情况下，是获取客户信息）。此模块调出持久性层中的customer dao（数据访问对象）模块以获取客户数据，还调用order dao模块以获取订单信息。这些模块依次执行SQL语句以检索相应的数据，并将其传递回业务层中的客户对象。一旦客户对象接收到数据，它将汇总数据并将信息传递回客户委托人，然后由客户委托人将数据传递给客户屏幕以呈现给用户。</p>
+<img src="/2020/01/31/Architecture-Patterns/layered-architecture-example.png">  
+<p>Figure 1-4. Layered architecture example</p>
+<p>从技术角度来看，这些模块可以通过多种方式实现。 例如，在Java平台中，客户屏幕可以是（JSF）Java Server Faces。 业务层中的客户对象可以是本地Spring Bean或远程EJB3 Bean。 上一个示例中说明的数据访问对象可以实现为简单的POJO（普通的Java对象），MyBatis XML Mapper文件，甚至可以封装原始JDBC调用或Hibernate查询的对象。 从Microsoft平台的角度来看，客户屏幕可以是使用.NET框架访问业务层中C＃模块的ASP（活动服务器页面）模块，而客户和订单数据访问模块则实现为ADO（ActiveX） 数据对象）。</p>
+<h4 id="Considerations"><a href="#Considerations" class="headerlink" title="Considerations"></a>Considerations</h4><p>分层体系结构模式是可靠的，通用的架构模式，是大多数应用程序的良好起点，尤其是当你不确定哪种体系结构模式最适合您的应用程序时。但是，从系统架构的角度来看，选择此模式时需要考虑几件事。</p>
+<p>首先要注意的是所谓的“体系结构坑洞反模式”。此反模式将请求流过架构的多个层的情况描述为简单的直通处理，而在每个层中执行的逻辑很少或没有执行逻辑。例如，假设表示层响应来自用户的请求以检索客户数据。表示层将请求传递给业务层，业务层仅将请求传递给持久层，然后持久层对数据库层进行简单的SQL调用以检索客户数据。然后，数据将一直传递到整个堆栈，而无需其他处理或逻辑来聚合，计算或转换数据。</p>
+<p>每个分层架构中都或多或少包含一些反模式。但是，关键是分析属于反模式的请求的百分比。 通常，遵循8/2原则是确定你是否正在经历架构下陷反模式的好习惯。 通常，将大约20％的请求作为简单的直通处理进行处理，并将80％的请求具有与该请求相关联的某些业务逻辑。 但是，如果你发现真实的请求比例于此相反，并且大多数请求都是简单的直通处理，则可能要考虑使分层架构中的某些层打开，请记住，控制变更将更加困难 由于缺乏层隔离。</p>
+<h4 id="Pattern-Analysis"><a href="#Pattern-Analysis" class="headerlink" title="Pattern Analysis"></a>Pattern Analysis</h4><p>下表是对分层架构模式的通用体系结构特征的评估和分析。 对每个特性的评级都基于该特性的自然趋势，即基于模式的典型实现以及该模式通常所知的能力。 有关此模式与本报告中其他模式的关系的并行比较，请参阅本报告末尾的附录A。</p>
+<h5 id="Overall-agility"><a href="#Overall-agility" class="headerlink" title="Overall agility"></a>Overall agility</h5><p>评分：低<br>分析：整体敏捷性是对不断变化的环境做出快速响应的能力。 虽然可以通过此模式可以将每个层的修改进行隔离，但是发现现实中，模式的大多数该实现中，组件都会紧密耦合，因此在该架构模式中进行更改仍然很麻烦且耗时。</p>
+<h5 id="Ease-of-deployment"><a href="#Ease-of-deployment" class="headerlink" title="Ease of deployment"></a>Ease of deployment</h5><p>评分：低<br>分析：根据你实施此模式的方式，部署可能会成为一个问题，尤其是对于大型应用程序。 对组件的一小处更改可能需要重新部署整个应用程序（或应用程序的很大一部分），从而导致需要在下班时间或周末计划，安排和执行部署。 因此，这种模式不容易使自己适应连续的交付管道，从而进一步降低了部署的总体评级。</p>
+<h5 id="Testability"><a href="#Testability" class="headerlink" title="Testability"></a>Testability</h5><p>评分：高<br>分析：由于组件属于架构中特定的层，因此可以对其他层进行Mock或打桩处理，使得这种模式相对易于测试。 开发人员可以模拟演示组件或屏幕以隔离业务组件中的测试，也可以模拟业务层以测试某些屏幕功能。</p>
+<h5 id="Performance"><a href="#Performance" class="headerlink" title="Performance"></a>Performance</h5><p>评分：低<br>分析：虽然某些分层架构确实可以很好的工作。但是由于几乎所有请求必须穿过多个层级，导致效率低下，因此该模式不适用于高性能应用程序。</p>
+<h5 id="Scalability"><a href="#Scalability" class="headerlink" title="Scalability"></a>Scalability</h5><p>评分：低<br>分析：由于这种模式趋向于紧密耦合和整体实现的趋势，使用这种架构模式构建的应用程序通常很难扩展。你可以通过将层拆分为单独的物理部署或将整个应用程序复制到多个节点来扩展分层体系结构，但是总体而言，粒度太宽泛，因此扩展成本很高。</p>
+<h5 id="Ease-of-development"><a href="#Ease-of-development" class="headerlink" title="Ease of development"></a>Ease of development</h5><p>评分：高<br>分析：易于开发获得了相对较高的分数，主要是因为这种模式众所周知，并且实施起来并不太复杂。 因为大多数公司通过将技能集按层次（表示，业务，数据库）分开来开发应用程序，所以这种模式成为大多数业务应用程序开发的自然选择。 概述了公司的沟通和组织结构与软件开发方式之间的联系，这就是所谓的康韦定律。 您可以使用Google的“康韦定律”获取有关这种引人入胜的相关性的更多信息。</p>
+<h3 id="Event-Driven-Architecture"><a href="#Event-Driven-Architecture" class="headerlink" title="Event-Driven-Architecture"></a>Event-Driven-Architecture</h3><p>事件驱动的架构模式是一种流行的分布式异步架构模式，用于构建高度可伸缩的应用程序。 它还具有很高的适应性，可用于小型应用程序以及大型，复杂的应用程序。 事件驱动架构由高度架构，职责单一的事件处理组件组成，这些组件异步接收和处理事件。</p>
+<p>事件驱动的架构模式由两个主要拓扑组成，即调解器和代理。 当你需要通过中央调解器协调事件中的多个步骤时，通常使用调解器拓扑结构；而当你希望不使用中央调解器将事件链接在一起时，则使用代理拓扑。 由于这两种拓扑的体系结构特征和实施策略不同，因此重要的是要了解每个拓扑，以了解哪种拓扑最适合您的特定情况。</p>
+<!-- more -->
+<h4 id="Mediator-Topology"><a href="#Mediator-Topology" class="headerlink" title="Mediator Topology"></a>Mediator Topology</h4><p>调解器拓扑结构对于具有多个步骤并且需要某种编排级别的事件才能处理的事件很有用。 例如，进行一次股票交易的单个事件可能需要你首先验证交易，然后根据各种合规性规则检查该股票交易的合规性，将交易分配给经纪人，计算佣金，最后放置 与那个经纪人交易。 所有这些步骤都需要一定程度的编排，以确定步骤的顺序以及哪些步骤可以串行和并行完成。</p>
+<p>调解器拓扑中有四种主要类型的体系结构组件：事件队列，事件调解器，事件通道和事件处理器。 事件流从客户端将事件发送到事件队列开始，该事件队列用于将事件传输到事件调解器。 事件调解器接收初始事件，并通过将其他异步事件发送到事件通道以执行流程的每个步骤来协调该事件。 监听事件通道的事件进程从事件调解器接收事件，并执行特定的业务逻辑来处理事件。 图2-1说明了事件驱动的体系结构模式的一般介体拓扑。</p>
+<img src="/2020/01/31/Architecture-Patterns/mediator-topology.png">  
+<p>Figure 2-1. Event-driven architecture mediator topology</p>
+<p>在事件驱动架构中，通常有十几到数百个事件队列。 该模式未指定事件队列组件的实现。 它可以是消息队列，Web服务终结点或其任何组合。</p>
+<p>在该模式中有两种类型的事件：初始事件和处理事件。 初始事件是调解器接收到的原始事件，而处理事件是由调解器生成并由事件处理组件接收的事件。</p>
+<p>事件调解器组件负责协调初始事件中包含的步骤。 对于初始事件中的每个步骤，事件调解器都会将特定的处理事件发送到事件通道，然后由事件处理器进行接收和处理。 需要注意的是，事件调解器实际上并未执行处理初始事件所需的业务逻辑； 相反，它知道处理初始事件所需的步骤。</p>
+<p>事件调解器使用事件通道将与初始事件中每个步骤相关的特定处理事件异步传递给事件处理器。 事件通道可以是消息队列，也可以是消息主题，尽管消息主题在调解器拓扑结构中使用最广泛，所以处理事件可以由多个事件处理器处理（每个事件处理器根据接收到的处理事件执行不同的任务）。</p>
+<p>事件处理器组件包含处理处理事件所需的应用程序业务逻辑。 事件处理器是独立的，高度分离的架构组件，它们在应用程序或系统中执行特定任务。 尽管事件处理程序组件的粒度可以从细粒度（例如，计算订单的销售税）到粗粒度（例如，处理保险索赔），但重要的是要记住，每个事件处理器组件应执行单个业务任务，而不要依赖其他事件处理器来完成其特定任务。</p>
+<p>事件中介器可以通过多种方式实现。 作为架构师，你应该了解所有这些实现选项，以确保为事件介体选择的解决方案符合您的需求。</p>
+<p>事件中介器的最简单，最常见的实现方法是通过开源集成中心，例如Spring Integration，Apache Camel或Mule ESB。 这些开源集成中心中的事件流通常通过Java代码或DSL（领域特定语言）实现。 对于更复杂的中介和业务流程，可以将BPEL（业务流程执行语言）与BPEL引擎（例如开源Apache ODE）结合使用。 BPEL是一种类似于XML的标准语言，它描述了处理初始事件所需的数据和步骤。 对于需要更复杂的业务流程的大型应用程序（包括涉及人机交互的步骤），您可以使用业务流程管理器（BPM）（例如jBPM）来实现事件中介程序。</p>
+<p>了解你的需求并将其与正确的事件中介器实现相匹配对于使用此拓扑的任何事件驱动的架构的成功至关重要。 与实施BPM解决方案以执行简单的路由逻辑一样，使用开源的集成中心进行非常复杂的业务流程管理流程是失败的秘诀。</p>
+<p>为了说明调解器拓扑的工作原理，假设你已通过一家保险公司投保，并且决定搬家。 在这种情况下，初始事件可能称为重定位事件。 处理重定位事件所涉及的步骤包含在事件中介器中，如图2-2所示。 对于每个初始事件步骤，事件介体创建一个处理事件（例如，更改地址，重新计算报价等），将该处理事件发送到事件通道，并等待该处理事件被相应的事件处理器处理（例如， ，客户流程，报价流程等）。 该过程一直持续到初始事件中的所有步骤都已处理完毕。 事件调解器中重新计算报价和更新声明步骤上的单条表示可以同时运行这些步骤。</p>
+<h4 id="Broker-Topology"><a href="#Broker-Topology" class="headerlink" title="Broker Topology"></a>Broker Topology</h4><p>代理拓扑与中介器拓扑的不同之处在于，不存在中央事件中介器。 而是通过轻量级消息代理（例如ActiveMQ，HornetQ等）以链状方式将消息流分布在事件处理器组件之间。 当你具有相对简单的事件处理流程并且不需要（或不需要）集中事件编排时，此拓扑很有用。</p>
+<p>代理拓扑中有两种主要类型的体系结构组件：代理组件和事件处理器组件。 代理组件可以是集中式的或联合的，并包含事件流中使用的所有事件通道。</p>
+<p>代理组件中包含的事件通道可以是消息队列，消息主题或两者的组合。</p>
+<img src="/2020/01/31/Architecture-Patterns/mediator-topology-example.png">  
+<p>Figure 2-2. Mediator topology example</p>
+<p>这种拓扑如图2-3所示。 从图中可以看出，没有中央事件中介器组件来控制和协调初始事件。 相反，每个事件处理器组件负责处理一个事件并发布一个新事件，以指示其刚刚执行的操作。 例如，平衡股票投资组合的事件处理器可能会收到一个称为股票分割的初始事件。 基于该初始事件，事件处理器可以进行一些投资组合重新平衡，然后将一个新事件发布到称为重新平衡投资组合的经纪人，然后由另一个事件处理器处理该新事件。 请注意，有时某个事件是由事件处理器发布但未被其他任何事件处理器处理的。 在开发应用程序或提供将来的功能和扩展时，这很常见。</p>
+<img src="/2020/01/31/Architecture-Patterns/broker-topology.png">  
+<p>Figure 2-3. Event-driven architecture broker topology</p>
+<p>为了说明代理拓扑的工作方式，我们将使用与调解器拓扑相同的示例（被保险人移动）。由于没有中间事件中介程序可以在代理拓扑中接收初始事件，因此客户流程组件可以直接接收该事件，更改客户地址并发送事件，说明它更改了客户地址（例如，更改地址事件） 。在此示例中，有两个对更改地址事件感兴趣的事件处理器：报价过程和声明过程。报价处理器组件根据地址更改重新计算新的自动保险费率，并将一个事件发布到系统的其余部分，以指示其所做的事情（例如，重新计算报价事件）。另一方面，理赔处理组件接收相同的变更地址事件，但是在这种情况下，它会更新未完成的保险理赔并将事件作为更新理赔事件发布到系统。然后，这些新事件将由其他事件处理器组件接收，并且事件链会贯穿整个系统，直到不再有针对该特定发起事件的事件发布为止。</p>
+<img src="/2020/01/31/Architecture-Patterns/broker-topology-example.png">  
+<p>Figure 2-4. Broker topology example</p>
+<p>从图2-4中可以看到，代理拓扑完全是有关事件链以执行业务功能的。 理解代理拓扑的最好方法是将其视为中继竞赛。 在接力赛中，跑步者握住警棍并跑一定距离，然后将警棍交给下一位跑步者，依此类推，直到最后一名选手越过终点线。 在接力赛中，一旦跑步者交出了接力棒，她就完成了比赛。 代理拓扑也是如此：一旦事件处理器移交该事件，该事件将不再参与该特定事件的处理。</p>
+<h4 id="Considerations-1"><a href="#Considerations-1" class="headerlink" title="Considerations"></a>Considerations</h4><p>事件驱动的架构模式是一种相对复杂的实现方式，主要是由于其异步的分布式特性。 实施此模式时，必须解决各种分布式体系结构问题，例如远程进程可用性，缺乏响应能力以及在代理或中介程序发生故障的情况下代理重新连接逻辑。</p>
+<p>选择这种体系结构模式时要考虑的一个考虑因素是单个业务流程缺乏原子事务。由于事件处理器组件高度分离和分布，因此很难在它们之间维护事务性工作单元。因此，在使用这种模式设计应用程序时，您必须不断考虑哪些事件可以独立运行，也可以不独立运行，并相应地计划事件处理器的粒度。如果发现需要在事件处理器之间划分单个工作单元，也就是说，如果您对应该是不可分割事务的事物使用单独的处理器，那么这可能不是适合您的应用程序的模式。</p>
+<p>事件驱动的架构模式中最困难的方面之一可能是事件处理器组件合同的创建，维护和治理。每个事件通常都有一个与之相关的特定协定（例如，将数据值和数据格式传递给事件处理器）。使用此模式来建立标准数据格式（例如XML，JSON，Java对象等）并从一开始就制定合同版本控制政策时，这一点至关重要。</p>
+<h4 id="Pattern-Analysis-1"><a href="#Pattern-Analysis-1" class="headerlink" title="Pattern Analysis"></a>Pattern Analysis</h4><p>下表包含事件驱动架构模式的通用架构特征的评级和分析。 对每个特性的评级都基于该特性的自然趋势，即基于模式的典型实现以及该模式通常所知的能力。 有关此模式与本报告中其他模式的关系的并行比较，请参阅本报告末尾的附录A。</p>
+<h5 id="Overall-agility-1"><a href="#Overall-agility-1" class="headerlink" title="Overall agility"></a>Overall agility</h5><p>评分：高<br>分析：整体敏捷性是对不断变化的环境做出快速响应的能力。 由于事件处理器组件是单一用途的，并且与其他事件处理器组件完全脱钩，因此更改通常隔离到一个或几个事件处理器，并且可以快速进行而不会影响其他组件。</p>
+<h4 id="Ease-of-deployment-1"><a href="#Ease-of-deployment-1" class="headerlink" title="Ease of deployment"></a>Ease of deployment</h4><p>评分：高<br>分析：总体而言，由于事件处理器组件的分离性质，此模式相对易于部署。 代理拓扑往往比事件中介拓扑更易于部署，主要是因为事件介体组件在某种程度上与事件处理器紧密耦合：事件处理器组件的更改也可能需要事件介体的更改，这需要同时 部署用于任何给定的更改。</p>
+<h5 id="Testability-1"><a href="#Testability-1" class="headerlink" title="Testability"></a>Testability</h5><p>评分：低<br>分析：尽管单个单元测试不是很困难，但是它确实需要某种专门的测试客户端或测试工具来生成事件。 这种模式的异步特性也使测试变得复杂。</p>
+<h5 id="Performance-1"><a href="#Performance-1" class="headerlink" title="Performance"></a>Performance</h5><p>评分：高<br>分析：虽然由于所有消息传递基础架构的原因，可能实现一个性能不佳的事件驱动架构是可能的，但通常，该模式通过其异步功能可实现高性能； 换句话说，执行解耦，并行异步操作的能力超过了对消息进行排队和出队的成本。</p>
+<h5 id="Scalability-1"><a href="#Scalability-1" class="headerlink" title="Scalability"></a>Scalability</h5><p>评分：高<br>分析：通过高度独立和解耦的事件处理器，自然可以在这种模式下实现可伸缩性。 每个事件处理器可以分别缩放，以实现细粒度的可伸缩性。</p>
+<h5 id="Ease-of-development-1"><a href="#Ease-of-development-1" class="headerlink" title="Ease of development"></a>Ease of development</h5><p>评分：低<br>分析：由于模式的异步性质以及合同创建，并且对于无响应的事件处理器和失败的代理程序，代码中需要更高级的错误处理条件，因此开发可能会有些复杂。</p>
+<h3 id="Microkernel-Architecture"><a href="#Microkernel-Architecture" class="headerlink" title="Microkernel Architecture"></a>Microkernel Architecture</h3><p>微内核架构模式（有时也称为插件架构模式）是用于实现基于产品的应用程序的自然模式。 基于产品的应用程序是一种打包的应用程序，可以作为典型的第三方产品的版本进行下载。也有许多公司的业务应用也遵循这种模式，开发，发布版本，附带版本说明，版本新增的特性。微内核架构模式允许你将其他应用程序功能作为插件添加到核心应用程序，从而提供可扩展性以及功能分离和隔离。</p>
+<h4 id="Pattern-Description-1"><a href="#Pattern-Description-1" class="headerlink" title="Pattern Description"></a>Pattern Description</h4><p>微内核架构模式由两个架构组件组成：核心系统 和 插件模块。应用的逻辑被分隔到每个相互独立的插件和基础的系统核心上。应用程序具有可扩展性，灵活性，并且应用的功能和特殊的业务逻辑具备隔离性。如图3-1，展示了微内核架构模式。</p>
+<img src="/2020/01/31/Architecture-Patterns/microkernel-architecture-pattern.png">
+<p>从业务应用程序的角度来看，核心系统通常定义为通用业务逻辑，没有特殊情况，特殊规则或复杂的条件处理的自定义代码。</p>
+<p>插件模块是独立的独立组件，包含专门的处理，附加功能和自定义代码，旨在增强或扩展核心系统以产生更多的业务功能。通常，插件模块应独立于其他插件模块，但是你当然可以设计需要依赖其他插件的插件。无论哪种方式，都必须将插件之间的通信保持在最小限度，以避免依赖关系。</p>
+<p>核心系统需要知道哪些插件模块可用以及如何获得它们。一种通用的实现方法是通过某种插件注册表。该注册表包含有关每个插件模块的信息，包括其名称，数据约定和远程访问协议详细信息（取决于插件如何连接到核心系统）。例如，标记高风险税收审核项目的税收软件插件可能具有一个注册表项，其中包含服务名称（AuditChecker），数据合同（输入数据和输出数据）以及合同格式（XML）。如果通过SOAP访问该插件，则它也可能包含WSDL（Web服务定义语言）。</p>
+<p>插件模块可以通过多种方式连接到核心系统，包括OSGi（开放服务网关倡议），消息传递，Web服务，甚至直接点对点绑定（即对象实例化）。你使用的连接类型取决于你正在构建的应用程序类型（小型产品或大型业务应用程序）以及你的特定需求（例如，单部署或分布式部署）。架构模式本身没有指定任何这些实现​​细节，只是插件模块必须彼此独立。</p>
+<p>插件模块和核心系统之间的合同范围很广，从标准合同到定制合同都可以。自定义合同通常在第三方开发插件组件的情况下发现，而您无法控制插件使用的合同。在这种情况下，通常在插件触点和您的标准合同之间创建一个适配器，这样核心系统就不需要每个插件的专门代码。创建标准合同（通常通过XML或Java Map实现）时，切记要从头开始创建版本控制策略，这一点很重要。</p>
+<h4 id="Pattern-Examples"><a href="#Pattern-Examples" class="headerlink" title="Pattern Examples"></a>Pattern Examples</h4><p>也许微内核体系结构的最佳示例是Eclipse IDE。下载基本的Eclipse产品仅能为您提供精美的编辑器。但是，一旦开始添加插件，它将成为高度可定制和有用的产品。互联网浏览器是使用微内核架构的另一个常见产品示例：查看器和其他插件添加了其他功能，而这些功能是基本浏览器（即核心系统）中找不到的。</p>
+<p>对于基于产品的软件，示例无穷无尽，但是大型企业应用程序呢？微内核架构也适用于这些情况。为了说明这一点，让我们使用另一个保险公司示例，但这一次涉及保险索赔处理。</p>
+<p>索赔处理是一个非常复杂的过程。每个州对于保险索赔中允许和不允许的内容都有不同的规则和规定。例如，如果您的挡风玻璃被一块岩石损坏，某些州允许免费更换挡风玻璃，而其他州则不允许。这为标准索赔流程创造了几乎无限的条件。</p>
+<p>毫不奇怪，大多数保险索赔应用程序利用大型而复杂的规则引擎来处理这种复杂性中的大部分。 但是，这些规则引擎可能会变成一个复杂的大团团，在其中更改一个规则会影响其他规则，或者使简单的规则更改需要大量的分析人员，开发人员和测试人员。 使用微内核架构模式可以解决许多这些问题。</p>
+<p>如在图3-2中看到的文件夹堆栈代表了索赔处理的核心系统。 它包含保险公司处理索赔所需的基本业务逻辑，除非没有任何自定义处理。 每个插件模块都包含该状态的特定规则。 在此示例中，可以使用自定义源代码或单独的规则引擎实例来实现插件模块。 无论采用哪种实施方式，关键点是特定于状态的规则和处理与核心声明系统是分开的，可以添加，删除和更改，而对其余核心系统或其他插件模块几乎没有影响 。</p>
+<img src="/2020/01/31/Architecture-Patterns/microkernel-architecture-example.png">
+<h4 id="Considerations-2"><a href="#Considerations-2" class="headerlink" title="Considerations"></a>Considerations</h4><p>关于微内核架构模式的一个很棒的事情是它可以被嵌入到应用中或用作另一种架构模式的一部分。 例如，如果此模式解决了应用程序特定易失区域的特定问题，则可能会发现你无法使用此模式实现整个体系结构。 在这种情况下，你可以将微服务架构模式嵌入到你正在使用的其他模式（例如分层架构）中。 类似地，可以使用微服务架构模式来实现上一节中有关事件驱动架构的事件处理器组件。</p>
+<p>微服务架构模式为演化设计和增量开发提供了强大的支持。 你可以首先创建一个坚实的核心系统，然后随着应用程序的逐步发展，无需对核心系统进行重大更改即可添加功能。</p>
+<p>对于基于产品的应用程序，微内核架构模式应始终是你的初始架构的首选，尤其是对于那些随着时间的推移将发布其他功能并希望控制哪些用户获得哪些功能的产品。 如果随着时间的流逝，你发现该模式不能满足您的所有需求，那么你始终可以将你的应用程序重构为更适合你特定需求的另一种架构模式。</p>
+<h4 id="Pattern-Analysis-2"><a href="#Pattern-Analysis-2" class="headerlink" title="Pattern Analysis"></a>Pattern Analysis</h4><p>下表包含事件驱动架构模式的通用架构特征的评级和分析。 对每个特性的评级都基于该特性的自然趋势，即基于模式的典型实现以及该模式通常所知的能力。 有关此模式与本报告中其他模式的关系的并行比较，请参阅本报告末尾的附录A。</p>
+<h5 id="Overall-agility-2"><a href="#Overall-agility-2" class="headerlink" title="Overall agility"></a>Overall agility</h5><p>评分：高<br>分析：整体敏捷性是对不断变化的环境做出快速响应的能力。 通过松散耦合的插件模块，可以很大程度上隔离和快速实现更改。 通常，大多数微内核体系结构的核心系统趋向于快速稳定，因此相当健壮，并且随着时间的推移几乎不需要更改。</p>
+<h5 id="Ease-of-deployment-2"><a href="#Ease-of-deployment-2" class="headerlink" title="Ease of deployment"></a>Ease of deployment</h5><p>评分：高<br>分析：根据模式的实现方式，可以在运行时（例如，热部署）将插件模块动态添加到核心系统，从而最大程度地减少部署期间的停机时间。</p>
+<h5 id="Testability-2"><a href="#Testability-2" class="headerlink" title="Testability"></a>Testability</h5><p>评分：高<br>分析：插件模块可以单独进行测试，并且可以由核心系统轻松模拟，以演示或原型化特定功能，而对核心系统的更改很少或没有更改。</p>
+<h5 id="Performance-2"><a href="#Performance-2" class="headerlink" title="Performance"></a>Performance</h5><p>评分：高<br>分析：虽然微内核模式无法自然地适用于高性能应用程序，但是通常来说，大多数使用微内核架构模式构建的应用程序都表现良好，因为你可以自定义和简化应用程序以仅包含所需的那些功能。 JBoss应用服务器就是一个很好的例子：借助其插件体系结构，你可以对应用服务器进行剪裁，只保留需要的功能，删除哪些消耗CPU，内存而且用不上的功能，例如远程访问，消息传递和消耗内存的缓存。</p>
+<h5 id="Scalability-2"><a href="#Scalability-2" class="headerlink" title="Scalability"></a>Scalability</h5><p>评分：低<br>分析：由于大多数微内核体系结构实现都是基于产品的，并且通常尺寸较小，因此它们被实现为单个单元，因此无法高度扩展。 根据实现插件模块的方式，有时可以在插件功能级别提供可伸缩性，但是总的来说，这种模式因产生高度可扩展的应用程序而闻名。</p>
+<h5 id="Ease-of-development-2"><a href="#Ease-of-development-2" class="headerlink" title="Ease of development"></a>Ease of development</h5><p>评分：低<br>分析：微内核架构模式需要仔细设计和契约治理，因此实施起来相当复杂。 契约版本控制，内部插件注册中心，插件粒度以及可用于插件连接的广泛选择都增加了实现此模式所涉及的复杂性。</p>
+<h3 id="Microservices-Architecture-Pattern"><a href="#Microservices-Architecture-Pattern" class="headerlink" title="Microservices Architecture Pattern"></a>Microservices Architecture Pattern</h3><p>作为单体应用程序和SOA架构模式的可行替代方案，微服务体系结构模式正在业界迅速普及。 由于这种架构模式仍在不断发展，因此业界对这种模式的意义以及实现方式存在很多困惑。 该报告的这一部分将为你提供必要的关键概念和基础知识，以了解这种重要架构模式的好处（以及权衡取舍），以及它是否适合您的应用程序。</p>
+<h4 id="Pattern-Description-2"><a href="#Pattern-Description-2" class="headerlink" title="Pattern Description"></a>Pattern Description</h4><p>无论选择哪种拓扑或实现方式，都有几个通用的核心概念适用于常规体系结构模式。 这些概念中的第一个就是独立部署的单元。 如图4-1所示，微服务体系结构的每个组件都作为一个单独的单元进行部署，从而可以通过有效且简化的交付管道，更强的可伸缩性以及应用程序内部组件高度耦来简化应用程序部署。</p>
+<p>理解微服务架构模式，最重要的概念就是好服务组件。与其考虑微服务架构中的服务，不如考虑服务组件，服务组件的粒度可以是单个模块或整个应用的大部分功能。 服务组件包含一个或多个模块（例如Java类），这些模块表示单一用途的功能（例如，为特定城市或城镇提供天气）或大型业务应用程序的独立部分（例如，股票交易） 放置位置或确定自动保险费率）。 设计合适的服务组件粒度是微服务体系结构中的最大挑战之一。 在以下服务组件编排小节中将更详细地讨论此挑战。</p>
+<img src="/2020/01/31/Architecture-Patterns/basic-microservices-architecture-pattern.png">
+<p>微服务架构模式中的另一个关键概念是分布式架构，这意味着架构中的所有组件都完全相互分离，并可以通过某种远程访问协议（例如JMS，AMQP，REST， SOAP，RMI等）。 这种体系结构模式的分布式性质是它如何实现其某些出色的可扩展性和部署特性。</p>
+<p>微服务架构令人兴奋的事情之一是，它是从与其他常见架构模式相关的问题演变而来的，而不是作为等待问题发生的解决方案而创建的。 微服务架构样式自然是从两个主要来源演变而来：使用分层架构模式开发的单体应用程序和通过SOA架构开发的分布式应用程序。</p>
+<p>从单体应用程序到微服务架构模式的演进路径主要是由持续交付的发展所推动的，即从开发到生产的持续部署管道的概念简化了应用程序的部署。 整体应用程序通常由紧密耦合的组件组成，这些组件是单个可部署单元的一部分，这使得它麻烦且难以更改，测试和部署应用程序（因此，通常在大型应用程序中通常会出现“每月部署”周期的增加） IT商店）。 这些因素通常导致脆弱的应用程序在每次部署新内容时都会中断。 微服务架构模式通过将应用程序分为多个可部署单元（服务组件）来解决这些问题，这些可部署单元可以独立于其他服务组件进行单独开发，测试和部署。</p>
+<p>导致微服务架构模式的另一条演进路径是来自实现面向服务的架构模式（SOA）的应用程序发现的问题。 尽管SOA模式非常强大，并提供无与伦比的抽象水平，异构连接，服务编排以及使业务目标与IT功能保持一致的希望，但它却是复杂，昂贵，无处不在，难以理解和实现的， 对于大多数应用程序来说通常是多余的。 微服务架构风格通过简化服务概念，消除编排需求以及简化连接和对服务组件的访问来解决此复杂性。</p>
+<h4 id="Pattern-Topologies"><a href="#Pattern-Topologies" class="headerlink" title="Pattern Topologies"></a>Pattern Topologies</h4><p>尽管实际上有数十种方法来实现微服务架构模式，但三种主要的拓扑结构是最常见和流行的：基于API REST的拓扑，基于应用程序REST的拓扑和集中式消息传递拓扑。</p>
+<p>基于API REST的拓扑对于通过某种API（应用程序编程接口）提供公开的，独立且自包含服务的小型网站很有用。这种拓扑结构如图4-2所示，由非常细粒度的服务组件（因此称为微服务）组成，这些服务组件包含一个或两个模块，这些模块执行独立于其余服务的特定业务功能。 在这种拓扑中，通常使用独立部署的WEB服务，基于REST api来访问这些细粒度的服务组件。 这种拓扑的示例包括Yahoo，Google和Amazon发现的一些常见的基于云的单一用途RESTful Web服务。</p>
+<img src="/2020/01/31/Architecture-Patterns/API-REST-based-topology.png">
+<p>基于应用程序REST的拓扑与基于API REST的方法的不同之处在于，通过传统的基于Web或胖客户端的业务应用程序屏幕而不是通过简单的API层来接收客户端请求。 如图4-3所示，该应用程序的用户界面层被部署为一个单独的Web应用程序，可通过基于REST的简单接口远程访问单独部署的服务组件（业务功能）。 此拓扑中的服务组件与基于API-REST的拓扑中的服务组件的不同之处在于，这些服务组件往往更大，更粗糙，并且只占整个业务应用程序的一小部分，而不是细粒度的单项应用。 行动服务。 对于具有相对较低复杂度的中小型企业应用程序，此拓扑是常见的。</p>
+<img src="/2020/01/31/Architecture-Patterns/app-REST-based-topology.png">
+<p>微服务架构模式中的另一种常见方法是集中式消息传递拓扑。 该拓扑（如图4-4所示）与以前的基于REST的应用程序拓扑类似，不同之处在于，该拓扑使用轻量级的集中消息代理（例如ActiveMQ，HornetQ等）代替了使用REST进行远程访问。 。 在查看此拓扑时，不要将其与面向服务的体系结构模式混淆或将其视为“ SOA-Lite”，这一点至关重要。在此拓扑中找到的轻量级消息代理不执行任何编排，转换或复杂的路由。 ;而是访问远程服务组件的轻量级传输。</p>
+<p>集中式消息传递拓扑通常在较大的业务应用程序或需要在用户界面和服务组件之间的传输层上进行更复杂控制的应用程序中找到。 与以前讨论的基于REST的简单拓扑相比，此拓扑的优点是高级排队机制，异步消息传递，监视，错误处理以及更好的总体负载平衡和可伸缩性。 通常通过代理群集和代理联合来解决通常与集中式代理相关的单点故障和体系结构瓶颈问题（将单个代理实例拆分为多个代理实例，以根据系统功能区域划分消息吞吐量负载）。</p>
+<img src="/2020/01/31/Architecture-Patterns/Centralized-messaging-topology.png">
+<h4 id="Avoid-Dependencies-and-Orchestration"><a href="#Avoid-Dependencies-and-Orchestration" class="headerlink" title="Avoid Dependencies and Orchestration"></a>Avoid Dependencies and Orchestration</h4><p>微服务架构模式的主要挑战之一是为服务组件确定正确的粒度级别。 如果服务组件的粒度过于粗糙，你可能不会得到微服务架构模式所带来的好处（部署，可伸缩性，可测试性和松散耦合）。 但是，太细粒度的服务组件将导致对服务编排的要求，这将迅速将你的精益微服务架构转变为重量级的SOA架构，并通常会面临所有SOA架构中的复杂性：复杂性高，混乱，费用和不足。</p>
+<p>如果发现需要从应用程序的用户界面或API层内部编排服务组件，则可能是服务组件的粒度太细。 同样，如果发现需要在服务组件之间执行服务间通信以处理单个请求，则从业务功能的角度来看，服务组件的粒度可能太细或分配不正确。</p>
+<p>可以通过共享数据库来处理服务间通信，这可能会导致组件之间发生意外耦合。 例如，如果处理Internet订单的服务组件需要客户信息，则可以转到数据库以检索必要的数据，而不是调用客户服务组件中的功能。</p>
+<p>共享数据库可以处理信息需求，但是共享功能呢？ 如果服务组件需要另一个服务组件中包含的功能或所有服务组件都具有的功能，则有时您可以跨服务组件复制共享功能（从而违反了DRY原则：请勿重复自己的操作）。 在大多数实现微服务架构模式的业务应用程序中，这是相当普遍的做法，为了保持服务组件独立并分离其部署，需要折衷重复业务逻辑的小部分的冗余。 小型实用程序类可能属于此类重复代码。</p>
+<p>如果您发现无论服务组件的粒度级别如何，您仍然无法避免对服务组件进行编排，那么这很好地表明这可能不是您应用程序的正确架构模式。 由于该模式具有分布式特性，因此很难在服务组件之间（以及之间）维护单个事务性工作单元。 这种做法需要某种事务补偿框架来回滚事务，这给这种相对简单而优雅的体系结构模式增加了极大的复杂性。</p>
+<h4 id="Considerations-3"><a href="#Considerations-3" class="headerlink" title="Considerations"></a>Considerations</h4><p>微服务架构模式解决了在单片应用程序和面向服务的架构中发现的许多常见问题。 由于主要的应用程序组件被分解为较小的，单独部署的单元，因此使用微服务架构模式构建的应用程序通常更健壮，提供更好的可伸缩性并且可以更轻松地支持连续交付。</p>
+<p>这种模式的另一个优点是，它提供了进行实时生产部署的能力，从而大大减少了对传统的每月或周末“大爆炸”生产部署的需求。 由于更改通常与特定服务组件隔离，因此仅需要部署更改的服务组件。 如果只有服务组件的单个实例，则可以在用户界面应用程序中编写专门的代码以检测活动的热部署并将用户重定向到错误页面或等待页面。 或者，您可以在实时部署期间内外交换服务组件的多个实例，从而在部署周期内保持连续可用性（这对于分层体系结构模式来说很难做到）。</p>
+<p>需要考虑的最后一个考虑因素是，由于微服务架构模式是分布式架构，因此它也存在一些与事件驱动的架构模式相同的复杂问题，包括合同创建，维护和管理。 ，远程系统可用性以及远程访问身份验证和授权。</p>
+<h4 id="Pattern-Analysis-3"><a href="#Pattern-Analysis-3" class="headerlink" title="Pattern Analysis"></a>Pattern Analysis</h4><p>下表包含事件驱动架构模式的通用架构特征的评级和分析。 对每个特性的评级都基于该特性的自然趋势，即基于模式的典型实现以及该模式通常所知的能力。 有关此模式与本报告中其他模式的关系的并行比较，请参阅本报告末尾的附录A。</p>
+<h5 id="Overall-agility-3"><a href="#Overall-agility-3" class="headerlink" title="Overall agility"></a>Overall agility</h5><p>评分：高<br>分析：整体敏捷性是对不断变化的环境做出快速响应的能力。 由于是分开部署的单元的概念，通常将更改隔离到单个服务组件中，从而可以快速轻松地进行部署。 同样，使用此模式构建的应用程序往往非常松散地耦合在一起，这也有助于促进更改。</p>
+<h5 id="Ease-of-deployment-3"><a href="#Ease-of-deployment-3" class="headerlink" title="Ease of deployment"></a>Ease of deployment</h5><p>评分：高<br>分析：由于每个服务的细粒度和独立性，微服务架构下的服务独立部署性很高。 服务通常作为单独的软件单元进行部署，从而能够在白天或晚上的任何时间进行“热部署”。 总体部署风险也大大降低了，因为失败的部署可以更快的回滚，并且仅影响和正常部署上线的服务有依赖关系的服务的操作，其他没有依赖关系的操作可以正常执行。</p>
+<h5 id="Testability-3"><a href="#Testability-3" class="headerlink" title="Testability"></a>Testability</h5><p>评分：高<br>分析：由于将业务功能分离和隔离在独立的应用程序中，因此可以对测试进行范围划分，从而可以进行更有针对性的测试工作。 与针对整个整体应用程序的回归测试相比，针对特定服务组件的回归测试要容易得多，也更可行。 而且，由于这种模式中的服务组件是松散耦合的，因此从开发的角度来看，进行更改的可能性较小，这会破坏应用程序的另一部分，从而减轻了必须测试整个应用程序的测试负担。 一个小的变化。</p>
+<h5 id="Performance-3"><a href="#Performance-3" class="headerlink" title="Performance"></a>Performance</h5><p>评分：低<br>分析：虽然你可以通过在此模式下创建和实现性能很好的应用程序，但是由于微服务架构模式的分布式性质，因此，总体而言，此模式并不自然地适合于高性能应用程序。</p>
+<h5 id="Scalability-3"><a href="#Scalability-3" class="headerlink" title="Scalability"></a>Scalability</h5><p>评分：高<br>分析：由于将应用程序划分为单独部署的单元，因此每个服务组件都可以单独扩展，从而可以对应用程序进行微调。 例如，由于该功能的用户量少，可能不需要扩展该股票交易应用程序的管理区域，但是由于大多数交易应用程序为此需要高吞吐量，因此可能需要扩展该交易交易服务组件 功能。</p>
+<h5 id="Ease-of-development-3"><a href="#Ease-of-development-3" class="headerlink" title="Ease of development"></a>Ease of development</h5><p>评分：高<br>分析：由于功能被隔离到单独且不同的服务组件中，因此由于范围较小且隔离，开发变得更加容易。 开发人员对一个服务组件进行更改而影响其他服务组件的机会要少得多，从而减少了开发人员或开发团队之间所需的协调。</p>
+<h3 id="Space-Based-Architecture"><a href="#Space-Based-Architecture" class="headerlink" title="Space-Based Architecture"></a>Space-Based Architecture</h3><p>大多数基于Web的业务应用程序遵循相同的常规请求流：浏览器的请求命中Web服务器，然后是应用程序服务器，最后是数据库服务器。尽管此模式对一小部分用户适用，但随着用户负载的增加，瓶颈开始出现，首先在Web服务器层，然后在应用程序服务器层，最后在数据库服务器层。针对用户负载增加导致的瓶颈。通常的应对策略是扩展Web服务器。这是相对容易且便宜的，并且有时可以解决瓶颈问题。但是，在大多数用户负载较高的情况下，扩展Web服务器层只会将瓶颈移至应用程序服务器。扩展应用程序服务器可能比Web服务器更为复杂和昂贵，并且通常只是将瓶颈转移到数据库服务器上，而扩展规模甚至更加困难且昂贵。即使可以扩展数据库，最终最终还是一个三角形的拓扑，三角形的最宽部分是Web服务器（最容易扩展），最小的部分是数据库（最难扩展）。</p>
+<p>在任何具有大量并发用户，高负载的应用程序中，数据库通常是你可以同时处理多少个事务的最终限制因素。 尽管各种缓存技术和数据库扩展产品有助于解决这些问题，但事实是，针对极端负载扩展正常应用程序是非常困难的。</p>
+<p>基于空间的架构模式被设计用于专门解决应用的可伸缩性和并发性问题。 对于具有可变且不可预测的并发用户数量的应用程序，这也是一种有用的架构模式。 从结构上解决极端和可变的可伸缩性问题通常是比尝试扩展数据库或将缓存技术改造为不可扩展的体系结构更好的方法。</p>
+<h4 id="模式说明"><a href="#模式说明" class="headerlink" title="模式说明"></a>模式说明</h4><p>基于空间的架构模式（有时也称为云架构模式）使限制应用程序扩展的因素最小化。该模式的名称来自元组空间的概念，即分布式共享内存的概念。通过消除中央数据库约束，并通过使用基于内存的数据网格来实现高可伸缩性。应用程序数据保存在内存中，并在所有活动处理单元之间复制。随着用户负载的增加和减少，处理单元可以动态启动和关闭，从而解决了可变的可扩展性。因为没有中央数据库，所以消除了数据库瓶颈，在应用程序中提供了几乎无限的可伸缩性。</p>
+<p>符合此模式的大多数应用程序都是标准网站，这些网站从浏览器接收请求并执行某种操作。一个竞标拍卖网站就是一个很好的例子。该站点通过浏览器请求不断接收来自互联网用户的出价。该应用程序将接收特定项目的出价，记录带有时间戳的出价，并更新该项目的最新出价信息，然后将信息发送回浏览器。</p>
+<p>该体系结构模式中有两个主要组件：处理单元和虚拟化中间件。 图5-1说明了基本的基于空间的架构模式及其主要架构组件。</p>
+<p>处理单元组件包含应用程序组件（或应用程序组件的一部分）。 这包括基于Web的组件以及后端业务逻辑。 处理单元的内容根据应用程序的类型而有所不同-较小的基于Web的应用程序可能会部署到单个处理单元中，而较大的应用程序可能会基于应用程序将应用程序功能拆分为多个处理单元 应用程序的功能区域。 处理单元通常包含应用程序模块，以及内存中的数据网格和用于故障转移的可选异步持久性存储。 它还包含一个复制引擎，虚拟化的中间件使用该复制引擎将一个处理单元所做的数据更改复制到其他活动的处理单元。</p>
+<img src="/2020/01/31/Architecture-Patterns/space-based-architecture-pattern.png">
+<p>Figure 5-1. Space-based architecture pattern</p>
+<p>虚拟中间件组件处理内部管理和通信。 它包含控制数据同步和请求处理各个方面的组件。 虚拟化中间件中包括消息传递网格，数据网格，处理网格和Deployment Manager。 下一部分将详细介绍这些组件，这些组件可以定制编写或作为第三方产品购买。</p>
+<h4 id="Pattern-Dynamics"><a href="#Pattern-Dynamics" class="headerlink" title="Pattern Dynamics"></a>Pattern Dynamics</h4><p>基于空间的架构模式的神奇之处在于虚拟化的中间件组件和每个处理单元内包含的内存数据网格。 图5-2显示了典型的处理单元架构，其中包含应用程序模块，内存数据网格，用于故障转移的可选异步持久性存储以及数据复制引擎。</p>
+<p>虚拟化的中间件实质上是体系结构的控制器，并管理请求，会话，数据复制，分布式请求处理和流程单元部署。 虚拟化中间件中有四个主要的体系结构组件：<br>消息传递网格，数据网格，处理网格和部署管理器。</p>
+<img src="/2020/01/31/Architecture-Patterns/processing-unit-component.png">
+<p>Figure 5-2. Processing-unit component</p>
+<h5 id="Messaging-Grid"><a href="#Messaging-Grid" class="headerlink" title="Messaging Grid"></a>Messaging Grid</h5><p>图5-3中所示的消息传递网格管理输入请求和会话信息。 当请求进入虚拟化中间件组件时，消息传递网格组件确定哪些活动处理组件可用于接收请求，并将请求转发到那些处理单元之一。 消息传递网格的复杂性可以从简单的循环算法到更复杂的下一个可用算法，后者可以跟踪哪个处理单元正在处理哪个请求。</p>
+<h5 id="Data-Grid"><a href="#Data-Grid" class="headerlink" title="Data Grid"></a>Data Grid</h5><p>数据网格组件可能是此模式中最重要和至关重要的组件。 数据网格与每个处理单元中的数据复制引擎进行交互，以在发生数据更新时管理处理单元之间的数据复制。 由于消息传递网格可以将请求转发到任何可用的处理单元，因此每个处理单元在其内存数据网格中包含完全相同的数据至关重要。 尽管图5-4显示了处理单元之间的同步数据复制，但实际上这是异步并行且非常快速地完成的，有时会在几微秒（百万分之一秒）的时间内完成数据同步。</p>
+<img src="/2020/01/31/Architecture-Patterns/messaging-grid-component.png">
+<p>Figure 5-3. Messaging-grid component</p>
+<img src="/2020/01/31/Architecture-Patterns/data-grid-component.png">
+<p>Figure 5-4. data-grid component</p>
+<h5 id="Processing-Grid"><a href="#Processing-Grid" class="headerlink" title="Processing Grid"></a>Processing Grid</h5><p>如图5-5所示，处理网格是虚拟化中间件中的可选组件，当存在多个处理单元（每个处理一部分应用程序）时，该组件可管理分布式请求处理。 如果有要求在处理单元类型（例如，订单处理单元和客户处理单元）之间进行协调的请求，则处理网格在这两个处理单元之间中介和协调请求。</p>
+<img src="/2020/01/31/Architecture-Patterns/data-grid-component.png">
+<p>Figure 5-5. Processing-grid component</p>
+<h4 id="Deployment-Manager"><a href="#Deployment-Manager" class="headerlink" title="Deployment Manager"></a>Deployment Manager</h4><p>部署管理器组件根据负载条件管理处理单元的动态启动和关闭。 该组件持续监视响应时间和用户负载，并在负载增加时启动新的处理单元，并在负载减少时关闭处理单元。 它是实现应用程序中可变的可伸缩性需求的关键组件。</p>
+<h4 id="Considerations-4"><a href="#Considerations-4" class="headerlink" title="Considerations"></a>Considerations</h4><p>基于空间的体系结构模式是一种复杂且昂贵的实现模式。 对于负载可变的较小的基于Web的应用程序（例如社交媒体网站，竞标和拍卖网站），这是一个不错的体系结构选择。 但是，它不适用于具有大量操作数据的传统大规模关系数据库应用程序。</p>
+<p>尽管基于空间的体系结构模式不需要集中的数据存储，但是通常会包含一个空间来执行初始内存数据网格加载并异步保存处理单元进行的数据更新。 创建单独的分区来隔离易失性和广泛使用的事务数据与非活动数据也是一种常见的做法，以减少每个处理单元中内存数据网格的内存占用。</p>
+<p>重要的是要注意，虽然此模式的替代名称是基于云的体系结构，但处理单元（以及虚拟化中间件）不必驻留在基于云的托管服务或PaaS（平台作为 服务）。 它可以轻松地驻留在本地服务器上，这就是我更喜欢“基于空间的体系结构”的原因之一。<br>从产品实施的角度来看，您可以通过第三方产品（例如GemFire，JavaSpaces，GigaSpaces，IBM Object Grid，nCache和Oracle Coherence）以这种模式实施许多架构组件。 由于这种模式的实现在成本和功能（尤其是数据复制时间）方面差异很大，因此，作为一名架构师，您应该首先确定自己的特定目标和需求，然后再进行产品选择。</p>
+<h4 id="Pattern-Analysis-4"><a href="#Pattern-Analysis-4" class="headerlink" title="Pattern Analysis"></a>Pattern Analysis</h4><p>下表包含事件驱动架构模式的通用架构特征的评级和分析。 对每个特性的评级都基于该特性的自然趋势，即基于模式的典型实现以及该模式通常所知的能力。 有关此模式与本报告中其他模式的关系的并行比较，请参阅本报告末尾的附录A。</p>
+<h5 id="Overall-agility-4"><a href="#Overall-agility-4" class="headerlink" title="Overall agility"></a>Overall agility</h5><p>评分：高<br>分析：整体敏捷性是对不断变化的环境做出快速响应的能力。 因为可以快速启动和关闭处理单元（应用程序的部署实例），所以应用程序对与用户负载增加或减少有关的更改（环境更改）反应良好。<br>使用这种模式创建的体系结构通常会因小应用程序大小和模式的动态性质而对编码更改做出很好的响应。</p>
+<h5 id="Ease-of-deployment-4"><a href="#Ease-of-deployment-4" class="headerlink" title="Ease of deployment"></a>Ease of deployment</h5><p>评分：高<br>分析：尽管基于空间的体系结构通常不分离和分布，但它们是动态的，并且基于云的复杂工具允许将应用程序轻松“推送”到服务器，从而简化了部署。</p>
+<h5 id="Testability-4"><a href="#Testability-4" class="headerlink" title="Testability"></a>Testability</h5><p>评分：低<br>分析：在测试环境中实现非常高的用户负载既昂贵又耗时，从而难以测试应用程序的可伸缩性方面。</p>
+<h5 id="Performance-4"><a href="#Performance-4" class="headerlink" title="Performance"></a>Performance</h5><p>评分：高<br>分析：通过内存中的数据访问和此模式中内置的缓存机制可实现高性能。</p>
+<h5 id="Scalability-4"><a href="#Scalability-4" class="headerlink" title="Scalability"></a>Scalability</h5><p>评分：高<br>分析：高可伸缩性来自于对集中式数据库几乎没有依赖性的事实，因此从本质上消除了可伸缩性方程式中的这一限制瓶颈。</p>
+<h5 id="Ease-of-development-4"><a href="#Ease-of-development-4" class="headerlink" title="Ease of development"></a>Ease of development</h5><p>评分：低<br>分析：复杂的缓存和内存中的数据网格产品使这种模式的开发相对复杂，这主要是由于对创建这种类型的架构所用的工具和产品缺乏了解。 此外，在开发这些类型的体系结构时必须格外小心，以确保源代码中的任何内容都不会影响性能和可伸缩性。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2020/01/31/Architecture-Patterns.html">架构模式</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">kongwenqiang</a></p>
+        <p><span>发布时间:</span>2020-01-31, 14:06:58</p>
+        <p><span>最后更新:</span>2020-02-01, 18:50:21</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2020/01/31/Architecture-Patterns.html" title="架构模式">https://leokongwq.github.io/2020/01/31/Architecture-Patterns.html</a>
+            <span class="copy-path" data-clipboard-text="原文: https://leokongwq.github.io/2020/01/31/Architecture-Patterns.html　　作者: kongwenqiang" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2020/02/05/async-to-sync-call.html">
+                    异步调用转为同步
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2019/12/29/tcp-ip-summary-chapter-one.html">
+                    数据是如何到达目标主机的
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Layered-Architecture"><span class="toc-number">1.</span> <span class="toc-text">Layered Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Pattern-Description"><span class="toc-number">1.1.</span> <span class="toc-text">Pattern Description</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Key-Concepts"><span class="toc-number">1.2.</span> <span class="toc-text">Key Concepts</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Pattern-Example"><span class="toc-number">1.3.</span> <span class="toc-text">Pattern Example</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Considerations"><span class="toc-number">1.4.</span> <span class="toc-text">Considerations</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Pattern-Analysis"><span class="toc-number">1.5.</span> <span class="toc-text">Pattern Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Overall-agility"><span class="toc-number">1.5.1.</span> <span class="toc-text">Overall agility</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Ease-of-deployment"><span class="toc-number">1.5.2.</span> <span class="toc-text">Ease of deployment</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Testability"><span class="toc-number">1.5.3.</span> <span class="toc-text">Testability</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Performance"><span class="toc-number">1.5.4.</span> <span class="toc-text">Performance</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Scalability"><span class="toc-number">1.5.5.</span> <span class="toc-text">Scalability</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Ease-of-development"><span class="toc-number">1.5.6.</span> <span class="toc-text">Ease of development</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Event-Driven-Architecture"><span class="toc-number">2.</span> <span class="toc-text">Event-Driven-Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Mediator-Topology"><span class="toc-number">2.1.</span> <span class="toc-text">Mediator Topology</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Broker-Topology"><span class="toc-number">2.2.</span> <span class="toc-text">Broker Topology</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Considerations-1"><span class="toc-number">2.3.</span> <span class="toc-text">Considerations</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Pattern-Analysis-1"><span class="toc-number">2.4.</span> <span class="toc-text">Pattern Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Overall-agility-1"><span class="toc-number">2.4.1.</span> <span class="toc-text">Overall agility</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Ease-of-deployment-1"><span class="toc-number">2.5.</span> <span class="toc-text">Ease of deployment</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Testability-1"><span class="toc-number">2.5.1.</span> <span class="toc-text">Testability</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Performance-1"><span class="toc-number">2.5.2.</span> <span class="toc-text">Performance</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Scalability-1"><span class="toc-number">2.5.3.</span> <span class="toc-text">Scalability</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Ease-of-development-1"><span class="toc-number">2.5.4.</span> <span class="toc-text">Ease of development</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Microkernel-Architecture"><span class="toc-number">3.</span> <span class="toc-text">Microkernel Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Pattern-Description-1"><span class="toc-number">3.1.</span> <span class="toc-text">Pattern Description</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Pattern-Examples"><span class="toc-number">3.2.</span> <span class="toc-text">Pattern Examples</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Considerations-2"><span class="toc-number">3.3.</span> <span class="toc-text">Considerations</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Pattern-Analysis-2"><span class="toc-number">3.4.</span> <span class="toc-text">Pattern Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Overall-agility-2"><span class="toc-number">3.4.1.</span> <span class="toc-text">Overall agility</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Ease-of-deployment-2"><span class="toc-number">3.4.2.</span> <span class="toc-text">Ease of deployment</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Testability-2"><span class="toc-number">3.4.3.</span> <span class="toc-text">Testability</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Performance-2"><span class="toc-number">3.4.4.</span> <span class="toc-text">Performance</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Scalability-2"><span class="toc-number">3.4.5.</span> <span class="toc-text">Scalability</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Ease-of-development-2"><span class="toc-number">3.4.6.</span> <span class="toc-text">Ease of development</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Microservices-Architecture-Pattern"><span class="toc-number">4.</span> <span class="toc-text">Microservices Architecture Pattern</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Pattern-Description-2"><span class="toc-number">4.1.</span> <span class="toc-text">Pattern Description</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Pattern-Topologies"><span class="toc-number">4.2.</span> <span class="toc-text">Pattern Topologies</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Avoid-Dependencies-and-Orchestration"><span class="toc-number">4.3.</span> <span class="toc-text">Avoid Dependencies and Orchestration</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Considerations-3"><span class="toc-number">4.4.</span> <span class="toc-text">Considerations</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Pattern-Analysis-3"><span class="toc-number">4.5.</span> <span class="toc-text">Pattern Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Overall-agility-3"><span class="toc-number">4.5.1.</span> <span class="toc-text">Overall agility</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Ease-of-deployment-3"><span class="toc-number">4.5.2.</span> <span class="toc-text">Ease of deployment</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Testability-3"><span class="toc-number">4.5.3.</span> <span class="toc-text">Testability</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Performance-3"><span class="toc-number">4.5.4.</span> <span class="toc-text">Performance</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Scalability-3"><span class="toc-number">4.5.5.</span> <span class="toc-text">Scalability</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Ease-of-development-3"><span class="toc-number">4.5.6.</span> <span class="toc-text">Ease of development</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Space-Based-Architecture"><span class="toc-number">5.</span> <span class="toc-text">Space-Based Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#模式说明"><span class="toc-number">5.1.</span> <span class="toc-text">模式说明</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Pattern-Dynamics"><span class="toc-number">5.2.</span> <span class="toc-text">Pattern Dynamics</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Messaging-Grid"><span class="toc-number">5.2.1.</span> <span class="toc-text">Messaging Grid</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Data-Grid"><span class="toc-number">5.2.2.</span> <span class="toc-text">Data Grid</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Processing-Grid"><span class="toc-number">5.2.3.</span> <span class="toc-text">Processing Grid</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Deployment-Manager"><span class="toc-number">5.3.</span> <span class="toc-text">Deployment Manager</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Considerations-4"><span class="toc-number">5.4.</span> <span class="toc-text">Considerations</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Pattern-Analysis-4"><span class="toc-number">5.5.</span> <span class="toc-text">Pattern Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Overall-agility-4"><span class="toc-number">5.5.1.</span> <span class="toc-text">Overall agility</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Ease-of-deployment-4"><span class="toc-number">5.5.2.</span> <span class="toc-text">Ease of deployment</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Testability-4"><span class="toc-number">5.5.3.</span> <span class="toc-text">Testability</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Performance-4"><span class="toc-number">5.5.4.</span> <span class="toc-text">Performance</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Scalability-4"><span class="toc-number">5.5.5.</span> <span class="toc-text">Scalability</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Ease-of-development-4"><span class="toc-number">5.5.6.</span> <span class="toc-text">Ease of development</span></a></li></ol></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"架构模式　| 戒修-沉迷技术的小沙弥　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js'];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+        <section id="comments">
+    <style> aside.comment-bar { margin: auto 30px; }</style>
+    <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function(){
+            this.page.url = 'https://leokongwq.github.io/2020/01/31/Architecture-Patterns.html';
+            this.page.identifier = '2020/01/31/Architecture-Patterns.html';
+        };
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = '//leokongwq.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        }
+    </script>
+    
+    <script> loadComment(); </script>
+
+</section>
+
+
+    
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2020/02/05/async-to-sync-call.html" title="上一篇: 异步调用转为同步">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2019/12/29/tcp-ip-summary-chapter-one.html" title="下一篇: 数据是如何到达目标主机的">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2020/02/05/async-to-sync-call.html">异步调用转为同步</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/31/Architecture-Patterns.html">架构模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/29/tcp-ip-summary-chapter-one.html">数据是如何到达目标主机的</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/14/logback-best-practise.html">logback最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/14/java-object-memeory-layout.html">Java 对象内存布局</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/13/mysql-join-summary.html">MySQL中join操作总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/30/all-timeout-summary.html">关于timeout你必须了解</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/28/RockeqMQ-summary.html">RocketMQ学习总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/12/elastic-job-summary.html">elastic-job学习总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/13/HttpMessageConverter总结.html">HttpMessageConverter总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/09/12/java-mmap.html">java 中的内存映射</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/28/springboot-jms.html">springboot配置activemq</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/25/java-agent-summary.html">java agent技术学习总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/08/10/hystrix-summary.html">hystrix学习总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/04/17/spring-spel.html">spring SpEL表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/01/05/mysql-null-column.html">mysql中字段究竟该不该为null</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/12/21/geektime-mysql-learn.html">极客时间mysql学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/12/17/geektime-algo-summary.html">极客时间-算法-学习总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/12/06/mockito-learn.html">mockito学习总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/11/24/mysql-show-profile.html">mysql profile 学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/11/21/springboot-resttempate-timout.html">RestTemplate超时引发的血案</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/11/17/springboot-servlet3-component.html">springboot 之 Servlet3 web组件</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/11/16/springboot-ConfigurationProperties.html">springboot 之 ConfigurationProperties</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/11/07/struts2-with-jdk8.html">JDK8环境下使用struts2</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/11/03/how-to-make-maven-faster.html">maven加速</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/29/consul-command-intro.html">consul 命令介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/15/how-to-process-302-in-j2ee-correctly.html">servlet如何正确处理302跳转</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/08/consul-acl.html">consul之acl配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/08/spring-cloud-consul.html">springcloud服务注册之consul</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/06/27/activemq-deleyQueue.html">ActiveMQ 延迟消息</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/06/17/zookeeper-curator.html">zookeeper使用之curator</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/06/01/distributed-system-consitency.html">分布式系统一致性总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/30/spring-RestTemplate.html">spring中RestTemplate简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/28/java-JVM-shutdown.html">Java 虚拟机的关机方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/24/zookeeper-learning-summary.html">Zookeeper简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/24/common-dns-records.html">常见DNS记录解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/22/json-web-token.html">JWT简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/19/activemq-redelivery-policy-config.html">ActiveMQ 消息重发策略</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/15/rest-version.html">REST API 版本化</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/15/spring-boot-deploy.html">SpringBoot应用部署模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/12/spring-rest-controller.html">基于Spring构建RESTFUL风格的controller</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/12/spring-cache.html">spring对缓存的支持及相关注解说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/23/computer-booting-linux.html">linux系统如何启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/21/computer-booting.html">计算机是如何启动的</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/06/spring-extension-point-autoconfig-summary.html">spring扩展点及springboot自动配置总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/01/kafka-send-msg-profile.html">kafka发送消息过程分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/28/kafka-consume-msg-profile.html">kafka 消费消息过程分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/12/openresy-lua-image-server.html">基于Openresy的图片服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/06/linux-file-system-schedule.html">Linux文件系统调用算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/31/openresty-health-check-dynamic-up-down.html">基于openresty的后端应用健康检查-动态上下线</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/tcp-state-transfer-diagram.html">TCP状态转化总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/27/openresty-dynamic-upstream.html">openresty动态upstream实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/19/distribute-lock-some-way.html">分布式锁的几种实现方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/19/distribute-system-consistent.html">分布式系统一致性</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/kotlin-coroutine-learn.html">kotlin之coroutine学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/mac-autostart.html">mac上禁止jenkins自启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/01/gossip-intro.html">Gossip算法介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/01/consul-vs-other-software.html">consul和其它软件的比较</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/31/consul-quick-start.html">consul快速启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/22/computer-science-bus-arbitration.html">CPU总线仲裁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/21/java-agent-instrumentation.html">java Instrumentation 和 Agent</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/21/activemq-monitor-hawtio.html">activemq监控之hawtio</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/20/centos-crond.html">centos下安装crond</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/16/vertx-async-callback-hell.html">vert.x异步回调地狱处理方式总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/15/vertx-Future.html">vertx-Future</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/06/vertx-cluster.html">vertx集群模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/06/microservices-gateway.html">微服务之网关</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/vertx-command-line-options.html">vertx命令行选项解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/04/vertx-web-BodyHandler.html">vert.x web开发之BodyHandler</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/02/vertx-web-global-exception.html">vertx中web全局异常处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-vertx-jdbc-client.html">vertx中vertx-jdbc-client使用问题总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-jdbc-datasource.html">vertx对jdbc数据源的支持</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/01/vertx-command-run.html">vert.x run 命令解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/30/java8-CompletableFuture-1.html">java8中CompletableFuture解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/vertx-http-server-analyze.html">vertx创建http服务器分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/http-content-type.html">http协议之content-type</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/22/vertx-Vertx.html">vert.x之Vertx类解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/21/vertx-web-route.html">vert.x web开发之route</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/21/vertx-web-router.html">vert.x web开发之router</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-cache.html">配置 Vert.x 缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-Launcher.html">vertx-启动器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-access-filesystem.html">vertx-访问文件系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-cluster-lock-counter.html">vertx-集群范围锁-计数器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/18/vertx-share-data.html">vertx-共享数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-tcp.html">vertx编程tcp服务端和客户端</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-http.html">vertx编程http服务端和客户端</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-buffer.html">vertx中的buffer</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-json.html">vertx中的json</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-event-bus.html">vertx-事件总线</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-timer.html">vertx-执行周期性/延迟性操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-context.html">vertx-context</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-verticle.html">vertx-verticle介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/17/vertx-quickstart.html">vert.x入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/10/mysql-tools-code.html">mysql常用工具SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/06/maven-useful-slices.html">maven使用知识汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/21/mysql-read-only-transaction.html">mysql只读事务解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/30/linux-clean-dns-cache.html">Linux中如何清除DNS缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/linux-disk-raid.html">linux磁盘阵列简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/26/linux-centos7-rc-local.html">centos7中rc.local不起作用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/24/understanding-maven-snapshot.html">理解maven中SNAPSHOT版本的作用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/22/python-build-in-chapter-one.html">python内置函数-第一篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/22/linux-kill-parent-and-child-process.html">linux中kill主进程和所有子进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/21/why-enum-singleton-are-serialization-safe.html">为什么用枚举实现的单例模式可以防止反序列化？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/computer-how-float-stored.html">浮点数在计算机中是如何存储的？</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/17/mysql-data-types-date-time.html">mysql数据类型-日期&时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/16/mysql-data-types-numeric.html">mysql数据类型-数字类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/15/mysql-data-types-set.html">mysql数据类型-集合</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/15/mysql-data-types-enum.html">mysql数据类型-枚举类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/mysql-data-types-string.html">mysql数据类型-字符串类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/11/python-multiprocessing.html">python多进程简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/07/python-package.html">python包机制简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/05/python-file-read.html">python文件读写的几种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/24/python-multi-thread.html">python中的多线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/23/java-synchronized-detail.html">深入分析synchronized的实现原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/22/python-useful-codes.html">Python常用的代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/21/java-baised-locking.html">java中的偏向锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/06/mysql-deadlock-detection.html">mysql检测和处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/06/mysql-timeout.html">mysql中重要超时处理机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/22/maven-resource-plugin.html">maven-resource-plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/19/java-Security-Illegal-key-size.html">java-Security-Illegal-key-size</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/19/linux-find.html">linux find使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/spring-MessageConverter.html">spring中HttpMessageConverter详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/mysql-transaction.html">mysql和事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/11/mysql-locks.html">mysql中的锁</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/linux-task-on-boot.html">linux开机启动任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/28/springboot-autoconfiguration.html">SpringBoot自动配置分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/mysql-batch-update-column.html">mysql批量修改列类型</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/19/mongodb-enable-query-log.html">mongodb开启查询日志</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/18/best-practices-for-a-pragmatic-restful-api.html">RESTful API 设计最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/18/rest-introduce.html">rest架构介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/springboot-mongo.html">springboot-mongo</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/16/idea-jvm-options.html">mac下idea虚拟机参数设置</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/12/linux-tool-traceroute.html">linux工具之traceroute</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/10/curl-learn.html">curl学习笔记</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/28/maven-command-line-parameters.html">maven  命令行参数解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/08/java-enum-abstractMethod.html">java中的枚举是否可以有抽象方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/spring-ExceptionResolver.html">spring错误处理之HandlerExceptionResolver</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/07/spring-ErrorPageFilter.html">SpringBoot异常处理之ErrorPageFilter</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/05/spring-aop-MethodAnnotation.html">spring中AOP获取方法上的注解信息</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/02/spring-expandPoint.html">spring扩展点整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/29/maven-dependency-scope.html">maven jar包依赖范围总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/25/java-web-exception.html">java web 开发异常处理总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/springboot-tomcat.html">springboot发布到tomcat</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql-date-datetime-timestamp.html">mysql中date，datetime，timestamp的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/13/raft-protocol.html">raft协议简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/13/js-cross-domain.html">js跨域解决方案详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/28/java-netty-idleStateHandler.html">netty如何实现心跳检查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/28/why-oauth2-use-authorization-code.html">为什么在oauth2认证中需要使用授权码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/27/java-Executors.html">java线程池工具类Executors</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/27/mq-kafka-producer-partitioner.html">kafka发送消息分区选择策略详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-thread-dump.html">java中生成线程堆栈</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-Thread-state.html">java线程生命周期和状态</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-Thread-join.html">java中线程join方法的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/26/java-ThreadPoolExecutor-RejectedExecutionHandler.html">java线程池-RejectedExecutionHandler</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-memorymapped-file-and-io.html">java中内存映射文件和IO</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-difference-between-direct-non-direct-mapped-bytebuffer-nio.html">direct, non-direct, mapped bytebuffer区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-difference-between-stack-and-heap.html">java中栈和堆的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-how-to-create-immutable-class.html">java中如何创建不可变对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-interview-questions-answers-from-last-5-years.html">过去5年Java面试题精选</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/25/java-why-string-is-immutable-or-final.html">为什么在java中String是不可变或final</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-lock-and-condition-example-producer-consumer.html">java中使用锁和条件对象实现生产者-消费者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-why-wait-notify-called-in-synchronized-block.html">为什么wait和notify必须在同步方法或同步块中调用</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/java-why-java-not-support-multi-inheritances.html">为何java不支持多继承</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql-locks-intro.html">mysql锁介绍（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-top10-Tricky-questions.html">诡异的java面试题TOP10</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-why-wait-notify-and-notifyall-defined-in-object.html">java-为什么wait，notify和notifyall定义在Object中</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/22/java-notify-notifyall.html">java中notify和notifyall的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/18/java-xml-parser.html">java中xml解析器介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/smooth-online-offline-service.html">服务节点平滑上下线</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/07/mq-kafka-blogs.html">kafka资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/mq-kafka-tutorial.html">kafka入门教程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/microservice-links.html">微服务资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/04/ddd-books.html">领域驱动设计书单</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/jms-message-order.html">jms-如何保证消息的顺序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/22/golang-param-pass-value-or-point.html">值传递, 指针传递 这是一个问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/21/golang-how-to-write-go-code.html">如何开发GO代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BigData-summary.html">大数据处理总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-HashSearch.html">algo-HashSearch</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BlockSearch.html">分块查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BinaryTreeSearch.html">二叉排序树查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/algo-BinarySearch.html">二分查找</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/20/SearchAlgo.html">查找算法总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-HeapSort.html">堆排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-QuickSort.html">快速排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-InsertionSort.html">插入排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-mergesort.html">归并排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-bucketsort.html">桶排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/19/algo-bubblesort.html">冒泡排序</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/17/java8-CompletableFuture.html">java8中CompletableFuture详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/17/java-zookeeper-curator.html">zookeeper客户端之curator</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/16/Java-PriorityQueue.html">Java优先级队列PriorityQueue</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/13/java-LockSupport.html">java-LockSupport详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/mq-rocketmq-cluster.html">rocketmq集群搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/mq-rocketmq-quickstart.html">rocketmq快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/12/linux-zero-copy.html">linux零拷贝原理（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/11/java-jdk9-new-features.html">java-jdk9-new-features</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/java-Experienced-Developer-Teach-You-Five-Things.html">经验丰富的Java开发者教给你的五件事</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/mq-pages.html">MQ资料汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/10/DTP-best-practice.html">分布式事务典型处理方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/spring-xa-transactions-using.html">使用spring处理分布式事务</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql-text-defaultValue.html">mysql-text-defaultValue</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-understanding-jta.html">深入理解JTA事务处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-jta-deeplearning.html">JTA 深度历险 - 原理与实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/03/transaction-management-under-j2ee.html">J2EE事务管理详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/02/java-design-pattern-summary.html">java-design_pattern-summary</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/02/spring-DTP-patterns.html">spring处理分布式事务（使用或不使用XA）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/01/mysql-master-slave-thinking.html">mysql-master-slave-thinking</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-finally.html">java魔法之finally</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-0xCAFEBABE.html">java魔法之0xCAFEBABE</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-java-dot-net-dot-url.html">java魔法之java.net.Url</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-magic-unsafe.html">java魔法之unsafe</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/31/java-AtomicLong.html">java中原子变量之AtomicLong</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/30/distribute-transaction-manage.html">分布式系统的事务处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/30/the-pattern-updateCache.html">缓存更新的套路</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/29/java8-lambda.html">java8 lambda表达式详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/spring-annotation-value.html">spring中注解@Value解密</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/spring-PropertyPlaceholderConfigurer.html">spring扩展点之PropertyPlaceholderConfigurer</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/28/mac-install-python-mysql.html">mac上安装Python-Mysql</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/27/mysql-mofidy-charset.html">mysql修改表-字段-库的字符集</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/25/java8-stream.html">java8-stream</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/23/java8-optional.html">java8-optional</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/23/java-8-features-tutorial.html">java-8-features-tutorial</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/06/java-DesignPatterns-flyweight.html">java-设计模式之-享元模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/05/java-Design-Patterns-builder.html">java-设计模式之-建造者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/03/java-DesignPatterns-proxy.html">java-设计模式之-代理模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-adapter.html">java-设计模式之-适配器模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/golang-execute-file-path.html">java-设计模式之-外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-bridge.html">java-设计模式之-桥接模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/01/java-DesignPatterns-facade.html">java-设计模式之-外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/28/java-DesignPatterns-command.html">java-设计模式之-命令模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/26/java-DesignPatterns-abstractFactory.html">java-设计模式之-抽象工厂模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/26/java-DesignPatterns-factoryMethod.html">java-设计模式之-工程方法模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-simpleFactory.html">java-设计模式之-简单工程模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-decorator.html">java-设计模式之-装饰者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/nginx-cache.html">nginx缓存功能介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/25/java-DesignPatterns-observer.html">java设计模式之-观察者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/nginx-rewrite.html">nginx配置rewrite指令详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-singleton.html">java实现单例模式的几种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-Singleton.html">设计模式之-单例模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-UML.html">设计模式之-UML类图快速入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/23/java-DesignPatterns-Strategy.html">设计模式之-策略模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/22/java-HashMap-MaxmumEntries.html">java中HashMap的最大容量解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/18/algo-stack-calculateExp.html">用栈实现后缀表达式的计算</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/16/algo-prime-number.html">素数相关</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/16/algo-gcd.html">求两个整数的最大公约数</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/java-HowThreadLocalWork.html">ThreadLocal正解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/java-Reference.html">java Reference 详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/15/SpringMVC-annotationDriven.html">mvc:annotation-driver</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/11/golang-effective-go.html">golang-effective-go</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/10/openresty-lua-nginx-module.html">openresty-lua-nginx-module</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/09/linux-max-fd.html">linux中最大文件描述符数</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/09/the-difference-between-301-and-302.html">HTTP301和302的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/nodejs-heapdump.html">nodejs调试工具之heapdump简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/nodejs-gc.html">Node.js 调试 GC 以及内存暴涨的分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/07/nodejs-debug.html">NodeJS的代码调试和性能调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/07/siege-introduce.html">压测工具siege简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/06/binary-search-tree.html">二叉查找树</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/full-print-BinaryTree.html">full-print-BinaryTree</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/best-10-practice-from-linkedin.html">LinkedIn关于提高Node.JS服务的10个建议</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/distributed-id-generation.html">5分钟了解分布式ID生成方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/27/java-LinkedList.html">java-LinkedList实现解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/java-LinkedHashMap.html">java-LinkedHashMap知识点汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/java-HashMap.html">java-HashMap知识点汇总</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/japanese-50-yin.html">日语50音图学习</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/25/linux-netcat.html">Linux Netcat 命令用法简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/24/linux-backlog-maxconn.html">linux网络编程backlog和somaxconn</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/21/npm-11-useful-tips.html">npm11个提供工作效率的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/linux-network-io.html">Linux IO模式及 select、poll、epoll详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/linux-io-epoll.html">Linux下的I/O复用与epoll详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/mac-osx-kernel.html">mac-osx-kernel</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/20/java-real-data-type-size.html">Java中数据类型真实的内存占用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/19/vim-fileencoding.html">vim-文件编码</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-exports-and-module-expots.html">nodejs中exports和module.expots异同</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-os.html">nodejs模块-os模块</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-path.html">nodejs模块path简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/Fibers-and-Threads-in-node.html">Fibers-and-Threads-in-node</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-querystring.html">nodejs模块之querystring</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodejs-module-Readline.html">nodejs模块之readline</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/jquery-selector.html">jquery选择器详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/pm2-readme.html">pm2使用简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/fastjson-use.html">fastjson使用简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/character-set.html">字符集详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/linux-hostname.html">linux命令hostname详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/linux-delete-file-not-free-the-space.html">linux删除文件但磁盘空间不释放</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/nodeJs-module-async.html">nodeJs解决异步回调方案之module-async</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/redis-sentinel.html">redis哨兵功能简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/http-cache.html">http缓存详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-import.html">golang中import语句详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-thread-profile.html">java线程必备知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/nodejs-globals.html">Nodejs全局对象</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-flag.html">golang命令行参数解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-file.html">golang文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-userinfo.html">golang 用户信息获取</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/golang-time.html">golang时间操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-BlockingQueue.html">Java的BlockingQueue详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/java-runnable-callable-future.html">Java中的Runnable、Callable、Future、FutureTask的区别与示例</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/java-Queue.html">java队列Queue接口详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/strace-learn.html">手把手教你用Strace诊断问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/too-many-open-files.html">too-many-open-files</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/linux-strace.html">linux工具-strace</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/http-tranfer-encoding.html">HTTP 协议中的 Transfer-Encoding</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/lombook.html">lombook工具包简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-file-size.html">golang编译后文件编写的技巧</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-cross-compile.html">golang交叉编译</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-string.html">Go性能优化技巧-string</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-array.html">Go性能优化技巧-array</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-performance-optimize-map.html">Go性能优化技巧-map</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-defer.html">golang之defer简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-chan.html">golang之chan简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/golang-build-version.html">golang自动生成版本信息</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/15/how-to-get-goroutine-id.html">如何获取goroutine的id</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/fifty-common-Mistakes-for-New-Golang-Devs.html">50个go新手开发常见的错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/ten-best-practise-for-java-exception.html">java异常处理最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-error-handler.html">golang错误处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/seven-things-about-golang.html">关于go你必须知道的7件事</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-tools-build.html">go自带工具build的用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/golang-gdb-debug.html">golang程序GDB调试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/hexo-post-asset-folder-html.html">hexo使用post_asset_folder功能文章链接不能以html结尾</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/14/hexo-codeblock-multiblank.html">hexo代码块前后空白行问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/java-serialization-deepknow.html">java-serialization-deepknow</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-unsafe.html">golang的unsafe包简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/IDCardNo-algo.html">身份证号验证算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/byte-order.html">网络字节序</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-testing.html">golang代码测试</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/linux-tool-dig.html">linux-tool-dig</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-md5.html">golang计算字符串MD5</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-time-format.html">golang时间格式化</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/13/golang-open-browser.html">golang打开系统浏览器</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/golang-user-define-json-UnmarshalJSON.html">golang进行json数据的解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/mq-compare.html">常见MQ产品比较</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-join-point-ofTwoIntersectList.html">查找无环单链表的相交节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/isIntersectWithLoop.html">单链表-链表有环如何判断相交</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-the-join-point-in-list.html">找出单链表有环的入口节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/list-hasCircle.html">判断单链表是否有环</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-mid-post-in-list.html">找出单链表的中间节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/find-the-kth-node-in-list.html">找出单链表倒数第K个节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/reverse-one-direction-list.html">单链表逆转</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/delete-listNode-in-O1.html">O(1)时间内删除链表节点</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/reverse-print-list.html">单链表的逆序打印</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/merge-two-sorted-list.html">合并两个升序的单向链表</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/print-NxN-matrix.html">打印NxN矩阵的对角线</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/service-discovery.html">服务发现介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/web-reply-attack.html">web重放攻击介绍和防御方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/process-exception-in-web-dev.html">web开发异常统一处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/maven-test.html">maven-surefire-plugin简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/spring-aop-pointcut-expression.html">spring aop 切点表达式介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/12/avoid-NullPointException-Java.html">java程序避免NullPointException最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/11/jvm-codecache.html">JVM-codecache内存区域介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/13/logstash-input-file.html">logstash-input-file</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/12/when-to-use-hadoop-toolbox.html">Hadoop-Hbase-Hive-Pig关系</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/14/JVM-Tools.html">有用的JVM工具简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/12/IllegalMonitorStateException.html">诡异的异常IllegalMonitorStateException</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/11/HowMysqlLoadDataWorks.html">mysql load data infile 简介</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/10/why-not-use-finalize.html">为什么不使用finalize</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/14/mac-sshd.html">mac-sshd</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/java-Guava-Joiner.html">Guava-Joiner</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/java-Guava-Splitor.html">Guava-Spilitor</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/22/theDayEndOfJd.html">朝林最后一天</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/17/howJekyllWorks.html">How Jekyll works</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/17/springMVCOutlines.html">Spring MVC HandlerMapping HandlerAdapter</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/JVMGcAlgorithm.html">JVM垃圾收集算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/JVMOptimize.html">JVM常用参数和调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/16/githubblog.html">Jekyll 快速入门</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2020 kongwenqiang
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style="display:none">
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style="display:none">
+                        <span id="page-visit" title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<script>
+    var inputArea = document.querySelector("#local-search-input");
+    var getSearchFile = function(){
+        var path = "/search.xml";
+        alert(11111);
+        searchFunc(path, 'local-search-input', 'local-search-result');
+    }
+    inputArea.onfocus = function(){
+      getSearchFile()
+    }
+
+    var $resetButton = $("#search-form .fa-times");
+
+    var $resultArea = $("#local-search-result");
+    inputArea.oninput = function(){ $resetButton.show(); }
+
+    resetSearch = function(){
+        $resultArea.html("");
+        document.querySelector("#search-form").reset();
+        $resetButton.hide();
+        $(".no-result").hide();
+    }
+
+    inputArea.onkeydown = function(){
+        if(event.keyCode==13) {
+          return false
+        }
+    }
+
+    $resultArea.bind("DOMNodeRemoved DOMNodeInserted", function(e) {
+        if (!$(e.target).text()) {
+            $(".no-result").show(200);
+        } else {
+          $(".no-result").hide();
+        }
+    })
+
+</script>
+
+  </div>
+</body>
+</html>

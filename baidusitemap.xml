@@ -4,6 +4,77 @@
 
     
   <url>
+    <loc>https://leokongwq.github.io/2020/02/05/async-to-sync-call.html</loc>
+    <lastmod>2020-02-05T11:05:07.957Z</lastmod>
+    <data>
+        <display>
+        <title>异步调用转为同步</title>
+        <pubTime>2020-02-05T05:41:21.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://leokongwq.github.io/2020/01/31/Architecture-Patterns.html</loc>
+    <lastmod>2020-02-01T10:50:21.282Z</lastmod>
+    <data>
+        <display>
+        <title>架构模式</title>
+        <pubTime>2020-01-31T06:06:58.000Z</pubTime>
+        
+        <tag>架构</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://leokongwq.github.io/2019/12/29/tcp-ip-summary-chapter-one.html</loc>
+    <lastmod>2019-12-29T06:14:02.096Z</lastmod>
+    <data>
+        <display>
+        <title>数据是如何到达目标主机的</title>
+        <pubTime>2019-12-29T03:06:09.000Z</pubTime>
+        
+        <tag>TCP/IP</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://leokongwq.github.io/2019/12/14/logback-best-practise.html</loc>
+    <lastmod>2019-12-14T12:44:01.671Z</lastmod>
+    <data>
+        <display>
+        <title>logback最佳实践</title>
+        <pubTime>2019-12-14T10:51:31.000Z</pubTime>
+        
+        <tag>logback</tag>
+         
+         
+           
+             
+              <breadCrumb title="java" url="https://leokongwq.github.io/categories/java/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>https://leokongwq.github.io/2019/11/12/elastic-job-summary.html</loc>
     <lastmod>2019-12-14T04:11:46.213Z</lastmod>
     <data>
@@ -6737,6 +6808,26 @@
 
     
   <url>
+    <loc>https://leokongwq.github.io/2016/10/13/java-serialization-deepknow.html</loc>
+    <lastmod>2016-10-15T02:00:19.000Z</lastmod>
+    <data>
+        <display>
+        <title>java-serialization-deepknow</title>
+        <pubTime>2016-10-13T14:05:45.000Z</pubTime>
+        
+        <tag>java</tag>
+         
+         
+           
+             
+              <breadCrumb title="java" url="https://leokongwq.github.io/categories/java/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>https://leokongwq.github.io/2016/10/11/jvm-codecache.html</loc>
     <lastmod>2016-10-15T02:00:19.000Z</lastmod>
     <data>
@@ -6759,12 +6850,12 @@
 
     
   <url>
-    <loc>https://leokongwq.github.io/2016/10/13/java-serialization-deepknow.html</loc>
-    <lastmod>2016-10-15T02:00:19.000Z</lastmod>
+    <loc>https://leokongwq.github.io/2016/10/13/IDCardNo-algo.html</loc>
+    <lastmod>2016-10-15T01:59:57.000Z</lastmod>
     <data>
         <display>
-        <title>java-serialization-deepknow</title>
-        <pubTime>2016-10-13T14:05:45.000Z</pubTime>
+        <title>身份证号验证算法</title>
+        <pubTime>2016-10-13T13:56:34.000Z</pubTime>
         
         <tag>java</tag>
          
@@ -6792,26 +6883,6 @@
            
              
               <breadCrumb title="算法" url="https://leokongwq.github.io/categories/%E7%AE%97%E6%B3%95/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://leokongwq.github.io/2016/10/13/IDCardNo-algo.html</loc>
-    <lastmod>2016-10-15T01:59:57.000Z</lastmod>
-    <data>
-        <display>
-        <title>身份证号验证算法</title>
-        <pubTime>2016-10-13T13:56:34.000Z</pubTime>
-        
-        <tag>java</tag>
-         
-         
-           
-             
-              <breadCrumb title="java" url="https://leokongwq.github.io/categories/java/"/>
           
         </display>
     </data>
@@ -6964,26 +7035,6 @@
     
     
   <url>
-    <loc>https://leokongwq.github.io/2016/10/14/golang-error-handler.html</loc>
-    <lastmod>2016-10-14T16:44:08.000Z</lastmod>
-    <data>
-        <display>
-        <title>golang错误处理</title>
-        <pubTime>2016-10-14T08:50:54.000Z</pubTime>
-        
-        <tag>go</tag>
-         
-         
-           
-             
-              <breadCrumb title="golang" url="https://leokongwq.github.io/categories/golang/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>https://leokongwq.github.io/2016/10/12/avoid-NullPointException-Java.html</loc>
     <lastmod>2016-10-14T16:44:08.000Z</lastmod>
     <data>
@@ -6997,6 +7048,26 @@
            
              
               <breadCrumb title="java" url="https://leokongwq.github.io/categories/java/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://leokongwq.github.io/2016/10/14/golang-error-handler.html</loc>
+    <lastmod>2016-10-14T16:44:08.000Z</lastmod>
+    <data>
+        <display>
+        <title>golang错误处理</title>
+        <pubTime>2016-10-14T08:50:54.000Z</pubTime>
+        
+        <tag>go</tag>
+         
+         
+           
+             
+              <breadCrumb title="golang" url="https://leokongwq.github.io/categories/golang/"/>
           
         </display>
     </data>

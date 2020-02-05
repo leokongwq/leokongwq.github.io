@@ -2,6 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://leokongwq.github.io/2020/02/05/async-to-sync-call.html</loc>
+    
+    <lastmod>2020-02-05T11:05:07.957Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://leokongwq.github.io/2020/01/31/Architecture-Patterns.html</loc>
+    
+    <lastmod>2020-02-01T10:50:21.282Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://leokongwq.github.io/2019/12/29/tcp-ip-summary-chapter-one.html</loc>
+    
+    <lastmod>2019-12-29T06:14:02.096Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://leokongwq.github.io/2019/12/14/logback-best-practise.html</loc>
+    
+    <lastmod>2019-12-14T12:44:01.671Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://leokongwq.github.io/2019/11/12/elastic-job-summary.html</loc>
     
     <lastmod>2019-12-14T04:11:46.213Z</lastmod>
@@ -2431,13 +2459,6 @@
   </url>
   
   <url>
-    <loc>https://leokongwq.github.io/2016/10/11/jvm-codecache.html</loc>
-    
-    <lastmod>2016-10-15T02:00:19.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://leokongwq.github.io/2016/10/13/java-serialization-deepknow.html</loc>
     
     <lastmod>2016-10-15T02:00:19.000Z</lastmod>
@@ -2445,14 +2466,21 @@
   </url>
   
   <url>
-    <loc>https://leokongwq.github.io/2016/10/12/isIntersectWithLoop.html</loc>
+    <loc>https://leokongwq.github.io/2016/10/11/jvm-codecache.html</loc>
+    
+    <lastmod>2016-10-15T02:00:19.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://leokongwq.github.io/2016/10/13/IDCardNo-algo.html</loc>
     
     <lastmod>2016-10-15T01:59:57.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>https://leokongwq.github.io/2016/10/13/IDCardNo-algo.html</loc>
+    <loc>https://leokongwq.github.io/2016/10/12/isIntersectWithLoop.html</loc>
     
     <lastmod>2016-10-15T01:59:57.000Z</lastmod>
     
@@ -2515,14 +2543,14 @@
   </url>
   
   <url>
-    <loc>https://leokongwq.github.io/2016/10/14/golang-error-handler.html</loc>
+    <loc>https://leokongwq.github.io/2016/10/12/avoid-NullPointException-Java.html</loc>
     
     <lastmod>2016-10-14T16:44:08.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>https://leokongwq.github.io/2016/10/12/avoid-NullPointException-Java.html</loc>
+    <loc>https://leokongwq.github.io/2016/10/14/golang-error-handler.html</loc>
     
     <lastmod>2016-10-14T16:44:08.000Z</lastmod>
     

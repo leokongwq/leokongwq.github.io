@@ -15,22 +15,22 @@
 
 
 
-<meta name="description" content="背景最近重新翻看了图解TCP/IP，有必要将一些知识点记下来，方便以后自己和其他人理解记忆。本文主要总结一个数据是如何发送到目标主机的。 假设模型 模型中假设主机1(IP地址为：192.168.1.3) 要给主机2(IP地址为：192.168.2.3)发送数据。 背景知识OSI 模型和 和 以太网帧根据OSI参考模型，每层都将上次传递过来的数据添加本层的头信息后发送给下一层。    以太网帧头 I">
+<meta name="description" content="背景最近重新翻看了图解TCP/IP，有必要将一些知识点记下来，方便以后自己和其他人理解记忆。本文主要总结一个数据是如何发送到目标主机的。 假设模型 模型中假设主机1(IP地址为：192.168.1.3) 要给主机2(IP地址为：192.168.2.3)发送数据。">
 <meta name="keywords" content="TCP&#x2F;IP">
 <meta property="og:type" content="article">
 <meta property="og:title" content="数据是如何到达目标主机的">
 <meta property="og:url" content="https://leokongwq.github.io/2019/12/29/tcp-ip-summary-chapter-one.html">
 <meta property="og:site_name" content="戒修-沉迷技术的小沙弥">
-<meta property="og:description" content="背景最近重新翻看了图解TCP/IP，有必要将一些知识点记下来，方便以后自己和其他人理解记忆。本文主要总结一个数据是如何发送到目标主机的。 假设模型 模型中假设主机1(IP地址为：192.168.1.3) 要给主机2(IP地址为：192.168.2.3)发送数据。 背景知识OSI 模型和 和 以太网帧根据OSI参考模型，每层都将上次传递过来的数据添加本层的头信息后发送给下一层。    以太网帧头 I">
+<meta property="og:description" content="背景最近重新翻看了图解TCP/IP，有必要将一些知识点记下来，方便以后自己和其他人理解记忆。本文主要总结一个数据是如何发送到目标主机的。 假设模型 模型中假设主机1(IP地址为：192.168.1.3) 要给主机2(IP地址为：192.168.2.3)发送数据。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://leokongwq.github.io/2019/12/29/tcp-ip-summary-chapter-one/tcp-ip-summary-chapter-one-1.png">
 <meta property="og:image" content="https://leokongwq.github.io/2019/12/29/tcp-ip-summary-chapter-one/tcp-ip-summary-chapter-one-2.png">
 <meta property="og:image" content="https://leokongwq.github.io/2019/12/29/tcp-ip-summary-chapter-one/816886223a180599bb5085c894d52e3972d92275.png">
 <meta property="og:image" content="https://leokongwq.github.io/2019/12/29/tcp-ip-summary-chapter-one/9bb3ce246913a47d749da732f59318111a11e443.png">
-<meta property="og:updated_time" content="2019-12-29T06:14:02.096Z">
+<meta property="og:updated_time" content="2020-02-05T11:06:36.028Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="数据是如何到达目标主机的">
-<meta name="twitter:description" content="背景最近重新翻看了图解TCP/IP，有必要将一些知识点记下来，方便以后自己和其他人理解记忆。本文主要总结一个数据是如何发送到目标主机的。 假设模型 模型中假设主机1(IP地址为：192.168.1.3) 要给主机2(IP地址为：192.168.2.3)发送数据。 背景知识OSI 模型和 和 以太网帧根据OSI参考模型，每层都将上次传递过来的数据添加本层的头信息后发送给下一层。    以太网帧头 I">
+<meta name="twitter:description" content="背景最近重新翻看了图解TCP/IP，有必要将一些知识点记下来，方便以后自己和其他人理解记忆。本文主要总结一个数据是如何发送到目标主机的。 假设模型 模型中假设主机1(IP地址为：192.168.1.3) 要给主机2(IP地址为：192.168.2.3)发送数据。">
 <meta name="twitter:image" content="https://leokongwq.github.io/2019/12/29/tcp-ip-summary-chapter-one/tcp-ip-summary-chapter-one-1.png">
 
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -317,6 +317,7 @@
         <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>最近重新翻看了<code>图解TCP/IP</code>，有必要将一些知识点记下来，方便以后自己和其他人理解记忆。本文主要总结一个数据是如何发送到目标主机的。</p>
 <h3 id="假设模型"><a href="#假设模型" class="headerlink" title="假设模型"></a>假设模型</h3><img src="/2019/12/29/tcp-ip-summary-chapter-one/tcp-ip-summary-chapter-one-1.png">
 <p>模型中假设主机1(IP地址为：192.168.1.3) 要给主机2(IP地址为：192.168.2.3)发送数据。</p>
+<a id="more"></a>
 <h3 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h3><h4 id="OSI-模型和-和-以太网帧"><a href="#OSI-模型和-和-以太网帧" class="headerlink" title="OSI 模型和 和 以太网帧"></a>OSI 模型和 和 以太网帧</h4><p>根据OSI参考模型，每层都将上次传递过来的数据添加本层的头信息后发送给下一层。</p>
 <table>
 <thead>
@@ -380,7 +381,7 @@
         <p><span>本文标题:</span><a href="/2019/12/29/tcp-ip-summary-chapter-one.html">数据是如何到达目标主机的</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">kongwenqiang</a></p>
         <p><span>发布时间:</span>2019-12-29, 11:06:09</p>
-        <p><span>最后更新:</span>2019-12-29, 14:14:02</p>
+        <p><span>最后更新:</span>2020-02-05, 19:06:36</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2019/12/29/tcp-ip-summary-chapter-one.html" title="数据是如何到达目标主机的">https://leokongwq.github.io/2019/12/29/tcp-ip-summary-chapter-one.html</a>
             <span class="copy-path" data-clipboard-text="原文: https://leokongwq.github.io/2019/12/29/tcp-ip-summary-chapter-one.html　　作者: kongwenqiang" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>

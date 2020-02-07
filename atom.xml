@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://leokongwq.github.io/"/>
-  <updated>2020-02-05T11:05:07.957Z</updated>
+  <updated>2020-02-05T11:23:33.510Z</updated>
   <id>https://leokongwq.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="https://leokongwq.github.io/2020/02/05/async-to-sync-call.html"/>
     <id>https://leokongwq.github.io/2020/02/05/async-to-sync-call.html</id>
     <published>2020-02-05T05:41:21.000Z</published>
-    <updated>2020-02-05T11:05:07.957Z</updated>
+    <updated>2020-02-05T11:23:33.510Z</updated>
     
     <content type="html"><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在日常的开发工作中，我们经常会有一些任务需要异步执行。那么如何获取异步任务的结果呢？常见的解决方案有两种：1，任务异步执行，调用方同步获取结果（本篇文章需要讨论的）；2，通过Callback 或 Listener进行处理。</p>
 <p>针对需要同步获取异步计算结果的需求，下面分场景进行讨论并给出解决方案和原理分析。</p>
@@ -53,6 +53,7 @@
 <p>那如何使用<code>CompletableFuture</code>来完成异步转同步呢？如下示例:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">CompletableFuture&lt;String&gt; completableFuture = <span class="keyword">new</span> CompletableFuture&lt;&gt;();</span><br><span class="line">executorService.execute(() -&gt; &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Thread.sleep(<span class="number">500</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//异步计算任务线程，完成异步计算。</span></span><br><span class="line">    completableFuture.complete(<span class="string">"hello"</span>);</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// 阻塞获取计算结果</span></span><br><span class="line">String str = completableFuture.get(<span class="number">1000</span>, TimeUnit.SECONDS);</span><br><span class="line">System.out.println(str);</span><br></pre></td></tr></table></figure>
 <p>翻看最新的Dubbo代码，发现同步和异步调用都使用了<code>CompletableFuture</code>，这里需要赞一下。</p>
+<p>需要注意的是，最底层的原理还是线程的协调，和<code>FutureTask</code>一样底层都是使用了<code>LockSupport</code>工具类。</p>
 ]]></content>
     
     <summary type="html">
@@ -258,11 +259,12 @@
     <link href="https://leokongwq.github.io/2019/12/29/tcp-ip-summary-chapter-one.html"/>
     <id>https://leokongwq.github.io/2019/12/29/tcp-ip-summary-chapter-one.html</id>
     <published>2019-12-29T03:06:09.000Z</published>
-    <updated>2019-12-29T06:14:02.096Z</updated>
+    <updated>2020-02-05T11:06:36.028Z</updated>
     
     <content type="html"><![CDATA[<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>最近重新翻看了<code>图解TCP/IP</code>，有必要将一些知识点记下来，方便以后自己和其他人理解记忆。本文主要总结一个数据是如何发送到目标主机的。</p>
 <h3 id="假设模型"><a href="#假设模型" class="headerlink" title="假设模型"></a>假设模型</h3><img src="/2019/12/29/tcp-ip-summary-chapter-one/tcp-ip-summary-chapter-one-1.png">
 <p>模型中假设主机1(IP地址为：192.168.1.3) 要给主机2(IP地址为：192.168.2.3)发送数据。</p>
+<a id="more"></a>
 <h3 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h3><h4 id="OSI-模型和-和-以太网帧"><a href="#OSI-模型和-和-以太网帧" class="headerlink" title="OSI 模型和 和 以太网帧"></a>OSI 模型和 和 以太网帧</h4><p>根据OSI参考模型，每层都将上次传递过来的数据添加本层的头信息后发送给下一层。</p>
 <table>
 <thead>
@@ -319,7 +321,9 @@
     
     <summary type="html">
     
-      &lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;最近重新翻看了&lt;code&gt;图解TCP/IP&lt;/code&gt;，有必要将一些知识点记下来，方便以后自己和其他人理解记忆。本文主要总结一个数据是如何
+      &lt;h3 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h3&gt;&lt;p&gt;最近重新翻看了&lt;code&gt;图解TCP/IP&lt;/code&gt;，有必要将一些知识点记下来，方便以后自己和其他人理解记忆。本文主要总结一个数据是如何发送到目标主机的。&lt;/p&gt;
+&lt;h3 id=&quot;假设模型&quot;&gt;&lt;a href=&quot;#假设模型&quot; class=&quot;headerlink&quot; title=&quot;假设模型&quot;&gt;&lt;/a&gt;假设模型&lt;/h3&gt;&lt;img src=&quot;/2019/12/29/tcp-ip-summary-chapter-one/tcp-ip-summary-chapter-one-1.png&quot;&gt;
+&lt;p&gt;模型中假设主机1(IP地址为：192.168.1.3) 要给主机2(IP地址为：192.168.2.3)发送数据。&lt;/p&gt;
     
     </summary>
     

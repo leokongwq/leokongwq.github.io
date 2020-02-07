@@ -23,7 +23,7 @@
 <meta property="og:site_name" content="戒修-沉迷技术的小沙弥">
 <meta property="og:description" content="背景在日常的开发工作中，我们经常会有一些任务需要异步执行。那么如何获取异步任务的结果呢？常见的解决方案有两种：1，任务异步执行，调用方同步获取结果（本篇文章需要讨论的）；2，通过Callback 或 Listener进行处理。 针对需要同步获取异步计算结果的需求，下面分场景进行讨论并给出解决方案和原理分析。 Future + 线程池这个是最常见模式： 123456789ExecutorServic">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-02-05T11:05:07.957Z">
+<meta property="og:updated_time" content="2020-02-05T11:23:33.510Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="异步调用转为同步">
 <meta name="twitter:description" content="背景在日常的开发工作中，我们经常会有一些任务需要异步执行。那么如何获取异步任务的结果呢？常见的解决方案有两种：1，任务异步执行，调用方同步获取结果（本篇文章需要讨论的）；2，通过Callback 或 Listener进行处理。 针对需要同步获取异步计算结果的需求，下面分场景进行讨论并给出解决方案和原理分析。 Future + 线程池这个是最常见模式： 123456789ExecutorServic">
@@ -340,6 +340,7 @@
 <p>那如何使用<code>CompletableFuture</code>来完成异步转同步呢？如下示例:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">CompletableFuture&lt;String&gt; completableFuture = <span class="keyword">new</span> CompletableFuture&lt;&gt;();</span><br><span class="line">executorService.execute(() -&gt; &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Thread.sleep(<span class="number">500</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//异步计算任务线程，完成异步计算。</span></span><br><span class="line">    completableFuture.complete(<span class="string">"hello"</span>);</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// 阻塞获取计算结果</span></span><br><span class="line">String str = completableFuture.get(<span class="number">1000</span>, TimeUnit.SECONDS);</span><br><span class="line">System.out.println(str);</span><br></pre></td></tr></table></figure>
 <p>翻看最新的Dubbo代码，发现同步和异步调用都使用了<code>CompletableFuture</code>，这里需要赞一下。</p>
+<p>需要注意的是，最底层的原理还是线程的协调，和<code>FutureTask</code>一样底层都是使用了<code>LockSupport</code>工具类。</p>
 
       
     </div>
@@ -351,7 +352,7 @@
         <p><span>本文标题:</span><a href="/2020/02/05/async-to-sync-call.html">异步调用转为同步</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">kongwenqiang</a></p>
         <p><span>发布时间:</span>2020-02-05, 13:41:21</p>
-        <p><span>最后更新:</span>2020-02-05, 19:05:07</p>
+        <p><span>最后更新:</span>2020-02-05, 19:23:33</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2020/02/05/async-to-sync-call.html" title="异步调用转为同步">https://leokongwq.github.io/2020/02/05/async-to-sync-call.html</a>
             <span class="copy-path" data-clipboard-text="原文: https://leokongwq.github.io/2020/02/05/async-to-sync-call.html　　作者: kongwenqiang" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>

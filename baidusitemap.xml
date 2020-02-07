@@ -5,13 +5,30 @@
     
   <url>
     <loc>https://leokongwq.github.io/2020/02/05/async-to-sync-call.html</loc>
-    <lastmod>2020-02-05T11:05:07.957Z</lastmod>
+    <lastmod>2020-02-05T11:23:33.510Z</lastmod>
     <data>
         <display>
         <title>异步调用转为同步</title>
         <pubTime>2020-02-05T05:41:21.000Z</pubTime>
         
         <tag>Java</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://leokongwq.github.io/2019/12/29/tcp-ip-summary-chapter-one.html</loc>
+    <lastmod>2020-02-05T11:06:36.028Z</lastmod>
+    <data>
+        <display>
+        <title>数据是如何到达目标主机的</title>
+        <pubTime>2019-12-29T03:06:09.000Z</pubTime>
+        
+        <tag>TCP/IP</tag>
          
          
            
@@ -29,23 +46,6 @@
         <pubTime>2020-01-31T06:06:58.000Z</pubTime>
         
         <tag>架构</tag>
-         
-         
-           
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://leokongwq.github.io/2019/12/29/tcp-ip-summary-chapter-one.html</loc>
-    <lastmod>2019-12-29T06:14:02.096Z</lastmod>
-    <data>
-        <display>
-        <title>数据是如何到达目标主机的</title>
-        <pubTime>2019-12-29T03:06:09.000Z</pubTime>
-        
-        <tag>TCP/IP</tag>
          
          
            

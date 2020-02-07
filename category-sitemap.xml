@@ -9,7 +9,21 @@
 
     <url>
         <loc>https://leokongwq.github.io/categories/java/</loc>
-        <lastmod>2019-08-25T14:17:43.360Z</lastmod>
+        <lastmod>2019-12-14T12:44:01.671Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/</loc>
+        <lastmod>2019-12-14T04:06:56.125Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/categories/%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6/</loc>
+        <lastmod>2019-12-13T16:19:30.455Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
@@ -59,13 +73,6 @@
     <url>
         <loc>https://leokongwq.github.io/categories/springboot/</loc>
         <lastmod>2018-11-21T15:48:09.849Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>https://leokongwq.github.io/categories/%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6/</loc>
-        <lastmod>2018-11-03T04:40:32.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
@@ -163,13 +170,6 @@
 
     <url>
         <loc>https://leokongwq.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/</loc>
-        <lastmod>2017-07-06T02:31:01.000Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>https://leokongwq.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/</loc>
         <lastmod>2017-07-06T02:31:01.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>

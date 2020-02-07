@@ -507,62 +507,10 @@ MathJax.Hub.Queue(function() {
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>最近重新翻看了<code>图解TCP/IP</code>，有必要将一些知识点记下来，方便以后自己和其他人理解记忆。本文主要总结一个数据是如何发送到目标主机的。</p>
+              <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>最近重新翻看了<code>图解TCP/IP</code>，有必要将一些知识点记下来，方便以后自己和其他人理解记忆。本文主要总结一个数据是如何发送到目标主机的。</p>
 <h3 id="假设模型"><a href="#假设模型" class="headerlink" title="假设模型"></a>假设模型</h3><img src="/2019/12/29/tcp-ip-summary-chapter-one/tcp-ip-summary-chapter-one-1.png">
 <p>模型中假设主机1(IP地址为：192.168.1.3) 要给主机2(IP地址为：192.168.2.3)发送数据。</p>
-<h3 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h3><h4 id="OSI-模型和-和-以太网帧"><a href="#OSI-模型和-和-以太网帧" class="headerlink" title="OSI 模型和 和 以太网帧"></a>OSI 模型和 和 以太网帧</h4><p>根据OSI参考模型，每层都将上次传递过来的数据添加本层的头信息后发送给下一层。</p>
-<table>
-<thead>
-<tr>
-<th>以太网帧头</th>
-<th>IP数据报头</th>
-<th>TCP包头</th>
-<th>数据</th>
-<th>FCS</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>802.3 以太网帧头</p>
-<img src="/2019/12/29/tcp-ip-summary-chapter-one/tcp-ip-summary-chapter-one-2.png">
-<p>从802.3 以太网帧头格式可以知道，发送方需要知道目的主机的的MAC地址。<br>那如何得到目的主机的MAC地址呢？答案是通过<a href="https://zh.wikipedia.org/zh-hans/%E5%9C%B0%E5%9D%80%E8%A7%A3%E6%9E%90%E5%8D%8F%E8%AE%AE" target="_blank" rel="noopener">ARP</a></p>
-<p>如何具体总结如下：</p>
-<h4 id="ARP协议"><a href="#ARP协议" class="headerlink" title="ARP协议"></a>ARP协议</h4><p>ARP（地址解析协议，全称：Address Resolution Protocol）是一个通过解析网络层地址(IP地址)来找寻数据链路层地址的网络传输协议，它在IPv4中极其重要。ARP最初在1982年的RFC 826（征求意见稿）[1]中提出并纳入互联网标准 STD 37. ARP 也可能指是在多数操作系统中管理其相关地址的一个进程。</p>
-<h5 id="在同一个网段"><a href="#在同一个网段" class="headerlink" title="在同一个网段"></a>在同一个网段</h5><ol>
-<li>ARP高速缓存有目标IP的MAC地址。</li>
-<li>ARP高速缓存没有目标IP的MAC地址，通过ARP广播请求目标IP的MAC地址，缓存该MAC地址。</li>
-</ol>
-<h5 id="不在同一个网段"><a href="#不在同一个网段" class="headerlink" title="不在同一个网段"></a>不在同一个网段</h5><p>主机通过子网掩码和目的IP进行运算，判断是不是同一个网络号。</p>
-<p>不是同一个网段：则需要将包发给默认网关，所以需要获取网关的MAC地址。</p>
-<ol>
-<li>ARP高速缓存有默认网关的MAC地址：直接封包发送给默认网关，再由网关转发到目标网络。</li>
-<li>ARP高速缓存没有默认网关的MAC地址 ：还是发送ARP广播请求默认网关的MAC地址，缓存该地址，并且发送数据报到网关。</li>
-</ol>
-<p>注意：</p>
-<ol>
-<li>所以主机上配置的默认网关IP非常重要。</li>
-<li>通过手动配置，也可以分属于不同网段或子网的两台主机进行通信，原因是数据链路层根本不关心IP地址是不是同一个网段或子网。二层交换机在广播ARP请求时，所有连接到交换机端口上的主机都可以做出响应，交换机通过学习，可以把所有端口和MAC地址的对应关系拿到并缓存起来。</li>
-</ol>
-<h3 id="不同VLAN的通信方式"><a href="#不同VLAN的通信方式" class="headerlink" title="不同VLAN的通信方式"></a>不同VLAN的通信方式</h3><h4 id="单臂路由"><a href="#单臂路由" class="headerlink" title="单臂路由"></a>单臂路由</h4><img src="/2019/12/29/tcp-ip-summary-chapter-one/816886223a180599bb5085c894d52e3972d92275.png">
-<p>缺点：如果不同VLAN间的流量非常大，那么路由器就会成为瓶颈，出现掉包、或者通信堵塞。</p>
-<h4 id="三层交换机"><a href="#三层交换机" class="headerlink" title="三层交换机"></a>三层交换机</h4><p>三层交换机本质上具备路由功能的二层交换机。</p>
-<img src="/2019/12/29/tcp-ip-summary-chapter-one/9bb3ce246913a47d749da732f59318111a11e443.png">
-<p>在三层交换机内部，分别设置了交换机模块和路由器模块；而内置的路由模块与交换模块相同，使用ASIC硬件处理路由。因此，与传统的路由器相比，可以实现高速路由。并且，路由与交换模块是汇聚链接的，由于是内部连接，可以确保相当大的带宽，所以对于正规的项目，需要使用三层交换机来实现网网络间的通信。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>a. 第一步，通过ARP获取目标主机的MAC地址，如果不在同一个网段或子网，则获取默认网关的MAC地址（网关一般是路由器，它会响应ARP广播请求，返回自己的MAC地址）。<br>b. 第二步，二层交换机通过分析目标MAC地址，查转发表，把帧发送到对应的端口上，这个端口可能对应的是同一个网段的主机或是路由器。<br>c. 第三步，路由器拿到帧数据后，发现数据帧中的目标MAC地址是自己的某一个端口的物理地址，这时路由器会把以太网数据帧的封装去掉。获取帧里面的目标IP地址（路由器工作在OSI模型的网络层，所以需要一直解析包数据，直到获取IP数据报头信息），判断目标IP是不是本地网络（通过网络号），不是则通过路由表查找下一个跳路由器的IP（没有路由项，则使用缺省路由）。获取IP后，继续通过ARP获取下一跳路由器的MAC地址，重新封包后发送到一下跳路由器。后续的路由转发都是以此规则进行。<br>d. 目标网络的网关路由器发现目标IP地址是本网段的IP，通过ARP获取目标IP的MAC地址，重新封装后发送到对应的端口，该端口后面是二层交换机。<br>e. 二层交换机通过目标IP查找转发表，获取目标IP对应的MAC地址和端口，将数据转发到指定的端口，目标数据就收到了数据。<br>f. 主机验证MAC地址和IP地址是否属于本机，是本机则投递给协议栈对应的层进行处理。</p>
-<ol>
-<li>路由器转发数据包不会对它的IP源地址和目标地址做修改，只会修改MAC</li>
-<li>有一种情况，源和目标IP是被改变的，那就是NAT</li>
-<li>路由的每一条可用的路由都和路由嚣上的接口是对应的</li>
-<li>路由表和MAC转发表的区别在于，路由表存放的是目的IP下一步要去的地方的IP。</li>
-<li>广播在路由器能够结束，原因就是路由器会在查找不到对应MAC表时，根据目的IP进行路由。路由过程的两种情况都不存在广播。</li>
-</ol>
-<h4 id="路由表"><a href="#路由表" class="headerlink" title="路由表:"></a>路由表:</h4><p>路由表存储的信息包括：<br>直连路径：来自活动路由接口的路径。当接口为活动状态并配置了IP地址时，路由器添加一条直连路径。<br>远端路径：远端的网络连接到其他路由。通过静态配置或动态路由协议到达该网络。<br>路由表是存储在RAM中的一份数据文件，用于存储直连以及远端网络的路由信息。路由表中包含网络或下一跳地址的信息。这些信息告知路由器可以通过将报文发送至代表下一跳地址的路由器以最佳路劲到达目的地址。下一跳信息也可以是到下一个目的地的输出接口。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="https://www.bilibili.com/read/cv3673331/" target="_blank" rel="noopener">https://www.bilibili.com/read/cv3673331/</a><br><a href="https://wizardforcel.gitbooks.io/network-basic/3.html" target="_blank" rel="noopener">https://wizardforcel.gitbooks.io/network-basic/3.html</a></p>
-
+          
       
     </div>
     
@@ -575,6 +523,10 @@ MathJax.Hub.Queue(function() {
         <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TCP-IP/">TCP/IP</a></li></ul>
     </div>
 
+      
+        <p class="article-more-link">
+          <a href="/2019/12/29/tcp-ip-summary-chapter-one.html#more">阅读全文 >></a>
+        </p>
       
       <div class="clearfix"></div>
     </div>

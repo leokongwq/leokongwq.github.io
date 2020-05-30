@@ -8,6 +8,20 @@
     </url>
 
     <url>
+        <loc>https://leokongwq.github.io/categories/spring/</loc>
+        <lastmod>2020-05-30T13:19:42.978Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://leokongwq.github.io/categories/%E7%AE%97%E6%B3%95/</loc>
+        <lastmod>2020-05-24T11:46:21.741Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
         <loc>https://leokongwq.github.io/categories/java/</loc>
         <lastmod>2019-12-14T12:44:01.671Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -38,13 +52,6 @@
     <url>
         <loc>https://leokongwq.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA/</loc>
         <lastmod>2019-08-02T13:58:03.848Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>https://leokongwq.github.io/categories/spring/</loc>
-        <lastmod>2019-05-14T09:20:53.229Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
@@ -206,13 +213,6 @@
     <url>
         <loc>https://leokongwq.github.io/categories/java/spring/</loc>
         <lastmod>2017-04-07T16:11:15.000Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>https://leokongwq.github.io/categories/%E7%AE%97%E6%B3%95/</loc>
-        <lastmod>2017-02-22T13:33:37.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>

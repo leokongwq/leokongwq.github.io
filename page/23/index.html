@@ -274,6 +274,218 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-mysql-mofidy-charset" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/12/27/mysql-mofidy-charset.html" class="article-date">
+      <time datetime="2016-12-27T08:13:38.000Z" itemprop="datePublished">2016-12-27</time>
+</a>
+
+ 
+    <a href="/2016/12/27/mysql-mofidy-charset.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2016/12/27/mysql-mofidy-charset.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/12/27/mysql-mofidy-charset.html">mysql修改表-字段-库的字符集</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="修改数据库字符集"><a href="#修改数据库字符集" class="headerlink" title="修改数据库字符集"></a>修改数据库字符集</h3><pre><code>ALTER DATABASE db_name DEFAULT CHARACTER SET character_name [COLLATE ...];
+</code></pre><h3 id="修改表默认字符集"><a href="#修改表默认字符集" class="headerlink" title="修改表默认字符集"></a>修改表默认字符集</h3><pre><code>ALTER TABLE tbl_name DEFAULT CHARSET character_name [COLLATE...];
+</code></pre><h3 id="修改表和字段默认的字符集"><a href="#修改表和字段默认的字符集" class="headerlink" title="修改表和字段默认的字符集"></a>修改表和字段默认的字符集</h3><pre><code>ALTER TABLE tbl_name CONVERT TO CHARACTER SET character_name [COLLATE ...]
+</code></pre><p>DBA建议修改表的字符集如下操作：</p>
+<ol>
+<li>先修改表的默认字符集</li>
+<li>再进行字符集转换</li>
+</ol>
+<p>例如：</p>
+<pre><code>ALTER TABLE test DEFAULT CHARSET utf8;
+ALTER TABLE test CONVERT TO CHARACTER SET utf8; 
+</code></pre><h3 id="修改字段的字符集："><a href="#修改字段的字符集：" class="headerlink" title="修改字段的字符集："></a>修改字段的字符集：</h3><pre><code>ALTER TABLE tbl_name CHANGE c_name c_name CHARACTER SET character_name [COLLATE ...];
+如：ALTER TABLE logtest CHANGE title title VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci;
+</code></pre><h3 id="查看数据库编码："><a href="#查看数据库编码：" class="headerlink" title="查看数据库编码："></a>查看数据库编码：</h3><pre><code>SHOW CREATE DATABASE db_name;
+</code></pre><h3 id="查看表编码："><a href="#查看表编码：" class="headerlink" title="查看表编码："></a>查看表编码：</h3><pre><code>SHOW CREATE TABLE tbl_name;
+</code></pre><h3 id="查看字段编码："><a href="#查看字段编码：" class="headerlink" title="查看字段编码："></a>查看字段编码：</h3><pre><code>SHOW FULL COLUMNS FROM tbl_name;    
+</code></pre>
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/database/">database</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
+    <article id="post-java8-stream" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/12/25/java8-stream.html" class="article-date">
+      <time datetime="2016-12-25T06:58:52.000Z" itemprop="datePublished">2016-12-25</time>
+</a>
+
+ 
+    <a href="/2016/12/25/java8-stream.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2016/12/25/java8-stream.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/12/25/java8-stream.html">java8-stream</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="stream-定义"><a href="#stream-定义" class="headerlink" title="stream 定义"></a>stream 定义</h3><blockquote>
+<p>A sequence of elements supporting sequential and parallel aggregate operations.</p>
+</blockquote>
+<p>上面的定义出自jdk8中Stream类的说明。意思是：Stream 是一个支持顺序和并行聚合操作的元素序列。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/java/">java</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java8/">java8</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2016/12/25/java8-stream.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-java8-optional" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1077,207 +1289,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2016/12/01/java-DesignPatterns-bridge.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-java-DesignPatterns-facade" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2016/12/01/java-DesignPatterns-facade.html" class="article-date">
-      <time datetime="2016-12-01T08:24:37.000Z" itemprop="datePublished">2016-12-01</time>
-</a>
-
- 
-    <a href="/2016/12/01/java-DesignPatterns-facade.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2016/12/01/java-DesignPatterns-facade.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/12/01/java-DesignPatterns-facade.html">java-设计模式之-外观模式</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>文章转自：<a href="https://design-patterns.readthedocs.io/zh_CN/latest/structural_patterns/facade.html" target="_blank" rel="noopener">https://design-patterns.readthedocs.io/zh_CN/latest/structural_patterns/facade.html</a></p>
-<h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>外观模式(Facade Pattern)：外部与一个子系统的通信必须通过一个统一的外观对象进行，为子系统中的一组接口提供一个一致的界面，外观模式定义了一个高层接口，这个接口使得这一子系统更加容易使用。外观模式又称为门面模式，它是一种对象结构型模式。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/设计模式/">设计模式</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2016/12/01/java-DesignPatterns-facade.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-java-DesignPatterns-command" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2016/11/28/java-DesignPatterns-command.html" class="article-date">
-      <time datetime="2016-11-28T02:20:15.000Z" itemprop="datePublished">2016-11-28</time>
-</a>
-
- 
-    <a href="/2016/11/28/java-DesignPatterns-command.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2016/11/28/java-DesignPatterns-command.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/11/28/java-DesignPatterns-command.html">java-设计模式之-命令模式</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>文章转自：<a href="https://design-patterns.readthedocs.io/zh_CN/latest/behavioral_patterns/command.html" target="_blank" rel="noopener">https://design-patterns.readthedocs.io/zh_CN/latest/behavioral_patterns/command.html</a></p>
-<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在软件设计中，我们经常需要向某些对象发送请求，但是并不知道请求的接收者是谁，也不知道被请求的操作是哪个，我们只需在程序运行时指定具体的请求接收者即可，此时，可以使用命令模式来进行设计，使得请求发送者与请求接收者消除彼此之间的耦合，让对象之间的调用关系更加灵活。</p>
-<p>命令模式可以对发送者和接收者完全解耦，发送者与接收者之间没有直接引用关系，发送请求的对象只需要知道如何发送请求，而不必知道如何完成请求。这就是命令模式的模式动机。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/设计模式/">设计模式</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2016/11/28/java-DesignPatterns-command.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

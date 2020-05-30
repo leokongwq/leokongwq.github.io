@@ -274,6 +274,200 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-vertx-web-BodyHandler" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/12/04/vertx-web-BodyHandler.html" class="article-date">
+      <time datetime="2017-12-04T08:36:34.000Z" itemprop="datePublished">2017-12-04</time>
+</a>
+
+ 
+    <a href="/2017/12/04/vertx-web-BodyHandler.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/12/04/vertx-web-BodyHandler.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/04/vertx-web-BodyHandler.html">vert.x web开发之BodyHandler</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Web 开发肯定需要处理POST请求和文件上传请求。默认Vert.x并不会处理http请求体，除非你显示设置了<code>BodyHandler</code>。<code>BodyHandler</code>的作用是读取整个请求体，并将解析后请求体数据设置到<code>RoutingContext</code>。</p>
+<p><code>BodyHandler</code>的默认实现是<code>BodyHandlerImpl</code>。</p>
+<h3 id="BodyHandler-核心"><a href="#BodyHandler-核心" class="headerlink" title="BodyHandler 核心"></a>BodyHandler 核心</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handle</span><span class="params">(RoutingContext context)</span> </span>&#123;</span><br><span class="line">    HttpServerRequest request = context.request();</span><br><span class="line">    <span class="comment">// we need to keep state since we can be called again on reroute</span></span><br><span class="line">    Boolean handled = context.get(BODY_HANDLED);</span><br><span class="line">    <span class="keyword">if</span> (handled == <span class="keyword">null</span> || !handled) &#123;</span><br><span class="line">        BHandler handler = <span class="keyword">new</span> BHandler(context);</span><br><span class="line">        request.handler(handler);</span><br><span class="line">        request.endHandler(v -&gt; handler.end());</span><br><span class="line">        context.put(BODY_HANDLED, <span class="keyword">true</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// on reroute we need to re-merge the form params if that was desired</span></span><br><span class="line">        <span class="keyword">if</span> (mergeFormAttributes &amp;&amp; request.isExpectMultipart()) &#123;</span><br><span class="line">            request.params().addAll(request.formAttributes());</span><br><span class="line">        &#125;</span><br><span class="line">        context.next();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="BodyHandler-处理-POST请求。"><a href="#BodyHandler-处理-POST请求。" class="headerlink" title="BodyHandler 处理 POST请求。"></a>BodyHandler 处理 POST请求。</h3>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vert-x/">vert.x</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/12/04/vertx-web-BodyHandler.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
+    <article id="post-vertx-web-global-exception" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/12/02/vertx-web-global-exception.html" class="article-date">
+      <time datetime="2017-12-02T01:46:41.000Z" itemprop="datePublished">2017-12-02</time>
+</a>
+
+ 
+    <a href="/2017/12/02/vertx-web-global-exception.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/12/02/vertx-web-global-exception.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/02/vertx-web-global-exception.html">vertx中web全局异常处理</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在以前使用springMVC时，全局异常的处理的方式有很多。现在使用vertx-web开发web应用，同样有这样的需要，而且实现全局异常的处理更简单。</p>
+<h3 id="404-已经-500-异常处理"><a href="#404-已经-500-异常处理" class="headerlink" title="404 已经 500 异常处理"></a>404 已经 500 异常处理</h3><p>我们先看一段简单的代码：</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vert-x/">vert.x</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/12/02/vertx-web-global-exception.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-vertx-vertx-jdbc-client" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1014,199 +1208,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2017/11/21/vertx-web-route.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-vertx-web-router" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/11/21/vertx-web-router.html" class="article-date">
-      <time datetime="2017-11-21T01:12:33.000Z" itemprop="datePublished">2017-11-21</time>
-</a>
-
- 
-    <a href="/2017/11/21/vertx-web-router.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/11/21/vertx-web-router.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/21/vertx-web-router.html">vert.x web开发之router</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>vert.x web开发中router相当于一个核心的控制器，管理多个具体负责处理请求URL的Route对象，它接受来自<code>HttpServer</code>的请求<code>HttpServerRequest</code>，并将请求路由到第一个匹配的Route上去。</p>
-<h3 id="主要方法"><a href="#主要方法" class="headerlink" title="主要方法"></a>主要方法</h3><h4 id="static-Router-router-Vertx-vertx"><a href="#static-Router-router-Vertx-vertx" class="headerlink" title="static Router router(Vertx vertx)"></a>static Router router(Vertx vertx)</h4><p>该方法用来创建一个Router对象。</p>
-<h4 id="void-accept-HttpServerRequest-request"><a href="#void-accept-HttpServerRequest-request" class="headerlink" title="void accept(HttpServerRequest request)"></a>void accept(HttpServerRequest request)</h4><p>该方法用来给一个请求提供一个Router。通常的使用方式为：将该对象作为参数传递给<code>HttpServer.requestHandler(Handler)</code>方法中。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vertx.createHttpServer(serverOptions).requestHandler(router::accept)</span><br></pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vert-x/">vert.x</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/11/21/vertx-web-router.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-vertx-cache" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/11/18/vertx-cache.html" class="article-date">
-      <time datetime="2017-11-18T08:14:35.000Z" itemprop="datePublished">2017-11-18</time>
-</a>
-
- 
-    <a href="/2017/11/18/vertx-cache.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/11/18/vertx-cache.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/18/vertx-cache.html">配置 Vert.x 缓存</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>当 Vert.x 需要从类路径中读取文件（嵌入在 fat-jar 中，类路径中jar文件或其他文件）时，它会把文件复制到缓存目录。背后原因很简单：从 jar 或从输入流读取文件是阻塞的。所以为了避免每次都付出代价，Vert.x 会将文件复制到其缓存目录中，并随后读取该文件。这个行为也可配置。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vert-x/">vert.x</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/11/18/vertx-cache.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

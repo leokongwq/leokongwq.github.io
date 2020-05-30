@@ -274,6 +274,204 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-vertx-event-bus" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/11/17/vertx-event-bus.html" class="article-date">
+      <time datetime="2017-11-17T12:57:36.000Z" itemprop="datePublished">2017-11-17</time>
+</a>
+
+ 
+    <a href="/2017/11/17/vertx-event-bus.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/11/17/vertx-event-bus.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/17/vertx-event-bus.html">vertx-事件总线</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="Event-Bus"><a href="#Event-Bus" class="headerlink" title="Event Bus"></a>Event Bus</h3><p>Event Bus 是 Vert.x 的神经系统。</p>
+<p>每一个 Vert.x 实例都有一个单独的 Event Bus 实例。您可以通过 Vertx 实例的<code>eventBus</code>方法来获得对应的<code>EventBus</code> 实例。</p>
+<p>您的应用中的不同部分通过 Event Bus 相互通信，无论它们使用哪一种语言实现，无论它们在同一个 Vert.x 实例中或在不同的 Vert.x 实例中。</p>
+<p>甚至可以通过桥接的方式允许在浏览器中运行的客户端JavaScript在相同的Event Bus上相互通信。</p>
+<p>Event Bus可形成跨越多个服务器节点和多个浏览器的点对点的分布式消息系统。</p>
+<p>Event Bus支持发布/订阅、点对点、请求/响应的消息通信方式。</p>
+<p>Event Bus的API很简单。基本上只涉及注册处理器、撤销处理器和发送和发布消息。</p>
+<p>首先来看些基本概念和理论。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vert-x/">vert.x</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/11/17/vertx-event-bus.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
+    <article id="post-vertx-timer" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/11/17/vertx-timer.html" class="article-date">
+      <time datetime="2017-11-17T12:48:56.000Z" itemprop="datePublished">2017-11-17</time>
+</a>
+
+ 
+    <a href="/2017/11/17/vertx-timer.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/11/17/vertx-timer.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/17/vertx-timer.html">vertx-执行周期性/延迟性操作</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>在 Vert.x 中，想要延迟之后执行或定期执行操作很常见。</p>
+<p>在 Standard Verticle 中您不能直接让线程休眠以引入延迟，因为它会阻塞 Event Loop 线程。取而代之是使用 Vert.x 定时器。定时器可以是一次性或周期性的，两者我们都会讨论到。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vert-x/">vert.x</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/11/17/vertx-timer.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-vertx-context" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1032,203 +1230,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2017/08/28/linux-disk-raid.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-linux-centos7-rc-local" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/08/26/linux-centos7-rc-local.html" class="article-date">
-      <time datetime="2017-08-26T14:23:01.000Z" itemprop="datePublished">2017-08-26</time>
-</a>
-
- 
-    <a href="/2017/08/26/linux-centos7-rc-local.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/08/26/linux-centos7-rc-local.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/26/linux-centos7-rc-local.html">centos7中rc.local不起作用</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>今天收到公司报警短信，提示在线应用resin的8080端口连接失败。最后知道是应用所在的机器被重启了。但是奇怪的是重启后我们的应用并没有启动。</p>
-<h3 id="问题原因"><a href="#问题原因" class="headerlink" title="问题原因"></a>问题原因</h3><p>我们的应用部署环境时，在<code>rc.local</code>中添加了应用启动命令，难道是没有生效？带着这个疑问查看了配置文件<code>/etc/init.d/rc.local</code> 发现文件中确实已经添加了对应的应用启动命令。</p>
-<p>求助Google后找到了问题的真正原因。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/linux/">linux</a>
-    </div>
-
-
-      
-      
-        <p class="article-more-link">
-          <a href="/2017/08/26/linux-centos7-rc-local.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-understanding-maven-snapshot" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/08/24/understanding-maven-snapshot.html" class="article-date">
-      <time datetime="2017-08-24T07:43:19.000Z" itemprop="datePublished">2017-08-24</time>
-</a>
-
- 
-    <a href="/2017/08/24/understanding-maven-snapshot.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/08/24/understanding-maven-snapshot.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/24/understanding-maven-snapshot.html">理解maven中SNAPSHOT版本的作用</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>一次针对现有的http服务开发了一个SNAPSHOT版本的调用SDK jar包。QA同学部署到测试环境后，我又更新了一下jar包的内容，此时QA同学再次部署时并没有拉去到最新的jar包，这个就比较奇怪了。记忆中maven不是每次都从私服去检查<br>SNAPSHOT类型的jar包是否有更新吗？怎么对我就不起作用了呢？原来也是一直这么使用的的，换个公司就不行了？最后通过阅读官方文档才发现自己的理解不到位。</p>
-<h3 id="为什么使用SNAPSHOT类型的依赖？"><a href="#为什么使用SNAPSHOT类型的依赖？" class="headerlink" title="为什么使用SNAPSHOT类型的依赖？"></a>为什么使用SNAPSHOT类型的依赖？</h3><p>答案当然是不想每次有点代码改动都升级一下版本。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/项目管理/">项目管理</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/maven/">maven</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/08/24/understanding-maven-snapshot.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

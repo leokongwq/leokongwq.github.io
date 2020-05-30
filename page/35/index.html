@@ -274,6 +274,204 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-reverse-print-list" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/10/12/reverse-print-list.html" class="article-date">
+      <time datetime="2016-10-12T08:41:25.000Z" itemprop="datePublished">2016-10-12</time>
+</a>
+
+ 
+    <a href="/2016/10/12/reverse-print-list.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2016/10/12/reverse-print-list.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/10/12/reverse-print-list.html">单链表的逆序打印</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h4 id="单链表的逆序打印"><a href="#单链表的逆序打印" class="headerlink" title="单链表的逆序打印"></a>单链表的逆序打印</h4><p><strong>题目描述</strong>：单链表的逆序打印<br><strong>分析</strong>：单向链表的逆序打印就是从尾节点开始打印节点。方法1：遍历链表将每个节点放入栈中，然后每个元素出栈打印。这用方法需要分配额外的空间。方法2：利用递归的方式，当递归调用返回时我们就指定当前节点的值是最后一个节点，进行输出，层层返回就可以逐个打印每个元素。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/算法/">算法</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/算法/">算法</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2016/10/12/reverse-print-list.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
+    <article id="post-merge-two-sorted-list" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/10/12/merge-two-sorted-list.html" class="article-date">
+      <time datetime="2016-10-12T08:41:15.000Z" itemprop="datePublished">2016-10-12</time>
+</a>
+
+ 
+    <a href="/2016/10/12/merge-two-sorted-list.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2016/10/12/merge-two-sorted-list.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/10/12/merge-two-sorted-list.html">合并两个升序的单向链表</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="合并两个升序的单向链表"><a href="#合并两个升序的单向链表" class="headerlink" title="合并两个升序的单向链表"></a>合并两个升序的单向链表</h3><p><strong>题目描述</strong>：合并两个升序的单向链表<br><strong>分析</strong>：合并排序的单向链表和合并排序好的数组是类似的；<br>1：分配一个新的节点，让newHead指针和tail指针指向新分配的节点；<br>2：从两个链表头部开始，逐个比较2个链表的节点值让tail指向节点的next域指向head1或head2,<br>3: 移动tail指针<br>4：移动 head1 或 head2 到下一个节点</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/算法/">算法</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/算法/">算法</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2016/10/12/merge-two-sorted-list.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-print-NxN-matrix" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1047,215 +1245,6 @@ MathJax.Hub.Queue(function() {
         <p class="article-more-link">
           <a href="/2016/10/11/jvm-codecache.html#more">阅读全文 >></a>
         </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-logstash-input-file" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2015/07/13/logstash-input-file.html" class="article-date">
-      <time datetime="2015-07-12T16:00:00.000Z" itemprop="datePublished">2015-07-13</time>
-</a>
-
- 
-    <a href="/2015/07/13/logstash-input-file.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2015/07/13/logstash-input-file.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/07/13/logstash-input-file.html">logstash-input-file</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="logstash-input-file"><a href="#logstash-input-file" class="headerlink" title="logstash-input-file"></a>logstash-input-file</h3><blockquote>
-<p>Logstash 使用一个名叫 FileWatch 的 Ruby Gem 库来监听文件变化。这个库支持 glob 展开文件路径，而且会记录一个叫 .sincedb 的数据库文件来跟踪被监听的日志文件的当前读取位置。所以，不要担心 logstash 会漏过你的数据。sincedb 文件中记录了每个被监听的文件的 inode, major number, minor number 和 pos。</p>
-</blockquote>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/ELK/">ELK</a>
-    </div>
-
-
-      
-      
-        <p class="article-more-link">
-          <a href="/2015/07/13/logstash-input-file.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-when-to-use-hadoop-toolbox" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2015/07/12/when-to-use-hadoop-toolbox.html" class="article-date">
-      <time datetime="2015-07-11T16:00:00.000Z" itemprop="datePublished">2015-07-12</time>
-</a>
-
- 
-    <a href="/2015/07/12/when-to-use-hadoop-toolbox.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2015/07/12/when-to-use-hadoop-toolbox.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/07/12/when-to-use-hadoop-toolbox.html">Hadoop-Hbase-Hive-Pig关系</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <h3 id="Hadoop-Hbase-Hive-Pig-Sqoop关系"><a href="#Hadoop-Hbase-Hive-Pig-Sqoop关系" class="headerlink" title="Hadoop-Hbase-Hive-Pig-Sqoop关系"></a>Hadoop-Hbase-Hive-Pig-Sqoop关系</h3><p>Eight years ago not even Doug Cutting would have thought that the tool which he’s naming after his kid’s soft toy would so soon become a rage and change the way people and organizations look at their data. Today Hadoop and Big Data have almost become synonyms to each other. But Hadoop is not just Hadoop now. Over time it has evolved into one big herd of various tools, each meant to serve a different purpose. But glued together they give you a powerpacked combo.</p>
-<p>Having said that, one must be careful while choosing these tools for their specific use case as one size doesn’t fit all. What is working for someone might not be that productive for you. So, here I will show you which tool should be picked in which scenario. It’s not a big comparative study but a short intro to some very useful tools. And, this is based totally on my experience so there is always some scope of suggestions. Please feel free to comment or suggest if you have any. I would love to hear from you. Let’s get started :</p>
-<p>1- Hadoop : Hadoop is basically 2 things, a distributed file system (HDFS) which constitutes Hadoop’s storage layer and a distributed computation framework(MapReduce) which constitutes the processing layer. You should go for Hadoop if your data is very huge and you have offline, batch processing kinda needs. Hadoop is not suitable for real time stuff. You setup a Hadoop cluster on a group of commodity machines connected together over a network(called as a cluster). You then store huge amounts of data into the HDFS and process this data by writing MapReduce programs(or jobs). Being distributed, HDFS is spread across all the machines in a cluster and MapReduce processes this scattered data locally by going to each machine, so that you don’t have to relocate this gigantic amount of data.</p>
-<p>2- Hbase : Hbase is a distributed, scalable, big data store, modelled after Google’s BigTable. It stores data as key/value pairs. It’s basically a database, a NoSQL database and like any other database it’s biggest advantage is that it provides you random read/write capabilities. As I have mentioned earlier, Hadoop is not very good for your real time needs, so you can use Hbase to serve that purpose. If you have some data which you want to access real time, you could store it in Hbase. Hbase has got it’s own set of very good API which could be used to push/pull the data. Not only this, Hbase can be seamlessly integrated with MapReduce so that you can do bulk operation, like indexing, analytics etc etc.</p>
-<p>Tip : You could use Hadoop as the repository for your static data and Hbase as the datastore which will hold data that is probably gonna change over time after some processing.</p>
-<p>3- Hive : Originally developed by Facebook, Hive is basically adata warehouse. It sits on top of your Hadoop cluster and provides you an SQL like interface to the data stored in your Hadoop cluster. You can then write SQLish queries using Hive’s query language, called as HiveQL and perform operations like store, select, join, and much more. It makes processing a lot easier as you don’t have to do lengthy, tedious coding. Write simple Hive queries and get the results. Isn’t that cool??RDBMS folks will definitely love it. Simply map HDFS files to Hive tables and start querying the data. Not only this, you could map Hbase tables as well, and operate on that data.</p>
-<p>Tip : Use Hive when you have warehousing needs and you are good at SQL and don’t want to write MapReduce jobs. One important point though, Hive queries get converted into a corresponding MapReduce job under the hood which runs on your cluster and gives you the result. Hive does the trick for you. But each and every problem cannot be solved using HiveQL. Sometimes, if you need really fine grained and complex processing you might have to take MapReduce’s shelter.</p>
-<p>4- Pig : Pig is a dataflow language that allows you to process enormous amounts of data very easily and quickly by repeatedly transforming it in steps. It basically has 2 parts, the PigInterpreter and the language, PigLatin. Pig was originally developed at Yahoo and they use it extensively. Like Hive, PigLatin queries also get converted into a MapReduce job and give you the result. You can use Pig for data stored both in HDFS and Hbase very conveniently. Just like Hive, Pig is also really efficient at what it is meant to do. It saves a lot of your effort and time by allowing you to not write MapReduce programs and do the operation through straightforward Pig queries.</p>
-<p>Tip : Use Pig when you want to do a lot of transformations on your data and don’t want to take the pain of writing MapReduce jobs.</p>
-<p>5- Sqoop : Sqoop is a tool that allows you to transfer data between relational databases and Hadoop. It supports incremental loads of a single table or a free form SQL query as well as saved jobs which can be run multiple times to import updates made to a database since the last import. Not only this, imports can also be used to populate tables in Hive or HBase. Along with this Sqoop also allows you to export the data back into the relational database from the cluster.</p>
-<p>Tip : Use Sqoop when you have lots of legacy data and you want it to be stored and processed over your Hadoop cluster or when you want to incrementally add the data to your existing storage.</p>
-<p>6- Oozie : Now you have everything in place and want to do the processing but find it crazy to start the jobs and manage the workflow manually all the time. Specially in the cases when it is required to chain multiple MapReduce jobs together to achieve a goal. You would like to have some way to automate all this. No worries, Oozie comes to the rescue. It is a scalable, reliable and extensible workflow scheduler system. You just define your workflows(which are Directed Acyclical Graphs) once and rest is taken care by Oozie. You can schedule MapReduce jobs, Pig jobs, Hive jobs, Sqoop imports and even your Java programs using Oozie.</p>
-<p>Tip : Use Oozie when you have a lot of jobs to run and want some efficient way to automate everything based on some time (frequency) and data availabilty.</p>
-<p>7- Flume/Chukwa : Both Flume and Chukwa are data aggregation tools and allow you to aggregate data in an efficient, reliable and distributed manner. You can pick data from some place and dump it into your cluster. Since you are handling BigData, it makes more sense to do it in a distributed and parallel fashion which both these tools are very good at. You just have to define your flows and feed them to these tools and rest of things will be done automatically by them.</p>
-<p>Tip : Go for Flume/Chukwa when you have to aggregate huge amounts of data into your Hadoop environment in a distributed and parallel manner.</p>
-<p>8- Avro : Avro is a data serialization system. It provides functionalities similar to systems like Protocol Buffers, Thrift etc. In addition to that it provides some other significant features like rich data structures, a compact, fast, binary data format, a container file to store persistent data, RPC mechanism and pretty simple dynamic languages integration. And the best part is that Avro can easily be used with MapReduce, Hive and Pig. Avro uses JSON for defining data types.</p>
-<p>Tip : Use Avro when you want to serialize your BigData with good flexibility.</p>
-<p>The list is actually pretty big, but I have covered only the most significa</p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/bigdata/">bigdata</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hive/">hive</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pig/">pig</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sqoop/">sqoop</a></li></ul>
-    </div>
-
       
       <div class="clearfix"></div>
     </div>

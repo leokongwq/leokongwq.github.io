@@ -274,6 +274,203 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-maven-resource-plugin" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/06/22/maven-resource-plugin.html" class="article-date">
+      <time datetime="2017-06-22T02:03:00.000Z" itemprop="datePublished">2017-06-22</time>
+</a>
+
+ 
+    <a href="/2017/06/22/maven-resource-plugin.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/06/22/maven-resource-plugin.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/06/22/maven-resource-plugin.html">maven-resource-plugin</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>有个项目在测试环境和线上环境需要包含不同的配置文件， 这就需要结合maven的profile和resource插件配置来解决了。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/开发工具/">开发工具</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/maven/">maven</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/06/22/maven-resource-plugin.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
+    <article id="post-java-Security-Illegal-key-size" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/06/19/java-Security-Illegal-key-size.html" class="article-date">
+      <time datetime="2017-06-19T06:53:51.000Z" itemprop="datePublished">2017-06-19</time>
+</a>
+
+ 
+    <a href="/2017/06/19/java-Security-Illegal-key-size.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/06/19/java-Security-Illegal-key-size.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/06/19/java-Security-Illegal-key-size.html">java-Security-Illegal-key-size</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>项目中使用了Java的加密库，使用的过程中出现异常<code>Caused by: java.security.InvalidKeyException: Illegal key size or default parameters</code>。 Google后发现需要替换对应的jar包。</p>
+<h3 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h3><p>参考: <a href="https://stackoverflow.com/questions/6481627/java-security-illegal-key-size-or-default-parameters" target="_blank" rel="noopener">https://stackoverflow.com/questions/6481627/java-security-illegal-key-size-or-default-parameters</a></p>
+<ol>
+<li>下载JDK对应版本的JCE<a href="http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html" target="_blank" rel="noopener">http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html</a></li>
+<li>解压下载文件，将<code>JAVA_HOME</code>的子目录<code>jre/lib/security</code>中的文件<code>US_export_policy.jar, local_policy.jar</code>替换为JCE下载的jar。</li>
+</ol>
+<h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><p>Illegal key size or default parameters是指密钥长度是受限制的，java运行时环境读到的是受限的policy文件。这种限制是因为美国对软件出口的控制。</p>
+<h3 id="扩展阅读"><a href="#扩展阅读" class="headerlink" title="扩展阅读"></a>扩展阅读</h3><p><a href="http://blog.csdn.net/allenwells/article/details/46505849" target="_blank" rel="noopener">Java安全技术探索之路系列</a></p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/java/">java</a>
+    </div>
+
+
+      
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-linux-find" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1036,207 +1233,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2017/05/19/mongodb-enable-query-log.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-best-practices-for-a-pragmatic-restful-api" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/05/18/best-practices-for-a-pragmatic-restful-api.html" class="article-date">
-      <time datetime="2017-05-18T09:19:31.000Z" itemprop="datePublished">2017-05-18</time>
-</a>
-
- 
-    <a href="/2017/05/18/best-practices-for-a-pragmatic-restful-api.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/05/18/best-practices-for-a-pragmatic-restful-api.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/05/18/best-practices-for-a-pragmatic-restful-api.html">RESTful API 设计最佳实践</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>本文转自：<a href="http://www.oschina.net/translate/best-practices-for-a-pragmatic-restful-api" target="_blank" rel="noopener">RESTful API 设计最佳实践</a></p>
-<p>数据模型已经稳定，接下来你可能需要为web（网站）应用创建一个公开的API（应用程序编程接口）。需要认识到这样一个问题：一旦API发布后，就很难对它做很大的改动并且保持像先前一样的正确性。现在，网络上有很多关于API设计的思路。但是在全部案例中没有一种被广泛采纳的标准，有很多的选择：你接受什么样的格式？如何认证？API应该被版本化吗？</p>
-<p>在为SupportFu（一个轻量级的Zendesk替换实现）设计API时，对于这些问题我尽量得出一些务实的答案。我的目标是设计这样一个API，它容易使用和采纳，足够灵活去为我们用户接口去埋单。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/web/">web</a><a class="article-category-link" href="/categories/web/架构/">架构</a>
-    </div>
-
-
-      
-      
-        <p class="article-more-link">
-          <a href="/2017/05/18/best-practices-for-a-pragmatic-restful-api.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-rest-introduce" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/05/18/rest-introduce.html" class="article-date">
-      <time datetime="2017-05-18T01:46:06.000Z" itemprop="datePublished">2017-05-18</time>
-</a>
-
- 
-    <a href="/2017/05/18/rest-introduce.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/05/18/rest-introduce.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/05/18/rest-introduce.html">rest架构介绍</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>本文转自:<a href="http://www.infoq.com/cn/articles/understanding-restful-style" target="_blank" rel="noopener">理解本真的REST架构风格</a></p>
-<h3 id="REST架构风格架构约束"><a href="#REST架构风格架构约束" class="headerlink" title="REST架构风格架构约束"></a>REST架构风格架构约束</h3><p>REST架构风格最重要的架构约束有6个</p>
-<ul>
-<li>客户-服务器（Client-Server）通信只能由客户端单方面发起，表现为请求-响应的形式。</li>
-<li>无状态（Stateless）通信的会话状态（Session State）应该全部由客户端负责维护。</li>
-<li>缓存（Cache）响应内容可以在通信链的某处被缓存，以改善网络效率。</li>
-<li>统一接口（Uniform Interface）通信链的组件之间通过统一的接口相互通信，以提高交互的可见性。</li>
-<li>分层系统（Layered System）通过限制组件的行为（即，每个组件只能“看到”与其交互的紧邻层），将架构分解为若干等级的层。</li>
-<li>按需代码（Code-On-Demand，可选）支持通过下载并执行一些代码（例如Java Applet、Flash或JavaScript），对客户端的功能进行扩展。</li>
-</ul>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/web/">web</a><a class="article-category-link" href="/categories/web/架构/">架构</a>
-    </div>
-
-
-      
-      
-        <p class="article-more-link">
-          <a href="/2017/05/18/rest-introduce.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

@@ -274,6 +274,199 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-spring-aop-analyze-1" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/05/29/spring-aop-analyze-1.html" class="article-date">
+      <time datetime="2020-05-29T14:27:16.000Z" itemprop="datePublished">2020-05-29</time>
+</a>
+
+ 
+    <a href="/2020/05/29/spring-aop-analyze-1.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2020/05/29/spring-aop-analyze-1.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/05/29/spring-aop-analyze-1.html">spring中AOP实现分析-第一篇</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这是一篇关于Spring AOP的总结分析文章，帮助自己记忆。</p>
+<h2 id="AOP配置"><a href="#AOP配置" class="headerlink" title="AOP配置"></a>AOP配置</h2><p>下面的例子是通过注解驱动的AOP例子：</p>
+<p>启用Spring AOP：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">aop:aspectj-autoproxy</span> <span class="attr">proxy-target-class</span>=<span class="string">"true"</span> <span class="attr">expose-proxy</span>=<span class="string">"true"</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>或者通过下面的注解方式启用Spring AOP</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> jiexiu</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@EnableAspectJAutoProxy</span>(exposeProxy = <span class="keyword">true</span>, proxyTargetClass = <span class="keyword">true</span>)</span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Config</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/spring/">spring</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2020/05/29/spring-aop-analyze-1.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
+    <article id="post-nacos-learn" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/05/13/nacos-learn.html" class="article-date">
+      <time datetime="2020-05-13T15:11:57.000Z" itemprop="datePublished">2020-05-13</time>
+</a>
+
+ 
+    <a href="/2020/05/13/nacos-learn.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2020/05/13/nacos-learn.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/05/13/nacos-learn.html">nacos学习笔记</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="nacos是什么？"><a href="#nacos是什么？" class="headerlink" title="nacos是什么？"></a>nacos是什么？</h3><p>Nacos 是 Dynamic Naming and Configuration Service 的缩写。</p>
+<p>总结来说：nacos一个专门为微服务架构设计提供了诸如：服务注册，服务发现，服务元数据管理，服务动态配置管理，流量管理等功能的中间件。通过使用nacos你可以快速搭建微服务架构，并可以和业界优秀的开源项目，像k8s,Dubbo,Spring Cloud进行整合 或 和公司内部的中间件进行整合。</p>
+<h3 id="nacos-一致性模型"><a href="#nacos-一致性模型" class="headerlink" title="nacos 一致性模型"></a>nacos 一致性模型</h3><p>说到底，nacos是一个分布式存储系统。既然是存储系统，那么它的一致性模型必然是人们首要关注的问题。<br>根据官网文档介绍可知。Nacos选择了AP下的最终一致性模型。</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-async-to-sync-call" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1023,200 +1216,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2019/11/28/RockeqMQ-summary.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-elastic-job-summary" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2019/11/12/elastic-job-summary.html" class="article-date">
-      <time datetime="2019-11-12T13:22:49.000Z" itemprop="datePublished">2019-11-12</time>
-</a>
-
- 
-    <a href="/2019/11/12/elastic-job-summary.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2019/11/12/elastic-job-summary.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/11/12/elastic-job-summary.html">elastic-job学习总结</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="elastic-job-是什么？"><a href="#elastic-job-是什么？" class="headerlink" title="elastic-job 是什么？"></a>elastic-job 是什么？</h2><p>还是看官方文档介绍：<a href="http://elasticjob.io/docs/elastic-job-lite/00-overview/" target="_blank" rel="noopener">http://elasticjob.io/docs/elastic-job-lite/00-overview/</a></p>
-<h2 id="elastic-job-实现分析"><a href="#elastic-job-实现分析" class="headerlink" title="elastic-job 实现分析"></a>elastic-job 实现分析</h2><h3 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h3><p><img src="http://elasticjob.io/docs/elastic-job-lite/img/architecture/elastic_job_lite.png" alt="Elastic-Job-Lite Architecture"></p>
-<p>从上图可以看到 elastic-job 的实现主要依赖的外部组件是zookeeper。 用zookeeper来实现分布式任务的协调及相关任务信息的保存。具体任务的调度触发还是依赖core模块里面的Quartz API提供的能力。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/任务调度/">任务调度</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2019/11/12/elastic-job-summary.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-HttpMessageConverter总结" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2019/09/13/HttpMessageConverter总结.html" class="article-date">
-      <time datetime="2019-09-13T14:31:14.000Z" itemprop="datePublished">2019-09-13</time>
-</a>
-
- 
-    <a href="/2019/09/13/HttpMessageConverter总结.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2019/09/13/HttpMessageConverter总结.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/09/13/HttpMessageConverter总结.html">HttpMessageConverter总结</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="HttpMessageConverter-是什么？"><a href="#HttpMessageConverter-是什么？" class="headerlink" title="HttpMessageConverter 是什么？"></a>HttpMessageConverter 是什么？</h3><p>简单来说<code>HttpMessageConverter</code>是spring-web提供的一个接口，用来将HTTP请求转为应用使用的数据，或将HTTP接口的返回数据转为客户端需要的数据。</p>
-<p>接口定义如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HttpMessageConverter</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">true<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 根据参数判断该Converter是否能对请求进行转换</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">true<span class="function"><span class="keyword">boolean</span> <span class="title">canRead</span><span class="params">(Class&lt;?&gt; clazz, MediaType mediaType)</span></span>;</span><br><span class="line"></span><br><span class="line">true<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 根据参数判断是否可以转换，生成指定的HTTP响应</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">true<span class="function"><span class="keyword">boolean</span> <span class="title">canWrite</span><span class="params">(Class&lt;?&gt; clazz, MediaType mediaType)</span></span>;</span><br><span class="line"></span><br><span class="line">true<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Return the list of &#123;<span class="doctag">@link</span> MediaType&#125; objects supported by this converter.</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@return</span> the list of supported media types</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">true<span class="function">List&lt;MediaType&gt; <span class="title">getSupportedMediaTypes</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">true<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 从 inputMessage 读取数据，转为class指定的对象</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">true<span class="function">T <span class="title">read</span><span class="params">(Class&lt;? extends T&gt; clazz, HttpInputMessage inputMessage)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> IOException, HttpMessageNotReadableException</span>;</span><br><span class="line"></span><br><span class="line">true<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 将参数t指定的数据，转换为 contentType 指定的媒体类型，写入到HTTP响应。</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">true<span class="function"><span class="keyword">void</span> <span class="title">write</span><span class="params">(T t, MediaType contentType, HttpOutputMessage outputMessage)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> IOException, HttpMessageNotWritableException</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring/">Spring</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2019/09/13/HttpMessageConverter总结.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

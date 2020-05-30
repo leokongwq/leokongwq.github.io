@@ -274,6 +274,210 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-mockito-learn" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/12/06/mockito-learn.html" class="article-date">
+      <time datetime="2018-12-06T06:33:01.000Z" itemprop="datePublished">2018-12-06</time>
+</a>
+
+ 
+    <a href="/2018/12/06/mockito-learn.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2018/12/06/mockito-learn.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/12/06/mockito-learn.html">mockito学习总结</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在开发工作中，单元测试时必不可少的一环。而在编写单元测试代码中，你肯定会遇到依赖的服务，接口和一些运行环境中的对象无法构造的情况。此时你就需要一个功能强大的mock框架，让它来帮你完成这些功能，而<a href="https://site.mockito.org/" target="_blank" rel="noopener">Mockito</a>就是Java开发环境中一个功能强大的Mock框架。类似的还有powermock, easymock等。</p>
+<p>本文是对以往工作中使用到Mockito的一些功能做一次总结，方便以后翻看，并帮助需要使用Mockito的人。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/测试/">测试</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mockito/">mockito</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/12/06/mockito-learn.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
+    <article id="post-mysql-show-profile" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/11/24/mysql-show-profile.html" class="article-date">
+      <time datetime="2018-11-24T04:55:54.000Z" itemprop="datePublished">2018-11-24</time>
+</a>
+
+ 
+    <a href="/2018/11/24/mysql-show-profile.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2018/11/24/mysql-show-profile.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/11/24/mysql-show-profile.html">mysql profile 学习笔记</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="mysql-profile-简介"><a href="#mysql-profile-简介" class="headerlink" title="mysql profile 简介"></a>mysql profile 简介</h3><p><code>show profile</code> 和 <code>show profiles</code>语句，可以用来显示SQL语句执行期间各种资源的使用信息。</p>
+<blockquote>
+<p>注意：<br>这些语句从版本<code>5.6.7</code>开始就不建议使用了，并且可能在下一个release版本中删除。后续可以通过<code>Performance Schema</code>来替代这些语句。具体可以参考:<a href="https://dev.mysql.com/doc/refman/5.6/en/performance-schema-query-profiling.html" target="_blank" rel="noopener">Profiling Using Performance Schema</a>。</p>
+</blockquote>
+<h3 id="show-profiles"><a href="#show-profiles" class="headerlink" title="show profiles"></a>show profiles</h3><p><code>show profiles</code> 展示了服务器最近收到的语句列表。 列表的大小可以通过调整<code>profiling_history_size</code>来调整，默认大小是<code>15</code>，最大值是<code>100</code>。如果设置为0，则和关闭profile功能是一样的。</p>
+<p>举个例子：</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/mysql/">mysql</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/11/24/mysql-show-profile.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-springboot-resttempate-timout" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1026,207 +1230,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2018/07/08/consul-acl.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-spring-cloud-consul" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/07/08/spring-cloud-consul.html" class="article-date">
-      <time datetime="2018-07-08T05:28:16.000Z" itemprop="datePublished">2018-07-08</time>
-</a>
-
- 
-    <a href="/2018/07/08/spring-cloud-consul.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2018/07/08/spring-cloud-consul.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/07/08/spring-cloud-consul.html">springcloud服务注册之consul</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>使用springcloud构建微服务，除了可以使用eureka来实现服务注册和发现外，springcloud对consul也提供了良好的支持。本文就简单介绍下使用springcloud和consul实现服务注册和发现。</p>
-<h3 id="consul安装"><a href="#consul安装" class="headerlink" title="consul安装"></a>consul安装</h3><p>consul的安装非常简单，只需要在官网<a href="https://www.consul.io/downloads.html" target="_blank" rel="noopener">下载</a>对应平台的安装文件即可。</p>
-<p>具体安装步骤参考<a href="https://www.consul.io/intro/getting-started/install.html" target="_blank" rel="noopener">install</a></p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/web/">web</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/springcloud/">springcloud</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/07/08/spring-cloud-consul.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-activemq-deleyQueue" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/06/27/activemq-deleyQueue.html" class="article-date">
-      <time datetime="2018-06-27T15:08:31.000Z" itemprop="datePublished">2018-06-27</time>
-</a>
-
- 
-    <a href="/2018/06/27/activemq-deleyQueue.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2018/06/27/activemq-deleyQueue.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/06/27/activemq-deleyQueue.html">ActiveMQ 延迟消息</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>有非常多的业务场景需要用到延迟消息功能。例如：订单待支付提醒，订单超时取消等。但并不是所有的消息中间件都支持延迟消息的功能，为了实现延迟消息，各路大神也是创造了很多的方案。<br>我们的系统使用的是ActiveMQ，ActiveMQ从版本<code>5.4</code>开始提供了持久化的延迟消息功能。下文就ActiveMQ提供的延迟消息功能进行介绍。</p>
-<h3 id="启用ActiveMQ定时消息功能"><a href="#启用ActiveMQ定时消息功能" class="headerlink" title="启用ActiveMQ定时消息功能"></a>启用ActiveMQ定时消息功能</h3><p>为了使用ActiveMQ的延迟消息功能，我们需要修改ActiveMQ的配置文件<code>activemq.xml</code>，<br>在broker节点上添加<code>schedulerSupport=&quot;true&quot;</code>，如下所示:</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/消息中间件/">消息中间件</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ActiveMQ/">ActiveMQ</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MQ/">MQ</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/06/27/activemq-deleyQueue.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

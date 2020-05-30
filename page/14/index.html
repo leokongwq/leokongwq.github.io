@@ -274,6 +274,207 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-best-practices-for-a-pragmatic-restful-api" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/05/18/best-practices-for-a-pragmatic-restful-api.html" class="article-date">
+      <time datetime="2017-05-18T09:19:31.000Z" itemprop="datePublished">2017-05-18</time>
+</a>
+
+ 
+    <a href="/2017/05/18/best-practices-for-a-pragmatic-restful-api.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/05/18/best-practices-for-a-pragmatic-restful-api.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/18/best-practices-for-a-pragmatic-restful-api.html">RESTful API 设计最佳实践</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>本文转自：<a href="http://www.oschina.net/translate/best-practices-for-a-pragmatic-restful-api" target="_blank" rel="noopener">RESTful API 设计最佳实践</a></p>
+<p>数据模型已经稳定，接下来你可能需要为web（网站）应用创建一个公开的API（应用程序编程接口）。需要认识到这样一个问题：一旦API发布后，就很难对它做很大的改动并且保持像先前一样的正确性。现在，网络上有很多关于API设计的思路。但是在全部案例中没有一种被广泛采纳的标准，有很多的选择：你接受什么样的格式？如何认证？API应该被版本化吗？</p>
+<p>在为SupportFu（一个轻量级的Zendesk替换实现）设计API时，对于这些问题我尽量得出一些务实的答案。我的目标是设计这样一个API，它容易使用和采纳，足够灵活去为我们用户接口去埋单。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/web/">web</a><a class="article-category-link" href="/categories/web/架构/">架构</a>
+    </div>
+
+
+      
+      
+        <p class="article-more-link">
+          <a href="/2017/05/18/best-practices-for-a-pragmatic-restful-api.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
+    <article id="post-rest-introduce" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/05/18/rest-introduce.html" class="article-date">
+      <time datetime="2017-05-18T01:46:06.000Z" itemprop="datePublished">2017-05-18</time>
+</a>
+
+ 
+    <a href="/2017/05/18/rest-introduce.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/05/18/rest-introduce.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/18/rest-introduce.html">rest架构介绍</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>本文转自:<a href="http://www.infoq.com/cn/articles/understanding-restful-style" target="_blank" rel="noopener">理解本真的REST架构风格</a></p>
+<h3 id="REST架构风格架构约束"><a href="#REST架构风格架构约束" class="headerlink" title="REST架构风格架构约束"></a>REST架构风格架构约束</h3><p>REST架构风格最重要的架构约束有6个</p>
+<ul>
+<li>客户-服务器（Client-Server）通信只能由客户端单方面发起，表现为请求-响应的形式。</li>
+<li>无状态（Stateless）通信的会话状态（Session State）应该全部由客户端负责维护。</li>
+<li>缓存（Cache）响应内容可以在通信链的某处被缓存，以改善网络效率。</li>
+<li>统一接口（Uniform Interface）通信链的组件之间通过统一的接口相互通信，以提高交互的可见性。</li>
+<li>分层系统（Layered System）通过限制组件的行为（即，每个组件只能“看到”与其交互的紧邻层），将架构分解为若干等级的层。</li>
+<li>按需代码（Code-On-Demand，可选）支持通过下载并执行一些代码（例如Java Applet、Flash或JavaScript），对客户端的功能进行扩展。</li>
+</ul>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/web/">web</a><a class="article-category-link" href="/categories/web/架构/">架构</a>
+    </div>
+
+
+      
+      
+        <p class="article-more-link">
+          <a href="/2017/05/18/rest-introduce.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-springboot-mongo" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1026,200 +1227,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2017/04/07/spring-ErrorPageFilter.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-spring-aop-MethodAnnotation" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/04/05/spring-aop-MethodAnnotation.html" class="article-date">
-      <time datetime="2017-04-05T06:23:52.000Z" itemprop="datePublished">2017-04-05</time>
-</a>
-
- 
-    <a href="/2017/04/05/spring-aop-MethodAnnotation.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/04/05/spring-aop-MethodAnnotation.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/05/spring-aop-MethodAnnotation.html">spring中AOP获取方法上的注解信息</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <p><a href="http://loveshisong.cn/%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF/2016-06-01-AOP%E4%B8%AD%E8%8E%B7%E5%8F%96%E6%96%B9%E6%B3%95%E4%B8%8A%E7%9A%84%E6%B3%A8%E8%A7%A3%E4%BF%A1%E6%81%AF.html" target="_blank" rel="noopener">AOP中获取方法上的注解信息</a></p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/spring/">spring</a><a class="article-category-link" href="/categories/spring/java/">java</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AOP/">AOP</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-spring-expandPoint" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/04/02/spring-expandPoint.html" class="article-date">
-      <time datetime="2017-04-02T01:09:48.000Z" itemprop="datePublished">2017-04-02</time>
-</a>
-
- 
-    <a href="/2017/04/02/spring-expandPoint.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/04/02/spring-expandPoint.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/02/spring-expandPoint.html">spring扩展点整理</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>Spring的强大和灵活性不用再强调了。而灵活性就是通过一系列的扩展点来实现的，这些扩展点给应用程序提供了参与Spring容器创建的过程，好多定制化的东西都需要扩展点的支持。尤其在使用SpringBoot的过程中。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/java/">java</a><a class="article-category-link" href="/categories/java/spring/">spring</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/04/02/spring-expandPoint.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

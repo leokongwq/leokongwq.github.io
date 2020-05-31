@@ -274,6 +274,102 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-vertx-command-line-options" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/12/05/vertx-command-line-options.html" class="article-date">
+      <time datetime="2017-12-05T09:25:59.000Z" itemprop="datePublished">2017-12-05</time>
+</a>
+
+ 
+    <a href="/2017/12/05/vertx-command-line-options.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/12/05/vertx-command-line-options.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/05/vertx-command-line-options.html">vertx命令行选项解析</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>我们在开发，测试，生产环境需要设置Vert.x不同的<code>VertxOptions</code>，通常可以通过自定义<code>Launcher</code>，复写<code>beforeStartingVertx</code>方法来设置<code>VertxOptions</code>。 eg.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">beforeStartingVertx</span><span class="params">(VertxOptions options)</span> </span>&#123;</span><br><span class="line">    options.setEventLoopPoolSize(Runtime.getRuntime().availableProcessors() * <span class="number">2</span>);</span><br><span class="line">    options.setWorkerPoolSize(Integer.getInteger(VERTX_WORKER_POOL_SIZE, DEFAULT_WORKER_POOL_SIZE));</span><br><span class="line">    System.setProperty(<span class="string">"IGNITE_NO_SHUTDOWN_HOOK"</span>, <span class="string">"true"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vert-x/">vert.x</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/12/05/vertx-command-line-options.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-vertx-web-BodyHandler" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1112,102 +1208,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2017/11/22/vertx-Vertx.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-vertx-web-route" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/11/21/vertx-web-route.html" class="article-date">
-      <time datetime="2017-11-21T01:43:38.000Z" itemprop="datePublished">2017-11-21</time>
-</a>
-
- 
-    <a href="/2017/11/21/vertx-web-route.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/11/21/vertx-web-route.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/21/vertx-web-route.html">vert.x web开发之route</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>一个Route包含了一个条件集合，它用这些条件来判断一个http请求或失败是否应该被路由到指定的Handler。</p>
-<h3 id="主要方法"><a href="#主要方法" class="headerlink" title="主要方法"></a>主要方法</h3><h4 id="Route-method-HttpMethod-method"><a href="#Route-method-HttpMethod-method" class="headerlink" title="Route method(HttpMethod method);"></a>Route method(HttpMethod method);</h4><p>添加一个支持的HTTP方法到该Route中。默认情况下，一个Route匹配所有的HTTP方法，如果指定了任意的HTTP方法后，则该Route只会匹配指定的HTTP方法。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vert-x/">vert.x</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/11/21/vertx-web-route.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

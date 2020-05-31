@@ -274,6 +274,105 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-mongodb-enable-query-log" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/05/19/mongodb-enable-query-log.html" class="article-date">
+      <time datetime="2017-05-19T01:29:07.000Z" itemprop="datePublished">2017-05-19</time>
+</a>
+
+ 
+    <a href="/2017/05/19/mongodb-enable-query-log.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/05/19/mongodb-enable-query-log.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/19/mongodb-enable-query-log.html">mongodb开启查询日志</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>公司的mongodb集群最近有好多慢查询报警，具体原因就是好多查询没有命中查询缓存，导致mongodb的缓存刷新线程来不及删除缓存中的数据；同样也导致大量查询走磁盘。为了分析究竟是哪些查询导致mongodb的缓存利用率不高，就需要统计分析mongodb的查询日志。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/数据库/">数据库</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mongodb/">mongodb</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/05/19/mongodb-enable-query-log.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-best-practices-for-a-pragmatic-restful-api" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1124,109 +1223,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2017/04/07/spring-ExceptionResolver.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-spring-ErrorPageFilter" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/04/07/spring-ErrorPageFilter.html" class="article-date">
-      <time datetime="2017-04-07T06:35:53.000Z" itemprop="datePublished">2017-04-07</time>
-</a>
-
- 
-    <a href="/2017/04/07/spring-ErrorPageFilter.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/04/07/spring-ErrorPageFilter.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/07/spring-ErrorPageFilter.html">SpringBoot异常处理之ErrorPageFilter</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="ErrorPageFilter-简介"><a href="#ErrorPageFilter-简介" class="headerlink" title="ErrorPageFilter 简介"></a>ErrorPageFilter 简介</h3><p>ErrorPageFilter是SpringBoot在1.4.0版本提供的一个类，本质上是一个Filter。 它的作用主要有两方面：</p>
-<ol>
-<li>提供应用程序注册ErrorPage的接口，此时它的角色是：ErrorPageRegistry</li>
-<li>处理应用程序异常，根据异常的类型转发到对应的ErrorPage页, 从而不依赖部署的容器错误处理机制</li>
-</ol>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/java/">java</a><a class="article-category-link" href="/categories/java/spring/">spring</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/04/07/spring-ErrorPageFilter.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

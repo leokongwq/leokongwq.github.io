@@ -274,6 +274,119 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-mysql-data-types-enum" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/08/15/mysql-data-types-enum.html" class="article-date">
+      <time datetime="2017-08-15T02:41:16.000Z" itemprop="datePublished">2017-08-15</time>
+</a>
+
+ 
+    <a href="/2017/08/15/mysql-data-types-enum.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/08/15/mysql-data-types-enum.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/08/15/mysql-data-types-enum.html">mysql数据类型-枚举类型</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="ENUM-类型"><a href="#ENUM-类型" class="headerlink" title="ENUM 类型"></a>ENUM 类型</h3><p><code>ENUM</code>是一个字符串对象，它的取值范围是在创建表时指定的列表。它具有以下优点：</p>
+<ul>
+<li>当一个列取值是有限范围时，可以压缩数据存储。输入的字符串会被自动编码为数字存储。具体参考：<a href="https://dev.mysql.com/doc/refman/5.7/en/storage-requirements.html" target="_blank" rel="noopener">Data Type Storage Requirements</a></li>
+<li>在查询和输出时可读性更好。在查询结果中，存储的数字会被还原为字符串。但是需要考虑一下潜在的问题：<ul>
+<li>如果你将枚举类型字段的取值设置为数字时，很容易将字面量的值和MySQL内部存储的索引值混淆。详情参考:<a href="./mysql-data-types-enum.html#枚举类型的限制">枚举类型的限制</a></li>
+<li>枚举类型的列用在<code>order by</code>子句中需要特别注意，详情参考：<a href="./mysql-data-types-enum.html#枚举列排序">枚举列排序</a>.</li>
+<li><a href="./mysql-data-types-enum.html#创建并使用枚举类型的列">创建并使用枚举类型的列</a></li>
+<li><a href="./mysql-data-types-enum.html#枚举元素的索引">枚举元素的索引</a></li>
+<li><a href="./mysql-data-types-enum.html#枚举字面量处理">枚举字面量处理</a></li>
+<li><a href="./mysql-data-types-enum.html#空值或NULL值">空值或NULL值</a></li>
+<li><a href="./mysql-data-types-enum.html#枚举列排序">枚举列排序</a></li>
+<li><a href="./mysql-data-types-enum.html#枚举类型的限制">枚举类型的限制</a></li>
+</ul>
+</li>
+</ul>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/mysql/">mysql</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/08/15/mysql-data-types-enum.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-mysql-data-types-string" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1117,105 +1230,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2017/07/06/mysql-deadlock-detection.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-mysql-timeout" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/07/06/mysql-timeout.html" class="article-date">
-      <time datetime="2017-07-06T00:42:58.000Z" itemprop="datePublished">2017-07-06</time>
-</a>
-
- 
-    <a href="/2017/07/06/mysql-timeout.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/07/06/mysql-timeout.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/06/mysql-timeout.html">mysql中重要超时处理机制</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>应用中的一个事务性方法锁住了一条记录(select … for update), 并在锁住记录后陷入了死循环，由此导致其它事务对该条记录的任何操作都会处于等待中。此问题也可以理解为，一个事务加锁了某些记录，但是长时间不提交，导致大量事务等待超时。那这个超时时间是多少呢？如何控制这个超时时间呢？</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/数据库/">数据库</a><a class="article-category-link" href="/categories/数据库/mysql/">mysql</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/07/06/mysql-timeout.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

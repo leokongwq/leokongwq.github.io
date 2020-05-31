@@ -274,6 +274,102 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-algo-HashSearch" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/01/20/algo-HashSearch.html" class="article-date">
+      <time datetime="2017-01-20T07:04:42.000Z" itemprop="datePublished">2017-01-20</time>
+</a>
+
+ 
+    <a href="/2017/01/20/algo-HashSearch.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/01/20/algo-HashSearch.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/01/20/algo-HashSearch.html">algo-HashSearch</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>文章转自：<a href="http://www.cnblogs.com/maybe2030/p/4715035.html#_label6" target="_blank" rel="noopener">http://www.cnblogs.com/maybe2030/p/4715035.html#_label6</a></p>
+<h3 id="什么是哈希表（Hash）？"><a href="#什么是哈希表（Hash）？" class="headerlink" title="什么是哈希表（Hash）？"></a>什么是哈希表（Hash）？</h3><p>我们使用一个下标范围比较大的数组来存储元素。可以设计一个函数（哈希函数， 也叫做散列函数），使得每个元素的关键字都与一个函数值（即数组下标）相对应，于是用这个数组单元来存储这个元素；也可以简单的理解为，按照关键字为每一个元素”分类”，然后将这个元素存储在相应”类”所对应的地方。但是，不能够保证每个元素的关键字与函数值是一一对应的，因此极有可能出现对于不同的元素，却计算出了相同的函数值，这样就产生了”冲突”，换句话说，就是把不同的元素分在了相同的”类”之中。后面我们将看到一种解决”冲突”的简便做法。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/算法/">算法</a>
+    </div>
+
+
+      
+      
+        <p class="article-more-link">
+          <a href="/2017/01/20/algo-HashSearch.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-algo-BlockSearch" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1111,109 +1207,6 @@ MathJax.Hub.Queue(function() {
         <p class="article-more-link">
           <a href="/2017/01/19/algo-bucketsort.html#more">阅读全文 >></a>
         </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-algo-bubblesort" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/01/19/algo-bubblesort.html" class="article-date">
-      <time datetime="2017-01-19T07:32:45.000Z" itemprop="datePublished">2017-01-19</time>
-</a>
-
- 
-    <a href="/2017/01/19/algo-bubblesort.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/01/19/algo-bubblesort.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/01/19/algo-bubblesort.html">冒泡排序</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <h3 id="算法简介"><a href="#算法简介" class="headerlink" title="算法简介"></a>算法简介</h3><p>冒泡排序（英语：Bubble Sort，台湾另外一种译名为：泡沫排序）是一种简单的排序算法。它重复地走访过要排序的数列，一次比较两个元素，如果他们的顺序错误就把他们交换过来。走访数列的工作是重复地进行直到没有再需要交换，也就是说该数列已经排序完成。这个算法的名字由来是因为越小的元素会经由交换慢慢“浮”到数列的顶端。</p>
-<p>冒泡排序对 N 个项目需要O(n2)的比较次数，且可以原地排序。尽管这个算法是最简单了解和实现的排序算法之一，但它对于少数元素之外的数列排序是很没有效率的。</p>
-<p>冒泡排序是与插入排序拥有相等的运行时间，但是两种算法在需要的交换次数却很大地不同。在最好的情况，冒泡排序需要O(n2)次交换，而插入排序只要最多 O(N)交换。冒泡排序的实现（类似下面）通常会对已经排序好的数列拙劣地运行O(n2)，而插入排序在这个例子只需要 O(n)个运算。因此很多现代的算法教科书避免使用冒泡排序，而用插入排序替换之。冒泡排序如果能在内部循环第一次运行时，使用一个旗标来表示有无需要交换的可能，也可以把最好的复杂度降低到 O(n)。在这个情况，已经排序好的数列就无交换的需要。若在每次走访数列时，把走访顺序反过来，也可以稍微地改进效率。有时候称为鸡尾酒排序，因为算法会从数列的一端到另一端之间穿梭往返。</p>
-<p>冒泡排序算法的运作如下：</p>
-<ol>
-<li>比较相邻的元素。如果第一个比第二个大，就交换他们两个。</li>
-<li>对每一对相邻元素作同样的工作，从开始第一对到结尾的最后一对。这步做完后，最后的元素会是最大的数。</li>
-<li>针对所有的元素重复以上的步骤，除了最后一个。</li>
-<li>持续每次对越来越少的元素重复上面的步骤，直到没有任何一对数字需要比较。</li>
-</ol>
-<p>由于它的简洁，冒泡排序通常被用来对于程序设计入门的学生介绍算法的概念。</p>
-<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 冒泡排序(时间换空间)</span></span><br><span class="line"><span class="comment"> * 最差时间复杂度为: O(n2)</span></span><br><span class="line"><span class="comment"> * 平均时间复杂度为: O(n2)</span></span><br><span class="line"><span class="comment"> * 空间复杂度: O(1)</span></span><br><span class="line"><span class="comment"> * 稳定性: 稳定</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SortAlgoBubbleSort</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span>[] bubbleSort(<span class="keyword">int</span>[] arr)&#123;</span><br><span class="line">        <span class="keyword">int</span> n = arr.length;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n - <span class="number">1</span>; i++)&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; n; j++)&#123;</span><br><span class="line">                <span class="keyword">if</span> (arr[j] &lt; arr[i])&#123;</span><br><span class="line">                    <span class="keyword">int</span> tmp = arr[j];</span><br><span class="line">                    arr[j] = arr[i];</span><br><span class="line">                    arr[i] = tmp;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> arr;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 冒泡排序总共需要比较n-1轮(最后一轮只有一个元素,没有比较的必要),每一轮只能将一个元素归位</span></span><br><span class="line"><span class="comment">     * 每一轮都需要将该轮(idx - 1)位置的元素和所有未归位的元素进行一一比较。</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> arr</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span>[] bubbleSortV1(<span class="keyword">int</span>[] arr)&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length - <span class="number">1</span>; i++)&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = i; j &lt; arr.length - <span class="number">1</span>; j++)&#123;</span><br><span class="line">                <span class="keyword">if</span> (arr[j] &gt; arr[j+<span class="number">1</span>])&#123;</span><br><span class="line">                    <span class="keyword">int</span> tmp = arr[j];</span><br><span class="line">                    arr[j] = arr[j+<span class="number">1</span>];</span><br><span class="line">                    arr[j+<span class="number">1</span>] = tmp;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> arr;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span>[] arr = <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;<span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>&#125;;</span><br><span class="line">        arr = bubbleSort(arr);</span><br><span class="line">        System.out.println(arr);</span><br><span class="line"></span><br><span class="line">        arr = bubbleSortV1(arr);</span><br><span class="line">        System.out.println(arr);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://zh.wikipedia.org/wiki/%E5%86%92%E6%B3%A1%E6%8E%92%E5%BA%8F" target="_blank" rel="noopener">冒泡排序</a></p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/算法/">算法</a>
-    </div>
-
-
-      
       
       <div class="clearfix"></div>
     </div>

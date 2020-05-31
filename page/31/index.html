@@ -274,6 +274,107 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-strace-learn" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/10/15/strace-learn.html" class="article-date">
+      <time datetime="2016-10-15T11:56:57.000Z" itemprop="datePublished">2016-10-15</time>
+</a>
+
+ 
+    <a href="/2016/10/15/strace-learn.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2016/10/15/strace-learn.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/10/15/strace-learn.html">手把手教你用Strace诊断问题</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <blockquote>
+<p>早些年，如果你知道有个 strace 命令，就很牛了，而现在大家基本都知道 strace 了，如果你遇到性能问题求助别人，十有八九会建议你用 strace 挂上去看看，不过当你挂上去了，看着满屏翻滚的字符，却十有八九看不出个所以然。本文通过一个简单的案例，向你展示一下在用 strace 诊断问题时的一些套路。如下真实案例，如有雷同，实属必然！让我们看一台高负载服务器的 top 结果：</p>
+</blockquote>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/linux/">linux</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2016/10/15/strace-learn.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-too-many-open-files" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1154,107 +1255,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2016/10/15/golang-performance-optimize-map.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-golang-defer" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2016/10/15/golang-defer.html" class="article-date">
-      <time datetime="2016-10-15T11:22:41.000Z" itemprop="datePublished">2016-10-15</time>
-</a>
-
- 
-    <a href="/2016/10/15/golang-defer.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2016/10/15/golang-defer.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/10/15/golang-defer.html">golang之defer简介</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <blockquote>
-<p>defer是GO中一个非常重要的关键字,类似Java中的finally可以用来指定在函数返回前执行的代码.利用这个功能我们可以用来做一些资管清理的动作.但是在使用中需要注意一些细节问题,否则就会造成意想不到的bug.</p>
-</blockquote>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/golang/">golang</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/go/">go</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2016/10/15/golang-defer.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

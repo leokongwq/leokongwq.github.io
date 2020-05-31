@@ -274,6 +274,106 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-java-how-to-create-immutable-class" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/02/25/java-how-to-create-immutable-class.html" class="article-date">
+      <time datetime="2017-02-25T03:50:29.000Z" itemprop="datePublished">2017-02-25</time>
+</a>
+
+ 
+    <a href="/2017/02/25/java-how-to-create-immutable-class.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/02/25/java-how-to-create-immutable-class.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/02/25/java-how-to-create-immutable-class.html">java中如何创建不可变对象</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>本文翻译自：<a href="http://javarevisited.blogspot.jp/2013/03/how-to-create-immutable-class-object-java-example-tutorial.html" target="_blank" rel="noopener">http://javarevisited.blogspot.jp/2013/03/how-to-create-immutable-class-object-java-example-tutorial.html</a></p>
+<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>由于不可变对象在并发和多线程环境中有非常多的优势，因此在Java中编写或创建不可变类正日益流行。不可变对象提供了比常规可变对象更多的优点，特别是在创建并发Java应用程序时。不可变对象不仅保证对象状态的安全发布，而且可以在没有任何外部同步的情况下与其它线程共享。事实上，JDK本身包含了一些不可变的类，如String，Integer和其它的包装类。对于那些不知道什么是不可变的类或对象的人，不可变对象是那些一旦创建其状态就不能改变的对象，例如：<code>java.lang.String</code>，一旦创建就不能修改，转为大写或小写。 String中的所有修改都会导致新对象的产生，有关更多详细信息，请参阅<a href="http://javarevisited.blogspot.com/2010/10/why-string-is-immutable-in-java.html" target="_blank" rel="noopener">为什么String在Java中是不可变的</a>。在这个Java编程教程中，我们将学习如何在Java中编写不可变类，或者如何使类不可变。顺便说一下，使类不可变在代码级别上并不难，难点是决定使哪个类可变或不可变。我还建议阅读，<code>Java Concurrency in Practice</code>来了解更多关于Immutable对象提供的并发效益。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/java/">java</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/面试/">面试</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/02/25/java-how-to-create-immutable-class.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-java-interview-questions-answers-from-last-5-years" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1143,105 +1243,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2017/02/22/java-notify-notifyall.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-java-xml-parser" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/02/18/java-xml-parser.html" class="article-date">
-      <time datetime="2017-02-18T14:09:09.000Z" itemprop="datePublished">2017-02-18</time>
-</a>
-
- 
-    <a href="/2017/02/18/java-xml-parser.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/02/18/java-xml-parser.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/02/18/java-xml-parser.html">java中xml解析器介绍</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="What-is-XML-Parser"><a href="#What-is-XML-Parser" class="headerlink" title="What is XML Parser?"></a>What is XML Parser?</h3><p>xml 解析器提供了访问或修改用来表示数据的xml文件的能力。Java中提供了多种方式来解析xml文件。下面列出了Java中常用的xml解析器</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/java/">java</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/xml/">xml</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/02/18/java-xml-parser.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

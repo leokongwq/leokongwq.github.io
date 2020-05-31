@@ -274,6 +274,107 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-golang-defer" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/10/15/golang-defer.html" class="article-date">
+      <time datetime="2016-10-15T11:22:41.000Z" itemprop="datePublished">2016-10-15</time>
+</a>
+
+ 
+    <a href="/2016/10/15/golang-defer.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2016/10/15/golang-defer.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/10/15/golang-defer.html">golang之defer简介</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <blockquote>
+<p>defer是GO中一个非常重要的关键字,类似Java中的finally可以用来指定在函数返回前执行的代码.利用这个功能我们可以用来做一些资管清理的动作.但是在使用中需要注意一些细节问题,否则就会造成意想不到的bug.</p>
+</blockquote>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/golang/">golang</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/go/">go</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2016/10/15/golang-defer.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-golang-chan" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1138,107 +1239,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2016/10/14/golang-gdb-debug.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-hexo-post-asset-folder-html" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2016/10/14/hexo-post-asset-folder-html.html" class="article-date">
-      <time datetime="2016-10-14T08:12:49.000Z" itemprop="datePublished">2016-10-14</time>
-</a>
-
- 
-    <a href="/2016/10/14/hexo-post-asset-folder-html.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2016/10/14/hexo-post-asset-folder-html.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/10/14/hexo-post-asset-folder-html.html">hexo使用post_asset_folder功能文章链接不能以html结尾</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="解决使用hexo时启用post-asset-folder功能时-文章的perma-link不能以-html结尾bug"><a href="#解决使用hexo时启用post-asset-folder功能时-文章的perma-link不能以-html结尾bug" class="headerlink" title="解决使用hexo时启用post_asset_folder功能时,文章的perma_link不能以.html结尾bug"></a>解决使用hexo时启用post_asset_folder功能时,文章的perma_link不能以<code>.html</code>结尾bug</h3><blockquote>
-<p>原来的blog是我用Node.JS + Mysql开发的, 一方面重新复习下Node.JS的使用,一方面想开发一个blog将好的技术文章,自己工作中遇到的问题,知识点进行记录. 开发完成后又觉得还是静态bolg好.找了一圈选了Hexo.搭建的过程中遇到了一些问题,本篇就是其中一个.</p>
-</blockquote>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/web/">web</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/">hexo</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2016/10/14/hexo-post-asset-folder-html.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

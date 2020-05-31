@@ -274,6 +274,112 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-linux-network-io" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/10/20/linux-network-io.html" class="article-date">
+      <time datetime="2016-10-20T13:30:49.000Z" itemprop="datePublished">2016-10-20</time>
+</a>
+
+ 
+    <a href="/2016/10/20/linux-network-io.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2016/10/20/linux-network-io.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/10/20/linux-network-io.html">Linux IO模式及 select、poll、epoll详解</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <blockquote>
+<p>同步IO和异步IO，阻塞IO和非阻塞IO分别是什么，到底有什么区别？不同的人在不同的上下文下给出的答案是不同的。所以先限定一下本文的上下文</p>
+</blockquote>
+<pre><code>本文讨论的背景是Linux环境下的network IO。        
+</code></pre><h2 id="概念说明"><a href="#概念说明" class="headerlink" title="概念说明"></a>概念说明</h2><p>在进行解释之前，首先要说明几个概念：</p>
+<ul>
+<li>用户空间和内核空间</li>
+<li>进程切换</li>
+<li>进程的阻塞</li>
+<li>文件描述符</li>
+<li>缓存 I/O </li>
+</ul>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OS/">OS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2016/10/20/linux-network-io.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-linux-io-epoll" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1132,107 +1238,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2016/10/17/nodejs-module-querystring.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-nodejs-module-Readline" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2016/10/17/nodejs-module-Readline.html" class="article-date">
-      <time datetime="2016-10-17T02:58:54.000Z" itemprop="datePublished">2016-10-17</time>
-</a>
-
- 
-    <a href="/2016/10/17/nodejs-module-Readline.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2016/10/17/nodejs-module-Readline.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/10/17/nodejs-module-Readline.html">nodejs模块之readline</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <blockquote>
-<p>Readline 模块提供了从输入流中一行一行的读取数据的能力。需要注意的是：一旦你调用该模块的读数据方法，你的Node程序将一直运行，直到关闭该数据输入接口，下面的例子展示了如何优雅的推出程序：</p>
-</blockquote>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/nodejs/">nodejs</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/node/">node</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2016/10/17/nodejs-module-Readline.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

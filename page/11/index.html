@@ -274,6 +274,103 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-linux-disk-raid" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/08/28/linux-disk-raid.html" class="article-date">
+      <time datetime="2017-08-28T09:41:06.000Z" itemprop="datePublished">2017-08-28</time>
+</a>
+
+ 
+    <a href="/2017/08/28/linux-disk-raid.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2017/08/28/linux-disk-raid.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/08/28/linux-disk-raid.html">linux磁盘阵列简介</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="为什么需要RAID"><a href="#为什么需要RAID" class="headerlink" title="为什么需要RAID"></a>为什么需要RAID</h3><p>为了各种各样的目的。重要的目的是数据的安全；数据读写速度。</p>
+<h3 id="RAID分类"><a href="#RAID分类" class="headerlink" title="RAID分类"></a>RAID分类</h3><h4 id="RAID-0"><a href="#RAID-0" class="headerlink" title="RAID 0"></a>RAID 0</h4><p>raid0的主要功能是提供数据读写速度。如果你有N块磁盘，原来只能同时写一块磁盘，写满了再下一块，做了<code>RAID 0</code>之后，N块可以同时写，速度提升很快，但由于没有备份，可靠性很差。N最少为2。</p>
+<h4 id="RAID-1"><a href="#RAID-1" class="headerlink" title="RAID 1"></a>RAID 1</h4><p><code>RAID 1</code>的有优点是既能提高数据读写速度，也能保证数据的安全性。如果你有N块磁盘，把其中<code>N/2</code>块磁盘作为镜像磁盘，在往其中一块磁盘写入数据时，也同时往另一块写数据。坏了其中一块时，镜像磁盘自动顶上，可靠性最佳，但空间利用率太低。N最少为2。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/linux/">linux</a>
+    </div>
+
+
+      
+      
+        <p class="article-more-link">
+          <a href="/2017/08/28/linux-disk-raid.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-linux-centos7-rc-local" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1127,119 +1224,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2017/08/15/mysql-data-types-set.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-mysql-data-types-enum" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/08/15/mysql-data-types-enum.html" class="article-date">
-      <time datetime="2017-08-15T02:41:16.000Z" itemprop="datePublished">2017-08-15</time>
-</a>
-
- 
-    <a href="/2017/08/15/mysql-data-types-enum.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2017/08/15/mysql-data-types-enum.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/15/mysql-data-types-enum.html">mysql数据类型-枚举类型</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="ENUM-类型"><a href="#ENUM-类型" class="headerlink" title="ENUM 类型"></a>ENUM 类型</h3><p><code>ENUM</code>是一个字符串对象，它的取值范围是在创建表时指定的列表。它具有以下优点：</p>
-<ul>
-<li>当一个列取值是有限范围时，可以压缩数据存储。输入的字符串会被自动编码为数字存储。具体参考：<a href="https://dev.mysql.com/doc/refman/5.7/en/storage-requirements.html" target="_blank" rel="noopener">Data Type Storage Requirements</a></li>
-<li>在查询和输出时可读性更好。在查询结果中，存储的数字会被还原为字符串。但是需要考虑一下潜在的问题：<ul>
-<li>如果你将枚举类型字段的取值设置为数字时，很容易将字面量的值和MySQL内部存储的索引值混淆。详情参考:<a href="./mysql-data-types-enum.html#枚举类型的限制">枚举类型的限制</a></li>
-<li>枚举类型的列用在<code>order by</code>子句中需要特别注意，详情参考：<a href="./mysql-data-types-enum.html#枚举列排序">枚举列排序</a>.</li>
-<li><a href="./mysql-data-types-enum.html#创建并使用枚举类型的列">创建并使用枚举类型的列</a></li>
-<li><a href="./mysql-data-types-enum.html#枚举元素的索引">枚举元素的索引</a></li>
-<li><a href="./mysql-data-types-enum.html#枚举字面量处理">枚举字面量处理</a></li>
-<li><a href="./mysql-data-types-enum.html#空值或NULL值">空值或NULL值</a></li>
-<li><a href="./mysql-data-types-enum.html#枚举列排序">枚举列排序</a></li>
-<li><a href="./mysql-data-types-enum.html#枚举类型的限制">枚举类型的限制</a></li>
-</ul>
-</li>
-</ul>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/mysql/">mysql</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/08/15/mysql-data-types-enum.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

@@ -274,6 +274,106 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-SpringMVC-annotationDriven" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/11/15/SpringMVC-annotationDriven.html" class="article-date">
+      <time datetime="2016-11-15T09:54:19.000Z" itemprop="datePublished">2016-11-15</time>
+</a>
+
+ 
+    <a href="/2016/11/15/SpringMVC-annotationDriven.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2016/11/15/SpringMVC-annotationDriven.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/11/15/SpringMVC-annotationDriven.html">mvc:annotation-driver</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="lt-mvc-annotation-driver-gt-背后的故事"><a href="#lt-mvc-annotation-driver-gt-背后的故事" class="headerlink" title="&lt;mvc:annotation-driver /&gt;背后的故事"></a><code>&lt;mvc:annotation-driver /&gt;</code>背后的故事</h3><p><strong> spring-mvc 版本3.0.5</strong></p>
+<p>我们在用spring-mvc开发时，通常会采用少量xml配置加注解的方式进行开发，通常会再xxxx-servelet.xml配置文件中添加如下的配置：</p>
+<pre><code>&lt;mvc:annotation-driven /&gt;
+</code></pre><p>根据我们对spring工作方式的理解，这样的标签会有对应的java类来进行解析，而所有的标签解析器都是<br><strong>BeanDefinitionParser</strong> 接口的子类.    在它的子类中我们找到了<strong>AnnotationDrivenBeanDefinitionParser.class</strong> 这个类，源码文档有这么句简单的解释：</p>
+<pre><code>{@link BeanDefinitionParser} that parses the {@code annotation-driven} element to configure a Spring MVC web application.    
+</code></pre><p>由此我们可以判定该类就是上述标签的解析类。</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/spring/">spring</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/">spring</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-mvc/">spring-mvc</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-golang-effective-go" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1122,112 +1222,6 @@ MathJax.Hub.Queue(function() {
       
         <p class="article-more-link">
           <a href="/2016/11/06/binary-search-tree.html#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-full-print-BinaryTree" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2016/11/03/full-print-BinaryTree.html" class="article-date">
-      <time datetime="2016-11-03T03:20:48.000Z" itemprop="datePublished">2016-11-03</time>
-</a>
-
- 
-    <a href="/2016/11/03/full-print-BinaryTree.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2016/11/03/full-print-BinaryTree.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/11/03/full-print-BinaryTree.html">full-print-BinaryTree</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><blockquote>
-<p>二叉树是非常有用的数据结构.对二叉树的操作也能体现一个开发人员的基本功或者对数据结构的掌握能力.这篇文章就把二叉树的遍历方式整理一下.加强记忆.</p>
-</blockquote>
-<h3 id="遍历方式分类"><a href="#遍历方式分类" class="headerlink" title="遍历方式分类"></a>遍历方式分类</h3><ol>
-<li>前序遍历-根左右</li>
-<li>中序遍历-左根右</li>
-<li>后序遍历-左右根</li>
-</ol>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/算法/">算法</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/">java</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2016/11/03/full-print-BinaryTree.html#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

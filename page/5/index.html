@@ -274,6 +274,109 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-activemq-redelivery-policy-config" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/05/19/activemq-redelivery-policy-config.html" class="article-date">
+      <time datetime="2018-05-19T01:24:28.000Z" itemprop="datePublished">2018-05-19</time>
+</a>
+
+ 
+    <a href="/2018/05/19/activemq-redelivery-policy-config.html#comments" title="查看评论">
+        <i class="fa fa-comments-o" aria-hidden="true"></i>
+        <span class="count-comment"></span>
+        
+        
+            <span class="disqus-comment-count" data-disqus-identifier="2018/05/19/activemq-redelivery-policy-config.html"></span>
+        
+    </a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/19/activemq-redelivery-policy-config.html">ActiveMQ 消息重发策略</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在使用ActiveMQ时，配置了消息重发策略。 但因为对配置项的理解不够深刻，导致虽然消息重新被投递了，单因为时间间隔太小，最终被放入DLQ中。</p>
+<blockquote>
+<p>注意： 我使用的ActiveMQ版本是5.8</p>
+</blockquote>
+<h3 id="错误配置"><a href="#错误配置" class="headerlink" title="错误配置"></a>错误配置</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> RedeliveryPolicy <span class="title">redeliveryPolicy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   RedeliveryPolicy redeliveryPolicy = <span class="keyword">new</span> RedeliveryPolicy();</span><br><span class="line">   <span class="comment">//是否在每次尝试重新发送失败后,增长这个等待时间</span></span><br><span class="line">   redeliveryPolicy.setUseExponentialBackOff(<span class="keyword">true</span>);</span><br><span class="line">   <span class="comment">//重发次数,默认为6次   这里设置为10次</span></span><br><span class="line">   redeliveryPolicy.setMaximumRedeliveries(<span class="number">10</span>);</span><br><span class="line">   <span class="comment">//重发时间间隔,默认为1秒</span></span><br><span class="line">   redeliveryPolicy.setInitialRedeliveryDelay(<span class="number">1</span>);</span><br><span class="line">   <span class="comment">//第一次失败后重新发送之前等待1秒,第二次失败再等待1 * 2秒,这里的2就是value</span></span><br><span class="line">   redeliveryPolicy.setBackOffMultiplier(<span class="number">2</span>);</span><br><span class="line">   <span class="comment">//是否避免消息碰撞</span></span><br><span class="line">   redeliveryPolicy.setUseCollisionAvoidance(<span class="keyword">false</span>);</span><br><span class="line">   <span class="comment">//设置重发最大拖延时间-1 表示没有拖延只有UseExponentialBackOff(true)为true时生效</span></span><br><span class="line">   redeliveryPolicy.setMaximumRedeliveryDelay(-<span class="number">1</span>);</span><br><span class="line">   <span class="keyword">return</span> redeliveryPolicy;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/web/">web</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ActiveMQ/">ActiveMQ</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/05/19/activemq-redelivery-policy-config.html#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+
+
+
+  
     <article id="post-rest-version" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1203,105 +1306,6 @@ MathJax.Hub.Queue(function() {
         <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MQ/">MQ</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/">kafka</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/springboot/">springboot</a></li></ul>
     </div>
 
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-        processEscapes: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    }
-});
-
-MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';                 
-    }       
-});
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-
-
-
-
-  
-    <article id="post-openresy-lua-image-server" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/02/12/openresy-lua-image-server.html" class="article-date">
-      <time datetime="2018-02-12T06:43:12.000Z" itemprop="datePublished">2018-02-12</time>
-</a>
-
- 
-    <a href="/2018/02/12/openresy-lua-image-server.html#comments" title="查看评论">
-        <i class="fa fa-comments-o" aria-hidden="true"></i>
-        <span class="count-comment"></span>
-        
-        
-            <span class="disqus-comment-count" data-disqus-identifier="2018/02/12/openresy-lua-image-server.html"></span>
-        
-    </a>
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/02/12/openresy-lua-image-server.html">基于Openresy的图片服务</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>有个项目的需要是：用户通过给好友分享带有二维码的图片，好友扫码或在微信中识别二维码来领取分享的礼物。要实现这个需要，能想到的解决方案有两个：</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/架构/">架构</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Nginx/">Nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Openresy/">Openresy</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/02/12/openresy-lua-image-server.html#more">阅读全文 >></a>
-        </p>
       
       <div class="clearfix"></div>
     </div>

@@ -23,7 +23,7 @@
 <meta property="og:site_name" content="戒修-沉迷技术的小沙弥">
 <meta property="og:description" content="aspectj 是什么？官网如此描述:  对Java编程语言中的AOP进行无缝扩展(这点很重要) 适用Java平台 易学易用  aspectj如何使用aspectj 有三种使用方式：  编译时织入，利用ajc编译器直接将切面织入到源代码中并编译为class 编译后织入，利用ajc编译器向编译后的class或jar织入切面代码 运行时织入，不使用ajc编译器，而是利用java agent的能力，在类">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-05-31T11:49:48.403Z">
+<meta property="og:updated_time" content="2020-05-31T12:06:54.768Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="spring aop 与 aspectj">
 <meta name="twitter:description" content="aspectj 是什么？官网如此描述:  对Java编程语言中的AOP进行无缝扩展(这点很重要) 适用Java平台 易学易用  aspectj如何使用aspectj 有三种使用方式：  编译时织入，利用ajc编译器直接将切面织入到源代码中并编译为class 编译后织入，利用ajc编译器向编译后的class或jar织入切面代码 运行时织入，不使用ajc编译器，而是利用java agent的能力，在类">
@@ -326,6 +326,7 @@
 <li>运行时织入，不使用ajc编译器，而是利用java agent的能力，在类加载时将切面织入目标代码。</li>
 </ol>
 <p>下面我们就看看这三种方式具体如何使用：</p>
+<a id="more"></a>
 <h3 id="编译时织入"><a href="#编译时织入" class="headerlink" title="编译时织入"></a>编译时织入</h3><p>现在都是使用Maven管理项目，必然后对应的Maven插件来满足编译时织入的目的：</p>
 <p>aspectj-maven-plugin 插件配置如下：</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&lt;plugin&gt;</span><br><span class="line">    &lt;groupId&gt;org.codehaus.mojo&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;aspectj-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;1.11&lt;/version&gt;</span><br><span class="line">    &lt;configuration&gt;</span><br><span class="line">        &lt;complianceLevel&gt;$&#123;source.version&#125;&lt;/complianceLevel&gt;</span><br><span class="line">        &lt;source&gt;$&#123;source.version&#125;&lt;/source&gt;</span><br><span class="line">        &lt;target&gt;$&#123;source.version&#125;&lt;/target&gt;</span><br><span class="line">        &lt;showWeaveInfo&gt;true&lt;/showWeaveInfo&gt;</span><br><span class="line">        &lt;verbose&gt;true&lt;/verbose&gt;</span><br><span class="line">        &lt;encoding&gt;UTF-8&lt;/encoding&gt;</span><br><span class="line">        &lt;outputDirectory&gt;$&#123;build.outputDirectory&#125;&lt;/outputDirectory&gt;</span><br><span class="line">    &lt;/configuration&gt;</span><br><span class="line">    &lt;executions&gt;</span><br><span class="line">        &lt;execution&gt;</span><br><span class="line">            &lt;goals&gt;</span><br><span class="line">                &lt;goal&gt;compile&lt;/goal&gt;</span><br><span class="line">                &lt;goal&gt;test-compile&lt;/goal&gt;</span><br><span class="line">            &lt;/goals&gt;</span><br><span class="line">        &lt;/execution&gt;</span><br><span class="line">    &lt;/executions&gt;</span><br><span class="line">&lt;/plugin&gt;</span><br></pre></td></tr></table></figure>
@@ -380,7 +381,7 @@
         <p><span>本文标题:</span><a href="/2020/05/31/spring-aop-aspectj.html">spring aop 与 aspectj</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">kongwenqiang</a></p>
         <p><span>发布时间:</span>2020-05-31, 16:30:15</p>
-        <p><span>最后更新:</span>2020-05-31, 19:49:48</p>
+        <p><span>最后更新:</span>2020-05-31, 20:06:54</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2020/05/31/spring-aop-aspectj.html" title="spring aop 与 aspectj">https://leokongwq.github.io/2020/05/31/spring-aop-aspectj.html</a>
             <span class="copy-path" data-clipboard-text="原文: https://leokongwq.github.io/2020/05/31/spring-aop-aspectj.html　　作者: kongwenqiang" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
